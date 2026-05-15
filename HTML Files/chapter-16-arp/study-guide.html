@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 — Analyze ARP Traffic · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 16</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 16 · Study Guide</div>
+    <h1>Analyze Address Resolution <em>Protocol (ARP) Traffic</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 16 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">ARP is the bridge between the logical and physical worlds — <em>and a prime attack surface.</em></div>
+  <p class="motivation-sub">Master ARP request/reply mechanics, Gratuitous ARP, and how duplicate IPs and ARP poisoning appear in captures. Five sections · Socratic questions · Click-to-reveal model answers.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="purpose"   onclick="navTo('purpose')">1 · Purpose of ARP</button>
+  <button class="nav-tab"        data-target="normal"    onclick="navTo('normal')">2 · Normal Operations</button>
+  <button class="nav-tab"        data-target="gratuitous" onclick="navTo('gratuitous')">3 · Gratuitous ARP</button>
+  <button class="nav-tab"        data-target="problems"  onclick="navTo('problems')">4 · ARP Problems</button>
+  <button class="nav-tab"        data-target="filtering" onclick="navTo('filtering')">5 · Filtering</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · THE PURPOSE OF ARP</span>
+  </div>
+  <p class="socratic-insight">IP addresses are logical identifiers — routers use them for routing decisions. But on a local Ethernet segment, frames are delivered using MAC addresses. ARP is the glue that maps one to the other. Without it, IP communication on a local network is impossible.</p>
+  <ul class="socratic-questions">
+    <li>Why does a host need to know a MAC address to communicate, even though it already knows the destination's IP address?</li>
+    <li>ARP requests are broadcasts, but ARP replies are unicasts. Why the asymmetry?</li>
+  </ul>
+  <div class="answer-area" data-section="purpose">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — WHY IS MAC ADDRESS NEEDED?</div>
+        <div class="model-answer-text">Ethernet switches operate at Layer 2 and forward frames based on MAC addresses, not IP addresses. When a host wants to send data to another host on the same LAN, it must build an Ethernet frame with a destination MAC address in the header — the NIC hardware and the switch use this MAC to get the frame to the right physical port. IP addresses exist in the Layer 3 header inside the frame, and while routers use IPs for forwarding decisions, the actual delivery on each LAN segment is always done using MAC addresses in the outer Ethernet header.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — WHY BROADCAST REQUEST BUT UNICAST REPLY?</div>
+        <div class="model-answer-text">The requesting host sends a broadcast (ff:ff:ff:ff:ff:ff) because it doesn't yet know the MAC of the target — that's the whole point of the ARP request. Every device on the segment receives the broadcast. Only the device whose IP matches the request sends a reply, and since the requester's MAC address is included in the ARP request packet, the responder already knows exactly where to send the unicast reply. Broadcasting the reply would be wasteful and would generate unnecessary traffic on all other hosts.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="purpose">
+  <div class="section-label">Section 1</div>
+  <h2>The Purpose of ARP</h2>
+  <p>ARP (Address Resolution Protocol) resolves a known IP address into a MAC address on a local network segment. It operates at the boundary between Layer 2 (Ethernet) and Layer 3 (IP). ARP is defined in RFC 826.</p>
+
+  <div class="callout callout-blue">
+    <strong>ARP at a glance</strong>
+    ARP Request: broadcast — "Who has IP X? Tell IP Y." <br>
+    ARP Reply: unicast — "IP X is at MAC aa:bb:cc:dd:ee:ff."<br>
+    ARP operates only on the local subnet — it cannot cross a router boundary.
+  </div>
+
+  <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:20px 0 10px;color:var(--text);">The ARP Cache</h2>
+  <p>Both Windows and Linux maintain an ARP cache — a table mapping IP addresses to MAC addresses. Successful ARP replies are stored in this cache for a period (typically 2 minutes on Windows, variable on Linux). Subsequent communications to the same IP skip the ARP exchange and use the cached MAC directly. You can view the cache with <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">arp -a</code> on both Windows and Linux.</p>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">ARP = IP → MAC resolution. Request = broadcast (ff:ff:ff:ff:ff:ff). Reply = unicast. Local subnet only — does not cross routers. Cache stores results (~2 min Windows). EtherType = 0x0806 for ARP frames. Check cache with <code style="font-family:inherit;font-size:inherit;">arp -a</code>.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','The Purpose of ARP')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · NORMAL ARP OPERATIONS</span>
+  </div>
+  <p class="socratic-insight">A normal ARP exchange is fast — typically two packets. Understanding the exact field values in an ARP request and reply lets you spot immediately when something isn't quite right.</p>
+  <ul class="socratic-questions">
+    <li>In an ARP request, the target MAC address field is set to all zeros (00:00:00:00:00:00). Why? What would an ARP reply's target MAC field contain?</li>
+    <li>You capture a trace and see hundreds of ARP requests from the same source IP in less than a second. What two very different scenarios could explain this?</li>
+  </ul>
+  <div class="answer-area" data-section="normal">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — TARGET MAC ALL ZEROS</div>
+        <div class="model-answer-text">In the ARP request, the target MAC is all zeros because the sender doesn't know it yet — that's why it's sending the request in the first place. The sender knows the target IP but not the MAC. In the ARP reply, the target MAC field contains the MAC address of the original requester — the device answering the ARP fills in the requester's MAC (which it learned from the request's sender hardware address field) so the frame can be unicast back correctly.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — HUNDREDS OF ARP REQUESTS IN SECONDS</div>
+        <div class="model-answer-text">Two explanations: (1) Network scanning — a host is running an ARP scan (like arp-scan or nmap -PR) to discover all live hosts on the subnet. This is a normal administrative or reconnaissance activity, but also the first phase of an ARP poisoning attack. (2) ARP broadcast storm — a misconfigured device or a network loop is causing ARP requests to be generated and rebroadcast rapidly, consuming bandwidth. The distinction is context: a scan sends sequential requests to different target IPs; a storm usually shows the same request being repeated rapidly to the same target or an unusually high packet rate from a single source.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="normal">
+  <div class="section-label">Section 2</div>
+  <h2>Normal ARP Operations</h2>
+  <p>A normal ARP exchange involves exactly two packets. Wireshark decodes them in full detail in the packet details pane.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Field</th><th>ARP Request</th><th>ARP Reply</th></tr></thead>
+    <tbody>
+      <tr><td>Ethernet Destination</td><td>ff:ff:ff:ff:ff:ff (broadcast)</td><td>Requester's MAC (unicast)</td></tr>
+      <tr><td>Ethernet Source</td><td>Sender's MAC</td><td>Responder's MAC</td></tr>
+      <tr><td>EtherType</td><td>0x0806 (ARP)</td><td>0x0806 (ARP)</td></tr>
+      <tr><td>Opcode</td><td>1 (Request)</td><td>2 (Reply)</td></tr>
+      <tr><td>Sender IP</td><td>Requester's IP</td><td>Responder's IP</td></tr>
+      <tr><td>Sender MAC</td><td>Requester's MAC</td><td>Responder's MAC</td></tr>
+      <tr><td>Target IP</td><td>IP being queried</td><td>Requester's IP</td></tr>
+      <tr><td>Target MAC</td><td>00:00:00:00:00:00 (unknown)</td><td>Requester's MAC</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-blue">
+    <strong>Info column in Wireshark</strong>
+    ARP requests show as: <code style="font-family:monospace;">Who has 192.168.1.10? Tell 192.168.1.1</code><br>
+    ARP replies show as: <code style="font-family:monospace;">192.168.1.10 is at aa:bb:cc:dd:ee:ff</code>
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">ARP request opcode=1, target MAC=00:00:00:00:00:00, destination=broadcast. ARP reply opcode=2, target MAC=requester's MAC, destination=unicast. EtherType 0x0806 identifies ARP frames. Normal exchange = 2 packets total. Rapid ARP requests from one IP = scanner or storm.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal ARP Operations')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · GRATUITOUS ARP</span>
+  </div>
+  <p class="socratic-insight">Gratuitous ARP is an ARP request where a host asks "Who has my own IP address?" — and that makes it very useful, but also very exploitable. It's used for both legitimate network operations and ARP cache poisoning attacks.</p>
+  <ul class="socratic-questions">
+    <li>What are two legitimate reasons a host would send a Gratuitous ARP, and how can you tell them apart in a capture?</li>
+    <li>How does an attacker exploit Gratuitous ARP to perform a man-in-the-middle attack?</li>
+  </ul>
+  <div class="answer-area" data-section="gratuitous">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — LEGITIMATE USES OF GRATUITOUS ARP</div>
+        <div class="model-answer-text">Two legitimate uses: (1) Duplicate IP detection — when a host joins the network or gets a new IP, it sends a Gratuitous ARP for its own address. If another device replies (someone else has this IP), the host detects the conflict and can refuse the address or alert the user. DHCP clients do this after receiving a lease. (2) Cache refresh after NIC change — if a server's NIC is replaced and gets a new MAC address, the server sends a Gratuitous ARP to force all other hosts on the subnet to update their ARP cache entries with the new MAC. High-availability clusters do this when a failover occurs, forcing clients to send traffic to the new active node's MAC. In a capture, post-DHCP GARP looks isolated; failover GARP is typically preceded by a link-down/up event.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — MAN-IN-THE-MIDDLE VIA GRATUITOUS ARP</div>
+        <div class="model-answer-text">An attacker sends unsolicited Gratuitous ARP replies claiming "192.168.1.1 (the gateway) is at MY MAC address." Because ARP has no authentication, hosts accept this and update their ARP cache, now mapping the gateway's IP to the attacker's MAC. All traffic destined for the gateway is now sent to the attacker instead. The attacker forwards it to the real gateway (to avoid detection), reads or modifies it, and returns the response — a classic man-in-the-middle position. In Wireshark, this appears as unsolicited ARP replies arriving with a new MAC for an already-known IP, often flagged as "duplicate use of IP" in the Expert Information.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="gratuitous">
+  <div class="section-label">Section 3</div>
+  <h2>Gratuitous ARP</h2>
+  <p>A <strong>Gratuitous ARP</strong> is an ARP request where the sender's IP and the target IP are the same — the host is asking "who has my own IP?" No reply is expected from healthy networks. It serves several legitimate purposes but is also abused for ARP cache poisoning.</p>
+
+  <div class="callout callout-blue">
+    <strong>How to identify in Wireshark</strong>
+    Wireshark labels these automatically. The Info column shows: <code style="font-family:monospace;">Gratuitous ARP for 192.168.1.50 (Request)</code>. The sender IP and target IP fields both contain the same address.
+  </div>
+
+  <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:20px 0 10px;color:var(--text);">Legitimate Uses</h2>
+  <ul>
+    <li><strong>Duplicate IP Detection:</strong> Host sends GARP on startup; if someone replies, there's an IP conflict. Windows displays an error and DHCP clients reject the lease.</li>
+    <li><strong>Cache Update After MAC Change:</strong> Replacing a NIC or a high-availability failover sends GARP to force all neighbors to update their ARP caches with the new MAC.</li>
+  </ul>
+
+  <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:20px 0 10px;color:var(--text);">ARP Cache Poisoning (Attack Use)</h2>
+  <p>An attacker broadcasts unsolicited Gratuitous ARP replies, falsely claiming that a critical IP (e.g., the default gateway) maps to their MAC address. Hosts update their caches without verification, redirecting traffic to the attacker. This is ARP poisoning / ARP spoofing.</p>
+
+  <div class="callout callout-red">
+    <strong>Security indicator</strong>
+    Wireshark's Expert Information flags "Duplicate IP address detected" when two different MACs claim the same IP. This is a critical indicator of ARP poisoning or a misconfiguration. Filter: <code style="font-family:monospace;">arp.duplicate-address-detected</code>
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Gratuitous ARP = sender IP == target IP. No reply expected. Legitimate uses: duplicate IP detection (startup) and MAC/NIC change cache refresh. Malicious use: ARP poisoning — unsolicited replies with attacker's MAC for victim's IP. Wireshark flags "duplicate IP" in Expert Info. MitM attack relies on ARP having no authentication.</div>
+    </div>
+  </div>
+
+  <div class="analogy-box">
+    <div class="analogy-label">Analogy</div>
+    <div class="analogy-text">Gratuitous ARP is like a new employee on their first day walking into the office and announcing "Hi everyone, I'm Alex — just wanted to make sure no one else is using my desk!" Legitimate. But an attacker doing the same thing is like a con artist walking into the mailroom and loudly telling everyone "Oh by the way, the CEO moved offices — his mail comes to me now." No one checks the claim. All the CEO's mail gets delivered to the attacker.</div>
+    <div class="analogy-img">
+      <button class="prompt-toggle" onclick="togglePrompt(this)" type="button">▾ Show analogy image prompt</button>
+      <div class="prompt-content" hidden>Split-panel cartoon. LEFT (labeled "Legitimate GARP"): a new employee standing in an open-plan office waving and saying "I'm at desk 192.168.1.50 — is anyone else?" — colleagues shrug and update their address books. RIGHT (labeled "ARP Poisoning"): a suspicious figure in a hoodie standing in the mailroom, announcing to all workers "The CEO's address is MY desk now" — workers silently update address books while the CEO's mail pile builds on the attacker's desk. Label annotations: "Sender IP = Target IP," "No authentication in ARP," "Duplicate IP → Expert Info alert." minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-gratuitous" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('gratuitous','Gratuitous ARP')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-gratuitous" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('gratuitous')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · ARP PROBLEMS</span>
+  </div>
+  <p class="socratic-insight">Most ARP problems on real networks stem from two root causes: duplicate IP addresses (two hosts with the same IP) and incorrect subnet configuration (a host ARPs for addresses it should reach via the gateway). Both produce characteristic patterns in a capture.</p>
+  <ul class="socratic-questions">
+    <li>How does a duplicate IP address manifest in a packet capture, and what specific packet sequence would you expect to see?</li>
+    <li>A host sends an ARP request for 10.0.2.5 but it's on the 10.0.1.0/24 network. What misconfiguration does this reveal?</li>
+  </ul>
+  <div class="answer-area" data-section="problems">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — DUPLICATE IP IN A CAPTURE</div>
+        <div class="model-answer-text">A duplicate IP appears when two hosts respond to the same ARP request — you see two ARP replies with the same IP but different MAC addresses. In practice, you often see: (1) a Gratuitous ARP from a newly connected host getting no reply (normal), then (2) a second host sends an ARP reply for the same IP when other hosts query it — causing the ARP cache of querying devices to flip-flop between two MACs as each host periodically refreshes its cache. Wireshark's Expert Information flags this as "Duplicate IP address detected" and you can filter with <code style="font-family:monospace;">arp.duplicate-address-detected</code>. Symptoms at the user level: intermittent connectivity, one of the two hosts can't communicate reliably.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — ARP FOR AN ADDRESS ON A DIFFERENT SUBNET</div>
+        <div class="model-answer-text">The host has an incorrect subnet mask configured. The host calculates that 10.0.2.5 is on its local subnet (because of the wrong mask, e.g., /8 instead of /24), so instead of routing the traffic to the default gateway, it tries to ARP directly for 10.0.2.5. The ARP request goes unanswered (10.0.2.5 is on a different physical segment), the connection fails, and the user sees a timeout. The correct configuration would use a /24 mask, which would make the host recognize 10.0.2.5 as off-subnet and send traffic to the default gateway instead. This is one of the most common causes of "can't reach this specific server" problems.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="problems">
+  <div class="section-label">Section 4</div>
+  <h2>ARP Problems</h2>
+
+  <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:20px 0 10px;color:var(--text);">Duplicate IP Addresses</h2>
+  <p>When two hosts share the same IP address, ARP responses from both will appear in captures. The ARP cache of other hosts becomes unstable — flipping between the two MACs as each host re-ARPs. The result is intermittent communication failure for one or both conflicting hosts.</p>
+  <div class="callout callout-red">
+    <strong>What you see in Wireshark</strong>
+    Two ARP replies for the same IP with different source MAC addresses. Expert Info: "Duplicate IP address detected for X.X.X.X — use filters below."
+  </div>
+
+  <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:20px 0 10px;color:var(--text);">Incorrect Subnet Mask</h2>
+  <p>A host with an incorrectly broad subnet mask (e.g., /8 instead of /24) will believe remote hosts are local and attempt to ARP for them instead of routing to the gateway. The ARP goes unanswered and the connection fails silently.</p>
+
+  <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:20px 0 10px;color:var(--text);">ARP Broadcast Storms</h2>
+  <p>In networks with switching loops (or misconfigured spanning tree), ARP broadcasts can multiply and flood the network. This consumes CPU on every host receiving the broadcasts and can saturate link bandwidth. A very high rate of ARP requests visible in a capture is an early indicator.</p>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Duplicate IP = two ARP replies with same IP but different MACs → intermittent connectivity. Incorrect subnet mask = host ARPs for remote IPs instead of routing to gateway → silent connection failure. ARP storm = high rate of ARP broadcasts → network loop or misconfiguration. All flagged in Expert Information.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','ARP Problems')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 5 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FILTERING ARP IN WIRESHARK</span>
+  </div>
+  <p class="socratic-insight">ARP filters let you quickly isolate requests, replies, Gratuitous ARP, and specific IP or MAC addresses. Knowing these filters turns a cluttered capture into a focused ARP analysis in seconds.</p>
+  <ul class="socratic-questions">
+    <li>What is the display filter to show only ARP packets where a specific IP address (e.g., 192.168.1.100) is the sender?</li>
+    <li>How would you use a capture filter to record only ARP traffic — and why would you want to limit an ARP capture?</li>
+  </ul>
+  <div class="answer-area" data-section="filtering">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — FILTER FOR SPECIFIC SENDER IP</div>
+        <div class="model-answer-text">Use <code style="font-family:monospace;">arp.src.proto_ipv4 == 192.168.1.100</code> to show only ARP packets where 192.168.1.100 is the sender's protocol (IP) address. This will show both ARP requests and replies sent by that host. To see all ARP traffic involving that IP (as sender or target), combine with: <code style="font-family:monospace;">arp.src.proto_ipv4 == 192.168.1.100 || arp.dst.proto_ipv4 == 192.168.1.100</code>.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — CAPTURE FILTER FOR ARP ONLY</div>
+        <div class="model-answer-text">The capture filter is simply <code style="font-family:monospace;">arp</code> — BPF recognizes "arp" as a valid protocol keyword. You would limit to ARP-only capture when diagnosing specific ARP issues (duplicate IPs, poisoning) on a busy network where other traffic would fill the capture buffer. On a high-traffic LAN, a 5-second capture of all traffic might contain millions of packets, but filtering to ARP alone makes it manageable and focused. The trade-off is you lose the ability to see the surrounding context (e.g., the TCP connections that follow the ARP exchanges).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="filtering">
+  <div class="section-label">Section 5</div>
+  <h2>Filtering ARP in Wireshark</h2>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">arp</span></td><td>All ARP traffic (display or capture filter)</td></tr>
+      <tr><td><span class="filter-code">arp.opcode == 1</span></td><td>ARP requests only</td></tr>
+      <tr><td><span class="filter-code">arp.opcode == 2</span></td><td>ARP replies only</td></tr>
+      <tr><td><span class="filter-code">arp.src.proto_ipv4 == 10.0.0.1</span></td><td>ARP packets sent by 10.0.0.1</td></tr>
+      <tr><td><span class="filter-code">arp.dst.proto_ipv4 == 10.0.0.1</span></td><td>ARP packets targeting IP 10.0.0.1</td></tr>
+      <tr><td><span class="filter-code">arp.src.hw_mac == aa:bb:cc:dd:ee:ff</span></td><td>ARP from a specific MAC address</td></tr>
+      <tr><td><span class="filter-code">arp.duplicate-address-detected</span></td><td>Duplicate IP address conflicts</td></tr>
+      <tr><td><span class="filter-code">arp.src.proto_ipv4 == arp.dst.proto_ipv4</span></td><td>Gratuitous ARP (sender IP == target IP)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Capture filter: <code style="font-family:inherit;font-size:inherit;">arp</code> (BPF). Display filters: arp.opcode==1 (request), arp.opcode==2 (reply), arp.duplicate-address-detected (conflict). Gratuitous ARP: sender IP == target IP. Use arp.src.proto_ipv4 and arp.dst.proto_ipv4 for IP-specific filtering.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filtering" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filtering','Filtering ARP in Wireshark')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filtering" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filtering')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Practice Exercises <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 5 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-purpose"><input type="checkbox" onchange="toggleDone(this,'chk-purpose')"> Purpose of ARP</label>
+      <label class="check-item" data-key="chk-normal"><input type="checkbox" onchange="toggleDone(this,'chk-normal')"> Normal Operations</label>
+      <label class="check-item" data-key="chk-gratuitous"><input type="checkbox" onchange="toggleDone(this,'chk-gratuitous')"> Gratuitous ARP</label>
+      <label class="check-item" data-key="chk-problems"><input type="checkbox" onchange="toggleDone(this,'chk-problems')"> ARP Problems</label>
+      <label class="check-item" data-key="chk-filtering"><input type="checkbox" onchange="toggleDone(this,'chk-filtering')"> Filtering ARP</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>ARP Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">arp</span><span class="qr-def">All ARP traffic</span></div>
+    <div class="qr-row"><span class="qr-term">opcode==1</span><span class="qr-def">Requests</span></div>
+    <div class="qr-row"><span class="qr-term">opcode==2</span><span class="qr-def">Replies</span></div>
+    <div class="qr-row"><span class="qr-term">EtherType</span><span class="qr-def">0x0806</span></div>
+    <div class="qr-row"><span class="qr-term">GARP</span><span class="qr-def">src IP == dst IP</span></div>
+    <div class="qr-row"><span class="qr-term">Broadcast</span><span class="qr-def">ff:ff:ff:ff:ff:ff</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 16 · Analyze ARP Traffic · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch16-arp';
+const SECTIONS = {
+  'purpose':'The Purpose of ARP',
+  'normal':'Normal ARP Operations',
+  'gratuitous':'Gratuitous ARP',
+  'problems':'ARP Problems',
+  'filtering':'Filtering ARP in Wireshark'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

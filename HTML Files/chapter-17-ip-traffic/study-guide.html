@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 — Analyze IP Traffic · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 17</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 17 · Study Guide</div>
+    <h1>Analyze Internet Protocol <em>(IPv4/IPv6) Traffic</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 17 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">Every packet on the internet is wrapped in an IP header — <em>understanding it is non-negotiable.</em></div>
+  <p class="motivation-sub">Master IPv4 header fields, fragmentation, DSCP, TTL, and IPv6 basics. Five sections · Socratic questions · Click-to-reveal model answers.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="ipv4-header" onclick="navTo('ipv4-header')">1 · IPv4 Header</button>
+  <button class="nav-tab" data-target="fragmentation" onclick="navTo('fragmentation')">2 · Fragmentation</button>
+  <button class="nav-tab" data-target="dscp" onclick="navTo('dscp')">3 · DSCP/QoS</button>
+  <button class="nav-tab" data-target="ipv6" onclick="navTo('ipv6')">4 · IPv6</button>
+  <button class="nav-tab" data-target="ip-filtering" onclick="navTo('ip-filtering')">5 · Filtering</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · IPv4 HEADER FIELDS</span>
+  </div>
+  <p class="socratic-insight">The IPv4 header is 20 bytes minimum and contains every field a router needs to make a forwarding decision. Every field has a specific job — and knowing what each field does tells you what to look for when a connection misbehaves.</p>
+  <ul class="socratic-questions">
+    <li>What happens when a router receives a packet with TTL=1? What protocol is used to notify the sender, and from what IP does that notification come?</li>
+    <li>What is the purpose of the Protocol field in the IPv4 header, and what values would you expect for TCP, UDP, and ICMP?</li>
+  </ul>
+  <div class="answer-area" data-section="ipv4-header">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — TTL=1 AND ICMP TIME EXCEEDED</div>
+        <div class="model-answer-text">When TTL=1, the router decrements it to 0 and drops the packet. It sends an ICMP Time Exceeded message (type 11, code 0) back to the original source IP. The notification comes from the router's own IP address — not from the destination. This is exactly how traceroute works: by sending packets with deliberately low TTLs (starting at 1), it collects the IP address of each hop in the path via the ICMP Time Exceeded responses.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — PROTOCOL FIELD VALUES</div>
+        <div class="model-answer-text">The Protocol field is an 8-bit field that identifies which Layer 4 protocol is carrying the payload. Common values: TCP=6, UDP=17, ICMP=1, OSPF=89, GRE=47, ESP=50. Wireshark decodes the correct Layer 4 protocol based on this field. If you see an unexpected Protocol field value, it may indicate a tunneling protocol or an unusual application.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ipv4-header">
+  <div class="section-label">Section 1</div>
+  <h2>IPv4 Header Fields</h2>
+  <p>IPv4 (RFC 791) is a connectionless, best-effort delivery protocol with a minimum 20-byte header. Routers read the header to make forwarding decisions; they never examine the payload. Understanding every field is essential for diagnosing routing, fragmentation, and QoS issues.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Field</th><th>Size</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Version</td><td>4 bits</td><td>Always 4 for IPv4</td></tr>
+      <tr><td>IHL (Header Length)</td><td>4 bits</td><td>Header size in 32-bit words (min=5 = 20 bytes)</td></tr>
+      <tr><td>DSCP/ToS</td><td>8 bits</td><td>Quality of Service marking</td></tr>
+      <tr><td>Total Length</td><td>16 bits</td><td>Entire packet size in bytes (max 65,535)</td></tr>
+      <tr><td>Identification</td><td>16 bits</td><td>Fragment reassembly ID</td></tr>
+      <tr><td>Flags</td><td>3 bits</td><td>DF (Don't Fragment), MF (More Fragments)</td></tr>
+      <tr><td>Fragment Offset</td><td>13 bits</td><td>Position of fragment in original datagram</td></tr>
+      <tr><td>TTL</td><td>8 bits</td><td>Hop limit; decremented by each router</td></tr>
+      <tr><td>Protocol</td><td>8 bits</td><td>Layer 4 protocol (TCP=6, UDP=17, ICMP=1)</td></tr>
+      <tr><td>Header Checksum</td><td>16 bits</td><td>Covers header only (not payload)</td></tr>
+      <tr><td>Source IP</td><td>32 bits</td><td>Source IPv4 address</td></tr>
+      <tr><td>Destination IP</td><td>32 bits</td><td>Destination IPv4 address</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-blue">
+    <strong>TTL in the wild</strong>
+    Windows sets initial TTL=128, Linux=64, Cisco routers=255. The TTL in a capture tells you roughly how many hops the packet has traveled. A packet arriving with TTL=56 from a Linux host has traversed 64 - 56 = 8 hops.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">IPv4 = connectionless, best-effort. TTL decremented by each router; TTL=0 → ICMP Time Exceeded from router. Protocol field: TCP=6, UDP=17, ICMP=1. DF bit set = don't fragment. MF bit set = more fragments follow. Identification field links fragments together.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv4-header" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv4-header','IPv4 Header Fields')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv4-header" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv4-header')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · IP FRAGMENTATION</span>
+  </div>
+  <p class="socratic-insight">IP fragmentation happens when a packet is larger than the MTU of the path it must traverse. While IP fragmentation is transparent to higher layers, it's expensive — and its appearance in a capture often signals a path MTU problem or misconfiguration.</p>
+  <ul class="socratic-questions">
+    <li>A host sends a 1500-byte IP packet onto a link with an MTU of 576 bytes. What happens? How many fragments are created and what are their approximate sizes?</li>
+    <li>If DF (Don't Fragment) is set on a packet that is too large for a link's MTU, what happens and what does the sender receive back?</li>
+  </ul>
+  <div class="answer-area" data-section="fragmentation">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — FRAGMENTATION ON A SMALL MTU LINK</div>
+        <div class="model-answer-text">The router fragments the packet. With a 1500-byte packet (20-byte IP header + 1480 bytes data) on a 576-byte MTU: Fragment 1 carries the first 556 bytes of data (576 - 20 byte header = 556 bytes data, offset=0, MF=1). Fragment 2 carries the next 556 bytes (offset=556, MF=1). Fragment 3 carries the remaining 368 bytes (offset=1112, MF=0). The Identification field is the same in all three fragments. The destination reassembles them using Identification + Fragment Offset. If any fragment is lost, the whole datagram must be retransmitted.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — DF BIT SET AND PACKET TOO LARGE</div>
+        <div class="model-answer-text">When DF is set and the packet is too large, the router CANNOT fragment it and drops the packet. The router sends an ICMP Destination Unreachable — Fragmentation Needed (type 3, code 4) back to the sender, including the MTU of the blocking link. The sender should then reduce its packet size to fit within the MTU. This is the basis of Path MTU Discovery (PMTUD). If a firewall blocks ICMP type 3 code 4, PMTUD breaks and the connection "black holes" — it appears to hang indefinitely.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="fragmentation">
+  <div class="section-label">Section 2</div>
+  <h2>IP Fragmentation</h2>
+  <p>Fragmentation occurs when a packet exceeds the link's MTU (Maximum Transmission Unit). IPv4 routers may fragment packets; the destination host reassembles the fragments into the original datagram. Each fragment carries the same Identification value, allowing the receiver to group fragments together.</p>
+  <p>The three key fields used in fragmentation: <strong>Identification</strong> (same in all fragments of one datagram), <strong>MF flag</strong> (More Fragments — set in all fragments except the last), and <strong>Fragment Offset</strong> (position of this fragment's data in the original datagram, in 8-byte units).</p>
+
+  <div class="callout callout-amber">
+    <strong>Modern fragmentation practice</strong>
+    Modern networks avoid fragmentation by setting the DF bit and using Path MTU Discovery. Fragmentation in a capture often means an MTU mismatch or a VPN adding overhead without reducing the original packet size.
+  </div>
+
+  <div class="callout callout-red">
+    <strong>PMTUD black hole</strong>
+    Fragmentation + DF bit blocked = PMTUD black hole. Symptom: large transfers hang while small packets (ping) work fine. Fix: allow ICMP type 3 code 4 through firewalls.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Fragmentation = ID field same in all fragments, MF=1 (more coming), offset in 8-byte units. DF bit blocks fragmentation; ICMP type 3 code 4 sent if packet too big. PMTUD black hole = ICMP type 3/4 blocked by firewall.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-fragmentation" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('fragmentation','IP Fragmentation')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-fragmentation" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('fragmentation')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · DSCP / QUALITY OF SERVICE</span>
+  </div>
+  <p class="socratic-insight">The DSCP field lets network devices prioritize certain traffic. Understanding it helps you explain why voice traffic gets priority over downloads, and how to detect QoS mismarking in a capture.</p>
+  <ul class="socratic-questions">
+    <li>A VoIP call is experiencing jitter and delay. You check the packets and find DSCP=0 (Best Effort) on the RTP audio stream. What does this tell you?</li>
+    <li>What is the difference between DSCP and the older ToS (Type of Service) byte? Are they mutually exclusive?</li>
+  </ul>
+  <div class="answer-area" data-section="dscp">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — DSCP=0 ON VOIP RTP STREAM</div>
+        <div class="model-answer-text">DSCP=0 means the RTP packets are being treated as best-effort traffic — the same priority as regular web browsing. VoIP requires low latency and low jitter (EF — Expedited Forwarding, DSCP=46 is the standard marking for real-time voice). If the packets are marked DSCP=0, either the IP phone or PBX is not marking them correctly, or a network device is re-marking (downgrading) them. Fix: ensure the voice endpoint marks RTP with DSCP=46 (EF) and that no device on the path is stripping or changing the DSCP marking.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — DSCP VS ToS</div>
+        <div class="model-answer-text">DSCP (Differentiated Services Code Point) is defined in RFC 2474 and uses the upper 6 bits of the same byte that was historically called the ToS (Type of Service) byte in RFC 791. The lower 2 bits of that byte became the Explicit Congestion Notification (ECN) field in RFC 3168. So DSCP and ToS are not mutually exclusive — they occupy the same 8-bit field, but DSCP redefines how those bits are interpreted. Old ToS used 3 IP Precedence bits (the top 3); DSCP uses 6 bits for finer-grained classification. Wireshark displays this field as "Differentiated Services Field" and shows the DSCP codepoint name (e.g., CS0, AF41, EF).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="dscp">
+  <div class="section-label">Section 3</div>
+  <h2>Differentiated Services (DSCP/ToS)</h2>
+  <p>The 8-bit Differentiated Services Field (formerly ToS) allows network devices to classify and prioritize traffic. The upper 6 bits are DSCP (Differentiated Services Code Point); the lower 2 bits are ECN (Explicit Congestion Notification).</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>DSCP Value</th><th>Decimal</th><th>Traffic Class</th></tr></thead>
+    <tbody>
+      <tr><td>CS0 (Default)</td><td>0</td><td>Best Effort</td></tr>
+      <tr><td>CS1</td><td>8</td><td>Scavenger/background</td></tr>
+      <tr><td>AF11–AF13</td><td>10, 12, 14</td><td>Low-priority data</td></tr>
+      <tr><td>AF41–AF43</td><td>34, 36, 38</td><td>Interactive video</td></tr>
+      <tr><td>CS5</td><td>40</td><td>Signaling (SIP)</td></tr>
+      <tr><td>EF</td><td>46</td><td>Real-time voice (VoIP/RTP)</td></tr>
+      <tr><td>CS6</td><td>48</td><td>Network control (routing)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-blue">
+    <strong>Wireshark DSCP filters</strong>
+    Wireshark filter for EF-marked packets: <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">ip.dsfield.dscp == 46</code>. To find all non-zero (QoS-marked) traffic: <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">ip.dsfield.dscp != 0</code>.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">DSCP = upper 6 bits of DS field (formerly ToS). EF=46 for voice (VoIP/RTP). CS0=0 = best effort. AF = assured forwarding. Re-marking or stripping DSCP → QoS issues. ECN = lower 2 bits of same byte.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-dscp" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('dscp','Differentiated Services (DSCP/ToS)')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-dscp" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('dscp')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · IPv6 OVERVIEW</span>
+  </div>
+  <p class="socratic-insight">IPv6 was designed to solve IPv4's address exhaustion, but it also simplified the header and removed fragmentation from routers entirely. These changes have real implications for what you see — and don't see — in IPv6 packet captures.</p>
+  <ul class="socratic-questions">
+    <li>IPv6 has a simpler, fixed-size header compared to IPv4. What features from the IPv4 header were removed, and why?</li>
+    <li>On a dual-stack host, what triggers IPv6 to be preferred over IPv4 when connecting to a website that supports both?</li>
+  </ul>
+  <div class="answer-area" data-section="ipv6">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — IPv6 HEADER SIMPLIFICATIONS</div>
+        <div class="model-answer-text">The IPv6 header is fixed at 40 bytes (no Options field and no Header Checksum). Features removed: Header Checksum (removed because Layer 2 and Layer 4 both have checksums, making a third one redundant and expensive to compute at each hop), IP Options (moved to extension headers which are optional and processed only at endpoints), Fragmentation fields (IPv6 routers do not fragment — only the source host fragments, using a Fragmentation extension header, and only when needed). The fixed header length also removes the IHL field that was needed to account for variable options in IPv4.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — IPv6 PREFERENCE ON DUAL-STACK HOSTS</div>
+        <div class="model-answer-text">On a dual-stack host, the OS uses the Happy Eyeballs algorithm (RFC 6555) and address selection rules (RFC 6724) to prefer IPv6 when both A (IPv4) and AAAA (IPv6) records are available. IPv6 is generally preferred because the OS implementation typically ranks IPv6 Global Unicast addresses above IPv4 in its source/destination address selection policy. In practice, you'll see both A and AAAA DNS queries in the capture, and if the AAAA query returns an address, the SYN is sent to the IPv6 address. If the IPv6 connection attempt fails or is slow, the OS falls back to IPv4 after a short timer.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ipv6">
+  <div class="section-label">Section 4</div>
+  <h2>IPv6 Overview</h2>
+  <p>IPv6 uses 128-bit addresses (written in hex as 8 groups of 4 hex digits, e.g., 2001:0db8:85a3::8a2e:0370:7334), providing 2<sup>128</sup> addresses. The header is fixed at 40 bytes — simpler and faster to process than the variable-length IPv4 header.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Field</th><th>Size</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Version</td><td>4 bits</td><td>Always 6 for IPv6</td></tr>
+      <tr><td>Traffic Class</td><td>8 bits</td><td>DSCP + ECN (same as IPv4 DS field)</td></tr>
+      <tr><td>Flow Label</td><td>20 bits</td><td>Identifies flows for QoS treatment</td></tr>
+      <tr><td>Payload Length</td><td>16 bits</td><td>Length of data after the 40-byte header</td></tr>
+      <tr><td>Next Header</td><td>8 bits</td><td>Equivalent to Protocol field in IPv4</td></tr>
+      <tr><td>Hop Limit</td><td>8 bits</td><td>Equivalent to TTL; decremented by routers</td></tr>
+      <tr><td>Source Address</td><td>128 bits</td><td>Source IPv6 address</td></tr>
+      <tr><td>Destination Address</td><td>128 bits</td><td>Destination IPv6 address</td></tr>
+    </tbody>
+  </table>
+
+  <p>IPv6 address types: <strong>Global Unicast</strong> (2000::/3, routable on the internet), <strong>Link-Local</strong> (FE80::/10, auto-configured, scope = single link), <strong>Loopback</strong> (::1), <strong>Multicast</strong> (FF00::/8). There is no broadcast in IPv6 — multicast is used instead for all one-to-many communication.</p>
+
+  <div class="callout callout-blue">
+    <strong>Link-Local addresses</strong>
+    Link-Local addresses (FE80::) are automatically assigned and used for neighbor discovery and routing protocols. They should be present on every IPv6-capable interface. You'll often see FE80:: source addresses in NDP traffic.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">IPv6 = 128-bit addresses, fixed 40-byte header. No fragmentation at routers (source-only). No header checksum. Next Header replaces Protocol field. Hop Limit replaces TTL. Link-Local = FE80::/10 (auto). No broadcast; uses multicast (FF00::/8).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv6" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv6','IPv6 Overview')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv6" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv6')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 5 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FILTERING IP TRAFFIC IN WIRESHARK</span>
+  </div>
+  <p class="socratic-insight">IP-level filters let you isolate traffic by address, TTL, fragmentation status, or DSCP marking. Combined with protocol-specific filters, they form the foundation of any targeted analysis.</p>
+  <ul class="socratic-questions">
+    <li>You want to find all packets in a trace that were fragmented (either fragments or original oversized packets). What display filter would you use?</li>
+    <li>A suspect host is using an abnormally low TTL (e.g., TTL=1) on packets it sends. How would you filter for this?</li>
+  </ul>
+  <div class="answer-area" data-section="ip-filtering">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — FILTER FOR FRAGMENTED PACKETS</div>
+        <div class="model-answer-text">Use <code style="font-family:monospace;">ip.flags.mf == 1</code> (packets with More Fragments flag set — all fragments except the last) OR <code style="font-family:monospace;">ip.frag_offset &gt; 0</code> (non-first fragments). To see all packets involved in any fragmentation: <code style="font-family:monospace;">(ip.flags.mf == 1) || (ip.frag_offset &gt; 0)</code>. The first fragment has offset=0 and MF=1; middle fragments have offset&gt;0 and MF=1; the last fragment has offset&gt;0 and MF=0.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — FILTER FOR LOW TTL PACKETS</div>
+        <div class="model-answer-text">Use <code style="font-family:monospace;">ip.ttl == 1</code> to find packets with TTL=1. An attacker might set a low TTL to limit how far packets travel (so they only affect the local subnet) or to probe the network. Alternatively, filter <code style="font-family:monospace;">ip.ttl &lt; 10</code> to catch unusually low values that suggest traffic that has already traversed many hops or was crafted with a low initial TTL.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ip-filtering">
+  <div class="section-label">Section 5</div>
+  <h2>Filtering IP Traffic in Wireshark</h2>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">ip</span></td><td>All IPv4 traffic</td></tr>
+      <tr><td><span class="filter-code">ipv6</span></td><td>All IPv6 traffic</td></tr>
+      <tr><td><span class="filter-code">ip.addr == 10.0.0.1</span></td><td>Any IPv4 packet to/from 10.0.0.1</td></tr>
+      <tr><td><span class="filter-code">ip.src == 10.0.0.1</span></td><td>IPv4 packets sourced from 10.0.0.1</td></tr>
+      <tr><td><span class="filter-code">ip.dst == 10.0.0.1</span></td><td>IPv4 packets destined for 10.0.0.1</td></tr>
+      <tr><td><span class="filter-code">ip.ttl &lt; 10</span></td><td>Packets with unusually low TTL</td></tr>
+      <tr><td><span class="filter-code">ip.ttl == 64</span></td><td>Packets from Linux/Mac (initial TTL=64)</td></tr>
+      <tr><td><span class="filter-code">ip.flags.df == 1</span></td><td>Don't Fragment bit set</td></tr>
+      <tr><td><span class="filter-code">ip.flags.mf == 1</span></td><td>More Fragments flag set</td></tr>
+      <tr><td><span class="filter-code">ip.frag_offset &gt; 0</span></td><td>Non-first fragments</td></tr>
+      <tr><td><span class="filter-code">ip.dsfield.dscp == 46</span></td><td>EF-marked (VoIP/RTP)</td></tr>
+      <tr><td><span class="filter-code">ip.proto == 6</span></td><td>TCP packets</td></tr>
+      <tr><td><span class="filter-code">ip.proto == 17</span></td><td>UDP packets</td></tr>
+      <tr><td><span class="filter-code">ip.proto == 1</span></td><td>ICMP packets</td></tr>
+      <tr><td><span class="filter-code">!ip</span></td><td>Non-IP traffic (ARP, STP, etc.)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">ip.addr matches src OR dst. Fragmented traffic: ip.flags.mf==1 or ip.frag_offset&gt;0. TTL analysis reveals OS type and hop count. DSCP filter: ip.dsfield.dscp. Use !ip to find non-IP traffic.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ip-filtering" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ip-filtering','Filtering IP Traffic')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ip-filtering" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ip-filtering')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 17 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 5 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-ipv4-header"><input type="checkbox" onchange="toggleDone(this,'chk-ipv4-header')"> IPv4 Header Fields</label>
+      <label class="check-item" data-key="chk-fragmentation"><input type="checkbox" onchange="toggleDone(this,'chk-fragmentation')"> IP Fragmentation</label>
+      <label class="check-item" data-key="chk-dscp"><input type="checkbox" onchange="toggleDone(this,'chk-dscp')"> DSCP / QoS</label>
+      <label class="check-item" data-key="chk-ipv6"><input type="checkbox" onchange="toggleDone(this,'chk-ipv6')"> IPv6 Overview</label>
+      <label class="check-item" data-key="chk-ip-filtering"><input type="checkbox" onchange="toggleDone(this,'chk-ip-filtering')"> Filtering IP Traffic</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>IP Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">ip</span><span class="qr-def">All IPv4 traffic</span></div>
+    <div class="qr-row"><span class="qr-term">ip.ttl &lt; 10</span><span class="qr-def">Low TTL alert</span></div>
+    <div class="qr-row"><span class="qr-term">ip.flags.df==1</span><span class="qr-def">Don't Fragment</span></div>
+    <div class="qr-row"><span class="qr-term">ip.flags.mf==1</span><span class="qr-def">Fragmented</span></div>
+    <div class="qr-row"><span class="qr-term">ip.proto==6/17/1</span><span class="qr-def">TCP/UDP/ICMP</span></div>
+    <div class="qr-row"><span class="qr-term">DSCP EF=46</span><span class="qr-def">VoIP marking</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 17 · Analyze IP (IPv4/IPv6) Traffic · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch17-ip';
+const SECTIONS = {
+  'ipv4-header':'IPv4 Header Fields',
+  'fragmentation':'IP Fragmentation',
+  'dscp':'Differentiated Services (DSCP/ToS)',
+  'ipv6':'IPv6 Overview',
+  'ip-filtering':'Filtering IP Traffic in Wireshark'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

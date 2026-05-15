@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20 — Analyze TCP Traffic · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 20</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 20 · Study Guide</div>
+    <h1>Analyze Transmission Control <em>Protocol (TCP) Traffic</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 20 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">TCP is the workhorse of the internet — <em>master it and you can diagnose almost any application problem.</em></div>
+  <p class="motivation-sub">TCP header fields, the three-way handshake, sequence numbers, flow control, problems and graceful teardown. Six sections · Socratic questions · Click-to-reveal model answers.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="header" onclick="navTo('header')">1 · Header Fields</button>
+  <button class="nav-tab" data-target="handshake" onclick="navTo('handshake')">2 · Handshake</button>
+  <button class="nav-tab" data-target="sequence" onclick="navTo('sequence')">3 · Seq &amp; Ack</button>
+  <button class="nav-tab" data-target="windowing" onclick="navTo('windowing')">4 · Flow Control</button>
+  <button class="nav-tab" data-target="problems" onclick="navTo('problems')">5 · TCP Problems</button>
+  <button class="nav-tab" data-target="teardown" onclick="navTo('teardown')">6 · Teardown</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · TCP HEADER FIELDS</span>
+  </div>
+  <p class="socratic-insight">The TCP header is 20 bytes minimum, but every field tells a story about the state of the connection. Being able to read a TCP header in Wireshark is a prerequisite for diagnosing any application-layer problem.</p>
+  <ul class="socratic-questions">
+    <li>What is the purpose of the TCP checksum, and what does it cover? If a TCP segment has a bad checksum, what typically happens?</li>
+    <li>The TCP header has a Data Offset (header length) field. Why does TCP need this when UDP's header is always exactly 8 bytes?</li>
+  </ul>
+  <div class="answer-area" data-section="header">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — TCP CHECKSUM PURPOSE AND BAD CHECKSUM</div>
+        <div class="model-answer-text">The TCP checksum covers the TCP header, TCP payload, and a pseudo-header derived from the IP header (source IP, destination IP, protocol=6, and TCP segment length). It's an error detection mechanism. If a segment arrives with an invalid checksum, the receiving host silently discards it — no notification is sent. The sender will eventually time out and retransmit. Modern network adapters often offload checksum calculation to hardware (TCP Checksum Offload), which means Wireshark capturing at the OS level may show "Bad checksum" warnings for locally-generated packets before the NIC computes the real checksum — this is a Wireshark artifact, not a real error.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — WHY TCP NEEDS DATA OFFSET</div>
+        <div class="model-answer-text">TCP has an Options field that can extend the header beyond the minimum 20 bytes. Common TCP options include Maximum Segment Size (MSS), Window Scale, Timestamps, and SACK Permitted — each negotiated during the handshake. Because the header length is variable (20–60 bytes), TCP needs the Data Offset field to tell the receiver where the TCP data starts. UDP has no Options field — it's always exactly 8 bytes, so no length field is needed for the header (though the Length field covers header + data).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="header">
+  <div class="section-label">Section 1</div>
+  <h2>TCP Header Fields</h2>
+  <p>The TCP header is 20 bytes minimum, up to 60 bytes with options. TCP provides reliable, ordered, connection-oriented data transfer — the foundation of HTTP, HTTPS, FTP, SSH, and most application protocols.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Field</th><th>Size</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Source Port</td><td>16 bits</td><td>Sending process port</td></tr>
+      <tr><td>Destination Port</td><td>16 bits</td><td>Receiving process port</td></tr>
+      <tr><td>Sequence Number</td><td>32 bits</td><td>Byte position of first data byte</td></tr>
+      <tr><td>Acknowledgment Number</td><td>32 bits</td><td>Next expected byte from other side</td></tr>
+      <tr><td>Data Offset</td><td>4 bits</td><td>Header length in 32-bit words (min=5=20B)</td></tr>
+      <tr><td>Reserved</td><td>3 bits</td><td>Always 0</td></tr>
+      <tr><td>Flags</td><td>9 bits</td><td>SYN, ACK, FIN, RST, PSH, URG, ECE, CWR, NS</td></tr>
+      <tr><td>Window Size</td><td>16 bits</td><td>Receive buffer space available</td></tr>
+      <tr><td>Checksum</td><td>16 bits</td><td>Error detection (covers pseudo-header)</td></tr>
+      <tr><td>Urgent Pointer</td><td>16 bits</td><td>Offset to urgent data (only if URG flag set)</td></tr>
+      <tr><td>Options</td><td>Variable</td><td>MSS, Window Scale, SACK, Timestamps</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>TCP flags quick reference:</strong> SYN = synchronize (start connection), ACK = acknowledge, FIN = finish (graceful close), RST = reset (abrupt close), PSH = push data to application immediately, URG = urgent data present.</p>
+
+  <div class="callout callout-blue">
+    <strong>TCP checksum offload artifact</strong>
+    TCP Checksum Offload artifact: Wireshark may show "TCP checksum: incorrect" on locally-generated packets. This is because the NIC computes the checksum after Wireshark captures the packet. Go to Edit → Preferences → Protocols → TCP and uncheck "Validate the TCP checksum if possible" to suppress this false positive.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">TCP = 20B min header, 6 main fields. Key flags: SYN (connect), ACK (acknowledge), FIN (close), RST (abort). Sequence + Ack numbers track bytes sent/received. Window = receive buffer. Data Offset needed because header is variable length. Checksum offload causes false positives in Wireshark.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-header" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('header','TCP Header Fields')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-header" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('header')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · THE THREE-WAY HANDSHAKE</span>
+  </div>
+  <p class="socratic-insight">The three-way handshake doesn't just establish a connection — it negotiates critical parameters (MSS, window scale, SACK) that determine the entire connection's behavior. What the handshake negotiates shapes performance for the life of the connection.</p>
+  <ul class="socratic-questions">
+    <li>What specifically is being "synchronized" in the SYN and SYN-ACK packets — and why must both sides do it?</li>
+    <li>The MSS (Maximum Segment Size) is negotiated in the TCP options during the handshake. What happens if one side has MSS=1460 and the other has MSS=1000? How does this affect the connection?</li>
+  </ul>
+  <div class="answer-area" data-section="handshake">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — WHAT SYN SYNCHRONIZES</div>
+        <div class="model-answer-text">SYN synchronizes the Initial Sequence Number (ISN) — a randomly chosen 32-bit number that identifies the starting byte position for that side's data stream. Both sides must synchronize their own ISN because TCP is a bidirectional protocol; each direction is an independent data stream. The client's SYN announces "my data starts at ISN=X." The server's SYN-ACK acknowledges that ("I received your ISN, I'll expect byte X+1 next") and simultaneously announces its own ISN for the reverse direction. The client's ACK completes the exchange. Without this synchronization, neither side would know which bytes it's receiving in the acknowledgment number field.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — MSS MISMATCH</div>
+        <div class="model-answer-text">Each side announces the maximum TCP segment size it will accept from the other side. When MSS values differ, the lower value is used in each direction for the relevant side's sending. Since MSS=1000 is smaller, the host with MSS=1460 must send segments no larger than 1000 bytes to the peer with MSS=1000, even though it could receive segments up to 1460 bytes. The connection still works but at reduced efficiency — the smaller MSS means more segments to transmit the same amount of data, increasing header overhead and acknowledgment traffic. Mismatched MSS is common in VPN scenarios where the VPN tunnel adds overhead and reduces the effective MTU.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="handshake">
+  <div class="section-label">Section 2</div>
+  <h2>Three-Way Handshake</h2>
+  <p>The TCP three-way handshake establishes connection parameters before data transfer. The three steps: SYN → SYN-ACK → ACK.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Step</th><th>Flags</th><th>From→To</th><th>Sequence</th><th>Ack</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>1 SYN</td><td>SYN</td><td>Client→Server</td><td>ISN=X</td><td>—</td><td>Client announces initial sequence number</td></tr>
+      <tr><td>2 SYN-ACK</td><td>SYN, ACK</td><td>Server→Client</td><td>ISN=Y</td><td>X+1</td><td>Server acknowledges and announces its ISN</td></tr>
+      <tr><td>3 ACK</td><td>ACK</td><td>Client→Server</td><td>X+1</td><td>Y+1</td><td>Client acknowledges server's ISN</td></tr>
+    </tbody>
+  </table>
+
+  <p>TCP Options negotiated during handshake: <strong>MSS</strong> (max segment size the sender will accept), <strong>Window Scale</strong> (multiplier for the 16-bit window field, allowing windows &gt; 65535 bytes), <strong>SACK Permitted</strong> (selective acknowledgment support), <strong>Timestamps</strong> (round-trip time measurement, PAWS).</p>
+
+  <div class="callout callout-green">
+    <strong>Measuring network RTT in Wireshark</strong>
+    In Wireshark, look for the [SYN], [SYN, ACK], [ACK] labels in the Info column. The time delta between the SYN and SYN-ACK is the network round-trip time to the server. A large delta here indicates high-latency path to the server, not application slowness.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Handshake = SYN (client ISN) → SYN-ACK (server ISN + ack client) → ACK (ack server). Three packets total. Options negotiated: MSS, Window Scale, SACK, Timestamps. Time between SYN and SYN-ACK = network RTT. ISN = random starting byte number.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-handshake" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('handshake','Three-Way Handshake')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-handshake" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('handshake')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · SEQUENCE NUMBERS &amp; ACKNOWLEDGMENTS</span>
+  </div>
+  <p class="socratic-insight">Sequence and acknowledgment numbers are how TCP tracks every byte in flight. Reading them in Wireshark is the key to understanding retransmissions, duplicate ACKs, and data ordering — the heart of TCP reliability.</p>
+  <ul class="socratic-questions">
+    <li>What is a duplicate ACK, and why does TCP use three duplicate ACKs as a signal that a segment was lost — rather than waiting for a timeout?</li>
+    <li>Wireshark shows "TCP Previous segment not captured." Is this always a sign of packet loss, or could it mean something else?</li>
+  </ul>
+  <div class="answer-area" data-section="sequence">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — DUPLICATE ACK AND FAST RETRANSMIT</div>
+        <div class="model-answer-text">A duplicate ACK is an acknowledgment sent immediately when a receiver gets a segment with a sequence number higher than expected — meaning a gap exists. The receiver says "I got segment 1001, I'm still waiting for segment 900" by repeating the ACK for 900. One or two duplicate ACKs might indicate out-of-order delivery (common in multi-path networks). Three consecutive duplicate ACKs is TCP's Fast Retransmit trigger — the RFC standardizes three duplicates as strong evidence that a segment was lost (not just reordered), because reordering rarely skips three segments. Fast Retransmit immediately resends the missing segment without waiting for the retransmission timeout (RTO), which could be hundreds of milliseconds, dramatically speeding recovery.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — "PREVIOUS SEGMENT NOT CAPTURED"</div>
+        <div class="model-answer-text">"TCP Previous segment not captured" in Wireshark can mean: (1) Actual packet loss — the segment was truly dropped in the network. (2) Capture artifact — Wireshark missed the segment due to high packet rates or the capture started mid-stream. A key distinction: if you see this on the very first segments when you start a capture on an existing connection, it's almost certainly a capture artifact (you missed the connection setup). If you see it mid-stream during an established connection with consistent previous capture coverage, it's more likely actual packet loss. Also, asymmetric captures (only seeing one direction) can make the other direction's data look missing.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sequence">
+  <div class="section-label">Section 3</div>
+  <h2>Sequence Numbers and Acknowledgments</h2>
+  <p>TCP uses 32-bit sequence numbers to track every byte in the stream. The sequence number in each segment indicates the byte position of the first data byte in that segment. The acknowledgment number indicates the next byte the receiver expects from the other side.</p>
+  <p>Wireshark uses <strong>Relative Sequence Numbers</strong> by default — it resets ISN to 0 for readability. You can disable this in Preferences → TCP to see actual sequence numbers.</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">tcp.analysis.retransmission</span></td><td>Retransmitted segments</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.duplicate_ack</span></td><td>Duplicate ACKs</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.fast_retransmission</span></td><td>Fast retransmissions (3 dup ACKs)</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.lost_segment</span></td><td>Gaps in sequence numbers</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.out_of_order</span></td><td>Out-of-order segments</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.flags</span></td><td>Any TCP analysis flags (all errors)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-amber">
+    <strong>tcp.analysis.flags — the catch-all filter</strong>
+    <code style="font-family:monospace;background:var(--amber-light);color:var(--amber);padding:1px 5px;border-radius:4px;">tcp.analysis.flags</code> is the most useful TCP troubleshooting filter — it catches ALL retransmissions, duplicate ACKs, lost segments, and out-of-order segments in one filter. Start here on any TCP performance problem.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">SeqNum = first byte of data in segment. AckNum = next expected byte from other side. Dup ACK = out-of-order detected. 3 dup ACKs → Fast Retransmit. tcp.analysis.flags catches all TCP problems in one filter. "Previous segment not captured" = loss OR capture artifact (check if it's at connection start).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-sequence" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sequence','Sequence Numbers and Acknowledgments')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-sequence" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('sequence')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · TCP FLOW CONTROL &amp; WINDOWING</span>
+  </div>
+  <p class="socratic-insight">The TCP receive window controls how much data can be in-flight at once — it's the primary performance governor for high-bandwidth connections. A shrinking window, a zero window, or a mismatch between bandwidth-delay product and window size are all performance bottlenecks visible in Wireshark.</p>
+  <ul class="socratic-questions">
+    <li>A client is receiving data and its receive window drops from 65535 to 0. What does this mean, and what happens to the TCP connection?</li>
+    <li>Why does a large bandwidth-delay product (BDP) require large TCP windows? What happens if the window is too small for the BDP?</li>
+  </ul>
+  <div class="answer-area" data-section="windowing">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — ZERO WINDOW</div>
+        <div class="model-answer-text">A window of 0 means the receiver's buffer is full — it cannot accept any more data. The sender must stop sending immediately and wait. The sender sets a "persist timer" and periodically sends Window Probe packets (1-byte segments) to ask the receiver if it has freed up buffer space. If the receiver has processed the buffered data and has room again, it sends a Window Update with a non-zero window. In a capture this appears as: data segments → TCP Window Full → TCP Zero Window → TCP Window Update. This sequence is a sign of a slow receiver (application not processing data fast enough) or insufficient receive buffer memory, not a network problem.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — BANDWIDTH-DELAY PRODUCT AND WINDOW SIZE</div>
+        <div class="model-answer-text">The bandwidth-delay product (BDP) = bandwidth × round-trip time. This represents the amount of data that can be "in flight" at any given moment to fully utilize the link. If the TCP window is smaller than the BDP, the sender runs out of window and must stop and wait for ACKs before sending more — the link is underutilized. Example: a 100 Mbps link with 100ms RTT has a BDP of 100,000,000 × 0.1 = 10,000,000 bytes = ~10 MB. But the basic TCP window field is only 16 bits (max 65535 bytes). Without Window Scaling (TCP option that multiplies the window by a factor up to 2^14), you can only have 65,535 bytes in flight — far less than the 10MB needed to fill a 100Mbps/100ms pipe. This is the classic "long fat network" problem.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="windowing">
+  <div class="section-label">Section 4</div>
+  <h2>Flow Control and Windowing</h2>
+  <p>The TCP window size field tells the sender how many bytes the receiver can accept before needing an acknowledgment. It's the primary flow control mechanism — the receiver controls the sender's rate by adjusting the window.</p>
+  <p>The Window Scale option (negotiated in the handshake) multiplies the window size field by 2<sup>N</sup> (where N is 0–14), allowing windows up to 2<sup>30</sup> = 1 GB. Modern OS implementations use window scaling by default.</p>
+
+  <div class="callout callout-red">
+    <strong>TCP Zero Window is a receiver problem, not a network error</strong>
+    TCP Zero Window is not a network error — it means the application is too slow to consume data. Common causes: application bottleneck, insufficient memory, or an overloaded server. The network path is fine; the receiving end needs attention.
+  </div>
+
+  <div class="callout callout-blue">
+    <strong>Window analysis filters</strong>
+    Useful window-analysis filters: <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">tcp.window_size == 0</code> (zero window), <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">tcp.analysis.window_full</code> (sender hit the window limit), <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">tcp.analysis.window_update</code> (receiver reopened the window).
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Window = receive buffer space available. Zero window = receiver full, sender must stop. Window Scale option needed for BDP &gt; 65535 bytes. BDP = bandwidth × RTT. tcp.analysis.window_full + Zero Window + Window Update sequence = slow receiver, not network loss.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-windowing" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('windowing','Flow Control and Windowing')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-windowing" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('windowing')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 5 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · TCP PROBLEMS &amp; ERRORS</span>
+  </div>
+  <p class="socratic-insight">Most TCP problems fall into one of four categories: packet loss (retransmissions), connection refused (RST), slow receiver (zero window), or high latency (large delta times). Wireshark's TCP analysis colorization makes most of these immediately visible.</p>
+  <ul class="socratic-questions">
+    <li>What is the difference between a TCP retransmission and a TCP fast retransmission? Under what condition does each occur?</li>
+    <li>You see a TCP RST in the middle of an established connection. What are two scenarios that could cause this?</li>
+  </ul>
+  <div class="answer-area" data-section="problems">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — RETRANSMISSION VS FAST RETRANSMISSION</div>
+        <div class="model-answer-text">A regular TCP retransmission occurs when the retransmission timer (RTO) expires without an acknowledgment arriving. The RTO starts at ~1 second and doubles with each unacknowledged retransmission (exponential backoff). This can take several seconds. A TCP Fast Retransmission is triggered immediately (without waiting for the RTO) when three duplicate ACKs arrive — the receiver is actively signaling that a specific segment is missing. Fast Retransmit dramatically speeds recovery from isolated segment loss because it doesn't require waiting for the timeout. In Wireshark, regular retransmissions appear as tcp.analysis.retransmission; fast retransmissions appear as tcp.analysis.fast_retransmission.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — MID-CONNECTION RST</div>
+        <div class="model-answer-text">Two scenarios for mid-connection RST: (1) Connection reset by remote application — the remote application called close() abruptly (e.g., a crash, or a server that rejects the connection after examining application data). The RST immediately terminates the connection with no graceful teardown. (2) Stateful firewall timeout — the firewall between the two hosts dropped the connection state because it was idle too long. The next packet from one side arrives at the firewall with no state entry, and the firewall sends a forged RST to both sides. This is why long-idle connections through firewalls suddenly break — the firewall's state table has aged out the entry. Fix: TCP keepalives, or configure the firewall's idle timeout to match application requirements.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="problems">
+  <div class="section-label">Section 5</div>
+  <h2>TCP Problems and Errors</h2>
+  <p>Wireshark's TCP analysis engine automatically detects and colorizes common TCP problems using heuristics. The <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">tcp.analysis.flags</code> filter is the fastest way to surface all problems at once.</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">tcp.analysis.flags</span></td><td>ALL TCP analysis events (start here)</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.retransmission</span></td><td>Segments retransmitted after timeout</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.fast_retransmission</span></td><td>Fast retransmit (after 3 dup ACKs)</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.duplicate_ack</span></td><td>Duplicate acknowledgments</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.lost_segment</span></td><td>Apparent missing segment</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.out_of_order</span></td><td>Out-of-order segments</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.zero_window</span></td><td>Zero window announcements</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.window_full</span></td><td>Sender reached receiver's window limit</td></tr>
+      <tr><td><span class="filter-code">tcp.flags.reset == 1</span></td><td>All RST packets</td></tr>
+      <tr><td><span class="filter-code">tcp.flags.syn == 1 &amp;&amp; tcp.flags.reset == 1</span></td><td>Rejected connections (SYN + RST)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-red">
+    <strong>Diagnosing retransmission type by delta time</strong>
+    If you see retransmissions, look at the delta time between the original segment and the retransmission — the gap tells you whether it's a fast retransmit (milliseconds, triggered by dup ACKs) or a timeout-based retransmit (1+ seconds, triggered by RTO expiry). Timeout retransmits have a huge performance impact.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">tcp.analysis.flags = catch-all TCP problem filter. RST mid-connection = crash/firewall timeout. Retransmission gap &lt; 100ms = fast retransmit. Retransmission gap &gt; 1s = RTO timeout. Duplicate ACKs = out-of-order or loss. Zero window = slow receiver application.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','TCP Problems and Errors')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 6 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · TCP CONNECTION TEARDOWN</span>
+  </div>
+  <p class="socratic-insight">TCP has two completely different ways to end a connection — a graceful four-way FIN handshake and an abrupt RST. Which one you see in a capture tells you a lot about how and why the connection ended.</p>
+  <ul class="socratic-questions">
+    <li>Explain the difference between a TCP FIN teardown and a TCP RST teardown. What does each mean for any in-transit data?</li>
+    <li>In a TCP FIN teardown, why are four packets needed instead of two? Why can't both sides close simultaneously in one round-trip?</li>
+  </ul>
+  <div class="answer-area" data-section="teardown">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — FIN TEARDOWN VS RST TEARDOWN</div>
+        <div class="model-answer-text">A FIN teardown is graceful — it signals that the sender has no more data to send but is still willing to receive. Each side independently sends a FIN and waits for the other to acknowledge. In-transit data already in the pipeline is delivered before the connection closes. A RST teardown is abrupt — the connection is immediately terminated, all unacknowledged data is discarded, and any data in flight is lost. No FIN/ACK exchange occurs. RST is used for errors, crashes, or firewall intervention. From the remote side, FIN teardown results in a clean EOF on the socket; RST results in a "connection reset by peer" error.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — WHY FOUR PACKETS FOR FIN TEARDOWN</div>
+        <div class="model-answer-text">TCP is full-duplex — each direction is independent. When the client sends FIN, it means "I'm done sending," but the server may still have data to send. The server sends ACK to acknowledge the client's FIN, then continues sending its remaining data. Only after the server has finished sending its own data does it send its own FIN. The client then ACKs the server's FIN. That's four packets: FIN (client) → ACK (server) → FIN (server) → ACK (client). The delay between the server's ACK and FIN is called "half-close" — the connection is open in one direction only. Both sides can only close simultaneously if neither has data left to send after the first FIN, which produces a simultaneous close (rare but valid).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="teardown">
+  <div class="section-label">Section 6</div>
+  <h2>TCP Connection Teardown</h2>
+  <p>TCP connections can end in two ways: graceful FIN teardown (4 packets) or abrupt RST teardown (1 packet).</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Step</th><th>Flags</th><th>Direction</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>FIN, ACK</td><td>Client→Server</td><td>Client done sending</td></tr>
+      <tr><td>2</td><td>ACK</td><td>Server→Client</td><td>Server acknowledges FIN</td></tr>
+      <tr><td>3</td><td>FIN, ACK</td><td>Server→Client</td><td>Server done sending</td></tr>
+      <tr><td>4</td><td>ACK</td><td>Client→Server</td><td>Client acknowledges server FIN</td></tr>
+    </tbody>
+  </table>
+
+  <p>The <strong>TIME_WAIT state</strong>: after the final ACK, the active closer enters TIME_WAIT for 2×MSL (Maximum Segment Lifetime, typically 60 seconds on Linux, 240 seconds on Windows). This ensures delayed packets from the old connection don't corrupt a new one on the same port pair.</p>
+
+  <div class="callout callout-blue">
+    <strong>Visualizing teardown in Wireshark</strong>
+    In Wireshark, filter <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">tcp.flags.fin == 1</code> to see all FIN packets and visualize the teardown. A clean teardown is: FIN → ACK → FIN → ACK. If you see FIN → RST instead of FIN → ACK, something aborted the connection.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">FIN teardown = 4 packets (half-duplex close per side). FIN = "done sending, can still receive." RST = "connection aborted, data discarded." TIME_WAIT = 2×MSL after active close (prevents port reuse collision). Filter: tcp.flags.fin==1 and tcp.flags.reset==1.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-teardown" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('teardown','TCP Connection Teardown')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-teardown" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('teardown')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 20 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 6 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-header"><input type="checkbox" onchange="toggleDone(this,'chk-header')"> TCP Header Fields</label>
+      <label class="check-item" data-key="chk-handshake"><input type="checkbox" onchange="toggleDone(this,'chk-handshake')"> Three-Way Handshake</label>
+      <label class="check-item" data-key="chk-sequence"><input type="checkbox" onchange="toggleDone(this,'chk-sequence')"> Sequence &amp; Acknowledgments</label>
+      <label class="check-item" data-key="chk-windowing"><input type="checkbox" onchange="toggleDone(this,'chk-windowing')"> Flow Control &amp; Windowing</label>
+      <label class="check-item" data-key="chk-problems"><input type="checkbox" onchange="toggleDone(this,'chk-problems')"> TCP Problems</label>
+      <label class="check-item" data-key="chk-teardown"><input type="checkbox" onchange="toggleDone(this,'chk-teardown')"> Connection Teardown</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>TCP Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">tcp.analysis.flags</span><span class="qr-def">All TCP problems</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.flags.syn==1</span><span class="qr-def">All SYN packets</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.flags.reset==1</span><span class="qr-def">All RST packets</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.flags.fin==1</span><span class="qr-def">All FIN packets</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.analysis.retransmission</span><span class="qr-def">Retransmits</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.analysis.zero_window</span><span class="qr-def">Zero window</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 20 · Analyze TCP Traffic · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch20-tcp';
+const SECTIONS = {
+  'header':'TCP Header Fields',
+  'handshake':'Three-Way Handshake',
+  'sequence':'Sequence Numbers and Acknowledgments',
+  'windowing':'Flow Control and Windowing',
+  'problems':'TCP Problems and Errors',
+  'teardown':'TCP Connection Teardown'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

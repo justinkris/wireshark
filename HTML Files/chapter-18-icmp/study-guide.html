@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18 — Analyze ICMP Traffic · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 18</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 18 · Study Guide</div>
+    <h1>Analyze Internet Control Message <em>Protocol (ICMP) Traffic</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 18 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">ICMP is the network's error-reporting system — <em>learn to read it and you'll never misdiagnose a connectivity problem again.</em></div>
+  <p class="motivation-sub">Master ICMP types and codes, ping analysis, traceroute mechanics, and ICMPv6. Five sections · Socratic questions · Click-to-reveal model answers.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="purpose" onclick="navTo('purpose')">1 · Purpose</button>
+  <button class="nav-tab" data-target="types" onclick="navTo('types')">2 · Types &amp; Codes</button>
+  <button class="nav-tab" data-target="ping" onclick="navTo('ping')">3 · Ping</button>
+  <button class="nav-tab" data-target="traceroute" onclick="navTo('traceroute')">4 · Traceroute</button>
+  <button class="nav-tab" data-target="icmpv6" onclick="navTo('icmpv6')">5 · ICMPv6</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · PURPOSE OF ICMP</span>
+  </div>
+  <p class="socratic-insight">ICMP is not a transport protocol — it carries no application data. It exists purely to send error and informational messages about IP network conditions back to the original sender.</p>
+  <ul class="socratic-questions">
+    <li>ICMP is often described as "the network's error-reporting system." What critical difference does that make for how ICMP packets appear in a capture compared to TCP or UDP?</li>
+    <li>Many security teams configure firewalls to block all ICMP. What two important network functions can this break?</li>
+  </ul>
+  <div class="answer-area" data-section="purpose">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — ICMP VS TCP/UDP IN A CAPTURE</div>
+        <div class="model-answer-text">ICMP packets appear in response to other packets that triggered an error condition — they're reactive, not part of an application conversation. In a capture, ICMP appears "out of the blue" in the middle of a TCP or UDP session, signaling that something went wrong at the IP layer. Unlike TCP/UDP, ICMP has no port numbers and no connection state. It's encapsulated directly in IP (Protocol=1) and is always sourced from a network device (router, host) describing the error, not the original destination. This means in a conversation trace, ICMP messages will have the router's IP as source, not the remote server's IP.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — WHAT BLOCKING ALL ICMP BREAKS</div>
+        <div class="model-answer-text">Two critical functions that blocking all ICMP breaks: (1) Path MTU Discovery (PMTUD) — which relies on ICMP type 3 code 4 "Fragmentation Needed" messages. Without these, large packets to DF-bit-set connections are silently dropped, causing connections to hang for large data transfers while small packets work fine. (2) Traceroute and network diagnostics — without ICMP Time Exceeded (type 11) responses, path discovery fails. Additionally, blocking ICMPv6 entirely breaks IPv6 neighbor discovery and makes IPv6 unusable.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="purpose">
+  <div class="section-label">Section 1</div>
+  <h2>Purpose of ICMP</h2>
+  <p>ICMP (RFC 792) is a Layer 3 protocol used by IP devices to send error and informational messages. It operates inside IP packets (Protocol field = 1). ICMPv6 is the IPv6 equivalent (IPv6 Next Header = 58).</p>
+  <p>Key principle: ICMP is always generated by a network device (router or host) <em>in response</em> to a problematic packet. The source IP of an ICMP error message is always the device reporting the error, not the original destination.</p>
+
+  <div class="callout callout-blue">
+    <strong>ICMP packet structure</strong>
+    ICMP structure: Type (8 bits) + Code (8 bits) + Checksum (16 bits) + variable data. Type identifies the category; Code provides detail within that category. The original triggering packet's IP header + first 8 bytes of its payload are usually included in the ICMP error data field.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">ICMP = Protocol 1 (IPv4), Next Header 58 (IPv6). Error messages are reactive — generated by routers/hosts in response to problems. Always source = the reporting device, not the destination. No port numbers. Blocking all ICMP breaks PMTUD and path diagnostics.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of ICMP')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · ICMP MESSAGE TYPES &amp; CODES</span>
+  </div>
+  <p class="socratic-insight">Not all ICMP messages indicate errors. Some are informational (ping, timestamp). Knowing the type/code combination is the difference between diagnosing a routing problem and a firewall rule.</p>
+  <ul class="socratic-questions">
+    <li>You see ICMP type 3, code 1 in a trace following a UDP packet. What exactly does this mean, and who sent the ICMP message?</li>
+    <li>What is the difference between ICMP type 3 code 1 (Host Unreachable) and ICMP type 3 code 3 (Port Unreachable)? At what layer does each originate?</li>
+  </ul>
+  <div class="answer-area" data-section="types">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — ICMP TYPE 3 CODE 1</div>
+        <div class="model-answer-text">Type 3 Code 1 is "Destination Unreachable — Host Unreachable." This means a router tried to forward the packet to the destination host but could not find a route to that host or the host did not respond to ARP. The ICMP message was sent by the router that determined the host was unreachable, not by the destination host itself (which is unreachable). This is different from the destination host saying the port is closed.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — HOST UNREACHABLE VS PORT UNREACHABLE</div>
+        <div class="model-answer-text">ICMP type 3 code 1 (Host Unreachable) is generated by a router when it cannot forward a packet to the destination host — it's a Layer 3 (routing) failure. The router sends this because no ARP reply came back for the destination IP, or because there's no route to the subnet. ICMP type 3 code 3 (Port Unreachable) is generated by the destination host itself when it receives a UDP packet but has no process listening on that port number. It's a Layer 4 failure at the endpoint. The source IP of the ICMP will tell you who sent it: if it's the router, it's a routing/reachability problem; if it's the target host, the host is up but the port is closed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="types">
+  <div class="section-label">Section 2</div>
+  <h2>ICMP Message Types &amp; Codes</h2>
+
+  <table class="rcode-table">
+    <thead><tr><th>Type</th><th>Name</th><th>Direction</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>Echo Reply</td><td>Response to ping</td></tr>
+      <tr><td>3</td><td>Destination Unreachable</td><td>Router or host → sender</td></tr>
+      <tr><td>4</td><td>Source Quench</td><td>(deprecated)</td></tr>
+      <tr><td>5</td><td>Redirect</td><td>Router → host (better path)</td></tr>
+      <tr><td>8</td><td>Echo Request</td><td>Ping query</td></tr>
+      <tr><td>11</td><td>Time Exceeded</td><td>Router → sender (TTL=0)</td></tr>
+      <tr><td>12</td><td>Parameter Problem</td><td>Header error</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:20px 0 10px;color:var(--text);">ICMP Type 3 — Destination Unreachable Codes</h2>
+
+  <table class="rcode-table">
+    <thead><tr><th>Code</th><th>Meaning</th><th>Sent By</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>Net Unreachable</td><td>Router</td></tr>
+      <tr><td>1</td><td>Host Unreachable</td><td>Router</td></tr>
+      <tr><td>2</td><td>Protocol Unreachable</td><td>Destination host</td></tr>
+      <tr><td>3</td><td>Port Unreachable</td><td>Destination host</td></tr>
+      <tr><td>4</td><td>Fragmentation Needed / DF Set</td><td>Router</td></tr>
+      <tr><td>5</td><td>Source Route Failed</td><td>Router</td></tr>
+      <tr><td>13</td><td>Communication Administratively Prohibited</td><td>Firewall/router</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-amber">
+    <strong>Code 13 — reject vs drop</strong>
+    Code 13 (Administratively Prohibited) is what a firewall sends when it blocks a connection with an explicit "reject" rule. A "drop" rule generates no ICMP at all — the packet disappears silently, causing the sender to time out instead.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Type 0/8 = ping reply/request. Type 3 = unreachable (various codes). Type 11 = TTL exceeded (traceroute). Code 4 = fragmentation needed (PMTUD). Code 13 = firewall reject. Code 3 = port closed on host. Source IP tells you who reported the error.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-types" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('types','ICMP Message Types &amp; Codes')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-types" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('types')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · PING ANALYSIS</span>
+  </div>
+  <p class="socratic-insight">Ping is the most basic connectivity test, but there's more in a ping exchange than just "is it alive?" — round-trip time, TTL values, payload sizes, and response patterns all tell a story.</p>
+  <ul class="socratic-questions">
+    <li>A ping to a remote host returns with TTL=56 in the Echo Reply. The OS you're testing from uses initial TTL=64. What can you infer about the network path?</li>
+    <li>You send 4 pings to a server and receive 3 replies. The missing reply is packet 3. What are two possible explanations?</li>
+  </ul>
+  <div class="answer-area" data-section="ping">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — TTL=56 IN ECHO REPLY</div>
+        <div class="model-answer-text">The Echo Reply arrived with TTL=56. Since ICMP Echo Replies from typical Linux/Unix hosts start with TTL=64, the reply has traversed 64 - 56 = 8 hops from the source. This allows you to estimate the distance in hops without running traceroute. If the reply came from a Windows host (initial TTL=128), it traveled 128 - 56 = 72 hops. If it came from a Cisco router (initial TTL=255), it traveled 255 - 56 = 199 hops. The TTL in the reply is a distance indicator — useful for rough topology mapping.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — MISSING PING REPLY</div>
+        <div class="model-answer-text">Two explanations for a missing ping reply: (1) Packet loss — the 3rd Echo Request was dropped (or the 3rd Echo Reply was dropped) somewhere in the network path. A single lost packet in four pings is a 25% loss rate, which would severely affect real-time applications. (2) Rate limiting — some routers and firewalls rate-limit ICMP processing. The router may respond to the first few pings and then temporarily deprioritize further ICMP traffic. This is normal behavior designed to protect routers from ICMP floods, but it can mislead administrators into thinking there is packet loss when the path is actually healthy.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ping">
+  <div class="section-label">Section 3</div>
+  <h2>Ping Analysis</h2>
+  <p>ICMP Echo Request (type 8) and Echo Reply (type 0) are the ping protocol. Each contains an <strong>Identifier</strong> (matches request to reply), a <strong>Sequence Number</strong> (increments with each ping), and a payload (default 32 bytes on Windows, 56 bytes on Linux).</p>
+  <p>In Wireshark, ping appears as paired type 8 / type 0 packets with matching Identifiers and Sequence Numbers. Missing sequence numbers indicate lost packets.</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">icmp.type == 8</span></td><td>Ping requests (Echo Request)</td></tr>
+      <tr><td><span class="filter-code">icmp.type == 0</span></td><td>Ping replies (Echo Reply)</td></tr>
+      <tr><td><span class="filter-code">icmp</span></td><td>All ICMP traffic</td></tr>
+      <tr><td><span class="filter-code">icmp.seq == 5</span></td><td>Specific ping sequence number</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-blue">
+    <strong>Measuring RTT in Wireshark</strong>
+    Delta time between Echo Request and Echo Reply in Wireshark's Time column (set to "Seconds since previous displayed packet") gives you the round-trip time for each individual ping, more granularly than the ping command's summary.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Ping = type 8 (request) + type 0 (reply). Identifier links request/reply pair. Sequence number increments. TTL in reply = initial TTL - hops traversed. Windows default payload=32 bytes, Linux=56 bytes. Rate limiting ≠ packet loss — check with larger ping samples.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ping" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ping','Ping Analysis')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ping" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ping')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · TRACEROUTE ANALYSIS</span>
+  </div>
+  <p class="socratic-insight">Traceroute works by deliberately exploiting TTL expiration and collecting ICMP Time Exceeded responses from each router in the path. The resulting map reveals the route packets take and the latency at each hop.</p>
+  <ul class="socratic-questions">
+    <li>Explain the exact mechanism by which traceroute discovers each hop's IP address. What specific sequence of events produces each line of traceroute output?</li>
+    <li>A traceroute shows asterisks (*) for hops 8, 9, and 10, but then hops 11 onwards respond normally. What does this tell you?</li>
+  </ul>
+  <div class="answer-area" data-section="traceroute">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — HOW TRACEROUTE DISCOVERS EACH HOP</div>
+        <div class="model-answer-text">Traceroute sends a packet (UDP to a high port, or ICMP Echo Request, depending on the OS) with TTL=1. The first router decrements TTL to 0, drops the packet, and sends back ICMP Time Exceeded (type 11, code 0). The source IP of this ICMP is the router's IP — traceroute records it as Hop 1. Traceroute then sends the next packet with TTL=2; the first router passes it (TTL becomes 1) and the second router drops it (TTL becomes 0) and sends back ICMP Time Exceeded — that's Hop 2. This continues until the packet reaches the destination, which sends back ICMP Echo Reply (or ICMP Port Unreachable for UDP traceroute). Each "line" of output typically shows 3 probe packets (hence 3 RTT values per hop). The destination is identified when the reply is not ICMP Time Exceeded.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — ASTERISKS IN TRACEROUTE OUTPUT</div>
+        <div class="model-answer-text">Asterisks mean no ICMP Time Exceeded was received for those hops within the timeout period. But hops 11 onwards respond — so the destination is reachable. This means routers at hops 8, 9, 10 are either: (1) configured to not send ICMP Time Exceeded (many firewalls and load balancers block ICMP type 11 outbound for security reasons), or (2) are present in the path but process ICMP at very low priority and the responses arrive after traceroute's timeout. The fact that subsequent hops respond proves the path continues through those routers — they just don't announce themselves.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="traceroute">
+  <div class="section-label">Section 4</div>
+  <h2>Traceroute Analysis</h2>
+  <p>Traceroute (Windows: <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">tracert</code>, Unix: <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">traceroute</code>) maps the network path by sending probe packets with incrementally increasing TTL values. Each router that drops a packet due to TTL expiration sends back an ICMP Time Exceeded message, revealing its IP address.</p>
+  <p>Windows tracert uses ICMP Echo Requests. Unix/Linux traceroute uses UDP by default (to high port numbers, typically 33434+). Wireshark will show the probes and corresponding ICMP Time Exceeded replies.</p>
+
+  <div class="callout callout-blue">
+    <strong>Filter for traceroute hops</strong>
+    In Wireshark, use the display filter <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">icmp.type == 11</code> to isolate all Time Exceeded messages — these are the traceroute responses. Each will have a different source IP corresponding to a different router hop.
+  </div>
+
+  <div class="callout callout-amber">
+    <strong>Asymmetric routing</strong>
+    Asymmetric routing: outbound and return paths may traverse different routers. Traceroute only shows the outbound path (the path your probes take). The return path may be completely different.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Traceroute = TTL increments from 1 upward. Each router sends ICMP type 11 (Time Exceeded) when TTL=0. Final destination sends Echo Reply (ICMP tracert) or Port Unreachable (UDP traceroute). Asterisks = ICMP type 11 blocked, NOT necessarily no route. Traceroute shows outbound path only.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-traceroute" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('traceroute','Traceroute Analysis')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-traceroute" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('traceroute')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 5 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · ICMPv6</span>
+  </div>
+  <p class="socratic-insight">ICMPv6 is far more than just the IPv6 version of ping. It completely replaces ARP and is fundamental to IPv6 neighbor discovery, address autoconfiguration, and router discovery. Blocking ICMPv6 can break IPv6 entirely.</p>
+  <ul class="socratic-questions">
+    <li>What ARP functions does ICMPv6 replace, and through what ICMPv6 message types?</li>
+    <li>Why is it especially dangerous to block all ICMPv6 at a firewall, compared to blocking all ICMPv4?</li>
+  </ul>
+  <div class="answer-area" data-section="icmpv6">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — ICMPv6 REPLACING ARP</div>
+        <div class="model-answer-text">ICMPv6 Neighbor Discovery Protocol (NDP) replaces ARP entirely. The specific message types: Neighbor Solicitation (type 135) replaces ARP Request — sent to the Solicited-Node multicast address to find the MAC of an IPv6 address. Neighbor Advertisement (type 136) replaces ARP Reply — contains the MAC address. Router Solicitation (type 133) is sent by hosts to discover routers (replaces DHCP-based gateway discovery). Router Advertisement (type 134) is sent by routers periodically, containing the network prefix, default gateway, and configuration flags. Additionally, Redirect (type 137) replaces ICMP redirect.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — BLOCKING ALL ICMPv6</div>
+        <div class="model-answer-text">Blocking all ICMPv6 is catastrophic for IPv6: NDP (which replaces ARP) uses ICMPv6 — block it and hosts cannot discover each other's MAC addresses or find the default router. Stateless Address Autoconfiguration (SLAAC), which IPv6 hosts use to self-assign addresses, depends on Router Advertisements (ICMPv6 type 134). Path MTU Discovery in IPv6 relies on ICMPv6 type 2 (Packet Too Big) — without it, all IPv6 connections over non-standard MTU paths fail silently. In comparison, blocking all ICMPv4 mainly breaks ping and traceroute (and PMTUD for IPv4) — bad, but IPv4 can still function. Blocking all ICMPv6 makes IPv6 non-functional.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="icmpv6">
+  <div class="section-label">Section 5</div>
+  <h2>ICMPv6</h2>
+  <p>ICMPv6 (RFC 4443) serves both the error-reporting function of ICMPv4 and completely replaces ARP through the Neighbor Discovery Protocol (NDP). It is mandatory for IPv6 operation.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Type</th><th>Name</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Destination Unreachable</td><td>Error reporting</td></tr>
+      <tr><td>2</td><td>Packet Too Big</td><td>PMTUD (replaces ICMP 3/4)</td></tr>
+      <tr><td>3</td><td>Time Exceeded</td><td>Traceroute</td></tr>
+      <tr><td>128</td><td>Echo Request</td><td>Ping</td></tr>
+      <tr><td>129</td><td>Echo Reply</td><td>Ping reply</td></tr>
+      <tr><td>133</td><td>Router Solicitation</td><td>Host → router discovery</td></tr>
+      <tr><td>134</td><td>Router Advertisement</td><td>Router → host config (prefix, gateway)</td></tr>
+      <tr><td>135</td><td>Neighbor Solicitation</td><td>Replaces ARP Request</td></tr>
+      <tr><td>136</td><td>Neighbor Advertisement</td><td>Replaces ARP Reply</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-red">
+    <strong>Never block all ICMPv6</strong>
+    Never block all ICMPv6 on a firewall — it breaks NDP (replacing ARP), SLAAC, and PMTUD for IPv6. The minimum ICMPv6 types to allow: 1, 2, 3, 133, 134, 135, 136.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">ICMPv6 = IPv6 Next Header 58. Types 128/129 = ping. Types 133–136 = NDP (replaces ARP + router discovery). Type 2 = Packet Too Big (PMTUD). Blocking all ICMPv6 = IPv6 breaks. Filter: icmp.type (ICMPv4) vs icmpv6.type (ICMPv6).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-icmpv6" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('icmpv6','ICMPv6')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-icmpv6" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('icmpv6')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 18 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 5 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-purpose"><input type="checkbox" onchange="toggleDone(this,'chk-purpose')"> Purpose of ICMP</label>
+      <label class="check-item" data-key="chk-types"><input type="checkbox" onchange="toggleDone(this,'chk-types')"> Types &amp; Codes</label>
+      <label class="check-item" data-key="chk-ping"><input type="checkbox" onchange="toggleDone(this,'chk-ping')"> Ping Analysis</label>
+      <label class="check-item" data-key="chk-traceroute"><input type="checkbox" onchange="toggleDone(this,'chk-traceroute')"> Traceroute Analysis</label>
+      <label class="check-item" data-key="chk-icmpv6"><input type="checkbox" onchange="toggleDone(this,'chk-icmpv6')"> ICMPv6</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>ICMP Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">icmp</span><span class="qr-def">All ICMP traffic</span></div>
+    <div class="qr-row"><span class="qr-term">icmp.type==8</span><span class="qr-def">Ping request</span></div>
+    <div class="qr-row"><span class="qr-term">icmp.type==0</span><span class="qr-def">Ping reply</span></div>
+    <div class="qr-row"><span class="qr-term">icmp.type==3</span><span class="qr-def">Unreachable</span></div>
+    <div class="qr-row"><span class="qr-term">icmp.type==11</span><span class="qr-def">TTL exceeded</span></div>
+    <div class="qr-row"><span class="qr-term">icmpv6.type==135</span><span class="qr-def">NDP Neighbor Sol</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 18 · Analyze ICMP Traffic · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch18-icmp';
+const SECTIONS = {
+  'purpose':'Purpose of ICMP',
+  'types':'ICMP Message Types & Codes',
+  'ping':'Ping Analysis',
+  'traceroute':'Traceroute Analysis',
+  'icmpv6':'ICMPv6'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>
