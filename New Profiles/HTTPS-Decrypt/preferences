@@ -1,0 +1,43 @@
+# Wireshark preferences — HTTPS-Decrypt
+# Requires: set tls.keylog_file below to your SSLKEYLOGFILE path
+#   e.g.  tls.keylog_file: /Users/you/sslkeylog.txt
+#   Export from browser/app: export SSLKEYLOGFILE=~/sslkeylog.txt
+
+# ── Column definitions ────────────────────────────────────────────────────────
+column.format:
+	"No.", "%m",
+	"Time (AEST)", "%t",
+	"Source IP", "%s",
+	"Src Port", "%uS",
+	"Dest IP", "%d",
+	"Dst Port", "%uD",
+	"TLS Version", "%Cus:tls.record.version:0:R",
+	"TLS Alert", "%Cus:tls.alert_message.desc:0:R",
+	"Method", "%Cus:http.request.method:0:R",
+	"Host", "%Cus:http.host:0:R",
+	"URI", "%Cus:http.request.uri:0:R",
+	"Response Code", "%Cus:http.response.code:0:R",
+	"Content-Type", "%Cus:http.content_type:0:R",
+	"Info", "%i"
+
+# ── Name resolution ───────────────────────────────────────────────────────────
+nameres.network_name: FALSE
+nameres.dns_pkt_addr_resolution: FALSE
+nameres.use_external_name_resolver: FALSE
+
+# ── TLS decryption ────────────────────────────────────────────────────────────
+# tls.keylog_file: /path/to/sslkeylog.txt
+tls.desegment_ssl_records: TRUE
+tls.desegment_ssl_application_data: TRUE
+
+# ── HTTP dissector ────────────────────────────────────────────────────────────
+http.tcp.port: 80,443,8080,3128,9480,10805,9000
+http.desegment_headers: TRUE
+http.desegment_body: TRUE
+http.decompress_body: TRUE
+
+# ── TCP dissector ─────────────────────────────────────────────────────────────
+tcp.desegment_tcp_streams: TRUE
+tcp.reassemble_out_of_order: TRUE
+tcp.calculate_timestamps: TRUE
+tcp.check_checksum: FALSE

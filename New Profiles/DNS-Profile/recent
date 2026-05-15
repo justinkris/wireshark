@@ -1,0 +1,109 @@
+# Recent settings file for Wireshark 4.2.4.
+#
+# This file is regenerated each time Wireshark is quit
+# and when changing configuration profile.
+# So be careful, if you want to make manual changes here.
+
+
+# Main Toolbar show (hide).
+gui.toolbar_main_show: TRUE
+
+# Filter Toolbar show (hide).
+gui.filter_toolbar_show: TRUE
+
+# Wireless Settings Toolbar show (hide).
+gui.wireless_toolbar_show: FALSE
+
+# Packet list show (hide).
+gui.packet_list_show: TRUE
+
+# Tree view show (hide).
+gui.tree_view_show: TRUE
+
+# Byte view show (hide).
+gui.byte_view_show: TRUE
+
+# Packet diagram show (hide).
+gui.packet_diagram_show: FALSE
+
+# Statusbar show (hide).
+gui.statusbar_show: TRUE
+
+# Packet list colorize.
+gui.packet_list_colorize: TRUE
+
+# Auto scroll packet list when capturing.
+capture.auto_scroll: FALSE
+
+# Timestamp display format.
+# One of: RELATIVE, ABSOLUTE, ABSOLUTE_WITH_YMD, DELTA, DELTA_DIS, EPOCH, UTC, UTC_WITH_YMD
+gui.time_format: DELTA
+
+# Timestamp display precision.
+gui.time_precision: MSEC
+
+# Seconds display format.
+gui.seconds_format: SECONDS
+
+# Zoom level.
+gui.zoom_level: 0
+
+# Bytes view display type.
+gui.bytes_view: HEX
+
+# Bytes view text encoding.
+gui.bytes_encoding: FROM_PACKET
+
+# Packet diagram field values show (hide).
+gui.packet_diagram_field_values: FALSE
+
+# Allow hover selection in byte view.
+gui.allow_hover_selection: TRUE
+
+# Follow stream show as.
+gui.follow_show: ASCII
+
+# Show packet bytes decode as.
+gui.show_bytes_decode: NONE
+
+# Show packet bytes show as.
+gui.show_bytes_show: ASCII
+
+# Packet list column pixel widths.
+# Each pair of strings consists of a column format and its pixel width.
+column.width:
+	%m, 50,
+	%Yt, 110,
+	%s, 140,
+	%d, 140,
+	"%Cus:dns.id:0:R", 110,
+	"%Cus:dns.flags.response:0:R", 110,
+	"%Cus:dns.qry.name:0:R", 220,
+	"%Cus:dns.qry.type:0:R", 90,
+	"%Cus:dns.flags.rcode:0:R", 110,
+	"%Cus:dns.count.answers:0:R", 100,
+	"%Cus:dns.resp.ttl:0:R", 80,
+	"%Cus:dns.a:0:R", 140,
+	%i, -1
+
+# Open conversation dialog tabs.
+gui.conversation_tabs:
+	"UDP", "IPv4", "IPv6"
+
+# Conversation dialog tabs columns.
+gui.conversation_tabs_columns:
+
+# Open endpoint dialog tabs.
+gui.endpoint_tabs:
+
+# Endpoint dialog tabs columns.
+gui.endpoint_tabs_columns:
+
+# For RLC stats, whether to use RLC PDUs found inside MAC frames.
+gui.rlc_pdus_from_mac_frames: FALSE
+
+# Additional Toolbars shown.
+gui.additional_toolbar_show:
+
+# Interface Toolbars show.
+gui.interface_toolbar_show:

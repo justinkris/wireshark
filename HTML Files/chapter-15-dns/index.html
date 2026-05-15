@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 15: Analyze Domain Name System (DNS) Traffic — Wireshark Practice</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+
+/* ── MOTIVATION BANNER ── */
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+
+/* ── TOP PANELS ── */
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel{background:var(--surface);}
+.qpanel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open{background:var(--surface-2);}
+.qpanel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open{display:block;}
+.notes-panel{background:var(--surface);}
+.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.notes-panel-body{display:none;padding:0 32px 22px;}
+.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-group{margin-bottom:12px;}
+.q-group-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+
+/* ── SECTION NAV ── */
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ── MAIN GRID ── */
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+
+/* ── SECTION BLOCK ── */
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p,.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0;}
+.section-block li{margin-bottom:4px;}
+
+/* ── FILE BADGES ── */
+.files-grid{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;}
+.file-badge{background:var(--green-light);border:1px solid var(--green-border);color:var(--green);font-size:11px;font-weight:600;font-family:'SF Mono','Fira Code',monospace;padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
+.file-badge::before{content:'📄';font-size:10px;}
+
+/* ── PRACTICE QUESTION CARDS ── */
+.practice-q{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;border-top:3px solid var(--blue);}
+.practice-q-header{padding:16px 20px 12px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border-dim);}
+.q-badge{flex-shrink:0;background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;margin-top:1px;font-family:'Epilogue',sans-serif;}
+.q-body-text{font-size:14px;line-height:1.65;color:var(--text);}
+.practice-q-answer{padding:14px 20px;background:var(--surface-2);}
+.answer-label-sm{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;display:block;}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:44px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--blue);}
+.answer-textarea::placeholder{color:var(--text-muted);}
+.answer-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.btn-save-ans{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-save-ans:hover{opacity:.85;}
+.btn-clear-ans{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-clear-ans:hover{border-color:var(--red);color:var(--red);}
+.saved-indicator{font-size:11px;color:var(--green);min-width:60px;}
+
+/* ── MENTAL NOTE ── */
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+
+/* ── LESSON TOOLS ── */
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+
+/* ── SIDEBAR ── */
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arrow{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+
+/* ── QUICK-REF (sidebar dark cards) ── */
+.quick-ref{background:var(--text);border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;}
+.qr-def{color:rgba(255,255,255,0.65);font-size:11px;text-align:right;max-width:55%;}
+
+/* ── FOOTER ── */
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  h1{font-size:30px;}
+}
+
+/* ── MODEL ANSWER REVEAL ── */
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all .15s;}
+.btn-see-answer:disabled{opacity:0.45;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answer-block{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--blue);}
+.model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../index.html">Wireshark Practice Hub</a>
+      <span class="breadcrumb-sep">›</span>
+      Chapter 15
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Practice · Chapter 15</div>
+    <h1>Analyze Domain Name System <em>(DNS) Traffic</em></h1>
+    <p class="header-sub">8 practice questions · 11 trace files</p>
+  </div>
+</header>
+
+<div style="background:#1a6dcc;padding:12px 60px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+  <span style="font-size:13px;color:#fff;font-family:'Epilogue',sans-serif;">📖 <strong>Study Guide available</strong> — full chapter breakdown with Socratic questions, mental notes, and analogies</span>
+  <a href="study-guide.html" style="background:#fff;color:#1a6dcc;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:'Epilogue',sans-serif;letter-spacing:.04em;">Open Study Guide →</a>
+</div>
+<div class="motivation-banner">
+  <div class="motivation-text">Open the trace. <em>Trust what you see.</em></div>
+  <p class="motivation-sub">Covers DNS query and response analysis including recursive vs. iterative queries, DNS over UDP vs. TCP, response codes, Multicast DNS (mDNS), and common DNS problems. Demonstrates creating display filters for DNS errors, response codes, and query types.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel" id="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel" id="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="sec-files" onclick="navTo('sec-files')">📁 Trace Files</button>
+  <button class="nav-tab" data-target="sec-questions" onclick="navTo('sec-questions')">❓ Questions</button>
+  <button class="nav-tab" data-target="sec-tools" onclick="navTo('sec-tools')">🛠 Notes</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+  <div class="section-block" id="sec-files">
+    <div class="section-label">Chapter 15 · Trace Files</div>
+    <h2>Files for This Chapter</h2>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;">Download from <a href="https://www.wiresharkbook.com" target="_blank" style="color:var(--blue)">wiresharkbook.com</a> and open in Wireshark before answering.</p>
+    <div class="files-grid">
+      <span class="file-badge">dns-errors-partial.pcapng</span><span class="file-badge">dns-icmp-fault.pcapng</span><span class="file-badge">dns-misc.pcapng</span><span class="file-badge">dns-ptr.pcapng</span><span class="file-badge">dns-serverfailure.pcapng</span><span class="file-badge">dns-synbit-recursive.pcapng</span><span class="file-badge">http-espn2007.pcapng</span><span class="file-badge">http-espn2010.pcapng</span><span class="file-badge">http-espn2011.pcapng</span><span class="file-badge">http-msnbc.pcapng</span><span class="file-badge">ipv6-worldipv6day.pcapng</span>
+    </div>
+    <div class="mental-note-block">
+      <div class="mental-note-block-icon">🧠</div>
+      <div class="mental-note-block-inner">
+        <div class="mental-note-block-label">MENTAL NOTE</div>
+        <div class="mental-note-block-text">Covers DNS query and response analysis including recursive vs. iterative queries, DNS over UDP vs. TCP, response codes, Multicast DNS (mDNS), and common DNS problems. Demonstrates </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block" id="sec-questions">
+    <div class="section-label">Practice What You've Learned</div>
+    <h2>Questions</h2>
+    
+        
+        <div class="practice-q" id="q1">
+          <div class="practice-q-header">
+            <span class="q-badge">Q1</span>
+            <p class="q-body-text">Open dns-errors-partial.pcapng. Filter out queries and responses related to www.nmap.org. Were those two sites the only ones with a problem? What was the timing of the nmap.org query/response process?</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="1" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(1, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-1"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
+                <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
+              </div>
+            </div>
+            
+        <div class="model-answer-block" id="model-1" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">DNS error responses contain a non-zero Rcode value in the flags field. Rcode 3 (Name Error or NXDOMAIN) means the queried name does not exist in the DNS namespace. The timing between queries and responses — visible by setting the Time column to Seconds Since Previous Displayed Packet — shows how long the client waited before retrying or giving up.</div>
+        </div>
+          </div>
+        </div>
+        <div class="practice-q" id="q2">
+          <div class="practice-q-header">
+            <span class="q-badge">Q2</span>
+            <p class="q-body-text">Open dns-icmp-fault.pcapng. We can't get to the desired site, but there are no Name Errors or Server Errors. What is the problem with this communication?</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="2" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(2, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-2"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
+                <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
+              </div>
+            </div>
+            
+        <div class="model-answer-block" id="model-2" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The ICMP Destination Unreachable/Port Unreachable responses in this trace indicate that port 53 is not open on the target IP address the client is sending DNS queries to. This means either the client is configured with the wrong DNS server IP address, or the DNS server daemon is not running on that host.</div>
+        </div>
+          </div>
+        </div>
+        <div class="practice-q" id="q3">
+          <div class="practice-q-header">
+            <span class="q-badge">Q3</span>
+            <p class="q-body-text">Open dns-misc.pcapng. Compare the DNS lookups required to access www.winpcap.org, www.msnbc.com and www.espn.com. Were all DNS requests successful? How does the round trip time look between queries and replies?</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="3" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(3, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-3"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                
+                <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="practice-q" id="q4">
+          <div class="practice-q-header">
+            <span class="q-badge">Q4</span>
+            <p class="q-body-text">Open dns-ptr.pcapng. If you see an excessive number of DNS PTR queries, look at the source. Were all DNS PTR requests successful?</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="4" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(4, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-4"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                
+                <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="practice-q" id="q5">
+          <div class="practice-q-header">
+            <span class="q-badge">Q5</span>
+            <p class="q-body-text">Open dns-serverfailure.pcapng. Were these recursive requests? Build a display filter for dns.flags.rcode==2 to view DNS server failure responses.</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="5" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(5, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-5"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                
+                <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="practice-q" id="q6">
+          <div class="practice-q-header">
+            <span class="q-badge">Q6</span>
+            <p class="q-body-text">Open http-espn2007.pcapng. How many DNS queries were generated to load this website? Were any unsuccessful? What was the typical round trip time? Are there any DNS errors?</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="6" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(6, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-6"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                
+                <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="practice-q" id="q7">
+          <div class="practice-q-header">
+            <span class="q-badge">Q7</span>
+            <p class="q-body-text">Open http-espn2011.pcapng. The client is dual-stack. How does the total number of DNS queries compare? How many times does the host request AAAA records?</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="7" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(7, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-7"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                
+                <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="practice-q" id="q8">
+          <div class="practice-q-header">
+            <span class="q-badge">Q8</span>
+            <p class="q-body-text">Open ipv6-worldipv6day.pcapng. Can you determine the default hop limit for the local client? What response did we receive for our A record query? Why did we use IPv6 to connect?</p>
+          </div>
+          <div class="practice-q-answer">
+            <span class="answer-label-sm">Your Answer</span>
+            <textarea class="answer-textarea" data-q="8" rows="2"
+              placeholder="Open the trace file in Wireshark and type your findings here…"
+              oninput="onAnswerInput(8, this.value)"></textarea>
+            <div class="answer-row">
+              <span class="saved-indicator" id="saved-8"></span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                
+                <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+  </div>
+
+  <div class="section-block" id="sec-tools">
+    <div class="section-label">Study Tools</div>
+    <h2>Questions &amp; Notes</h2>
+    <div class="lesson-tools">
+      <div class="lesson-tools-grid">
+        <div>
+          <div class="tool-label">Ask a Question</div>
+          <textarea class="tool-textarea" id="q-general" placeholder="What are you unsure about in this chapter?" rows="3"></textarea>
+          <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('general')">Add Question</button></div>
+        </div>
+        <div>
+          <div class="tool-label">Add a Note</div>
+          <textarea class="tool-textarea" id="note-general" placeholder="Key insight, pattern, or tip to remember…" rows="3"></textarea>
+          <div class="tool-row"><button class="btn-add-q" onclick="addNote('general')">+ Add Note</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../index.html">🦈 All Chapters <span class="arrow">›</span></a>
+      <a class="sidebar-link" href="../chapter-14/index.html"><span>←</span> Ch 14: TCP/IP Analysis Overview…<span class="arrow">›</span></a>
+      <a class="sidebar-link" href="../chapter-16/index.html"><span>→</span> Ch 16: Analyze Address Resolution Protoco…<span class="arrow">›</span></a>
+    </div>
+  </div>
+
+  <div class="sidebar-card">
+    <h3>Progress — Ch 15</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 8 answered</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-qi="1"><input type="checkbox" onchange="updateProgress()"> Q1: Open dns-errors-partial.pcapng. Filter out queries and …</label><label class="check-item" data-qi="2"><input type="checkbox" onchange="updateProgress()"> Q2: Open dns-icmp-fault.pcapng. We can't get to the desired…</label><label class="check-item" data-qi="3"><input type="checkbox" onchange="updateProgress()"> Q3: Open dns-misc.pcapng. Compare the DNS lookups required …</label><label class="check-item" data-qi="4"><input type="checkbox" onchange="updateProgress()"> Q4: Open dns-ptr.pcapng. If you see an excessive number of …</label><label class="check-item" data-qi="5"><input type="checkbox" onchange="updateProgress()"> Q5: Open dns-serverfailure.pcapng. Were these recursive req…</label><label class="check-item" data-qi="6"><input type="checkbox" onchange="updateProgress()"> Q6: Open http-espn2007.pcapng. How many DNS queries were ge…</label><label class="check-item" data-qi="7"><input type="checkbox" onchange="updateProgress()"> Q7: Open http-espn2011.pcapng. The client is dual-stack. Ho…</label><label class="check-item" data-qi="8"><input type="checkbox" onchange="updateProgress()"> Q8: Open ipv6-worldipv6day.pcapng. Can you determine the de…</label>
+    </div>
+  </div>
+
+  
+      <div class="quick-ref">
+        <h4>Trace Files</h4>
+        <div class="qr-row"><span class="qr-term">dns-errors-partial.pcapng</span><span class="qr-def">Dns Errors Partial</span></div><div class="qr-row"><span class="qr-term">dns-icmp-fault.pcapng</span><span class="qr-def">Dns Icmp Fault</span></div><div class="qr-row"><span class="qr-term">dns-misc.pcapng</span><span class="qr-def">Dns Misc</span></div><div class="qr-row"><span class="qr-term">dns-ptr.pcapng</span><span class="qr-def">Dns Ptr</span></div><div class="qr-row"><span class="qr-term">dns-serverfailure.pcapng</span><span class="qr-def">Dns Serverfailure</span></div>
+      </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 15 · Analyze Domain Name System (DNS) Traffic</div>
+  <div>Wireshark Network Analysis 2nd Ed</div>
+</footer>
+
+<script>
+
+const PAGE_KEY='ws-ch15';
+const TOTAL_Q=8;
+
+// ── Q-Panel ──
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');}
+function saveQArr(qs){localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));}
+function addQuestion(key){const ta=document.getElementById('q-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const qs=getQArr();qs.push({id:Date.now(),section:key,text});saveQArr(qs);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const body=document.getElementById('qpanel-body');const header=document.getElementById('qpanel-header');const chevron=document.getElementById('qpanel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',open);}
+function renderQPanel(){const qs=getQArr();const count=document.getElementById('qpanel-count');if(count){count.textContent=qs.length;count.style.display=qs.length?'inline':'none';}const hint=document.querySelector('.qpanel-hint');if(hint)hint.textContent=qs.length?`— ${qs.length} question${qs.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('qpanel-body');if(!body)return;if(!qs.length){body.innerHTML='<p class="no-questions">No questions yet.</p>';return;}let html='';qs.forEach((q,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;
+});body.innerHTML=html;}
+
+// ── Notes Panel ──
+function getNotesArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNotesArr(ns){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(ns));}
+function addNote(key){const ta=document.getElementById('note-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const ns=getNotesArr();ns.push({id:Date.now(),section:key,text});saveNotesArr(ns);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNotesArr(getNotesArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const body=document.getElementById('notes-panel-body');const header=document.getElementById('notes-panel-header');const chevron=document.getElementById('notes-panel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',open);}
+function renderNotesPanel(){const ns=getNotesArr();const count=document.getElementById('notes-panel-count');if(count){count.textContent=ns.length;count.style.display=ns.length?'inline':'none';}const hint=document.querySelector('.notes-panel-hint');if(hint)hint.textContent=ns.length?`— ${ns.length} note${ns.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('notes-panel-body');if(!body)return;if(!ns.length){body.innerHTML='<p class="no-questions">No notes yet. Add one from any question below.</p>';return;}let html='';ns.forEach((n,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${n.id})">✕</button></div>`;
+});body.innerHTML=html;}
+
+// ── Answer autosave ──
+
+function onAnswerInput(q, val) {
+  localStorage.setItem(PAGE_KEY + '-ans-' + q, val);
+  const saveEl = document.getElementById('saved-' + q);
+  if (saveEl) { saveEl.textContent = val.trim() ? '' : ''; }
+  const revealBtn = document.getElementById('reveal-' + q);
+  if (revealBtn) revealBtn.disabled = !val.trim();
+  updateProgress();
+}
+function revealAnswer(q) {
+  const block = document.getElementById('model-' + q);
+  const btn   = document.getElementById('reveal-' + q);
+  if (!block || !btn) return;
+  const hidden = block.style.display === 'none' || block.style.display === '';
+  block.style.display = hidden ? 'block' : 'none';
+  btn.textContent = hidden ? '▲ Hide Model Answer' : '💡 See Model Answer';
+}
+
+function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+
+// ── Progress ──
+function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}
+
+// ── Section nav highlight ──
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+
+// ── Page transitions ──
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  // Restore saved answers
+  document.querySelectorAll('[data-q]').forEach(function(ta){
+    const q=ta.dataset.q;
+    const saved=localStorage.getItem(PAGE_KEY+'-ans-'+q);
+    if(saved)ta.value=saved;
+  });
+  updateProgress();
+  initSectionNav();
+  // Restore reveal button state for saved answers
+  document.querySelectorAll('[data-q]').forEach(function(ta) {
+    const q = ta.dataset.q;
+    const saved = localStorage.getItem(PAGE_KEY + '-ans-' + q);
+    if (saved && saved.trim()) {
+      const btn = document.getElementById('reveal-' + q);
+      if (btn) btn.disabled = false;
+    }
+  });
+  initPT();
+});
+</script>
+</body>
+</html>

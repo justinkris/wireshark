@@ -1,0 +1,34 @@
+# Wireshark preferences — HTTP-Plain
+
+# ── Column definitions ────────────────────────────────────────────────────────
+column.format:
+	"No.", "%m",
+	"Time (AEST)", "%t",
+	"Source IP", "%s",
+	"Src Port", "%uS",
+	"Dest IP", "%d",
+	"Dst Port", "%uD",
+	"Method", "%Cus:http.request.method:0:R",
+	"Host", "%Cus:http.host:0:R",
+	"URI", "%Cus:http.request.uri:0:R",
+	"Response Code", "%Cus:http.response.code:0:R",
+	"Content-Type", "%Cus:http.content_type:0:R",
+	"Content-Length", "%Cus:http.content_length:0:R",
+	"Info", "%i"
+
+# ── Name resolution ───────────────────────────────────────────────────────────
+nameres.network_name: FALSE
+nameres.dns_pkt_addr_resolution: FALSE
+nameres.use_external_name_resolver: FALSE
+
+# ── HTTP dissector ────────────────────────────────────────────────────────────
+http.tcp.port: 80,443,8080,3128,9480,10805,9000
+http.desegment_headers: TRUE
+http.desegment_body: TRUE
+http.decompress_body: TRUE
+
+# ── TCP dissector ─────────────────────────────────────────────────────────────
+tcp.desegment_tcp_streams: TRUE
+tcp.reassemble_out_of_order: TRUE
+tcp.calculate_timestamps: TRUE
+tcp.check_checksum: FALSE

@@ -1,0 +1,15 @@
+# Wireshark Color filter file — Zscaler-Proxy
+# Format: @name@filter@[fg_r,fg_g,fg_b][bg_r,bg_g,bg_b]  (16-bit 0-65535)
+# First match wins.
+
+@ZIA Block (403)@http.response.code == 403@[65535,65535,65535][35723,0,0]
+@Proxy Auth (407)@http.response.code == 407@[65535,65535,65535][65535,26214,0]
+@CONNECT Tunnel@http.request.method == "CONNECT"@[65535,65535,65535][39835,22873,46774]
+@CONNECT Established@http.response.code == 200 && http.response.phrase contains "Connection"@[0,0,0][55255,47288,62451]
+@PAC File Request@http.request.uri contains ".pac"@[65535,65535,65535][0,32896,32896]
+@ZCC Tunnel Range@ip.addr == 100.64.0.0/10@[65535,65535,65535][19018,37008,55769]
+@HTTP 5xx@http.response.code >= 500@[65535,65535,65535][52428,0,0]
+@HTTP 4xx@http.response.code >= 400 && http.response.code < 500@[0,0,0][64250,32896,29298]
+@HTTP 3xx@http.response.code >= 300 && http.response.code < 400@[0,0,0][65535,52428,0]
+@TCP RST@tcp.flags.reset == 1@[65535,65535,65535][39321,0,0]
+@Retransmission@tcp.analysis.retransmission@[0,0,0][65535,46003,47802]

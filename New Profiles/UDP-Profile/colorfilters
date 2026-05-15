@@ -1,0 +1,46 @@
+# Wireshark Color filter file — UDP-Profile
+# Theme: Light pastel backgrounds, dark slate text throughout.
+# Text: #2C3E50 = [11308,15934,20560]  |  First match wins.
+#
+# Background families:
+#   Errors/NAK        → Rose/Peach
+#   DHCP lifecycle    → Blue → Green (Discover → ACK)
+#   DNS               → Blue tints
+#   VoIP (SIP/RTP)   → Lemon/Amber
+#   Specialty protos  → Purple/Teal
+#   Base              → Near-white
+
+# ── CRITICAL ERRORS ───────────────────────────────────────────────────────────
+@DHCP NAK@dhcp.type == 6@[11308,15934,20560][65535,52685,53970]
+@DHCP Decline@dhcp.type == 4@[11308,15934,20560][65535,57568,45746]
+@DNS SERVFAIL@dns.flags.rcode == 2@[11308,15934,20560][65535,52685,53970]
+@DNS NXDOMAIN@dns.flags.rcode == 3@[11308,15934,20560][65535,57568,45746]
+@SIP Error (4xx/5xx/6xx)@sip.Status-Code >= 400@[11308,15934,20560][65535,63993,50372]
+@ICMP Error@icmp.type == 3 || icmp.type == 11 || icmp.type == 12@[11308,15934,20560][65535,62451,57568]
+
+# ── DHCP — blue (request) → green (success) ───────────────────────────────────
+@DHCP Discover@dhcp.type == 1@[11308,15934,20560][58339,62194,65021]
+@DHCP Offer@dhcp.type == 2@[11308,15934,20560][48059,57054,64507]
+@DHCP Request@dhcp.type == 3@[11308,15934,20560][50629,51914,59881]
+@DHCP ACK@dhcp.type == 5@[11308,15934,20560][56540,60909,51400]
+
+# ── DNS ───────────────────────────────────────────────────────────────────────
+@DNS Response@dns.flags.response == 1 && dns.flags.rcode == 0@[11308,15934,20560][61937,63736,59881]
+@DNS Query@dns.flags.response == 0@[11308,15934,20560][57825,62965,65278]
+@mDNS@mdns@[11308,15934,20560][57568,62194,61937]
+@LLMNR@llmnr@[11308,15934,20560][57568,63479,64250]
+
+# ── APPLICATION PROTOCOLS ─────────────────────────────────────────────────────
+@QUIC@quic@[11308,15934,20560][53713,50372,59881]
+@SIP@sip@[11308,15934,20560][65535,63993,50372]
+@RTP@rtp@[11308,15934,20560][65535,65021,59367]
+@RTCP@rtcp@[11308,15934,20560][65535,63736,57825]
+@NTP@ntp@[11308,15934,20560][61937,63736,59881]
+@SNMP@snmp@[11308,15934,20560][53199,55512,56540]
+@Syslog@syslog@[11308,15934,20560][60652,61423,61937]
+@STUN@stun@[11308,15934,20560][60909,59367,63222]
+@TFTP@tftp@[11308,15934,20560][59624,60138,63222]
+@SSDP@ssdp@[11308,15934,20560][65535,62451,57568]
+
+# ── BASE ──────────────────────────────────────────────────────────────────────
+@UDP@udp@[11308,15934,20560][64250,64250,64250]

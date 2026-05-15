@@ -1,0 +1,62 @@
+# Wireshark Color filter file — Zscaler (combined ZIA + ZPA + Proxy)
+# Format: @name@filter@[fg_r,fg_g,fg_b][bg_r,bg_g,bg_b]  (16-bit 0-65535)
+# First match wins. Order: HTTP app layer → IP/subnet → tunnels → TCP base.
+
+# ── PROXY BLOCKS & ERRORS (HTTP application layer) ───────────────────────────
+@ZIA Block (403)@http.response.code == 403@[65535,65535,65535][35723,0,0]
+@Proxy Auth (407)@http.response.code == 407@[65535,65535,65535][65535,26214,0]
+@TLS Fatal Alert (Zscaler)@tls.alert_message.level == 2 && (ip.addr == 104.129.192.0/20 || ip.addr == 165.225.0.0/17 || ip.addr == 147.161.128.0/17)@[65535,65535,65535][52428,0,0]
+@Zscaler RST (Blocked)@tcp.flags.reset == 1 && (ip.addr == 104.129.192.0/20 || ip.addr == 165.225.0.0/17 || ip.addr == 147.161.128.0/17 || ip.addr == 136.226.0.0/16)@[65535,65535,65535][39321,0,0]
+@TCP RST (General)@tcp.flags.reset == 1@[0,0,0][65535,46003,47802]
+
+# ── PROXY METHODS & PAC ───────────────────────────────────────────────────────
+@CONNECT Tunnel@http.request.method == "CONNECT"@[65535,65535,65535][39835,22873,46774]
+@CONNECT Established@http.response.code == 200 && http.response.phrase contains "Connection"@[0,0,0][55255,47288,62451]
+@PAC File Request@http.request.uri contains ".pac"@[65535,65535,65535][0,32896,32896]
+
+# ── PERFORMANCE ───────────────────────────────────────────────────────────────
+@High Latency (>500ms)@tcp.time_delta > 0.5 && tcp.flags.fin == 0 && tcp.flags.reset == 0@[0,0,0][65535,52428,0]
+
+# ── ZPA (Zero Trust Private Access) ──────────────────────────────────────────
+@ZPA Traffic@ip.addr == 136.226.0.0/16@[65535,65535,65535][27756,23644,59367]
+
+# ── ZIA HTTPS — graduated blues per subnet ────────────────────────────────────
+@ZIA HTTPS (104.129.x)@tcp.port == 443 && ip.addr == 104.129.192.0/20@[65535,65535,65535][19018,37008,55769]
+@ZIA HTTPS (165.225.x)@tcp.port == 443 && ip.addr == 165.225.0.0/17@[65535,65535,65535][23387,41891,59624]
+@ZIA HTTPS (147.161.x)@tcp.port == 443 && ip.addr == 147.161.128.0/17@[0,0,0][43176,55512,60138]
+
+# ── ZIA HTTP ──────────────────────────────────────────────────────────────────
+@ZIA HTTP@tcp.port == 80 && (ip.addr == 104.129.192.0/20 || ip.addr == 165.225.0.0/17)@[65535,65535,65535][10023,44718,24672]
+
+# ── ZCC CLIENT TUNNEL RANGE ───────────────────────────────────────────────────
+@ZCC Tunnel Range@ip.addr == 100.64.0.0/10@[65535,65535,65535][11565,39064,56026]
+
+# ── TUNNEL PROTOCOLS ──────────────────────────────────────────────────────────
+@IPSec IKE@isakmp@[65535,65535,65535][36494,17476,44461]
+@IPSec ESP@esp@[65535,65535,65535][27756,13364,33667]
+@GRE Tunnel@gre@[65535,65535,65535][42405,26985,48573]
+
+# ── ZSCALER GENERAL (catch-all for any Zscaler IP not matched above) ──────────
+@Zscaler ZIA General@ip.addr == 104.129.192.0/20 || ip.addr == 165.225.0.0/17 || ip.addr == 147.161.128.0/17@[0,0,0][43176,55512,60138]
+@Zscaler Trust@ip.addr == 185.46.212.0/22@[0,0,0][47288,57568,47288]
+
+# ── HTTP RESPONSE CODES ───────────────────────────────────────────────────────
+@HTTP 5xx@http.response.code >= 500@[65535,65535,65535][52428,0,0]
+@HTTP 4xx@http.response.code >= 400 && http.response.code < 500@[0,0,0][64250,32896,29298]
+@HTTP 3xx@http.response.code >= 300 && http.response.code < 400@[0,0,0][65535,55255,0]
+@HTTP Request@http.request@[0,0,0][52428,58853,61680]
+
+# ── DNS ───────────────────────────────────────────────────────────────────────
+@DNS NXDOMAIN@dns.flags.rcode == 3@[65535,65535,65535][59367,19532,15420]
+@DNS SERVFAIL@dns.flags.rcode == 2@[65535,65535,65535][59110,32382,8738]
+@DNS@dns@[0,0,0][54741,59624,65535]
+
+# ── TCP HANDSHAKE ─────────────────────────────────────────────────────────────
+@TCP SYN@tcp.flags.syn == 1 && tcp.flags.ack == 0@[0,0,0][52428,58853,61680]
+@TCP SYN-ACK@tcp.flags.syn == 1 && tcp.flags.ack == 1@[0,0,0][47288,57568,47288]
+@TCP FIN@tcp.flags.fin == 1@[0,0,0][65535,55255,46003]
+@Retransmission@tcp.analysis.retransmission@[0,0,0][65535,49344,52171]
+
+# ── BASE ──────────────────────────────────────────────────────────────────────
+@TCP@tcp@[0,0,0][61680,61680,61680]
+@UDP@udp@[0,0,0][63736,63736,63736]

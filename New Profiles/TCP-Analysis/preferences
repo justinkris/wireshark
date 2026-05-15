@@ -1,0 +1,30 @@
+# Wireshark preferences — TCP-Analysis
+
+# ── Column definitions ────────────────────────────────────────────────────────
+column.format:
+	"No.", "%m",
+	"Time (AEST)", "%t",
+	"Source IP", "%s",
+	"Src Port", "%uS",
+	"Dest IP", "%d",
+	"Dst Port", "%uD",
+	"TCP Flags", "%Cus:tcp.flags.str:0:R",
+	"Seq Number", "%Cus:tcp.seq:0:R",
+	"Ack Number", "%Cus:tcp.ack:0:R",
+	"Window Size", "%Cus:tcp.window_size:0:R",
+	"TCP Analysis", "%Cus:tcp.analysis.flags:0:R",
+	"Stream Index", "%Cus:tcp.stream:0:R",
+	"Info", "%i"
+
+# ── Name resolution ───────────────────────────────────────────────────────────
+nameres.network_name: FALSE
+nameres.dns_pkt_addr_resolution: FALSE
+nameres.use_external_name_resolver: FALSE
+
+# ── TCP dissector ─────────────────────────────────────────────────────────────
+tcp.relative_sequence_numbers: TRUE
+tcp.desegment_tcp_streams: TRUE
+tcp.reassemble_out_of_order: TRUE
+tcp.calculate_timestamps: TRUE
+tcp.track_bytes_in_flight: TRUE
+tcp.check_checksum: FALSE

@@ -1,0 +1,58 @@
+# Wireshark Color filter file — HTTP-Profile
+# Theme: Light pastel backgrounds, dark slate text throughout.
+# Text: #2C3E50 = [11308,15934,20560]  |  First match wins.
+#
+# Background families:
+#   5xx Server Errors → Deep rose → Light rose
+#   4xx Client Errors → Peach/Salmon
+#   3xx Redirects     → Lemon/Amber
+#   2xx Success       → Light greens
+#   HTTP Methods      → Blue (safe) / Warm (destructive)
+#   HTTP/2 & WS       → Indigo/Purple
+#   Base              → Near-white
+
+# ── SERVER ERRORS (5xx) ───────────────────────────────────────────────────────
+@HTTP 500 Internal Server Error@http.response.code == 500@[11308,15934,20560][61423,39578,39578]
+@HTTP 502 Bad Gateway@http.response.code == 502@[11308,15934,20560][63736,48059,53456]
+@HTTP 503 Service Unavailable@http.response.code == 503@[11308,15934,20560][65535,52685,53970]
+@HTTP 5xx Server Error@http.response.code >= 500@[11308,15934,20560][65535,56283,57054]
+
+# ── CLIENT ERRORS (4xx) ───────────────────────────────────────────────────────
+@HTTP 401 Unauthorized@http.response.code == 401@[11308,15934,20560][65535,52428,32896]
+@HTTP 403 Forbidden@http.response.code == 403@[11308,15934,20560][65535,57568,45746]
+@HTTP 404 Not Found@http.response.code == 404@[11308,15934,20560][65535,63736,46003]
+@HTTP 4xx Client Error@http.response.code >= 400 && http.response.code < 500@[11308,15934,20560][65535,62451,57568]
+
+# ── REDIRECTS (3xx) ───────────────────────────────────────────────────────────
+@HTTP 301 Moved Permanently@http.response.code == 301@[11308,15934,20560][65535,63993,50372]
+@HTTP 302 Found@http.response.code == 302@[11308,15934,20560][65535,65021,59367]
+@HTTP 3xx Redirect@http.response.code >= 300 && http.response.code < 400@[11308,15934,20560][65535,63736,57825]
+
+# ── SUCCESS (2xx) ─────────────────────────────────────────────────────────────
+@HTTP 200 OK@http.response.code == 200@[11308,15934,20560][56540,60909,51400]
+@HTTP 201 Created@http.response.code == 201@[11308,15934,20560][61937,63736,59881]
+@HTTP 204 No Content@http.response.code == 204@[11308,15934,20560][59624,62965,59881]
+@HTTP 2xx Success@http.response.code >= 200 && http.response.code < 300@[11308,15934,20560][59881,62194,57568]
+
+# ── HTTP METHODS — warm (destructive) / cool (safe) ──────────────────────────
+@HTTP DELETE@http.request.method == "DELETE"@[11308,15934,20560][65535,52685,53970]
+@HTTP PUT@http.request.method == "PUT"@[11308,15934,20560][65535,57568,45746]
+@HTTP PATCH@http.request.method == "PATCH"@[11308,15934,20560][65535,63993,50372]
+@HTTP POST@http.request.method == "POST"@[11308,15934,20560][48059,57054,64507]
+@HTTP GET@http.request.method == "GET"@[11308,15934,20560][57825,62965,65278]
+@HTTP HEAD@http.request.method == "HEAD"@[11308,15934,20560][53199,55512,56540]
+@HTTP OPTIONS@http.request.method == "OPTIONS"@[11308,15934,20560][62965,62965,62965]
+
+# ── SPECIAL PROTOCOLS ────────────────────────────────────────────────────────
+@WebSocket Upgrade@http.upgrade == "websocket"@[11308,15934,20560][62451,58853,62965]
+@HTTP/2@http2@[11308,15934,20560][59624,60138,63222]
+@Slow HTTP (>1s)@frame.time_delta_displayed > 1 && http@[11308,15934,20560][65535,63993,50372]
+
+# ── HTTP GENERAL ──────────────────────────────────────────────────────────────
+@HTTP Request@http.request@[11308,15934,20560][58339,62194,65021]
+@HTTP Response@http.response@[11308,15934,20560][61937,63736,59881]
+@HTTP@http@[11308,15934,20560][64250,64250,64250]
+
+# ── TLS / HTTPS ───────────────────────────────────────────────────────────────
+@TLS Fatal Alert@tls.alert_message.level == 2@[11308,15934,20560][65535,52685,53970]
+@HTTPS / TLS@tls@[11308,15934,20560][58339,62194,65021]

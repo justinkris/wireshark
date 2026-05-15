@@ -1,0 +1,16 @@
+# Wireshark preferences — UDP-Profile
+
+# DHCP — track client/server transactions
+bootp.display_major_types: TRUE
+
+# RTP — detect streams for VoIP analysis
+rtp.heuristic_rtp: TRUE
+
+# QUIC — enable heuristic detection
+quic.debug_logfile:
+
+# DNS — reassemble over TCP
+dns.desegment_dns_messages: TRUE
+
+# UDP checksum validation (disable to reduce false errors on offloaded NICs)
+udp.check_checksum: FALSE
