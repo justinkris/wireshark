@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireshark Network Analysis — Chapter Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.08);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── HEADER ── */
+header{padding:48px 60px 40px;background:var(--text);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Fraunces',serif;font-size:46px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.header-meta{display:flex;align-items:center;gap:32px;margin-top:24px;}
+.meta-stat{text-align:left;}
+.meta-stat-num{font-family:'Fraunces',serif;font-size:30px;font-weight:700;color:#93c5fd;display:block;line-height:1;}
+.meta-stat-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:2px;display:block;}
+.meta-divider{width:1px;height:36px;background:rgba(255,255,255,0.1);}
+
+/* ── SEARCH BAR ── */
+.search-wrap{padding:20px 60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;}
+.search-box{position:relative;flex:1;max-width:480px;}
+.search-box input{width:100%;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:'Epilogue',sans-serif;font-size:13px;padding:10px 14px 10px 36px;outline:none;transition:border-color .2s;}
+.search-box input:focus{border-color:var(--blue);}
+.search-box input::placeholder{color:var(--text-muted);}
+.search-box::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;}
+.filter-btns{display:flex;gap:8px;}
+.filter-btn{background:var(--surface-2);border:1.5px solid var(--border);color:var(--text-muted);font-family:'Epilogue',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;padding:7px 16px;border-radius:8px;cursor:pointer;transition:all .15s;}
+.filter-btn:hover,.filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+#result-count{font-size:12px;color:var(--text-muted);margin-left:auto;white-space:nowrap;}
+
+/* ── MAIN ── */
+main{flex:1;max-width:1300px;width:100%;margin:0 auto;padding:40px 60px 80px;}
+.grid-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;margin-bottom:20px;}
+
+/* ── CHAPTER BUTTON GRID ── */
+.chapter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;}
+
+.ch-btn{
+  display:flex;align-items:center;gap:0;
+  background:var(--surface);border:1.5px solid var(--border);border-radius:12px;
+  text-decoration:none;color:inherit;overflow:hidden;
+  transition:border-color .18s,box-shadow .18s,transform .18s,background .18s;
+  cursor:pointer;
+}
+.ch-btn:hover{
+  border-color:var(--blue);
+  box-shadow:0 4px 20px var(--blue-glow);
+  transform:translateY(-2px);
+  background:var(--surface);
+}
+.ch-num-badge{
+  flex-shrink:0;width:64px;min-height:56px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--blue-glow);border-right:1.5px solid var(--border);
+  padding:8px 0;
+  transition:background .18s,border-color .18s;
+}
+.ch-btn:hover .ch-num-badge{background:var(--blue);border-color:var(--blue);}
+.ch-label{font-size:8px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;line-height:1;transition:color .18s;}
+.ch-btn:hover .ch-label{color:rgba(255,255,255,.6);}
+.ch-number{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--blue);line-height:1;margin-top:2px;transition:color .18s;}
+.ch-btn:hover .ch-number{color:#fff;}
+
+.ch-body{flex:1;padding:12px 16px;min-width:0;}
+.ch-title{font-family:'Fraunces',serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.3;transition:color .18s;}
+.ch-btn:hover .ch-title{color:var(--blue-deep);}
+.ch-group{font-size:10px;color:var(--text-muted);margin-top:3px;letter-spacing:.04em;}
+
+.ch-arrow{flex-shrink:0;padding:0 14px;font-size:14px;color:var(--border);transition:color .18s,transform .18s;}
+.ch-btn:hover .ch-arrow{color:var(--blue);transform:translateX(3px);}
+
+/* ── GROUP SECTION HEADERS ── */
+.group-header{grid-column:1/-1;margin-top:24px;margin-bottom:4px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:12px;}
+.group-header:first-of-type{margin-top:0;}
+.group-name{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.group-range{font-size:11px;color:var(--text-muted);}
+
+/* ── NO RESULTS ── */
+#no-results{display:none;text-align:center;padding:60px 0;color:var(--text-muted);font-size:14px;grid-column:1/-1;}
+
+/* ── FOOTER ── */
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  header{padding:28px 20px 28px;}
+  h1{font-size:32px;}
+  .search-wrap{padding:14px 20px;flex-wrap:wrap;}
+  .filter-btns{flex-wrap:wrap;}
+  main{padding:28px 20px 60px;}
+  .chapter-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+  #result-count{margin-left:0;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow"><span class="dot-live"></span> WCNA Study Guide · 2nd Edition</div>
+  <h1>Wireshark <em>Network Analysis</em></h1>
+  <p class="header-sub">Laura Chappell · Chappell University · Official WCNA Certification Guide</p>
+  <div class="header-meta">
+    <div class="meta-stat">
+      <span class="meta-stat-num">33</span>
+      <span class="meta-stat-label">Chapters</span>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-stat">
+      <span class="meta-stat-num">284</span>
+      <span class="meta-stat-label">Practice Questions</span>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-stat">
+      <span class="meta-stat-num">247</span>
+      <span class="meta-stat-label">Trace Files</span>
+    </div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search chapters by name or topic…" oninput="filterCards(this.value)">
+  </div>
+  <div class="filter-btns">
+    <button class="filter-btn active" onclick="setGroup('all',this)">All</button>
+    <button class="filter-btn" onclick="setGroup('core',this)">Core Skills</button>
+    <button class="filter-btn" onclick="setGroup('protocols',this)">Protocols</button>
+    <button class="filter-btn" onclick="setGroup('advanced',this)">Advanced</button>
+  </div>
+  <span id="result-count">33 chapters</span>
+</div>
+
+<main>
+  <div class="chapter-grid" id="grid">
+
+    <!-- ── CORE SKILLS · Ch 01–13 ── -->
+    <div class="group-header" data-group="core">
+      <span class="group-name">Core Skills</span>
+      <span class="group-range">Chapters 01–13</span>
+    </div>
+
+    <a class="ch-btn" href="HTML Files/chapter-01-world-of-network-analysis/index.html" data-group="core" data-title="The World of Network Analysis">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">01</span></div>
+      <div class="ch-body">
+        <div class="ch-title">The World of Network Analysis</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-02-introduction-to-wireshark/index.html" data-group="core" data-title="Introduction to Wireshark">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">02</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Introduction to Wireshark</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-03-capture-traffic/index.html" data-group="core" data-title="Capture Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">03</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Capture Traffic</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-04-capture-filters/index.html" data-group="core" data-title="Create and Apply Capture Filters">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">04</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Create and Apply Capture Filters</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-05-preferences/index.html" data-group="core" data-title="Define Global and Personal Preferences">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">05</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Define Global and Personal Preferences</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-06-colorize-traffic/index.html" data-group="core" data-title="Colorize Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">06</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Colorize Traffic</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-07-time-values/index.html" data-group="core" data-title="Define Time Values and Interpret Summaries">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">07</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Define Time Values and Interpret Summaries</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-08-trace-statistics/index.html" data-group="core" data-title="Interpret Basic Trace File Statistics">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">08</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Interpret Basic Trace File Statistics</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-09-display-filters/index.html" data-group="core" data-title="Create and Apply Display Filters">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">09</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Create and Apply Display Filters</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-10-follow-streams/index.html" data-group="core" data-title="Follow Streams and Reassemble Data">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">10</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Follow Streams and Reassemble Data</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-11-customize-profiles/index.html" data-group="core" data-title="Customize Wireshark Profiles">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">11</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Customize Wireshark Profiles</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-12-annotate-export/index.html" data-group="core" data-title="Annotate, Save, Export and Print Packets">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">12</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Annotate, Save, Export and Print Packets</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-13-expert-system/index.html" data-group="core" data-title="Use Wireshark's Expert System">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">13</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Use Wireshark's Expert System</div>
+        <div class="ch-group">Core Skills</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <!-- ── PROTOCOL ANALYSIS · Ch 14–27 ── -->
+    <div class="group-header" data-group="protocols">
+      <span class="group-name">Protocol Analysis</span>
+      <span class="group-range">Chapters 14–27</span>
+    </div>
+
+    <a class="ch-btn" href="HTML Files/chapter-14-tcp-ip-overview/index.html" data-group="protocols" data-title="TCP/IP Analysis Overview">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">14</span></div>
+      <div class="ch-body">
+        <div class="ch-title">TCP/IP Analysis Overview</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-15-dns/index.html" data-group="protocols" data-title="Analyze Domain Name System (DNS) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">15</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze Domain Name System (DNS) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-16-arp/index.html" data-group="protocols" data-title="Analyze Address Resolution Protocol (ARP) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">16</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze Address Resolution Protocol (ARP) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-17-ip-traffic/index.html" data-group="protocols" data-title="Analyze Internet Protocol (IPv4/IPv6) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">17</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze Internet Protocol (IPv4/IPv6) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-18-icmp/index.html" data-group="protocols" data-title="Analyze Internet Control Message Protocol (ICMPv4/ICMPv6) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">18</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze ICMP (ICMPv4/ICMPv6) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-19-udp/index.html" data-group="protocols" data-title="Analyze User Datagram Protocol (UDP) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">19</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze User Datagram Protocol (UDP) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-20-tcp/index.html" data-group="protocols" data-title="Analyze Transmission Control Protocol (TCP) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">20</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze Transmission Control Protocol (TCP) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-21-io-graphs/index.html" data-group="protocols" data-title="Graph IO Rates and TCP Trends">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">21</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Graph IO Rates and TCP Trends</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-22-dhcp/index.html" data-group="protocols" data-title="Analyze Dynamic Host Configuration Protocol (DHCPv4/DHCPv6) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">22</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze DHCP (DHCPv4/DHCPv6) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-23-http/index.html" data-group="protocols" data-title="Analyze Hypertext Transfer Protocol (HTTP) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">23</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze Hypertext Transfer Protocol (HTTP) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-24-ftp/index.html" data-group="protocols" data-title="Analyze File Transfer Protocol (FTP) Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">24</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze File Transfer Protocol (FTP) Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-25-email/index.html" data-group="protocols" data-title="Analyze Email Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">25</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze Email Traffic</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-26-wlan/index.html" data-group="protocols" data-title="Introduction to 802.11 (WLAN) Analysis">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">26</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Introduction to 802.11 (WLAN) Analysis</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-27-voip/index.html" data-group="protocols" data-title="Introduction to Voice over IP (VoIP) Analysis">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">27</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Introduction to Voice over IP (VoIP) Analysis</div>
+        <div class="ch-group">Protocol Analysis</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <!-- ── ADVANCED TOPICS · Ch 28–33 ── -->
+    <div class="group-header" data-group="advanced">
+      <span class="group-name">Advanced Topics</span>
+      <span class="group-range">Chapters 28–33</span>
+    </div>
+
+    <a class="ch-btn" href="HTML Files/chapter-28-baseline-traffic/index.html" data-group="advanced" data-title="Baseline 'Normal' Traffic Patterns">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">28</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Baseline 'Normal' Traffic Patterns</div>
+        <div class="ch-group">Advanced Topics</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-29-performance-problems/index.html" data-group="advanced" data-title="Find the Top Causes of Performance Problems">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">29</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Find the Top Causes of Performance Problems</div>
+        <div class="ch-group">Advanced Topics</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-30-network-forensics/index.html" data-group="advanced" data-title="Network Forensics Overview">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">30</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Network Forensics Overview</div>
+        <div class="ch-group">Advanced Topics</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-31-network-scanning/index.html" data-group="advanced" data-title="Detect Network Scanning and Discovery Processes">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">31</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Detect Network Scanning and Discovery Processes</div>
+        <div class="ch-group">Advanced Topics</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-32-suspect-traffic/index.html" data-group="advanced" data-title="Analyze Suspect Traffic">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">32</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Analyze Suspect Traffic</div>
+        <div class="ch-group">Advanced Topics</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <a class="ch-btn" href="HTML Files/chapter-33-command-line-tools/index.html" data-group="advanced" data-title="Effective Use of Command Line Tools">
+      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">33</span></div>
+      <div class="ch-body">
+        <div class="ch-title">Effective Use of Command Line Tools</div>
+        <div class="ch-group">Advanced Topics</div>
+      </div>
+      <span class="ch-arrow">→</span>
+    </a>
+
+    <p id="no-results">No chapters match your search.</p>
+  </div>
+</main>
+
+<footer>
+  <div>Wireshark® Network Analysis 2nd Ed · Laura Chappell · Chappell University</div>
+  <div>Chapter Index</div>
+</footer>
+
+<script>
+var activeGroup = 'all';
+
+function setGroup(g, btn) {
+  activeGroup = g;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  filterCards(document.getElementById('search').value);
+}
+
+function filterCards(q) {
+  var lq = q.toLowerCase().trim();
+  var headers = document.querySelectorAll('.group-header');
+  var cards = document.querySelectorAll('.ch-btn');
+  var visible = 0;
+
+  // Hide/show group headers
+  headers.forEach(function(h) {
+    var g = h.dataset.group;
+    h.style.display = (activeGroup === 'all' || activeGroup === g) ? '' : 'none';
+  });
+
+  // Hide/show cards
+  cards.forEach(function(c) {
+    var g = c.dataset.group;
+    var title = c.dataset.title.toLowerCase();
+    var num = c.querySelector('.ch-number').textContent;
+    var groupMatch = activeGroup === 'all' || activeGroup === g;
+    var textMatch = !lq || title.includes(lq) || num.includes(lq) || c.textContent.toLowerCase().includes(lq);
+    var show = groupMatch && textMatch;
+    c.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  // Hide group headers with no visible children
+  headers.forEach(function(h) {
+    if (h.style.display === 'none') return;
+    var g = h.dataset.group;
+    var anyVisible = false;
+    cards.forEach(function(c){ if (c.dataset.group === g && c.style.display !== 'none') anyVisible = true; });
+    h.style.display = anyVisible ? '' : 'none';
+  });
+
+  document.getElementById('no-results').style.display = visible ? 'none' : 'block';
+  document.getElementById('result-count').textContent = visible + ' chapter' + (visible !== 1 ? 's' : '');
+}
+
+// Page transitions
+document.querySelectorAll('a[href]').forEach(function(a) {
+  if (a.href && !a.href.startsWith('#')) {
+    a.addEventListener('click', function(e) {
+      sessionStorage.setItem('pt','1');
+      document.body.style.opacity = '0';
+      document.body.style.transition = 'opacity .22s';
+      setTimeout(function(){ window.location = a.href; }, 220);
+      e.preventDefault();
+    });
+  }
+});
+setTimeout(function(){ document.body.style.transition = 'opacity .3s'; document.body.style.opacity = '1'; }, 10);
+</script>
+</body>
+</html>
