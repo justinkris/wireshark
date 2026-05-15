@@ -317,11 +317,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-3"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-3" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">arping is a Layer-2 reachability tool that sends ARP requests instead of ICMP Echo Requests, making it useful on networks that block ICMP. Each ARP Request asks "Who has IP X? Tell me at MAC Y" — a reply from the target confirms it is reachable at that MAC address. Unlike ICMP ping, ARP cannot cross a router because routers do not forward ARP frames, limiting arping to the local broadcast domain. Check whether each request received an ARP Reply to determine success.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q4">
@@ -337,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">ARP poisoning works by sending unsolicited (gratuitous) ARP Replies that map the attacker's MAC address to a victim's IP address. Once the victim's ARP cache is poisoned, traffic destined for that IP is sent to the attacker's MAC instead — enabling a Man-in-the-Middle intercept. The poisoner is identifiable as the MAC address that appears in ARP Replies claiming ownership of multiple different IP addresses simultaneously. Track each MAC-to-IP mapping in the trace and note which MAC keeps announcing itself as the owner of IPs that legitimately belong to other MACs.</div>
+        </div>
           </div>
         </div>
   </div>
@@ -444,7 +452,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

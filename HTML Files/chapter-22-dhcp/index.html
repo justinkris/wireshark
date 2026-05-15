@@ -269,11 +269,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-1"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-1" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Open Statistics > DHCP (BOOTP) to see the packet type breakdown. The client that is stuck will show repeated DHCP Discover packets without matching Offer → Request → Acknowledge sequences — indicating the DHCP server is failing to respond to that client. A client that is working will show complete D → O → R → A sequences. The failing client may be on a different VLAN, or the DHCP server may have run out of addresses in a specific pool.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q2">
@@ -289,11 +293,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-2"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-2" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">If the client sends a DHCP Request (rather than Discover) with option 50 (Requested IP Address) set, it is trying to renew a specific address it held before — not a fresh lease. If the server responds with ACK for that address, the lease was renewed. The lease time is in DHCP option 51 (IP Address Lease Time) in the ACK packet — right-click the option to see the value in seconds. The DHCP server is local if the Relay Agent Information option (option 82) is absent in the packets — a remote server would require a relay agent on the local subnet.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q3">
@@ -309,11 +317,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-3"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-3" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">After receiving a DHCP Offer, the client performs a conflict detection step by ARP-requesting the offered IP address before accepting it. If another host on the network responds to that ARP (confirming the IP is already in use), the client sends a DHCP Decline to notify the server that the offered address is already occupied. The server then marks that address as conflicted. In this trace, the client wanted 192.168.0.102 but was offered 192.168.0.104, and found 192.168.0.104 already in use via ARP, triggering the Decline.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q4">
@@ -329,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">When a DHCP client remembers its last lease, it skips the Discover phase and sends a DHCP Request directly (either unicast to the last-known server or broadcast if the lease time has expired). If no server responds, the client may continue using the remembered address if the lease is still valid, or fall back to APIPA (169.254.x.x) self-assignment if the lease expired. Packet 3 is a DHCP Request — the client is attempting to confirm or reclaim its remembered address rather than starting a full discovery process.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q5">
@@ -349,11 +365,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-5"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-5" disabled onclick="revealAnswer(5)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-5" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">When a DHCP relay agent is present, the Ethernet source MAC address is the relay agent's MAC — not the client's. The client's actual hardware address is preserved inside the DHCP payload in the chaddr (Client Hardware Address) field. The relay agent's IP address appears in the giaddr (Gateway IP Address / Relay Agent Address) field. The client's requested IP is in DHCP option 50 (Requested IP Address). The lease time is option 51, and the DNS server address is option 6 (Domain Name Server) — all visible by expanding the DHCP options section of the ACK packet.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q6">
@@ -369,11 +389,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-6"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-6" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The process is called rebinding. At T1 (50% of lease time), the client unicasts DHCP Requests to the original server trying to renew. If the unicasts go unanswered until T2 (87.5% of lease time), the client broadcasts DHCP Requests to any available DHCP server — this broadcast phase is rebinding. In the trace, watch for the transition from unicast DHCP Requests (addressed to the specific server IP) to broadcast DHCP Requests (destination 255.255.255.255) — that transition marks when renewal gave way to rebinding.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q7">
@@ -389,11 +413,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-7"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-7" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">DHCPv6 message types are identified by the message-type field. Decline is message type 9 in DHCPv6. Display filter: `dhcpv6.msgtype == 9`. Alternatively, use `dhcpv6 && dhcpv6.msgtype == 9` to first restrict to all DHCPv6 then filter to Decline only. DHCPv6 uses UDP ports 546 (client) and 547 (server), so `udp.port==547` is another approach, though it captures all DHCPv6 message types.</div>
+        </div>
           </div>
         </div>
   </div>
@@ -496,7 +524,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

@@ -269,11 +269,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-1"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-1" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">TCP problems in FTP traces commonly include retransmissions (lost packets), duplicate ACKs (gap in received data), and zero window advertisements (server buffer full). Use Analyze > Expert Information to see a categorized list. The window scale factor is negotiated in the SYN and SYN-ACK packets as a TCP option — expand "Options > Window Scale" in the SYN packet's TCP header to find the multiplier (e.g., scale factor 4 means the advertised window is multiplied by 2^4 = 16). Without window scaling, the maximum receive window is limited to 65,535 bytes.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q2">
@@ -289,11 +293,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-2"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-2" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">TCP KeepAlive packets are probe segments sent with a sequence number one less than the next expected byte and zero data bytes — they verify the remote endpoint is still alive. A retransmission at packet 1306 (same sequence number sent again) means the original packet was lost somewhere in the network. If we are seeing the retransmission, we are downstream from the sender — meaning we captured the packet at the sender side after it was resent, OR we are between the sender and the point of loss and capturing the retransmit. If we were upstream from the loss point, we would see the original packet but not the retransmission.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q3">
@@ -333,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Count the number of distinct TCP connections by looking at SYN packets — each SYN initiates one connection. HTTP/1.1 may reuse connections via Keep-Alive, so the actual number of connections can be less than the number of requests. The MSS (Maximum Segment Size) is negotiated in the SYN and SYN-ACK via the MSS TCP option. Each side advertises its own receive MSS; the actual maximum segment size used is the minimum of the two advertised values. A mismatch between sides is normal but can indicate different MTU paths.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q5">
@@ -353,11 +365,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-5"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-5" disabled onclick="revealAnswer(5)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-5" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The window scale factor is visible in the SYN and SYN-ACK packets' TCP options — look for "WS: X" in the Options section. If the server does not include a Window Scale option in its SYN-ACK, window scaling is disabled for that connection even if the client offered it. SACK (Selective Acknowledgment) support is negotiated via the "SACK permitted" TCP option in the SYN — check each unique connection's handshake to see if all servers and the client include this option. Not all servers support window scaling or SACK.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q6">
@@ -373,11 +389,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-6"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-6" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">In a TCP SYN scan, window scaling and SACK support are determined from any successful SYN-ACK response — the scanner learns the target's TCP capabilities from the handshake options. Successful connections are identifiable as SYN packets that received a SYN-ACK reply (rather than RST or no response). Count TCP streams where the three-way handshake completed (SYN → SYN-ACK → ACK) to get the number of open ports found. Filter `tcp.flags.syn==1 && tcp.flags.ack==1` to see all SYN-ACK responses.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q7">
@@ -393,11 +413,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-7"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-7" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Port 137 is assigned to NetBIOS Name Service (NBNS). Follow the TCP stream (Ctrl+Alt+Shift+T or right-click > Follow > TCP Stream) to see the raw application-layer conversation. If Wireshark does not automatically recognize the traffic, force it to dissect as NBNS by right-clicking a packet > Decode As > select NBNS or the appropriate protocol. The stream content will reveal whether this is a genuine NBNS session or an unexpected service running on that port.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q8">
@@ -413,11 +437,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-8"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-8" disabled onclick="revealAnswer(8)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-8" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The actual Initial Sequence Number (ISN) is visible in the SYN packet's raw Sequence Number field. Wireshark displays relative sequence numbers by default (starting at 0) for readability — disable this via Preferences > Protocols > TCP > uncheck "Relative sequence numbers". The sequence number increments by 1 between the SYN (packet 1) and the ACK (packet 3) even though no data bytes were sent — this is because RFC 793 specifies that SYN and FIN flags each consume exactly one sequence number, as if they were a single byte of data. SACK and window scaling are both visible in the SYN Options.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q9">
@@ -440,7 +468,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             
         <div class="model-answer-block" id="model-9" style="display:none;">
           <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">The PUSH flag in packets from 67.161.32.69 signals to the receiving TCP stack that it should pass the buffered data up to the application immediately rather than waiting to accumulate more data. Applications set PSH when they want to ensure prompt delivery of small interactive messages, such as the 14-byte payload seen here, without waiting for TCP's Nagle algorithm to bundle it with other data.</div>
+          <div class="model-answer-text">The "phantom byte" is the sequence number consumed by the FIN flag itself. Like SYN, a FIN packet advances the sequence number by 1 even though it carries no application data — the receiver's ACK for the FIN acknowledges (seq+1) to confirm receipt of the FIN itself. In a simultaneous or sequential close, you can observe this by comparing the sequence number in the FIN packet against the acknowledgment number in the reply — the ACK will be exactly 1 higher than the FIN's sequence number despite zero bytes of payload being transferred.</div>
         </div>
           </div>
         </div>
@@ -457,11 +485,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-10"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-10" disabled onclick="revealAnswer(10)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(10)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-10" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The PUSH (PSH) flag in TCP tells the receiving TCP stack to deliver buffered data immediately to the application layer rather than waiting to accumulate more data. Without PSH, TCP's receive buffer might hold small amounts of data waiting for more to arrive before passing it up. Applications set PSH when sending interactive small messages (such as SSH keystrokes or HTTP headers) where immediate delivery matters more than throughput efficiency. The 14-byte payload visible in these packets from 67.161.32.69 would cause unnecessary delay if held in a receive buffer.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q11">
@@ -477,11 +509,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-11"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-11" disabled onclick="revealAnswer(11)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(11)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-11" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The unacknowledged sequence number is visible in the repeated Duplicate ACK packets — the acknowledgment number in each Duplicate ACK is the sequence number the receiver is still waiting for. The sender keeps retransmitting that sequence number because the receiver never stops requesting it. Window scaling support is determined by whether the WS option appeared in the SYN/SYN-ACK handshake — if one side did not include WS in its SYN, scaling is disabled and the window is capped at the raw 16-bit value (max 65,535 bytes), potentially limiting throughput on high-latency paths.</div>
+        </div>
           </div>
         </div>
   </div>
@@ -584,7 +620,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

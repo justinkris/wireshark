@@ -341,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">NetBIOS Name Service traffic uses UDP port 137 and can be filtered with `udp.port==137` or more specifically with the protocol keyword `nbns`. NetBIOS Datagram Service uses UDP port 138 (`udp.port==138`). When a UDP packet arrives at a port with no listening process, the receiving host responds with ICMP Destination Unreachable / Port Unreachable (Type 3, Code 3). Look for `icmp.type==3 && icmp.code==3` to find which UDP communications were rejected.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q5">
@@ -361,11 +365,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-5"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-5" disabled onclick="revealAnswer(5)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-5" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The target of the UDP penetration test is identifiable as the destination IP address of the UDP probe packets. Not every packet in the trace contains a UDP header — the ICMP Port Unreachable error responses from the target contain only an IP header, an ICMP header, and then the first 28 bytes of the original triggering packet (IP header + 8 bytes of the original UDP header). These ICMP responses are IP/ICMP packets, not UDP packets. Filter `udp` to see only the probe packets; filter `icmp` to see only the rejection responses.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q6">
@@ -492,7 +500,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

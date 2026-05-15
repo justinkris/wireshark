@@ -317,11 +317,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-3"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-3" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The .pif filename is embedded inside the email body of one of the retrieved messages — Follow the TCP Stream of that specific RETR command to read the MIME content and find the attachment filename. Count the total emails retrieved by filtering <code>pop.request.command == "RETR"</code> and counting the results — each RETR request fetches one email. The same filter shows all RETR packets, making it easy to see how many emails the client downloaded from the spam-clogged inbox.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q4">
@@ -337,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Check the Time column delta between the client's DATA command (or the end-of-data marker <code>\r\n.\r\n</code>) and the server's "250 OK" acknowledgment. A large gap here means the server is slow to accept and process the email — typically due to spam scanning, antivirus processing, or DNS blacklist lookups performed before acknowledging receipt. If instead the client pauses between sending individual SMTP commands (HELO, MAIL FROM, RCPT TO), the client application is slow. The server is usually the bottleneck in well-configured SMTP infrastructure.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q5">
@@ -381,11 +389,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-6"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-6" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The sending email application is identifiable from two places: the EHLO/HELO command contains the client's self-reported hostname, and the DATA payload's X-Mailer or User-Agent header identifies the MUA (Mail User Agent) software and version. Follow the TCP Stream to see the complete SMTP conversation including the DATA payload. Common identifiers include "Mozilla Thunderbird", "Microsoft Outlook", "Apple Mail", or custom application strings.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q7">
@@ -401,11 +413,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-7"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-7" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Count the number of complete DATA → "250 OK" sequences in the TCP stream — each successful sequence is one delivered email. A failed transaction appears as a 4xx or 5xx response code following a MAIL FROM, RCPT TO, or DATA command (e.g., "550 No such user here" or "421 Service unavailable"). Create a coloring rule: Edit > Coloring Rules > Add new rule with filter <code>smtp.response.code &gt;= 400</code> and set a red background — this highlights all error responses for rapid visual identification during analysis.</div>
+        </div>
           </div>
         </div>
   </div>
@@ -508,7 +524,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

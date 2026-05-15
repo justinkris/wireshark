@@ -269,11 +269,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-1"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-1" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Chanalyzer Pro is a dedicated RF spectrum analysis application that works with Metageek Wi-Spy USB spectrum analysers. Unlike Wireshark (which captures 802.11 frames), Chanalyzer shows the raw RF energy across the 2.4 GHz or 5 GHz band over time, revealing non-802.11 interference sources. Opening the provided .wsx recordings in Chanalyzer reveals patterns like constant interference (jammers), intermittent bursts (microwave ovens, cordless phones), and normal 802.11 utilization. Spectrum analysis is an essential complement to packet analysis for diagnosing WLAN performance problems caused by RF interference.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q2">
@@ -289,11 +293,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-2"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-2" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Beacon frames are transmitted by the AP every 100ms (the default Beacon Interval) to announce the network's presence. Create an IO Graph filtered on <code>wlan.fc.type_subtype==8</code> (Beacon frames) — a healthy AP produces a steady, regular line. Gaps in the beacon graph (periods with no beacons) indicate the AP was unreachable, overloaded, or crashed during those intervals. Clients attempting to connect during a beacon gap cannot discover or associate with the AP, explaining the intermittent connection failures users experience.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q3">
@@ -309,11 +317,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-3"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-3" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Apply an IO Graph filtered on Beacon frames to see whether the beacon transmission rate is steady or erratic. An irregular or bursty beacon rate indicates AP timing problems — the AP is not transmitting beacons at consistent 100ms intervals, which disrupts client power-save scheduling and association timing. The BPF (Berkeley Packet Filter) capture filter for beacon frames only: <code>wlan[0] == 0x80</code> — this matches the first byte of the 802.11 Frame Control field where the type=00 (management) and subtype=1000 (beacon) bits combine to 0x80.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q4">
@@ -329,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">PPI (Per-Packet Information) is a pseudoheader prepended to each 802.11 frame by the capture driver, containing radio layer metadata. Expand the "PPI" section in Wireshark's Packet Details pane: the "802.11-Common" sub-section contains the Channel field (showing both frequency in MHz and channel number), the data rate (in 500 Kbps units — divide by 2 to get Mbps), and the dBm Antenna Signal (a negative number where values closer to 0 indicate stronger signal). A signal of -60 dBm or better is excellent; -80 dBm and below degrades reliability.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q5">
@@ -349,11 +365,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-5"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-5" disabled onclick="revealAnswer(5)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-5" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Radiotap is the more widely supported alternative to PPI for radio metadata. Expand the "Radiotap Header" section in Packet Details: the "Channel frequency" field shows the channel in MHz, "Data rate" shows the link rate in Mbps, and "dBm antenna signal" shows the received signal strength as a negative dBm value. Both PPI and Radiotap carry the same types of radio metadata but use different encoding formats — Radiotap is the modern standard supported by most Linux wireless drivers, while PPI was originally developed for Solaris and some BSD systems.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q6">
@@ -369,11 +389,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-6"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-6" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Build an IO Graph (Statistics > I/O Graphs) to visualize the video download throughput over time. Use Statistics > WLAN Traffic to see a table of SSIDs, BSSIDs, and packet counts — this identifies the network name (SSID) without decryption. WLAN retry frames (retransmissions at the 802.11 layer, distinct from TCP retransmissions) are frames with the Retry bit set in the Frame Control header. Filter: <code>wlan.fc.retry == 1</code> and note the count — high retry rates indicate RF problems that degrade effective throughput below what the IO Graph shows as raw packet rate.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q7">
@@ -389,11 +413,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-7"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-7" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Filter on the PPI antenna signal field using <code>ppi.80211-common.dbm-antsignal</code> to see signal values — right-click the field in Packet Details and choose "Apply as Column" to add it to the Packet List. The overall signal range spans from the weakest to strongest dBm value visible across all packets. Filter for each host IP to compare their signal profiles: <code>ip.src==192.168.0.106</code> vs <code>ip.src==192.168.0.1</code>. The host further from the AP will show weaker (more negative) and more variable signal readings. Points where signal drops below -80 dBm correlate with retries and errors.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q8">
@@ -409,11 +437,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-8"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-8" disabled onclick="revealAnswer(8)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-8" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Add the WPA decryption key in Edit > Preferences > Protocols > IEEE 802.11 > Decryption Keys — click Add, set Key Type to wpa-pwd, and enter <code>Induction:Coherer</code> (password:SSID format). Close preferences; Wireshark will re-dissect the trace. After decryption, the 802.11 data frames reveal standard TCP/IP traffic — DNS queries, HTTP connections, and other application-layer protocols become readable. To filter only 802.11 data frames (excluding management and control overhead): <code>wlan.fc.type == 2</code>.</div>
+        </div>
           </div>
         </div>
   </div>
@@ -516,7 +548,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

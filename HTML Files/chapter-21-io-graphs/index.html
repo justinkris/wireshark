@@ -413,11 +413,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-7"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-7" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">A TCP Time-Sequence graph based on packet 2 appears nearly empty because packet 2 is an ACK with no payload — it carries sequence numbers but no data bytes. Wireshark's Time-Sequence graph plots the data flow for the stream direction of the selected packet. An ACK traveling in the "upstream" direction (from receiver back to sender) has no data bytes to plot on the sequence axis; only data packets produce visible points. Select a packet in the data-carrying direction (downstream) and regenerate the graph. The RTT graph will show the highest delay spike at whatever moment packet loss or receiver-side processing caused the longest ACK delay.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q8">
@@ -433,11 +437,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-8"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-8" disabled onclick="revealAnswer(8)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-8" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Expert Information (Analyze > Expert Information) categorizes TCP anomalies into Errors, Warnings, Notes, and Chats — look for "TCP Previous segment not captured", "TCP Retransmission", and "TCP Duplicate ACK" counts. To graph three overlaid lines: Advanced IO Graph > Graph 1 = all traffic (empty filter), Graph 2 = `tcp.analysis.lost_segment`, Graph 3 = `tcp.analysis.retransmission`. The throughput throttle point is where the Graph 1 (data) line drops sharply while Graphs 2 and 3 (loss and retransmit indicators) spike — this crossover marks when packet loss caused TCP's congestion window to collapse.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q9">
@@ -453,11 +461,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-9"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-9" disabled onclick="revealAnswer(9)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(9)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-9" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The Window Scaling graph (Statistics > TCP Stream Graphs > Window Scaling) plots the receiver-advertised window size over time alongside the in-flight bytes. A healthy download shows a large, stable window that lets many packets be in-flight simultaneously. When the window drops sharply toward zero, the receiver's buffer is full (Zero Window condition) and the sender must pause — this stall is visible as a flat region in the sequence graph. Recovery after zero window produces a sawtooth pattern. YouTube video buffer fill-then-pause behavior produces clearly visible periodic window collapses.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q10">
@@ -473,11 +485,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-10"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-10" disabled onclick="revealAnswer(10)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(10)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-10" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">A queuing problem in a UDP multicast stream appears in the IO Graph as periodic bursts of very high packet rate alternating with periods of near-zero traffic — the sender is buffering data and releasing it in bursts rather than transmitting at a steady rate. Set the Y-axis to Bytes/Tick (rather than Packets/Tick) to see the data volume per interval more clearly, revealing the burst magnitude. The standard Packets/Tick view can mask the severity of bursts if packet sizes vary. Reducing the tick interval (e.g., from 1s to 0.1s) increases resolution and makes burst timing more visible.</div>
+        </div>
           </div>
         </div>
   </div>
@@ -580,7 +596,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

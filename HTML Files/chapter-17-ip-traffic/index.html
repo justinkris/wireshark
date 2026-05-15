@@ -269,11 +269,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-1"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-1" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">DSCP (Differentiated Services Code Point) is the 6-bit QoS marking in the IP Differentiated Services field. Expand the IP header's "Differentiated Services" field in Wireshark to read the DSCP value. Internet radio streaming media (from server to client) is typically marked with DSCP EF (Expedited Forwarding, value 46) to indicate high-priority, delay-sensitive traffic. Check the Don't Fragment (DF) bit in the IP Flags field — a set DF bit means the packet cannot be fragmented in transit; if it encounters a link with a smaller MTU, it will be dropped and the sender notified via ICMP.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q2">
@@ -289,11 +293,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-2"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-2" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">FTP bulk data transfer is typically marked DSCP 0 (Best Effort, CS0) since it is not latency-sensitive. Check the More Fragments and Don't Fragment bits in the IP Flags field — if DF=0, fragmentation is allowed. A client using the standard Ethernet MTU of 1500 bytes is normal; a smaller MSS (visible in TCP options during the SYN handshake) suggests a VPN tunnel, WAN link, or PPPoE overhead is reducing the effective MTU. If the DF bit is set throughout the session, Path MTU Discovery (PMTUD) is in use.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q3">
@@ -381,11 +389,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-6"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-6" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">In a pure IPv6-only trace, no IPv4 packets should appear — filter with `ip` to check. DHCPv6 packets use link-local source addresses and multicast destination addresses, with a Hop Limit of 1 for packets that must not leave the local link (such as Solicit and Advertise). DHCPv6 is a native IPv6 protocol — it is not encapsulated inside IPv4 headers unless a tunneling mechanism like 6to4 or Teredo is in use. Apply `dhcpv6` filter to isolate DHCPv6 packets and inspect their IPv6 Hop Limit field directly.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q7">
@@ -401,11 +413,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-7"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-7" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The Duplicate Address Detection (DAD) process sends ICMPv6 Neighbor Solicitation packets sourced from `::` (the unspecified address) to the solicited-node multicast address for the tentative IP before assigning it. You can see the DAD at the start by filtering `icmpv6.type==135 && ipv6.src==::`. The display filter `ip` matches only IPv4 traffic in Wireshark — it will not show any IPv6 frames. Use `ipv6` to display IPv6 packets, or `ip or ipv6` to see both. This is a common mistake when working in dual-stack environments.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q8">
@@ -445,11 +461,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-9"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-9" disabled onclick="revealAnswer(9)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(9)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-9" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">IPsec uses two distinct IP protocols: ESP (Encapsulating Security Payload, IP protocol 50) and AH (Authentication Header, IP protocol 51). Display filters: `esp` shows ESP traffic only, `ah` shows AH traffic only. IKE (Internet Key Exchange) key negotiation uses `isakmp` (UDP port 500) or `udp.port==4500` for NAT-traversal IKE. To catch all IPsec-related traffic in one filter: `esp or ah or isakmp`. The actual tunneled payload inside ESP is encrypted and cannot be read without the decryption key.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q10">
@@ -465,11 +485,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-10"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-10" disabled onclick="revealAnswer(10)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(10)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-10" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">VoIP RTP media packets are marked with DSCP EF (Expedited Forwarding, value 46) to guarantee low-latency, low-jitter delivery through QoS-aware networks. SIP signaling packets typically use DSCP AF31 or CS3. The Don't Fragment bit is always set for VoIP RTP packets — fragmentation would add unacceptable reassembly delay and jitter to real-time audio. Any VoIP packet that needs fragmentation indicates an MTU mismatch that should be corrected to avoid audio quality degradation.</div>
+        </div>
           </div>
         </div>
   </div>
@@ -572,7 +596,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

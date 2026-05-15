@@ -269,11 +269,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-1"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-1" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Right-click any FTP command-channel packet (port 21) > Follow > TCP Stream to reassemble the FTP conversation as readable text. The FTP server's error message responding to the bounce attempt is typically "425: FXP transfer/Bounce attack denied" or similar. FTP response codes in the 4xx and 5xx ranges indicate client errors and server errors respectively. Display filter for all FTP error responses: <code>ftp.response.code &gt;= 400</code> — this shows both 4xx (temporary failures) and 5xx (permanent failures). For the specific bounce rejection: <code>ftp.response.code == 425</code>.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q2">
@@ -289,11 +293,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-2"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-2" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Follow the FTP data channel TCP stream (the secondary connection opened by the PASV or PORT command) to reassemble the transferred file content. The file appears as ASCII text in the Follow Stream window. The file content in this trace is likely a configuration file, log excerpt, or text document related to the Wireshark training scenario — its contents are plain text readable directly in the stream view without any decoding.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q3">
@@ -333,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">The FTP SIZE command (visible in the command channel stream) queries the server for the file size before downloading — the server responds with "213 &lt;bytes&gt;" giving the file size in bytes. To measure download time: right-click the first data packet on the FTP data channel > Set/Unset Time Reference. This resets the displayed frame time to 0.000000 for that packet. The timestamp of the last data packet (or the FIN that closes the data connection) then shows the elapsed download duration directly in the Time column.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q5">
@@ -377,11 +389,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-6"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-6" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Open Analyze > Expert Information and look at the Warnings and Notes tabs. TCP Retransmissions indicate packet loss (network problem). Zero Window advertisements from the server indicate the server's receive buffer is full (server capacity problem). If retransmissions are present but the window is healthy, the fault is in the network path. If zero windows dominate with no retransmissions, the server is the bottleneck. Check which side generates the small windows and retransmission requests — the side repeatedly sending Duplicate ACKs is the one waiting for missing data.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q7">
@@ -508,7 +524,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

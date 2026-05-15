@@ -341,11 +341,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-4" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">Different operating systems and ping implementations embed different data patterns in ICMP Echo Request payloads. Windows uses a repeating alphabet sequence (abcdefghijklmnopqrstuvwxyz...), Linux uses a counter-based byte sequence, and tools like hping3 allow arbitrary payloads. Examine the Data field in the ICMP dissection to identify the pattern. To filter for a specific payload, use `data contains XX:YY:ZZ` where XX:YY:ZZ are the leading hex bytes of that payload signature — for example, Windows payloads start with `61:62:63` (the ASCII letters "abc"). Combine with `icmp.type==8` to restrict to Echo Requests only.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q5">
@@ -361,11 +365,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-5"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-5" disabled onclick="revealAnswer(5)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
               </div>
             </div>
-            
+
+        <div class="model-answer-block" id="model-5" style="display:none;">
+          <div class="model-answer-label">Model Answer</div>
+          <div class="model-answer-text">An ICMP Redirect (Type 5) is sent by a router telling a host to use a better next-hop for a specific destination. The host initially sent its packet to the wrong router, which still forwarded the packet to the correct destination while simultaneously sending the Redirect back to the host. The two ICMP Echo Replies appear because the original Echo Request was forwarded by the first router and the destination host replied — that reply travels back through the network and arrives at the capture point. Track the MAC addresses in each frame to map which device is the router, the redirect sender, and the end host.</div>
+        </div>
           </div>
         </div>
         <div class="practice-q" id="q6">
@@ -540,7 +548,7 @@ function revealAnswer(q) {
 }
 
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}

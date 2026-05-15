@@ -246,7 +246,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
       <div class="mental-note-block-icon">🧠</div>
       <div class="mental-note-block-inner">
         <div class="mental-note-block-label">MENTAL NOTE</div>
-        <div class="mental-note-block-text">Covers HTTP request methods (GET, POST), response codes, HTTP redirection, the IfModified-Since caching mechanism, HTTP statistics, and export of HTTP objects. Also explains HTTPS/</div>
+        <div class="mental-note-block-text">HTTP filter keywords: <code>http.request.method</code>, <code>http.response.code</code>, <code>http.host</code>. TLS handshake visible even when encrypted — ClientHello lists offered cipher suites; ServerHello picks one. Use If-Modified-Since / 304 Not Modified to identify cached resources. Export objects via File &gt; Export Objects &gt; HTTP.</div>
       </div>
     </div>
   </div>
@@ -254,8 +254,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   <div class="section-block" id="sec-questions">
     <div class="section-label">Practice What You've Learned</div>
     <h2>Questions</h2>
-    
-        
+
         <div class="practice-q" id="q1">
           <div class="practice-q-header">
             <span class="q-badge">Q1</span>
@@ -269,13 +268,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-1"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-1" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">The exported NSS Key Log file records entries in the format <strong>CLIENT_RANDOM &lt;32-byte-client-random&gt; &lt;48-byte-master-secret&gt;</strong>. In a client-initiated re-negotiation trace you will see two CLIENT_RANDOM entries — one for the original handshake and one for the re-negotiated session. The re-negotiation begins with a new ClientHello sent by the client on the existing TCP connection (no FIN/SYN first). Load the key file via Edit &gt; Preferences &gt; Protocols &gt; TLS &gt; Pre-Master-Secret log filename to decrypt application data in the trace.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q2">
           <div class="practice-q-header">
             <span class="q-badge">Q2</span>
@@ -293,13 +296,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
                 <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
               </div>
             </div>
-            
-        <div class="model-answer-block" id="model-2" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">HTTP 500 Internal Server Error responses are filtered using http.response.code &gt;= 500 or more specifically http.response.code==500. The 5xx class of errors indicates that the server encountered an error it couldn't recover from while processing the request — in this case likely a backend database server problem.</div>
-        </div>
+            <div class="model-answer-block" id="model-2" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">HTTP 500 Internal Server Error responses are filtered using <strong>http.response.code &gt;= 500</strong>, or more specifically <strong>http.response.code == 500</strong>. The 5xx class of errors indicates that the server encountered an error it couldn't recover from — in this trace likely a backend database or scripting engine failure. Contrast with 4xx (client errors, e.g. 404 Not Found) and 3xx (redirections, e.g. 302 Moved Temporarily), which require different filter ranges.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q3">
           <div class="practice-q-header">
             <span class="q-badge">Q3</span>
@@ -313,13 +316,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-3"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-3" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">The HTTP Packet Counter (Statistics &gt; HTTP &gt; HTTP Packet Counter) groups responses by class. The 2007 ESPN trace is notable for its high number of 3xx redirections — each one forces the client to issue a brand-new GET to a different URL, multiplying round trips before any content loads. Every redirect adds at least one RTT of latency: the client must receive the 302, parse the Location header, and initiate a fresh TCP connection. Reducing redirections became a major web-performance objective precisely because of traces like this one.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q4">
           <div class="practice-q-header">
             <span class="q-badge">Q4</span>
@@ -333,13 +340,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-4"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-4" disabled onclick="revealAnswer(4)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-4" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">The 2011 trace shows a reduced GET count and fewer redirections compared to 2007, indicating ESPN consolidated its CDN routing and removed intermediate redirect hops over those four years. Fewer GETs means fewer TCP handshakes, less DNS resolution, and lower latency to first byte — a direct user-experience improvement. Compare the two traces side-by-side in the HTTP Packet Counter to quantify the reduction in 3xx responses, which is the clearest signal of architectural cleanup.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q5">
           <div class="practice-q-header">
             <span class="q-badge">Q5</span>
@@ -353,13 +364,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-5"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-5" disabled onclick="revealAnswer(5)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-5" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">By 2012 the GET count is higher again — not from redirections, but from heavier use of embedded third-party content (ad networks, analytics, social buttons). Each new domain requires a fresh DNS resolution and TCP handshake, which is why the number of connected sites is noticeably higher than in 2011. Use Statistics &gt; HTTP &gt; Requests to see a per-host breakdown. Redirections (3xx) may be present but the growth driver is domain proliferation, a characteristic of the ad-heavy web of that era.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q6">
           <div class="practice-q-header">
             <span class="q-badge">Q6</span>
@@ -373,13 +388,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-6"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-6" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">Facebook's main page required a large number of GET requests because every embedded asset (scripts, CSS, images, Like buttons, tracking pixels) is fetched individually. A late DNS query mid-load is triggered when the browser encounters a resource from a domain it hasn't resolved yet — typically a third-party ad network or analytics beacon whose hostname wasn't in cache. The last item to load is almost always a tracking pixel or analytics call (often a 1×1 GIF or a POST to a beacon endpoint) that fires after the DOM is interactive, reporting page-load metrics back to the server.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q7">
           <div class="practice-q-header">
             <span class="q-badge">Q7</span>
@@ -393,13 +412,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-7"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-7" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">Multiple POST attempts indicate the TCP connection succeeded but the server never returned a valid response — the application layer retried after a timeout. The 11-second delay before packet 29 is a TCP retransmission timeout (RTO), not an application-level wait — verify using the <strong>tcp.analysis.retransmission</strong> filter to confirm packet 29 is a retransmit of an earlier segment. The Host header in the HTTP POST request reveals which server we're targeting; look for it in the HTTP dissection of any POST packet. POSTs cannot be pipelined like GETs, so each failed attempt must complete (or time out) before the next one starts.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q8">
           <div class="practice-q-header">
             <span class="q-badge">Q8</span>
@@ -417,13 +440,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
                 <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
               </div>
             </div>
-            
-        <div class="model-answer-block" id="model-8" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">An Encrypted Alert immediately following a 95-second gap is almost certainly a close_notify alert (value 0), which is the TLS equivalent of a graceful connection shutdown. The close_notify tells the peer that no more data will be sent. The fact that it is followed by FIN packets confirms this interpretation — the connection is being cleanly terminated rather than experiencing an error.</div>
-        </div>
+            <div class="model-answer-block" id="model-8" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">An Encrypted Alert immediately following a 95-second gap is almost certainly a <strong>close_notify</strong> alert (value 0) — the TLS equivalent of a graceful connection shutdown. The close_notify tells the peer that no more data will be sent; the subsequent FIN packets confirm clean termination rather than an error. The connected site is visible in the TLS ClientHello's Server Name Indication (SNI) extension. The offered cipher suites are listed in the ClientHello; the server's chosen suite appears in the ServerHello. Total page-load time spans from the first SYN to the last HTTP response — use the frame timestamp delta.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q9">
           <div class="practice-q-header">
             <span class="q-badge">Q9</span>
@@ -437,13 +460,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-9"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-9" disabled onclick="revealAnswer(9)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(9)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-9" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">SSL 3.0 was deprecated by RFC 7568 due to the POODLE vulnerability — a padding oracle attack enabling decryption of CBC-mode ciphertext without the server's private key. In this trace watch for Alert messages indicating a protocol version rejection, or a downgrade where the client offers TLS but the server falls back to SSL 3.0. The cipher suite chosen in an SSL 3.0 session is typically RC4 or a CBC-mode block cipher — both considered cryptographically broken today. Count the suites in the ClientHello's cipher_suites list to answer the offered-suites question.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q10">
           <div class="practice-q-header">
             <span class="q-badge">Q10</span>
@@ -457,13 +484,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-10"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-10" disabled onclick="revealAnswer(10)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(10)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-10" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">Yes — 304 Not Modified responses confirm that the client sent If-Modified-Since (or If-None-Match) conditional GETs, meaning it has cached copies of those resources and is validating them rather than re-downloading. The largest delay is typically the initial DNS resolution or the first full-content download; use Statistics &gt; TCP Stream Graphs &gt; Time-Sequence to identify it visually. The server OS appears in the HTTP Server response header (e.g. "Apache/2.x (Win32)"). new.gif's size is in the Content-Length header of its response; export it via File &gt; Export Objects &gt; HTTP to inspect its actual pixel content.</div>
+            </div>
           </div>
         </div>
+
         <div class="practice-q" id="q11">
           <div class="practice-q-header">
             <span class="q-badge">Q11</span>
@@ -477,13 +508,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
             <div class="answer-row">
               <span class="saved-indicator" id="saved-11"></span>
               <div style="display:flex;gap:8px;align-items:center;">
-                
+                <button class="btn-see-answer" id="reveal-11" disabled onclick="revealAnswer(11)">🔒 See Model Answer</button>
                 <button class="btn-clear-ans" onclick="clearAnswer(11)">Clear</button>
               </div>
             </div>
-            
+            <div class="model-answer-block" id="model-11" style="display:none;">
+              <div class="model-answer-label">Model Answer</div>
+              <div class="model-answer-text">Filtering on tcp.port==80 in a Nessus scan trace reveals rapid sequential SYN packets to port 80 across many destination IPs — the classic signature of a port scan's service-enumeration phase. Targets responding with SYN-ACK have port 80 open (HTTP running); RST responses indicate the port is closed; no response suggests a firewall is silently dropping the probe. The pattern — same port, many hosts, sub-millisecond spacing — is unmistakable in Wireshark and would trigger any IDS alert rule for TCP port scanning.</div>
+            </div>
           </div>
         </div>
+
   </div>
 
   <div class="section-block" id="sec-tools">
@@ -512,8 +547,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
     <h3>Navigation</h3>
     <div class="sidebar-nav-links">
       <a class="sidebar-link" href="../index.html">🦈 All Chapters <span class="arrow">›</span></a>
-      <a class="sidebar-link" href="../chapter-22/index.html"><span>←</span> Ch 22: Analyze Dynamic Host Configuration…<span class="arrow">›</span></a>
-      <a class="sidebar-link" href="../chapter-24/index.html"><span>→</span> Ch 24: Analyze File Transfer Protocol (FT…<span class="arrow">›</span></a>
+      <a class="sidebar-link" href="../chapter-22-dhcp/index.html"><span>←</span> Ch 22: Analyze Dynamic Host Configuration…<span class="arrow">›</span></a>
+      <a class="sidebar-link" href="../chapter-24-ftp/index.html"><span>→</span> Ch 24: Analyze File Transfer Protocol (FT…<span class="arrow">›</span></a>
     </div>
   </div>
 
@@ -528,11 +563,14 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
     </div>
   </div>
 
-  
-      <div class="quick-ref">
-        <h4>Trace Files</h4>
-        <div class="qr-row"><span class="qr-term">client_init_renego.pcap</span><span class="qr-def">Client_Init_Renego</span></div><div class="qr-row"><span class="qr-term">http-500error.pcapng</span><span class="qr-def">Http 500Error</span></div><div class="qr-row"><span class="qr-term">http-espn2007.pcapng</span><span class="qr-def">Http Espn2007</span></div><div class="qr-row"><span class="qr-term">http-espn2011.pcapng</span><span class="qr-def">Http Espn2011</span></div><div class="qr-row"><span class="qr-term">http-espn2012.pcapng</span><span class="qr-def">Http Espn2012</span></div>
-      </div>
+  <div class="quick-ref">
+    <h4>Key HTTP Filters</h4>
+    <div class="qr-row"><span class="qr-term">http.request.method=="GET"</span><span class="qr-def">All GET requests</span></div>
+    <div class="qr-row"><span class="qr-term">http.response.code&gt;=500</span><span class="qr-def">Server errors (5xx)</span></div>
+    <div class="qr-row"><span class="qr-term">http.response.code&gt;=300 &amp;&amp; &lt;400</span><span class="qr-def">Redirections (3xx)</span></div>
+    <div class="qr-row"><span class="qr-term">tls.handshake.type==1</span><span class="qr-def">ClientHello packets</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.analysis.retransmission</span><span class="qr-def">TCP retransmits</span></div>
+  </div>
 </aside>
 </main>
 
@@ -565,7 +603,6 @@ function renderNotesPanel(){const ns=getNotesArr();const count=document.getEleme
 });body.innerHTML=html;}
 
 // ── Answer autosave ──
-
 function onAnswerInput(q, val) {
   localStorage.setItem(PAGE_KEY + '-ans-' + q, val);
   const saveEl = document.getElementById('saved-' + q);
@@ -580,11 +617,10 @@ function revealAnswer(q) {
   if (!block || !btn) return;
   const hidden = block.style.display === 'none' || block.style.display === '';
   block.style.display = hidden ? 'block' : 'none';
-  btn.textContent = hidden ? '▲ Hide Model Answer' : '💡 See Model Answer';
+  btn.textContent = hidden ? '▲ Hide Model Answer' : '🔒 See Model Answer';
 }
-
 function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const revealBtn=document.getElementById('reveal-'+q);if(revealBtn)revealBtn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
 // ── Progress ──
 function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}
@@ -600,7 +636,6 @@ document.addEventListener('DOMContentLoaded', function(){
   renderQPanel(); renderNotesPanel();
   if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
   if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  // Restore saved answers
   document.querySelectorAll('[data-q]').forEach(function(ta){
     const q=ta.dataset.q;
     const saved=localStorage.getItem(PAGE_KEY+'-ans-'+q);
@@ -608,7 +643,6 @@ document.addEventListener('DOMContentLoaded', function(){
   });
   updateProgress();
   initSectionNav();
-  // Restore reveal button state for saved answers
   document.querySelectorAll('[data-q]').forEach(function(ta) {
     const q = ta.dataset.q;
     const saved = localStorage.getItem(PAGE_KEY + '-ans-' + q);
