@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10 — Follow Streams and Reassemble Data · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 10</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 10 · Study Guide</div>
+    <h1>Follow Streams and <em>Reassemble Data</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 10 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">"Packets are fragments — <em>following the stream reveals the conversation.</em>"</div>
+  <p class="motivation-sub">Follow TCP/UDP/HTTP streams, SSL/TLS decryption, using streams to reconstruct application data. Four sections · Socratic questions.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="tcpstream" onclick="navTo('tcpstream')">1 · Follow TCP Stream</button>
+  <button class="nav-tab" data-target="udpstream" onclick="navTo('udpstream')">2 · Follow UDP Stream</button>
+  <button class="nav-tab" data-target="ssl" onclick="navTo('ssl')">3 · SSL/TLS Decryption</button>
+  <button class="nav-tab" data-target="streamanalysis" onclick="navTo('streamanalysis')">4 · Stream Analysis</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FOLLOW TCP STREAM</span>
+  </div>
+  <p class="socratic-insight">Following a TCP stream jumps from individual packets to the complete application conversation. The stream view reveals what two endpoints actually said to each other — including credentials, commands, and error messages invisible at the packet level.</p>
+  <ul class="socratic-questions">
+    <li>You Follow a TCP Stream and see only garbled binary characters instead of readable text. What are two possible causes?</li>
+    <li>You close the Follow TCP Stream window and notice the main packet list is now filtered. What happened, and how do you return to seeing all packets?</li>
+  </ul>
+  <div class="answer-area" data-section="tcpstream">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — GARBLED BINARY IN STREAM VIEW</div>
+        <div class="model-answer-text">Two causes: (1) The data is encrypted — TLS/SSL-protected connections like HTTPS show ciphertext, which appears as random binary garbage. You cannot read it without decryption keys. (2) The protocol transmits binary data rather than text — file downloads, image transfers, compiled data, or binary protocol formats will show as non-ASCII bytes. Switch the encoding from ASCII to Hex Dump to see the raw bytes, or check whether the protocol is using TLS by looking at the port or the protocol column in the packet list.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — MAIN WINDOW FILTERED AFTER CLOSING STREAM</div>
+        <div class="model-answer-text">When you close the Follow TCP Stream dialog, Wireshark automatically applies the stream filter (<code style="font-family:monospace">tcp.stream eq N</code>) to the main packet list — this keeps your analysis focused on that one conversation. To return to all packets, simply clear the display filter by clicking the X button in the filter bar, or delete the text in the filter bar and press Enter.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="tcpstream">
+  <div class="section-label">Section 1</div>
+  <h2>Follow TCP Stream</h2>
+  <p>Right-click any TCP packet → <strong>Follow → TCP Stream</strong>. This opens a new window showing the reconstructed application data as readable text. Wireshark reassembles all TCP segments belonging to the same connection and presents the full bidirectional conversation.</p>
+  <p>The default view shows both directions — <strong>client data in red</strong> (by default) and <strong>server data in blue</strong>. You can switch the dropdown to view only one direction. Encoding options: <strong>ASCII</strong> (text), <strong>Hex Dump</strong>, <strong>EBCDIC</strong>, <strong>Raw bytes</strong>, or <strong>C arrays</strong>.</p>
+  <p>When the stream window opens (or closes with "Filter"), Wireshark automatically applies a display filter: <code style="font-family:monospace">tcp.stream eq N</code> — where N is the stream index. This filter is reusable in the main filter bar.</p>
+
+  <div class="callout callout-blue">
+    <strong>TCP stream filter</strong>
+    The TCP stream number <code style="font-family:monospace">tcp.stream eq N</code> is automatically applied as a display filter when you close the stream window with "Filter" — use this to keep your analysis focused on one conversation.
+  </div>
+
+  <div class="callout callout-green">
+    <strong>Cleartext credentials and commands</strong>
+    In the stream content, look for plaintext credentials, error messages, and application commands — HTTP Basic auth, FTP passwords, SMTP, and many other protocols transmit in cleartext and are fully readable in the Follow Stream view.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Follow TCP Stream: right-click → Follow → TCP Stream. Shows reassembled bidirectional data. Red = client, Blue = server (default). Switch view: both/client/server. Filter auto-created: tcp.stream eq N. Shows plaintext app data — HTTP, FTP, SMTP, credentials all visible.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-tcpstream" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('tcpstream','Follow TCP Stream')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-tcpstream" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('tcpstream')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FOLLOW UDP STREAM</span>
+  </div>
+  <p class="socratic-insight">UDP has no connection state — yet Wireshark still groups related UDP datagrams into "streams" by tracking the four-tuple. Understanding what UDP streaming can and cannot show you sets the right expectations for DNS and TFTP analysis.</p>
+  <ul class="socratic-questions">
+    <li>A DNS query for "evil.example.com" appears in your capture. Using Follow UDP Stream, what would you look for to determine if this is suspicious?</li>
+    <li>You're analyzing a TFTP file transfer. Why is Follow UDP Stream more useful than looking at individual packets?</li>
+  </ul>
+  <div class="answer-area" data-section="udpstream">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — DETECTING SUSPICIOUS DNS IN STREAM VIEW</div>
+        <div class="model-answer-text">In the Follow UDP Stream view for a DNS exchange, look for: (1) Unusually large response payloads — DNS responses are typically small; large payloads could indicate DNS tunneling. (2) The response content — does the resolved IP make sense, or does it point to a known malicious IP? (3) Repeated queries or high frequency — a burst of DNS queries for subdomains of the same domain is a classic DNS tunneling signature. (4) Non-standard query types (TXT, NULL records) in the stream's raw content — tunneling tools often abuse TXT records to carry encoded data.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — FOLLOW UDP STREAM FOR TFTP</div>
+        <div class="model-answer-text">TFTP is a block-based file transfer protocol over UDP. Individual packets show only one block of data (typically 512 bytes) plus the protocol header. To see the full file being transferred, you need to see all blocks in sequence. Follow UDP Stream reassembles all TFTP data blocks for the session and presents the file contents in one view — you can then switch the encoding to Raw or Hex to see the actual file bytes, or use File → Export Objects → TFTP to extract the file entirely. Looking at individual packets would require manually reconstructing the sequence of blocks.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="udpstream">
+  <div class="section-label">Section 2</div>
+  <h2>Follow UDP Stream</h2>
+  <p>Right-click any UDP packet → <strong>Follow → UDP Stream</strong>. Works similarly to TCP stream but for UDP conversations. UDP has no connection state — Wireshark identifies UDP "streams" by the <strong>4-tuple</strong> (source IP, source port, destination IP, destination port).</p>
+  <p>Follow UDP Stream is especially useful for: <strong>DNS</strong> (see the full query + response pair), <strong>TFTP</strong> file transfers, and DNS-over-UDP analysis. The same encoding options (ASCII, Hex, etc.) apply. The stream filter applied is <code style="font-family:monospace">udp.stream eq N</code>.</p>
+
+  <div class="callout callout-amber">
+    <strong>UDP ordering caveat</strong>
+    UDP doesn't guarantee ordering — the Follow UDP Stream view shows datagrams in the order Wireshark received them, which may differ from the order the sender transmitted them if there was reordering in the network.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Follow UDP Stream: right-click → Follow → UDP Stream. UDP "streams" identified by 4-tuple. Great for DNS query/response pairs, TFTP, and DNS analysis. No connection state — just packets grouped by address+port. Stream filter: udp.stream eq N. May show out-of-order if network reordered.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-udpstream" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('udpstream','Follow UDP Stream')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-udpstream" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('udpstream')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · TLS/SSL STREAM DECRYPTION</span>
+  </div>
+  <p class="socratic-insight">TLS decryption in Wireshark requires the right key material — and the method depends on the TLS version. The key log file method works universally, but the RSA private key method is limited to older cipher suites. Understanding why separates confident analysts from those who get stuck.</p>
+  <ul class="socratic-questions">
+    <li>Your colleague set SSLKEYLOGFILE before starting Chrome but forgot to restart Wireshark. The TLS traffic shows as encrypted. What went wrong?</li>
+    <li>A server uses TLS 1.3. Can you decrypt the traffic with the server's private RSA key? Why or why not?</li>
+  </ul>
+  <div class="answer-area" data-section="ssl">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — KEY LOG FILE NOT BEING USED</div>
+        <div class="model-answer-text">Setting SSLKEYLOGFILE before starting Chrome is correct — Chrome writes session keys to that file. But Wireshark also needs to be configured to read that file: go to Edit → Preferences → Protocols → TLS and enter the path in the "(Pre)-Master-Secret log filename" field. If this path isn't set, Wireshark doesn't know the key log file exists even though Chrome is writing to it. The colleague likely set the environment variable but didn't configure Wireshark's TLS preferences to point at the file.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — TLS 1.3 AND RSA PRIVATE KEY</div>
+        <div class="model-answer-text">No — you cannot decrypt TLS 1.3 traffic with the server's RSA private key. TLS 1.3 mandates ephemeral key exchange (ECDHE — Elliptic Curve Diffie-Hellman Ephemeral), which means each session generates a unique ephemeral key pair that is never transmitted over the wire and discarded after the session. The RSA private key is only used for authentication (verifying the certificate), not for key derivation. The only way to decrypt TLS 1.3 is via the SSLKEYLOGFILE/pre-master secret log method, where the browser writes out the session keys itself.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ssl">
+  <div class="section-label">Section 3</div>
+  <h2>TLS/SSL Stream Decryption</h2>
+  <p>Modern HTTPS uses TLS (formerly SSL), which encrypts the stream content. Follow → TLS Stream only shows readable data if Wireshark has decryption keys. Two methods:</p>
+  <ol>
+    <li><strong>Pre-Master Secret Log File (SSLKEYLOGFILE)</strong> — set the <code style="font-family:monospace">SSLKEYLOGFILE</code> environment variable in Chrome or Firefox before starting the browser. The browser writes session keys to that file. In Wireshark: Edit → Preferences → Protocols → TLS → set "(Pre)-Master-Secret log filename" to that file. This decrypts HTTPS without the server's private key and works for <strong>all TLS versions including TLS 1.3</strong>.</li>
+    <li><strong>RSA Private Key</strong> — for RSA key exchange cipher suites only (older TLS, not TLS 1.3+). Add the server's private key in Preferences → Protocols → TLS → RSA Keys list. TLS 1.3 always uses ephemeral key exchange, so this method does NOT work for TLS 1.3.</li>
+  </ol>
+
+  <div class="callout callout-red">
+    <strong>TLS 1.3 cannot be decrypted with private key</strong>
+    RSA private key decryption only works with RSA key exchange cipher suites. TLS 1.3 always uses ephemeral key exchange — the ONLY way to decrypt TLS 1.3 is via the SSLKEYLOGFILE method (pre-master secret log).
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">TLS decryption methods: (1) SSLKEYLOGFILE env var → key log file → Prefs → TLS (works for all TLS including 1.3). (2) RSA private key → Prefs → TLS → RSA Keys (ONLY works for RSA cipher suites, NOT TLS 1.3). Follow → TLS Stream shows decrypted payload after setup. Requires the key before or at capture time.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ssl" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ssl','TLS/SSL Stream Decryption')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ssl" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ssl')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · USING STREAMS FOR APPLICATION ANALYSIS</span>
+  </div>
+  <p class="socratic-insight">The stream view is where packet analysis meets application forensics. It bridges the gap between network data and application behavior — letting you recover files, find credentials, and understand what the application actually did.</p>
+  <ul class="socratic-questions">
+    <li>During forensic analysis, you want to recover a file that was downloaded over HTTP. What Wireshark feature do you use, and where do you find it?</li>
+    <li>You see in a Follow TCP Stream that an HTTP response starts with "HTTP/1.1 200 OK" followed by what looks like HTML — but also includes a password field. What conclusion do you draw, and what should you report?</li>
+  </ul>
+  <div class="answer-area" data-section="streamanalysis">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — RECOVERING A FILE FROM HTTP</div>
+        <div class="model-answer-text">Use File → Export Objects → HTTP. This feature inspects all HTTP responses in the capture and extracts any embedded objects (HTML pages, images, documents, downloads, scripts) as individual files you can save to disk. It's a core forensics technique for recovering files transferred over unencrypted HTTP. You can also use it for other protocols: File → Export Objects → SMB (Windows file shares), TFTP, FTP-DATA, DICOM, and IMF (email).</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — PASSWORD IN HTTP RESPONSE STREAM</div>
+        <div class="model-answer-text">The conclusion is that the application is transmitting sensitive data — specifically a password value — in an HTTP response over an unencrypted connection. This is a serious security vulnerability: the password is exposed to any party that can observe the network traffic (via capture, ARP poisoning, or a man-in-the-middle). You should report: (1) the specific URL and endpoint returning the password, (2) the fact that it's transmitted over HTTP (not HTTPS), (3) a recommendation to encrypt all transmissions containing credentials and to audit what data the API is returning — it should never return passwords in responses.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="streamanalysis">
+  <div class="section-label">Section 4</div>
+  <h2>Using Streams for Application Analysis</h2>
+  <p>Streams are the highest-level view of a conversation's data — they reveal what the application actually sent and received. Key analysis uses:</p>
+  <ol>
+    <li><strong>Finding cleartext credentials</strong> — look for "Authorization: Basic" in HTTP streams, or "PASS" commands in FTP/SMTP.</li>
+    <li><strong>Identifying protocol abuse</strong> — see if a "DNS" connection is tunneling non-DNS data (large payloads, unusual patterns).</li>
+    <li><strong>Confirming application errors</strong> — HTTP 4xx/5xx response bodies show the exact error message from the server.</li>
+    <li><strong>Extracting files</strong> — File → Export Objects → HTTP extracts images, documents, and downloads. File → Export Objects → FTP-DATA extracts FTP file transfers.</li>
+    <li><strong>Comparing request/response timing</strong> — note timestamps at the start and end of the stream to measure total transaction time.</li>
+  </ol>
+
+  <div class="callout callout-green">
+    <strong>Export Objects — key forensics technique</strong>
+    File → Export Objects → HTTP extracts every HTTP object (images, HTML, scripts, downloads) from the capture as individual files. This is a key forensics technique for recovering files sent over unencrypted HTTP.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Key stream analysis uses: cleartext credentials (HTTP Basic Auth, FTP PASS), protocol tunneling detection (DNS with large payloads), HTTP error body inspection, file extraction (File → Export Objects → HTTP/FTP-DATA). Stream reveals what app actually exchanged — not just headers.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-streamanalysis" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('streamanalysis','Using Streams for Application Analysis')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-streamanalysis" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('streamanalysis')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 10 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 4 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-tcpstream"><input type="checkbox" onchange="toggleDone(this,'chk-tcpstream')"> Follow TCP Stream</label>
+      <label class="check-item" data-key="chk-udpstream"><input type="checkbox" onchange="toggleDone(this,'chk-udpstream')"> Follow UDP Stream</label>
+      <label class="check-item" data-key="chk-ssl"><input type="checkbox" onchange="toggleDone(this,'chk-ssl')"> TLS/SSL Decryption</label>
+      <label class="check-item" data-key="chk-streamanalysis"><input type="checkbox" onchange="toggleDone(this,'chk-streamanalysis')"> Stream Analysis</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>Stream Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">Follow TCP</span><span class="qr-def">Right-click → Follow → TCP</span></div>
+    <div class="qr-row"><span class="qr-term">Follow UDP</span><span class="qr-def">Right-click → Follow → UDP</span></div>
+    <div class="qr-row"><span class="qr-term">TLS decrypt</span><span class="qr-def">Prefs → TLS → key log</span></div>
+    <div class="qr-row"><span class="qr-term">Export objects</span><span class="qr-def">File → Export Objects → HTTP</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.stream eq N</span><span class="qr-def">Filter to one stream</span></div>
+    <div class="qr-row"><span class="qr-term">TLS 1.3</span><span class="qr-def">Only key log file works</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 10 · Follow Streams and Reassemble Data · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch10-streams';
+const SECTIONS = {
+  'tcpstream':'Follow TCP Stream',
+  'udpstream':'Follow UDP Stream',
+  'ssl':'TLS/SSL Stream Decryption',
+  'streamanalysis':'Using Streams for Application Analysis'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

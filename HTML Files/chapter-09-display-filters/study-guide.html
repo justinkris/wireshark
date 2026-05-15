@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 — Create and Apply Display Filters · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 9</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 9 · Study Guide</div>
+    <h1>Display <em>Filters</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 9 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">"Display filters are how you turn 10,000 packets into the 3 that matter — <em>master them and you master Wireshark.</em>"</div>
+  <p class="motivation-sub">Filter syntax, comparison operators, combining expressions, protocol-specific filters, filter buttons. Four sections · Socratic questions.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="basics" onclick="navTo('basics')">1 · Filter Basics</button>
+  <button class="nav-tab" data-target="syntax" onclick="navTo('syntax')">2 · Filter Syntax</button>
+  <button class="nav-tab" data-target="commonfilters" onclick="navTo('commonfilters')">3 · Common Filters</button>
+  <button class="nav-tab" data-target="filtertools" onclick="navTo('filtertools')">4 · Filter Tools</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · DISPLAY FILTER BASICS</span>
+  </div>
+  <p class="socratic-insight">Display filters don't change your capture — they only change what you see. Every packet you filtered out is still there, waiting for you to clear the filter. Understanding this non-destructive nature is the foundation for confident filter use.</p>
+  <ul class="socratic-questions">
+    <li>The display filter bar turns yellow while you're typing. What does this mean, and should you apply the filter?</li>
+    <li>You apply a display filter and the packet count drops from 10,000 to 5. You then clear the filter. How many packets are in the file now?</li>
+  </ul>
+  <div class="answer-area" data-section="basics">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — YELLOW FILTER BAR</div>
+        <div class="model-answer-text">A yellow filter bar means the syntax is valid — Wireshark can parse the expression — but the filter may produce unexpected or unintended results. This often happens when you use a field that exists but in an unusual way, or when a filter is technically correct but might match more broadly than intended. You can apply it, but you should double-check that the results are what you expected. It is not a syntax error (which would show red), so Wireshark will not prevent you from applying it.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — CLEARING A DISPLAY FILTER</div>
+        <div class="model-answer-text">All 10,000 packets are still in the file. Display filters are entirely non-destructive — they hide packets from view without removing them from the capture. Clearing the filter (clicking the X button) simply removes the filter and restores the full view. This is the fundamental difference between display filters and capture filters: display filters hide; capture filters prevent packets from being saved at all.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="basics">
+  <div class="section-label">Section 1</div>
+  <h2>Display Filter Basics</h2>
+  <p>Display filters are different from capture filters. They show and hide packets <strong>after</strong> they are captured. Packets that don't match the filter remain in the capture file — they're just hidden from view. Display the full capture at any time by clearing the filter.</p>
+  <p>Display filters use Wireshark's own dissector-aware syntax. You reference protocol fields by their display field names — for example, <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">ip.addr</code>, <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">tcp.port</code>, <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 5px;border-radius:4px;">http.request.method</code>. Wireshark knows the protocol structure and lets you filter on any field it can decode.</p>
+  <p><strong>Filter bar color feedback:</strong> The filter bar changes color as you type to give instant feedback on your expression:</p>
+  <ul>
+    <li><strong>Green</strong> — filter syntax is valid. Press Enter or click the arrow (→) to apply.</li>
+    <li><strong>Red</strong> — syntax error. Wireshark cannot parse the expression as written.</li>
+    <li><strong>Yellow</strong> — syntax is valid but the filter may produce unintended matches or unusual results.</li>
+  </ul>
+  <p>Press <strong>Enter</strong> or click the <strong>→ (Apply)</strong> button to apply a filter. Click the <strong>X</strong> button to clear it and restore all packets.</p>
+
+  <div class="callout callout-blue">
+    <strong>Non-destructive filtering</strong>
+    Display filters are non-destructive — they hide packets but never delete them. Clear the filter to restore the full view. This is the fundamental difference from capture filters, which prevent packets from being saved in the first place.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Display filter = Wireshark's dissector-aware syntax. Applied AFTER capture. Green bar = valid. Red bar = syntax error. Yellow = valid but possibly unintended match. Filter hides packets — never deletes. Clear filter = full view returns. Press Enter to apply.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-basics" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('basics','Display Filter Basics')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-basics" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('basics')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FILTER SYNTAX AND OPERATORS</span>
+  </div>
+  <p class="socratic-insight">Display filter syntax maps directly onto protocol field names. Once you understand the pattern — protocol.field operator value — you can construct filters for any field Wireshark can decode, without memorizing a separate filter language.</p>
+  <ul class="socratic-questions">
+    <li>What is the difference between <code style="font-family:monospace">ip.addr == 10.0.0.1</code> and <code style="font-family:monospace">ip.src == 10.0.0.1 or ip.dst == 10.0.0.1</code>? Are they equivalent?</li>
+    <li>You want to find all packets where a specific string "login" appears anywhere in the payload. What display filter would you write?</li>
+  </ul>
+  <div class="answer-area" data-section="syntax">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — ip.addr VS ip.src OR ip.dst</div>
+        <div class="model-answer-text">They are effectively equivalent — <code style="font-family:monospace">ip.addr == 10.0.0.1</code> matches any packet where 10.0.0.1 appears as either the source or the destination IP address. Wireshark's <code style="font-family:monospace">ip.addr</code> field is a pseudo-field that checks both source and destination. The explicit <code style="font-family:monospace">ip.src == 10.0.0.1 or ip.dst == 10.0.0.1</code> is more verbose but identical in matching behavior. Use <code style="font-family:monospace">ip.addr</code> when you don't care about direction; use <code style="font-family:monospace">ip.src</code> or <code style="font-family:monospace">ip.dst</code> when direction matters.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — SUBSTRING SEARCH IN PAYLOAD</div>
+        <div class="model-answer-text">Use the <code style="font-family:monospace">contains</code> operator: <code style="font-family:monospace">tcp contains "login"</code> or more broadly <code style="font-family:monospace">frame contains "login"</code>. The <code style="font-family:monospace">contains</code> operator searches the raw bytes of the specified field for the given string. Using <code style="font-family:monospace">frame</code> searches the entire packet. For case-insensitive or regex matching, use the <code style="font-family:monospace">matches</code> operator with a regex: <code style="font-family:monospace">tcp matches "(?i)login"</code>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="syntax">
+  <div class="section-label">Section 2</div>
+  <h2>Filter Syntax and Operators</h2>
+  <p>Display filter syntax follows the pattern: <strong><code style="font-family:monospace">[protocol].[field] [operator] [value]</code></strong>. Wireshark's field names match what you see in the Packet Details pane.</p>
+  <p><strong>Comparison operators:</strong> <code style="font-family:monospace">==</code> (equals), <code style="font-family:monospace">!=</code> (not equals), <code style="font-family:monospace">&gt;</code>, <code style="font-family:monospace">&lt;</code>, <code style="font-family:monospace">&gt;=</code>, <code style="font-family:monospace">&lt;=</code>, <code style="font-family:monospace">contains</code> (string in bytes field), <code style="font-family:monospace">matches</code> or <code style="font-family:monospace">~</code> (regex match).</p>
+  <p><strong>Logical operators:</strong> <code style="font-family:monospace">and</code> (or <code style="font-family:monospace">&amp;&amp;</code>), <code style="font-family:monospace">or</code> (or <code style="font-family:monospace">||</code>), <code style="font-family:monospace">not</code> (or <code style="font-family:monospace">!</code>). <strong>Membership:</strong> <code style="font-family:monospace">in {val1 val2 val3}</code> — e.g., <code style="font-family:monospace">tcp.port in {80 443 8080}</code>.</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Expression</th><th>What It Matches</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">ip.addr == 10.0.0.1</span></td><td>Packets to or from 10.0.0.1 (src or dst)</td></tr>
+      <tr><td><span class="filter-code">ip.src == 10.0.0.1</span></td><td>Packets FROM 10.0.0.1 only</td></tr>
+      <tr><td><span class="filter-code">tcp.port == 80</span></td><td>TCP source or destination port 80</td></tr>
+      <tr><td><span class="filter-code">tcp.flags.syn == 1</span></td><td>Packets with SYN flag set</td></tr>
+      <tr><td><span class="filter-code">http.request.method == "GET"</span></td><td>HTTP GET requests only</td></tr>
+      <tr><td><span class="filter-code">frame.len > 1000</span></td><td>Frames larger than 1000 bytes</td></tr>
+      <tr><td><span class="filter-code">ip.addr == 10.0.0.1 and tcp.port == 443</span></td><td>HTTPS to/from 10.0.0.1</td></tr>
+      <tr><td><span class="filter-code">not arp</span></td><td>Everything except ARP</td></tr>
+      <tr><td><span class="filter-code">dns.flags.rcode != 0</span></td><td>DNS responses with errors</td></tr>
+      <tr><td><span class="filter-code">tcp.analysis.flags</span></td><td>Any TCP analysis event (boolean — no value needed)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Syntax: protocol.field operator value. <code style="font-family:monospace">ip.addr</code> = src OR dst. Use <code style="font-family:monospace">ip.src</code>/<code style="font-family:monospace">ip.dst</code> for direction. <code style="font-family:monospace">contains</code> for substring. <code style="font-family:monospace">matches</code> for regex. <code style="font-family:monospace">in {}</code> for value sets. <code style="font-family:monospace">tcp.analysis.flags</code> = all TCP problems (no operator needed — boolean field).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-syntax" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('syntax','Filter Syntax and Operators')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-syntax" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('syntax')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · COMMON DISPLAY FILTERS BY PROTOCOL</span>
+  </div>
+  <p class="socratic-insight">A small set of display filters covers the vast majority of real-world analysis scenarios. Knowing the right filter for the right protocol means you spend time reading packets, not constructing expressions.</p>
+  <ul class="socratic-questions">
+    <li>You want to see only NEW TCP connection attempts — no data segments, no ACK-only packets. What filter would you use?</li>
+    <li>Write a display filter to find all DNS queries (not responses) for the domain name "example.com".</li>
+  </ul>
+  <div class="answer-area" data-section="commonfilters">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — NEW TCP CONNECTION ATTEMPTS ONLY</div>
+        <div class="model-answer-text"><code style="font-family:monospace">tcp.flags.syn == 1 and tcp.flags.ack == 0</code>. A TCP SYN without an ACK flag is the first packet of a new connection — the initial SYN from the client. SYN-ACK (the server's response) also has SYN set, but ACK is also set, so excluding ACK isolates only the initiating SYN packets. This filter shows every new connection attempt in the capture.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — DNS QUERIES FOR A SPECIFIC DOMAIN</div>
+        <div class="model-answer-text"><code style="font-family:monospace">dns.flags.response == 0 and dns.qry.name == "example.com"</code>. <code style="font-family:monospace">dns.flags.response == 0</code> filters to queries only (response bit = 0). <code style="font-family:monospace">dns.qry.name</code> matches the queried domain name. You could also use <code style="font-family:monospace">dns.qry.name contains "example.com"</code> to catch subdomains like www.example.com.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="commonfilters">
+  <div class="section-label">Section 3</div>
+  <h2>Common Display Filters by Protocol</h2>
+  <p>A reference of essential display filters organized by use case. These cover the most common analysis scenarios across HTTP, DNS, TCP, ICMP, and ARP.</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Use Case</th><th>Display Filter</th></tr></thead>
+    <tbody>
+      <tr><td>All HTTP traffic</td><td><span class="filter-code">http</span></td></tr>
+      <tr><td>HTTP GET requests only</td><td><span class="filter-code">http.request.method == "GET"</span></td></tr>
+      <tr><td>HTTP responses with errors</td><td><span class="filter-code">http.response.code >= 400</span></td></tr>
+      <tr><td>All HTTPS</td><td><span class="filter-code">tcp.port == 443</span></td></tr>
+      <tr><td>All DNS queries</td><td><span class="filter-code">dns.flags.response == 0</span></td></tr>
+      <tr><td>DNS failures</td><td><span class="filter-code">dns.flags.rcode != 0</span></td></tr>
+      <tr><td>All ICMP</td><td><span class="filter-code">icmp</span></td></tr>
+      <tr><td>ICMP unreachable</td><td><span class="filter-code">icmp.type == 3</span></td></tr>
+      <tr><td>All ARP</td><td><span class="filter-code">arp</span></td></tr>
+      <tr><td>ARP who-has (request)</td><td><span class="filter-code">arp.opcode == 1</span></td></tr>
+      <tr><td>TCP SYN (new connections)</td><td><span class="filter-code">tcp.flags.syn == 1 and tcp.flags.ack == 0</span></td></tr>
+      <tr><td>TCP RST (resets)</td><td><span class="filter-code">tcp.flags.reset == 1</span></td></tr>
+      <tr><td>All TCP problems</td><td><span class="filter-code">tcp.analysis.flags</span></td></tr>
+      <tr><td>Retransmissions only</td><td><span class="filter-code">tcp.analysis.retransmission</span></td></tr>
+      <tr><td>Large frames (possible jumbo)</td><td><span class="filter-code">frame.len > 1500</span></td></tr>
+      <tr><td>Small frames (ACK-only, keepalive)</td><td><span class="filter-code">frame.len &lt; 80</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Core filter set to memorize: <code style="font-family:monospace">http</code>, <code style="font-family:monospace">dns</code>, <code style="font-family:monospace">icmp</code>, <code style="font-family:monospace">arp</code>, <code style="font-family:monospace">tcp.flags.syn==1&amp;&amp;tcp.flags.ack==0</code> (new connections), <code style="font-family:monospace">tcp.flags.reset==1</code> (RSTs), <code style="font-family:monospace">tcp.analysis.flags</code> (all TCP errors), <code style="font-family:monospace">http.response.code&gt;=400</code> (HTTP errors), <code style="font-family:monospace">dns.flags.rcode!=0</code> (DNS failures).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-commonfilters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('commonfilters','Common Display Filters by Protocol')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-commonfilters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('commonfilters')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FILTER BUTTONS AND BOOKMARKS</span>
+  </div>
+  <p class="socratic-insight">The fastest display filter you can write is one you don't have to write at all. Wireshark's right-click shortcuts and saved filter buttons let you build precise filters directly from packet data, eliminating typos and field name lookups.</p>
+  <ul class="socratic-questions">
+    <li>What is the difference between "Apply as Filter → Selected" and "Prepare as Filter → Selected" when right-clicking a packet field?</li>
+    <li>You type <code style="font-family:monospace">tcp.</code> in the filter bar and press Tab. What happens, and why is this useful?</li>
+  </ul>
+  <div class="answer-area" data-section="filtertools">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — APPLY AS FILTER VS PREPARE AS FILTER</div>
+        <div class="model-answer-text">"Apply as Filter → Selected" immediately applies the filter to the packet list — you see the filtered results right away. "Prepare as Filter → Selected" places the filter expression into the filter bar but does not apply it yet, letting you review and edit the expression before pressing Enter to apply. Prepare is useful when you want to combine multiple right-click operations (e.g., Prepare one field, then "And Selected" on another field) to build a compound filter before applying.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — TAB AUTOCOMPLETE IN FILTER BAR</div>
+        <div class="model-answer-text">Pressing Tab (or just pausing after typing) triggers Wireshark's autocomplete, showing a dropdown list of all field names that start with the typed prefix. Typing <code style="font-family:monospace">tcp.</code> shows every TCP sub-field: <code style="font-family:monospace">tcp.port</code>, <code style="font-family:monospace">tcp.flags</code>, <code style="font-family:monospace">tcp.analysis.retransmission</code>, etc. This is invaluable because you don't need to memorize field names — you can browse the available fields as you type, then select the one you want.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="filtertools">
+  <div class="section-label">Section 4</div>
+  <h2>Filter Buttons and Bookmarks</h2>
+  <p>Wireshark provides several tools to manage and reuse display filters efficiently:</p>
+  <ol>
+    <li><strong>Filter Bookmarks</strong> — click the bookmark icon in the filter bar to save the current filter with a name. Saved filters appear in the dropdown for quick reuse.</li>
+    <li><strong>Filter Buttons</strong> — configurable quick-access buttons below the filter bar (Analyze → Display Filter Macros, or right-click the filter bar area). One-click filter application.</li>
+    <li><strong>Filter Expressions Dialog</strong> — Analyze → Display Filters opens a dialog for creating, naming, and managing all saved display filter expressions.</li>
+    <li><strong>Right-click shortcut</strong> — right-click any field in the Packet Details pane → "Apply as Filter" or "Prepare as Filter" to build filters from actual packet values. The fastest method for precise filtering.</li>
+    <li><strong>Auto-complete</strong> — as you type in the filter bar, Wireshark shows field name suggestions. Press Tab to cycle through completions.</li>
+  </ol>
+
+  <div class="callout callout-green">
+    <strong>Fastest filter construction method</strong>
+    Right-click a field in Packet Details → "Apply as Filter → Selected" to instantly filter to all packets containing that exact field value. This is the fastest way to build complex, accurate filters without memorizing field names.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Save filters: bookmark icon → name it. Right-click Details field → Apply as Filter (fastest method). Autocomplete in filter bar for field names. Analyze → Display Filters = manage saved filters. Filter bar turns green=valid, red=error, yellow=unusual match.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filtertools" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filtertools','Filter Buttons and Bookmarks')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filtertools" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filtertools')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 9 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 4 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-basics"><input type="checkbox" onchange="toggleDone(this,'chk-basics')"> Filter Basics</label>
+      <label class="check-item" data-key="chk-syntax"><input type="checkbox" onchange="toggleDone(this,'chk-syntax')"> Filter Syntax &amp; Operators</label>
+      <label class="check-item" data-key="chk-commonfilters"><input type="checkbox" onchange="toggleDone(this,'chk-commonfilters')"> Common Filters by Protocol</label>
+      <label class="check-item" data-key="chk-filtertools"><input type="checkbox" onchange="toggleDone(this,'chk-filtertools')"> Filter Buttons &amp; Bookmarks</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>Display Filter Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">Enter / →</span><span class="qr-def">Apply filter</span></div>
+    <div class="qr-row"><span class="qr-term">X button</span><span class="qr-def">Clear filter</span></div>
+    <div class="qr-row"><span class="qr-term">Green bar</span><span class="qr-def">Filter syntax valid</span></div>
+    <div class="qr-row"><span class="qr-term">Red bar</span><span class="qr-def">Syntax error</span></div>
+    <div class="qr-row"><span class="qr-term">ip.addr</span><span class="qr-def">src OR dst match</span></div>
+    <div class="qr-row"><span class="qr-term">tcp.analysis.flags</span><span class="qr-def">All TCP problems</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 9 · Create and Apply Display Filters · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch09-dispfilters';
+const SECTIONS = {
+  'basics':'Display Filter Basics',
+  'syntax':'Filter Syntax and Operators',
+  'commonfilters':'Common Display Filters by Protocol',
+  'filtertools':'Filter Buttons and Bookmarks'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

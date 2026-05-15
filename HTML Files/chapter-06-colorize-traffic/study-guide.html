@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 — Colorize Traffic · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 6</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 6 · Study Guide</div>
+    <h1>Colorize <em>Traffic</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 6 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">"Color makes the invisible visible — <em>a well-tuned color rule surfaces problems at a glance.</em>"</div>
+  <p class="motivation-sub">Color rules overview, default rules, creating custom rules, using color for rapid analysis. Four sections · Socratic questions · Click-to-reveal model answers.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="coloroverview" onclick="navTo('coloroverview')">1 · Color Overview</button>
+  <button class="nav-tab" data-target="defaultrules" onclick="navTo('defaultrules')">2 · Default Color Rules</button>
+  <button class="nav-tab" data-target="customrules" onclick="navTo('customrules')">3 · Custom Rules</button>
+  <button class="nav-tab" data-target="coloranalysis" onclick="navTo('coloranalysis')">4 · Color for Analysis</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · COLORIZING TRAFFIC OVERVIEW</span>
+  </div>
+  <p class="socratic-insight">Coloring rules use the same display filter syntax you already know — meaning any filter expression you can type in the filter bar can become a coloring rule. The key discipline is rule ordering: first match wins, so priority determines what you see.</p>
+  <ul class="socratic-questions">
+    <li>Wireshark has two coloring rules: Rule A filters <code style="font-family:monospace">http</code> and Rule B filters <code style="font-family:monospace">tcp</code>. A single HTTP packet matches both. Which color does it get, and why?</li>
+    <li>You want to hide all color coding temporarily without deleting your rules. What's the fastest way?</li>
+  </ul>
+  <div class="answer-area" data-section="coloroverview">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — RULE PRECEDENCE WHEN BOTH MATCH</div>
+        <div class="model-answer-text">The packet gets the color of whichever rule appears higher in the list — Rule A (http) if it is listed before Rule B (tcp). Wireshark evaluates rules top-to-bottom and stops at the first match. Because HTTP traffic is also TCP traffic, both rules match, but only the first one encountered wins. This is why high-priority or more specific rules (like "Bad TCP") must be placed at the top of the rule list — if a general rule like "tcp" is higher, it will shadow everything below it.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — TOGGLING ALL COLOR OFF WITHOUT DELETING RULES</div>
+        <div class="model-answer-text">Use View → Colorize Packet List to toggle all colorization on or off with a single menu click. This is a toggle — it does not delete or modify any of your coloring rules. All rules remain intact and are immediately re-applied when you toggle colorization back on. This is useful when you want to see the raw packet list without visual noise, or when comparing a monochrome view to a colorized one.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="coloroverview">
+  <div class="section-label">Section 1</div>
+  <h2>Colorizing Traffic Overview</h2>
+  <p>Wireshark uses <strong>colorization rules</strong> to apply background and foreground colors to packets in the Packet List pane based on display filter expressions. Rules are evaluated <strong>top-to-bottom — the first matching rule wins</strong>. Access via <strong>View → Coloring Rules</strong>. Toggle all color with <strong>View → Colorize Packet List</strong>.</p>
+  <p>Color rules use the same display filter syntax as the filter bar — any valid display filter expression can become a color rule. This means you can colorize by protocol, host, port, flag value, or any combination.</p>
+
+  <div class="callout callout-blue">
+    <strong>Top rule wins — ordering is critical</strong>
+    Color rules evaluate top to bottom — the first matching rule wins. Put your highest-priority rules (e.g., "bad TCP") at the top so they are not overridden by less important rules lower in the list.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Coloring Rules = View → Coloring Rules. Use display filter syntax. Top-to-bottom precedence — first match wins. Toggle all color: View → Colorize Packet List. Default rules highlight common protocols and TCP errors.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-coloroverview" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('coloroverview','Colorizing Traffic Overview')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-coloroverview" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('coloroverview')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · DEFAULT COLORING RULES</span>
+  </div>
+  <p class="socratic-insight">The default rule set is designed to surface the most common and most urgent events first — TCP problems in high-contrast black-on-red, common protocols in softer pastels. Knowing what each default color means lets you triage a capture visually before reading a single packet detail.</p>
+  <ul class="socratic-questions">
+    <li>You see a cluster of black-on-red packets in your capture. Before looking at the packet details, what do you already know just from the color?</li>
+    <li>The default HTTP rule colors packets light green. But an HTTPS (port 443) packet is colored light blue (TCP). Why doesn't the HTTP rule match HTTPS?</li>
+  </ul>
+  <div class="answer-area" data-section="defaultrules">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — BLACK ON RED PACKETS — WHAT YOU KNOW BEFORE READING DETAILS</div>
+        <div class="model-answer-text">Black-on-red (or black on red-orange) corresponds to the "Bad TCP" default rule, which uses the filter tcp.analysis.flags. You already know these packets have TCP analysis events flagged by Wireshark's analysis engine — most commonly retransmissions, duplicate ACKs, fast retransmissions, zero windows, or window full conditions. You know there is a TCP-layer problem worth investigating — likely either packet loss (retransmissions), a slow receiver (zero window), or congestion. The color alone tells you to focus here before reading any other packets.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — WHY HTTPS IS BLUE NOT GREEN</div>
+        <div class="model-answer-text">The default HTTP coloring rule uses the filter http, which matches packets that Wireshark's HTTP dissector has decoded as HTTP protocol. HTTPS (TLS on port 443) is not decoded as HTTP at the protocol layer — Wireshark sees it as TLS (or just TCP if it cannot decrypt it). The http display filter only matches packets where Wireshark can parse the HTTP protocol headers, which requires unencrypted HTTP. Since HTTPS is encrypted and the HTTP dissector cannot read the payload, it does not match the http filter and falls through to the generic tcp rule (light blue) instead.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="defaultrules">
+  <div class="section-label">Section 2</div>
+  <h2>Default Coloring Rules</h2>
+  <p>Wireshark ships with a set of default rules that most analysts recognize. They are ordered by priority — TCP problems at the top, generic protocol colors at the bottom.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Rule Name</th><th>Color (BG/FG)</th><th>Filter Expression</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Bad TCP</strong></td><td>Black on Red-Orange</td><td><span class="filter-code">tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</span></td><td>TCP problems: retransmits, resets, dup ACKs</td></tr>
+      <tr><td>HSRP State Change</td><td>Magenta on White</td><td><span class="filter-code">hsrp.state != 8 &amp;&amp; hsrp.state != 16</span></td><td>HSRP failover events</td></tr>
+      <tr><td>Spanning Tree Topology Change</td><td>Yellow on Brown</td><td><span class="filter-code">stp.type == 0x80</span></td><td>STP topology change</td></tr>
+      <tr><td>ICMP Errors</td><td>Red on White</td><td><span class="filter-code">icmp.type eq 3 || icmp.type eq 4 || icmp.type eq 5 || icmp.type eq 11</span></td><td>Unreachable, redirect, time exceeded</td></tr>
+      <tr><td>ARP</td><td>Yellow on Green</td><td><span class="filter-code">arp</span></td><td>ARP traffic</td></tr>
+      <tr><td>HTTP</td><td>Light Green</td><td><span class="filter-code">http</span></td><td>HTTP traffic</td></tr>
+      <tr><td>TCP</td><td>Light Blue</td><td><span class="filter-code">tcp</span></td><td>Generic TCP (lowest TCP priority)</td></tr>
+      <tr><td>UDP</td><td>Light Yellow</td><td><span class="filter-code">udp</span></td><td>Generic UDP</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-amber">
+    <strong>Bad TCP — the most important default rule</strong>
+    The "Bad TCP" rule uses <code style="font-family:monospace;background:var(--amber-light);color:var(--amber);padding:1px 5px;border-radius:4px;">tcp.analysis.flags</code> which catches ALL TCP analysis events. If you see black-on-red packets, those are worth investigating immediately — they represent retransmissions, RSTs, duplicate ACKs, or zero windows.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">"Bad TCP" = black on red-orange, filter: tcp.analysis.flags. ARP = yellow/green. HTTP = light green. TCP = light blue. UDP = light yellow. Lower in list = lower priority. Modify or add rules to the top to override defaults.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-defaultrules" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('defaultrules','Default Coloring Rules')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-defaultrules" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('defaultrules')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · CREATING CUSTOM COLOR RULES</span>
+  </div>
+  <p class="socratic-insight">Custom color rules let you make the captures most relevant to your environment immediately visible. A handful of well-chosen rules — DNS failures, HTTP errors, a specific host — can turn a generic Wireshark into a tuned monitoring tool for your network.</p>
+  <ul class="socratic-questions">
+    <li>You want to highlight all packets where a DNS response returned an error. What display filter would you use as a color rule, and what color would you choose to make it stand out?</li>
+    <li>A colleague sent you their Wireshark coloring rules file. How do you import it?</li>
+  </ul>
+  <div class="answer-area" data-section="customrules">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — DNS ERROR COLOR RULE</div>
+        <div class="model-answer-text">Use the filter dns.flags.rcode != 0 — this matches any DNS response where the return code is not zero (zero = success). Non-zero rcodes include NXDOMAIN (3, name doesn't exist), SERVFAIL (2), REFUSED (5), and others. For color, a high-contrast combination like red background with white text makes DNS failures immediately visible against the lighter protocol colors. You could also use orange-on-black for visibility. Add this rule near the top of your Coloring Rules list so it takes precedence over the default UDP (light yellow) rule that would otherwise match DNS packets.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — IMPORTING A COLORING RULES FILE</div>
+        <div class="model-answer-text">Go to View → Coloring Rules → Import (the button is in the Coloring Rules dialog). Select the file your colleague sent — Wireshark coloring rules are saved in a text file typically named colorfilters. The imported rules are added to your current rule set. If there are name conflicts or you want to replace your entire rule set, you can also directly replace the colorfilters file in your profile directory (~/.config/wireshark/ on macOS) with the shared file, then restart Wireshark.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="customrules">
+  <div class="section-label">Section 3</div>
+  <h2>Creating Custom Color Rules</h2>
+  <p>To create a custom rule: <strong>View → Coloring Rules → New</strong> (or + button). Enter a name, the display filter expression, and choose foreground/background colors. Common custom rules analysts add:</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Rule Name</th><th>Filter</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>My Host</td><td><span class="filter-code">ip.addr == 192.168.1.100</span></td><td>Highlight all traffic to/from your analysis machine</td></tr>
+      <tr><td>Problem Host</td><td><span class="filter-code">ip.addr == X.X.X.X</span></td><td>Bright color for a specific misbehaving IP</td></tr>
+      <tr><td>DNS Failures</td><td><span class="filter-code">dns.flags.rcode != 0</span></td><td>Failed DNS responses (NXDOMAIN, SERVFAIL, etc.)</td></tr>
+      <tr><td>HTTP Errors</td><td><span class="filter-code">http.response.code &gt;= 400</span></td><td>Server-side HTTP errors (4xx, 5xx)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-green">
+    <strong>Colorize Conversation — quick temporary highlight</strong>
+    Right-click any packet in the Packet List → "Colorize Conversation" to instantly apply a temporary highlight to all packets in the same conversation. Choose "Reset Coloring" to remove it. This is useful for quick session tracing without creating a permanent rule.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Create rule: View → Coloring Rules → New. Use same syntax as display filter bar. Right-click packet → Colorize Conversation for quick temporary highlight. Custom rules: DNS failures (dns.flags.rcode != 0), HTTP errors (http.response.code &gt;= 400), specific IP (ip.addr == X.X.X.X).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-customrules" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('customrules','Creating Custom Color Rules')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-customrules" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('customrules')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · USING COLOR FOR RAPID ANALYSIS</span>
+  </div>
+  <p class="socratic-insight">A well-configured color scheme transforms the Packet List from a raw log into a visual dashboard. The first thing an experienced analyst does when opening an unfamiliar capture is a color sweep — letting the eyes find patterns before the brain reads individual fields.</p>
+  <ul class="socratic-questions">
+    <li>You open a capture and see mostly light-blue TCP packets with occasional black-on-red. What should be your first analysis step?</li>
+    <li>Why would you want different coloring rule sets for security analysis vs network performance analysis?</li>
+  </ul>
+  <div class="answer-area" data-section="coloranalysis">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — MOSTLY BLUE TCP WITH OCCASIONAL BLACK-ON-RED</div>
+        <div class="model-answer-text">Your first step should be to apply the filter tcp.analysis.flags to isolate only the black-on-red packets and examine them. The black-on-red color tells you these are TCP analysis events — retransmissions, duplicate ACKs, zero windows, or similar problems. "Occasional" bad TCP packets amid mostly clean traffic suggests an isolated problem rather than a persistent congestion issue. Look at the delta time before each bad TCP packet to determine if these are timeout-based retransmissions (gap of 1+ seconds) or fast retransmissions (milliseconds) triggered by duplicate ACKs — this distinction points to where the problem lives.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — SEPARATE RULE SETS FOR SECURITY VS PERFORMANCE</div>
+        <div class="model-answer-text">Security and performance analysis have fundamentally different "what is interesting" priorities. A security analyst wants to highlight unusual protocols, unexpected source IPs, port scans, RST storms, and known malware C2 patterns — things invisible or irrelevant to a performance analyst. A performance analyst wants to highlight retransmissions, zero windows, large deltas, and specific application-tier errors like HTTP 5xx. A single rule set optimized for one domain clutters the view for the other. Since Wireshark profiles each store their own coloring rules, you can switch between a "Security" profile and a "Performance" profile via the profile selector at the bottom right — instant context switching without any manual rule edits.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="coloranalysis">
+  <div class="section-label">Section 4</div>
+  <h2>Using Color for Rapid Analysis</h2>
+  <p>A well-configured color scheme turns the Packet List into a visual dashboard. Use the following strategy when opening any new capture:</p>
+  <ol>
+    <li><strong>Visual sweep first</strong> — scan for black-on-red clusters (Bad TCP = retransmission problem) or unexpected protocol colors (anomalous traffic).</li>
+    <li><strong>Colorize Conversation</strong> — right-click a packet of interest → Colorize Conversation to isolate a single session in a busy trace without filtering.</li>
+    <li><strong>Export and share</strong> — View → Coloring Rules → Export to share your tuned rule set with your team. Everyone sees the same visual cues.</li>
+    <li><strong>Use profiles</strong> — color rules are profile-specific. Maintain separate profiles for security analysis vs performance analysis.</li>
+  </ol>
+
+  <div class="callout callout-blue">
+    <strong>Share your color rules with your team</strong>
+    Export your custom coloring rules as a file and share them with your team — everyone sees the same visual cues, making collaborative analysis faster and reducing the learning curve for new analysts.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Visual sweep first: look for black-on-red (TCP problems) or unexpected colors. Colorize Conversation = right-click → temporary per-session highlight. Export rules: View → Coloring Rules → Export. Rules are profile-specific. Color is the fastest triage tool in Wireshark.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-coloranalysis" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('coloranalysis','Using Color for Rapid Analysis')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-coloranalysis" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('coloranalysis')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 6 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 4 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-coloroverview"><input type="checkbox" onchange="toggleDone(this,'chk-coloroverview')"> Colorizing Traffic Overview</label>
+      <label class="check-item" data-key="chk-defaultrules"><input type="checkbox" onchange="toggleDone(this,'chk-defaultrules')"> Default Coloring Rules</label>
+      <label class="check-item" data-key="chk-customrules"><input type="checkbox" onchange="toggleDone(this,'chk-customrules')"> Creating Custom Color Rules</label>
+      <label class="check-item" data-key="chk-coloranalysis"><input type="checkbox" onchange="toggleDone(this,'chk-coloranalysis')"> Using Color for Rapid Analysis</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>Color Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">Access</span><span class="qr-def">View → Coloring Rules</span></div>
+    <div class="qr-row"><span class="qr-term">Precedence</span><span class="qr-def">Top rule wins</span></div>
+    <div class="qr-row"><span class="qr-term">Bad TCP</span><span class="qr-def">tcp.analysis.flags (black/red)</span></div>
+    <div class="qr-row"><span class="qr-term">Colorize Conv.</span><span class="qr-def">Right-click packet</span></div>
+    <div class="qr-row"><span class="qr-term">DNS errors</span><span class="qr-def">dns.flags.rcode != 0</span></div>
+    <div class="qr-row"><span class="qr-term">Toggle all</span><span class="qr-def">View → Colorize Packet List</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 6 · Colorize Traffic · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch06-colorize';
+const SECTIONS = {
+  'coloroverview':'Colorizing Traffic Overview',
+  'defaultrules':'Default Coloring Rules',
+  'customrules':'Creating Custom Color Rules',
+  'coloranalysis':'Using Color for Rapid Analysis'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>
