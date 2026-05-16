@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 14 — TCP/IP Analysis Overview · Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+html.pt-init body{opacity:0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:#eef4ff;color:#0d1a2e;min-height:100vh;}
+a{color:#1a6dcc;text-decoration:none;}
+header{background:#0d1a2e;padding:22px 36px 26px;color:#fff;}
+.breadcrumb{font-size:12px;color:#93c5fd;margin-bottom:10px;}
+.breadcrumb a{color:#93c5fd;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:#1e3a5f;border-radius:20px;padding:4px 14px;font-size:11px;color:#93c5fd;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#93c5fd;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;line-height:1.15;}
+h1 em{font-style:italic;color:#93c5fd;}
+.header-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:6px;}
+.sec-nav{background:#fff;border-bottom:2px solid #bfdbfe;position:sticky;top:0;z-index:40;overflow-x:auto;}
+.sec-nav-inner{display:flex;padding:0 28px;gap:2px;min-width:max-content;}
+.sec-tab{font-size:12px;font-weight:600;color:#475569;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer;transition:all .15s;}
+.sec-tab:hover{color:#1a6dcc;border-color:#bfdbfe;}
+.q-panel-wrap{padding:14px 32px 0;}
+.q-panel{background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;}
+.q-panel-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;cursor:pointer;background:#eef4ff;}
+.q-panel-hdr h3{font-size:14px;font-weight:600;color:#1a6dcc;}
+.q-panel-body{padding:12px 16px;display:none;}
+.q-panel-body.open{display:block;}
+.q-input-row{display:flex;gap:8px;margin-bottom:10px;}
+.q-input{flex:1;border:1px solid #bfdbfe;border-radius:6px;padding:8px 10px;font-size:13px;font-family:'Epilogue',sans-serif;}
+.btn-add-q{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;}
+.q-list{list-style:none;}
+.q-list li{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f0f4f8;font-size:13px;}
+.btn-del-q{background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:0 4px;}
+main{display:grid;grid-template-columns:1fr 310px;gap:24px;padding:24px 32px;max-width:1400px;margin:0 auto;}
+.content{min-width:0;}
+.sg-section{margin-bottom:40px;}
+.sec-anchor{display:block;height:64px;margin-top:-64px;visibility:hidden;}
+.sec-heading{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:#0d1a2e;margin:28px 0 6px;padding-top:8px;border-top:2px solid #bfdbfe;}
+.sec-sub{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a6dcc;margin:20px 0 6px;}
+.content-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:22px 26px;margin-bottom:16px;line-height:1.75;font-size:15px;}
+.content-card p{margin-bottom:12px;}
+.content-card p:last-child{margin-bottom:0;}
+.content-card ul,.content-card ol{padding-left:20px;margin:8px 0 12px;}
+.content-card li{margin-bottom:5px;line-height:1.6;}
+.content-card h4{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#0d1a2e;margin:16px 0 6px;}
+.content-card strong{color:#0f3d7a;}
+code{background:#f0f4f8;padding:2px 6px;border-radius:4px;font-size:13px;color:#1a6dcc;}
+.step-block{margin:12px 0;padding:14px 18px;background:#f8fafc;border-left:3px solid #1a6dcc;border-radius:0 8px 8px 0;}
+.step-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#1a6dcc;margin-bottom:4px;}
+.tip-block{background:#f0fdf4;border:1px solid #a7e0c0;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:14px;line-height:1.65;}
+.tip-block::before{content:"✦ TIP · ";font-weight:700;color:#1a7c4a;font-size:11px;letter-spacing:.08em;display:block;margin-bottom:4px;}
+.insight-block{background:#fff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.insight-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;cursor:pointer;background:#eef4ff;border-bottom:1px solid #bfdbfe;}
+.insight-hdr:hover{background:#dbeafe;}
+.ins-icon{font-size:16px;}
+.ins-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6dcc;flex:1;}
+.ins-arr{font-size:14px;color:#1a6dcc;transition:transform .2s;}
+.ins-body{padding:18px 20px;}
+.ins-q{font-size:15px;line-height:1.65;margin-bottom:12px;color:#1e3a5f;font-style:italic;}
+.ins-ta{width:100%;border:1px solid #bfdbfe;border-radius:6px;padding:10px;font-size:14px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:90px;}
+.ins-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-save-ins{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-hint{background:#fff8e1;color:#92400e;border:1px solid #fcd34d;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-model-ins,.btn-see-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-model-ins.locked,.btn-see-ans.locked{opacity:.45;cursor:not-allowed;}
+.hint-box{margin-top:12px;background:#fff8e1;border:1px solid #fcd34d;border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.65;}
+.model-box{margin-top:12px;background:#f8fafc;border-left:3px solid #1a6dcc;border-radius:0 8px 8px 0;padding:14px 16px;font-size:14px;line-height:1.65;}
+.hm-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin-bottom:6px;}
+.figure-block{margin:20px 0;background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:14px;text-align:center;}
+.fig-ph-icon{font-size:40px;}
+.fig-cap{padding:10px 16px;font-size:13px;color:#475569;line-height:1.5;border-top:1px solid #e2e8f0;background:#f8fafc;}
+.fig-trace{color:#1a6dcc;font-style:italic;}
+.case-study-block{background:#fff;border:1px solid #bfdbfe;border-top:4px solid #f59e0b;border-radius:10px;padding:22px 26px;margin-bottom:16px;}
+.cs-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f59e0b;margin-bottom:6px;}
+.cs-title{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:#0d1a2e;margin-bottom:4px;}
+.cs-sub{font-size:12px;color:#64748b;margin-bottom:14px;font-style:italic;}
+.cs-body{font-size:15px;line-height:1.75;}
+.cs-body p{margin-bottom:12px;}
+.cs-body ul{padding-left:20px;margin:8px 0 12px;}
+.cs-body li{margin-bottom:5px;line-height:1.6;}
+.cs-img-inline{margin:12px 0 16px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;}
+.cs-img-inline .cs-img-wrap{background:#1e293b;min-height:160px;}
+.cs-img-inline .cs-prompt-row{padding:8px 14px;border-top:1px solid #e2e8f0;background:#f8fafc;}
+.cs-img-wrap{background:#1e293b;min-height:200px;display:flex;align-items:center;justify-content:center;}
+.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:40px;color:#93c5fd;text-align:center;}
+.cs-ph-icon{font-size:48px;display:block;}
+.cs-ph-sub{font-size:12px;color:#64748b;margin-top:4px;line-height:1.5;}
+.cs-prompt-row{padding:10px 16px;border-top:1px solid #e2e8f0;background:#f8fafc;}
+.btn-prompt{background:none;border:none;font-size:12px;color:#64748b;cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
+.btn-prompt:hover{color:#1a6dcc;}
+.cs-prompt-text{margin-top:8px;font-size:12px;color:#475569;line-height:1.65;font-style:italic;background:#f0f4f8;border-radius:6px;padding:10px 12px;}
+.rq-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:20px 24px;margin-bottom:14px;}
+.rq-num{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a6dcc;margin-bottom:6px;}
+.rq-q{font-size:15px;font-weight:600;color:#0d1a2e;margin-bottom:12px;line-height:1.5;}
+.rq-ta{width:100%;border:1px solid #bfdbfe;border-radius:6px;padding:10px;font-size:14px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:90px;}
+.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.notes-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;margin-top:12px;}
+.notes-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin-bottom:8px;}
+.notes-ta{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:64px;color:#0d1a2e;}
+.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:26px 30px;margin:32px 0 20px;}
+.tldr-eyebrow{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.tldr-block h3{font-family:'Fraunces',serif;font-size:1.3rem;color:#fff;margin-bottom:14px;}
+.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
+.practice-btn-wrap{text-align:center;margin:32px 0 16px;}
+.practice-btn{display:inline-flex;align-items:center;gap:12px;background:#1a6dcc;color:#fff;font-family:'Epilogue',sans-serif;font-size:1.1rem;font-weight:700;padding:18px 36px;border-radius:12px;text-decoration:none;transition:background .2s,transform .1s;}
+.practice-btn:hover{background:#0f3d7a;transform:translateY(-2px);}
+.practice-btn-icon{font-size:24px;}
+.practice-btn-sub{font-size:12px;font-weight:400;opacity:.8;display:block;margin-top:2px;}
+.sidebar{position:sticky;top:52px;align-self:start;display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 70px);overflow-y:auto;}
+.sb-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;}
+.sb-card h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#0d1a2e;margin-bottom:12px;}
+.hub-link{display:block;text-align:center;background:#1a6dcc;color:#fff;border-radius:8px;padding:10px;font-weight:600;font-size:13px;text-decoration:none;margin-bottom:10px;}
+.prog-label{font-size:12px;color:#64748b;margin-bottom:4px;}
+.prog-bar-wrap{background:#e2e8f0;border-radius:99px;height:8px;margin-bottom:4px;}
+.prog-bar{background:#1a6dcc;height:8px;border-radius:99px;transition:width .3s;}
+.qr-card{background:#0d1a2e;color:#e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:7px;}
+.qr-term{font-size:11px;font-weight:700;color:#93c5fd;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.qr-def{font-size:12px;line-height:1.5;}
+footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:16px;}
+@media(max-width:900px){main{grid-template-columns:1fr;}.sidebar{position:static;max-height:none;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a> › Chapter 14</div>
+  <div class="eyebrow"><span class="dot"></span>CHAPTER 14 · STUDY GUIDE</div>
+  <h1>TCP/IP Analysis <em>Overview</em></h1>
+  <div class="header-sub">Wireshark Network Analysis (2nd Ed.) · Chapters 1–33</div>
+</header>
+<nav class="sec-nav">
+  <div class="sec-nav-inner">
+<button class="sec-tab" onclick="navTo('sec-tcpip')">TCP/IP Overview</button><button class="sec-tab" onclick="navTo('sec-resolution')">Resolution Process</button><button class="sec-tab" onclick="navTo('sec-build')">Build the Packet</button><button class="sec-tab" onclick="navTo('sec-tldr')">TL;DR</button><button class="sec-tab" onclick="navTo('sec-review')">Review Questions</button>
+  </div>
+</nav>
+<div class="q-panel-wrap">
+  <div class="q-panel">
+    <div class="q-panel-hdr" onclick="toggleQPanel()">
+      <h3>💭 My Questions</h3>
+      <span id="qp-toggle">▾</span>
+    </div>
+    <div class="q-panel-body" id="q-panel-body">
+      <div class="q-input-row">
+        <input type="text" class="q-input" id="q-input" placeholder="Type a question to save…" onkeydown="if(event.key==='Enter')addQuestion()">
+        <button class="btn-add-q" onclick="addQuestion()">+ Add</button>
+      </div>
+      <ul class="q-list" id="q-list"></ul>
+    </div>
+  </div>
+</div>
+<main>
+<div class="content"><div class="sg-section" id="sec-tcpip"><a class="sec-anchor" id="anc-tcpip"></a><h2 class="sec-heading">TCP/IP Functionality Overview</h2><div class="insight-block" id="ins-tcpip"><div class="insight-hdr" onclick="toggleInsight('ins-tcpip')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · TCP/IP FUNCTIONALITY OVERVIEW</span><span class="ins-arr" id="arr-ins-tcpip">▾</span></div><div class="ins-body" id="body-ins-tcpip" style="display:none"><p class="ins-q">The TCP/IP stack is described as layered — ARP at the link layer, IP at the internet layer, TCP/UDP at transport, and applications above. Network faults are often diagnosed by working from the bottom up. If a client can successfully ARP and get a response, but cannot complete a DNS query, which layer has a problem — and what does that tell you about where to look next in the trace?</p><textarea class="ins-ta" data-key="ins-tcpip" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" onclick="saveIns('ins-tcpip')">Save Answer</button><button class="btn-hint" onclick="toggleHint('hint-ins-tcpip')">💭 Hint</button><button class="btn-model-ins locked" id="mibtn-ins-tcpip" onclick="toggleBox('model-ins-tcpip')" disabled>🔒 Model Answer</button></div><div class="hint-box" id="hint-ins-tcpip" style="display:none"><div class="hm-label">HINT</div><p>ARP success means the link layer and local network are working. DNS uses UDP port 53. If ARP works but DNS fails, think about what sits between Layer 2 success and Layer 7 application failure.</p></div><div class="model-box" id="model-ins-tcpip" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>A successful ARP means the link layer is functional and the client can reach the local network. DNS uses UDP at transport (Layer 4) and IP at the internet layer (Layer 3). If ARP works but DNS fails, the problem is somewhere in IP routing, the UDP transport, or the DNS application itself — not the local link. In Wireshark you would filter <code>dns</code> to see if queries are being sent and check whether responses arrive, then check if ICMP Destination Unreachable messages appear (indicating routing or port problems). Working bottom up prevents chasing application-layer symptoms when the real fault is a routing table entry or a misconfigured DNS server IP.</p></div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig179-tcpip-osi-model.png" alt="Figure 179: The TCP/IP stack elements alongside the TCP/IP Model and OSI Model" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 179 — open trace file in Wireshark to view this screen</span></div></div><div class="fig-cap"><strong>Figure 179.</strong> The TCP/IP stack elements alongside the TCP/IP Model and OSI Model </div></div><div class="content-card"><p>In order to troubleshoot or secure a network using Wireshark, you must possess a solid understanding of TCP/IP communications. The next twelve chapters examine the most common traffic patterns seen on a TCP/IP network.</p><p>Key TCP/IP protocols at each layer:</p><ul><li><strong>IPv4/IPv6</strong> (Internet layer): routable network layer protocol used by routers to make forwarding decisions. Layer 3 switches route traffic well.</li><li><strong>TCP</strong> (Transport layer): connection-oriented, provides sequencing and acknowledgment services. Mapped to Layer 4 (Transport Layer) of the OSI Model.</li><li><strong>UDP</strong> (Transport layer): connectionless transport layer service. Port fields in UDP headers define the application in use.</li><li><strong>RIP and OSPF</strong> (Internet layer): routing protocols that provide network and path information exchange between routing devices.</li><li><strong>ICMP/ICMPv6</strong> (Internet layer): provides network information and is used for ping. ICMPv6 checks for duplicate IPv6 addresses.</li><li><strong>DNS</strong>: hostname to IP address resolution. When you type <code>telnet station3</code>, DNS resolves <em>station3</em> to its IP address.</li><li><strong>DHCP</strong>: dynamic client configuration — IP address, default gateway, DNS server settings and more.</li><li><strong>ARP</strong>: hardware address lookup for local devices. Also enables duplicate IPv4 address detection.</li></ul><p>Many network faults or breaches can be attributed to the TCP/IP protocol or application layer. When troubleshooting, work from the bottom up: physical and data link layers first (can packets be sent with correct checksums?), then move up the stack to identify where the problem becomes visible.</p></div><div class="notes-card"><div class="notes-label">My Notes</div><textarea class="notes-ta" rows="4" placeholder="Add your notes for this section…" oninput="localStorage.setItem('ws-ch14-sg-note-0',this.value)"></textarea></div></div><div class="sg-section" id="sec-resolution"><a class="sec-anchor" id="anc-resolution"></a><h2 class="sec-heading">Follow the Multi-Step Resolution Process</h2><div class="insight-block" id="ins-resolution"><div class="insight-hdr" onclick="toggleInsight('ins-resolution')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · THE MULTI-STEP RESOLUTION PROCESS</span><span class="ins-arr" id="arr-ins-resolution">▾</span></div><div class="ins-body" id="body-ins-resolution" style="display:none"><p class="ins-q">TCP/IP uses up to six resolution steps before a single packet can be sent. Some steps generate network traffic; others are silent. If you open a trace file and see only a TCP SYN as the very first packet — no ARP, no DNS — what can you conclude about the state of the client's caches before the capture began?</p><textarea class="ins-ta" data-key="ins-resolution" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" onclick="saveIns('ins-resolution')">Save Answer</button><button class="btn-hint" onclick="toggleHint('hint-ins-resolution')">💭 Hint</button><button class="btn-model-ins locked" id="mibtn-ins-resolution" onclick="toggleBox('model-ins-resolution')" disabled>🔒 Model Answer</button></div><div class="hint-box" id="hint-ins-resolution" style="display:none"><div class="hm-label">HINT</div><p>Each resolution step either uses a cache (silent) or generates traffic (visible). If you see no ARP and no DNS at the start of a trace, both caches already had the required information.</p></div><div class="model-box" id="model-ins-resolution" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>A trace that begins immediately with a TCP SYN (no ARP, no DNS) tells you: (1) the client already had the target MAC address in its ARP cache — no ARP broadcast needed; (2) the client already had the target IP address in its DNS resolver cache (or used a local hosts file) — no DNS query needed; and (3) the port number was found in the local etc/services file (silent). All resolution work was done from cache. This is normal for repeat connections within the TTL window. To see the full resolution process, clear the ARP cache (<code>arp -d</code>) and DNS cache (<code>ipconfig /flushdns</code> on Windows) before capturing.</p></div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig180-client-ftp-corpfs1.png" alt="Figure 180: The client wants to make an FTP connection to CORPFS1" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 180 — open trace file in Wireshark to view this screen</span></div></div><div class="fig-cap"><strong>Figure 180.</strong> The client wants to make an FTP connection to CORPFS1 </div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig181-tcpip-resolution-processes.png" alt="Figure 181: TCP/IP resolution processes" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 181 — open trace file in Wireshark to view this screen</span></div></div><div class="fig-cap"><strong>Figure 181.</strong> TCP/IP resolution processes </div></div><div class="content-card"><p>TCP/IP uses a multi-step resolution process when a client communicates with a server. Using the example of a client (10.1.0.1/8) connecting via FTP to CORPFS1 (10.2.99.99):</p><div class="step-block"><div class="step-label">Step 1: Port Number Resolution</div><p>The user types <code>ftp CORPFS1</code>. FTP uses port 21 for commands. The client looks up the port number in the <strong>etc/services file</strong>. The port is placed in the TCP header destination port field. The client uses a dynamic (ephemeral) source port.</p><p><strong>Does NOT generate network traffic.</strong></p></div><div class="step-block"><div class="step-label">Step 2: Network Name Resolution (Optional)</div><p>If a hostname (not an IP) was used, the resolver process runs in order: (1) check <strong>DNS resolver cache</strong>, (2) check the local <strong>hosts file</strong>, (3) send a <strong>DNS query</strong> to the configured DNS server.</p><p>If no DNS server responds, the client cannot build the packet and the connection fails.</p><p><strong>May or may not generate traffic</strong> (cache hit = no traffic; DNS query = traffic).</p></div><div class="step-block"><div class="step-label">Step 3: Route Resolution — When Target is Local</div><p>The client compares its own network address to the target using the subnet mask. With client IP 10.1.0.1 and mask 255.0.0.0 (network 10.0.0.0/8), CORPFS1 at 10.2.99.99 is on the same network — go to Step 4.</p><p>Different masks yield different results — a wrong subnet mask is a common cause of ARP-for-remote-target symptoms.</p><p><strong>Does NOT generate network traffic.</strong></p></div><div class="step-block"><div class="step-label">Step 4: Local MAC Address Resolution</div><p>If the target is local, the client checks its <strong>ARP cache</strong> for the hardware address. If not cached, it sends an <strong>ARP broadcast</strong>. Upon receiving an ARP reply, the client updates its ARP cache.</p><p><strong>May or may not generate traffic</strong> (cache hit = no traffic; ARP query = traffic).</p></div><div class="step-block"><div class="step-label">Step 5: Route Resolution — When Target is Remote</div><p>If the target is remote, the client checks its local routing tables for a host or network route. If no specific entry exists, the client uses the <strong>default gateway</strong> — sending the packet to the gateway and trusting it knows the route.</p><p><strong>Does NOT generate network traffic.</strong></p></div><div class="step-block"><div class="step-label">Step 6: Local MAC Address Resolution for a Gateway</div><p>The client resolves the <strong>MAC address of the next-hop router</strong> (default gateway). Checks the ARP cache first; sends an ARP broadcast if not cached.</p><p><strong>May or may not generate traffic</strong> (cache hit = no traffic; ARP query = traffic).</p></div></div><div class="notes-card"><div class="notes-label">My Notes</div><textarea class="notes-ta" rows="4" placeholder="Add your notes for this section…" oninput="localStorage.setItem('ws-ch14-sg-note-1',this.value)"></textarea></div></div><div class="sg-section" id="sec-build"><a class="sec-anchor" id="anc-build"></a><h2 class="sec-heading">Build the Packet</h2><div class="insight-block" id="ins-build"><div class="insight-hdr" onclick="toggleInsight('ins-build')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · BUILD THE PACKET &amp; TRACE ANALYSIS</span><span class="ins-arr" id="arr-ins-build">▾</span></div><div class="ins-body" id="body-ins-build" style="display:none"><p class="ins-q">When you examine a trace file and see DNS queries at the start but no ARP, what does that tell you about which caches were populated and which were empty? And if you see the opposite — ARP at the start but no DNS — what can you infer about the client connection?</p><textarea class="ins-ta" data-key="ins-build" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" onclick="saveIns('ins-build')">Save Answer</button><button class="btn-hint" onclick="toggleHint('hint-ins-build')">💭 Hint</button><button class="btn-model-ins locked" id="mibtn-ins-build" onclick="toggleBox('model-ins-build')" disabled>🔒 Model Answer</button></div><div class="hint-box" id="hint-ins-build" style="display:none"><div class="hm-label">HINT</div><p>Each resolution step either uses cache (produces no packets) or queries the network (produces visible packets). Use the presence or absence of ARP and DNS as evidence about cache state.</p></div><div class="model-box" id="model-ins-build" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>DNS queries at the start but no ARP means the client needs to resolve the hostname to an IP (DNS cache was empty or expired) but already has the MAC address of the target or gateway in its ARP cache. No ARP but DNS queries means the MAC cache is populated but the IP is not known. No ARP and no DNS means both caches were warm — the client had everything needed to send the first packet immediately. If the client ARPs for an IP that appears to be on a remote network, suspect a misconfigured subnet mask that is too short, causing the client to incorrectly believe a remote host is local.</p></div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig182-discovered-packet-info.png" alt="Figure 182: Discovered information for the TCP/IP over Ethernet packet — destination MAC, source MAC, protocol, source IP, destination IP, source port, destination port" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 182 — open trace file in Wireshark to view this screen</span></div></div><div class="fig-cap"><strong>Figure 182.</strong> Discovered information for the TCP/IP over Ethernet packet — destination MAC, source MAC, protocol, source IP, destination IP, source port, destination port </div></div><div class="content-card"><p>When all resolution steps complete successfully, the client has gathered:</p><ul><li><strong>Destination MAC address</strong> (from ARP cache or ARP query)</li><li><strong>Destination IP address</strong> (from DNS cache, hosts file, or DNS query)</li><li><strong>Source and destination port numbers</strong> (from etc/services)</li></ul><p>This is all the information needed to build and send the first packet.</p></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig183-browsing-process-trace.png" alt="Figure 183: Following the process of browsing to a website [http-riverbed-one.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 183 — open trace file in Wireshark to view this screen</span></div></div><div class="fig-cap"><strong>Figure 183.</strong> Following the process of browsing to a website [http-riverbed-one.pcapng] </div></div><div class="content-card"><p>Examining <strong>http-riverbed-one.pcapng</strong> (cleared DNS and browser cache before visiting www.riverbed.com):</p><ol><li><strong>No ARP queries</strong> in the trace file. The client (24.6.173.220) already has the required MAC addresses in its ARP cache. Run <code>arp -a</code> on the client to view ARP cache contents.</li><li><strong>DNS queries for www.riverbed.com</strong> appear — the client does not have the IP in DNS cache. The client runs both IPv4 and IPv6 stacks, so it queries both A record (IPv4) and AAAA record (IPv6). The DNS response in packet 2 provides the IPv4 address (208.70.196.59) and caches it for 2 minutes (the TTL). The AAAA response in packet 4 contains only the authoritative name server — no IPv6 address — so the client cannot reach www.riverbed.com over IPv6.</li><li><strong>Packet 5</strong>: TCP SYN using dynamic source port 8369 to destination port 80, sent to the MAC address of the default gateway and IP address of www.riverbed.com.</li></ol><p>Visiting again via <strong>http-riverbed-two.pcapng</strong> (89 seconds later): <em>no DNS queries</em> at the start — the client now has the desired IP addresses in DNS cache. Some earlier DNS responses had very short TTLs, so some names need re-resolving. Total packet count is 319 vs. 1,492 in the first trace — page elements loaded from browser cache.</p><div class="tip-block">If you opened http-riverbed-one.pcapng and did not see HTTP 200 OK in the Info column of packet 13, consider disabling the Wireshark preference "Allow subdissector to reassemble TCP streams" while analyzing these trace files.</div></div><div class="notes-card"><div class="notes-label">My Notes</div><textarea class="notes-ta" rows="4" placeholder="Add your notes for this section…" oninput="localStorage.setItem('ws-ch14-sg-note-2',this.value)"></textarea></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 1</div><div class="cs-title">Absolving the Network from Blame</div><div class="cs-sub">Email connectivity failure — SMTP server investigation</div><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C14-CS1.png" alt="Illustration: Absolving the Network from Blame" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C14-CS1.png</strong></div><div class="cs-ph-sub">Generate this illustration and save to<br><code>all-casestudy-pictures/C14-CS1.png</code></div></div></div><div class="cs-prompt-row"><button class="btn-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network analyst holds a tablet showing a Wireshark trace while pointing to an email server with a red warning light. ARP and DNS traffic flows smoothly across the network, but a TCP handshake arrow bounces back unanswered from the server. Minimal text. Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="cs-body"><p>Watching the traffic enables us to point the finger at the problem — and also point the finger at the areas that are not part of the problem.</p><p>When our email connections stopped working suddenly and Outlook sat in a state of confusion, we grabbed a trace file of the traffic.</p><p>We could see the <strong>ARP process</strong> followed by the <strong>DNS request</strong> for smtp.packet-level.com. The response provided the correct IP address of the SMTP server. Then the problem appeared.</p><p>We saw the client make a handshake attempt to the SMTP server. <strong>No answer.</strong> The client tried again and again. Still no answer.</p><p>The problem could be along the path or at the SMTP server itself. We saw successful TCP handshake processes when trying to connect to the SMTP server on another port we knew was open. We could connect from another location on that other port as well. It felt like the path was not the problem — the SMTP server was the problem.</p><p>Restarting the SMTP server restored access to email services.</p><p>By examining the traffic we could rule out problems with: the local network interface card, the ARP discovery process, and the DNS server. Analyzing the traffic takes out so much of the guesswork.</p></div></div><div class="sg-section" id="sec-tldr"><a class="sec-anchor" id="anc-tldr"></a><div class="tldr-block"><div class="tldr-eyebrow">TL;DR — Chapter 14 Summary</div><h3>TCP/IP Analysis Overview</h3><p>TCP/IP communications must follow a standard set of rules that includes numerous resolution processes to determine the port numbers to use, the target IP address, the route to use and the target hardware address.</p><p>If one of the resolution processes is unsuccessful, a host cannot communicate with another host. Some of the resolution processes generate traffic on the network — others do not. In some instances, a host can obtain information from cache or local tables. If the information cannot be obtained locally, the host can query a target on the network.</p><p>These resolution processes include port number resolution, network name resolution, route resolution, and local MAC address resolution (for the target or a gateway). DNS and ARP queries are commonly seen during the resolution process.</p></div></div><div class="sg-section" id="sec-review"><a class="sec-anchor" id="anc-review"></a><h2 class="sec-heading" style="border-top:2px solid #bfdbfe;padding-top:8px;margin-top:32px;">Review Questions</h2><div class="rq-card" id="rq-rq1"><div class="rq-num">Q14.1</div><div class="rq-q">What file is referenced to determine the port to use in a communication when the application does not explicitly specify a port?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-save-ins" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-hint" onclick="toggleHint('rqhint-rq1')">💭 Hint</button><button class="btn-see-ans locked" id="ansbtn-rq1" onclick="toggleBox('rqans-rq1')" disabled>🔒 See Answer</button></div><div class="hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>This file exists on every host and maps service names to well-known port numbers. It is consulted during Step 1 of the resolution process.</p></div><div class="model-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>The client references the <strong>etc/services file</strong> to determine which port to use for a communication. For example, FTP is mapped to port 21 in this file. The port number from this file is placed in the TCP (or UDP) header destination port field of the outgoing packet.</p></div></div><div class="rq-card" id="rq-rq2"><div class="rq-num">Q14.2</div><div class="rq-q">What can you assume when a client does not generate a DNS query to resolve a target's IP address?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-save-ins" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-hint" onclick="toggleHint('rqhint-rq2')">💭 Hint</button><button class="btn-see-ans locked" id="ansbtn-rq2" onclick="toggleBox('rqans-rq2')" disabled>🔒 See Answer</button></div><div class="hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>There are two ways a client can know an IP address without querying a DNS server. Think about the two places a resolver checks before sending a DNS query.</p></div><div class="model-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>When a client does not generate a DNS query to resolve a target IP address, you can assume the client either has the target IP address in its <strong>DNS resolver cache</strong> (from a previous query that has not yet expired) or the client has a local <strong>hosts file</strong> that maps the hostname to an IP address. Either source allows the resolver to return the answer without network traffic.</p></div></div><div class="rq-card" id="rq-rq3"><div class="rq-num">Q14.3</div><div class="rq-q">What configuration fault might cause a host to ARP for a remote target?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-save-ins" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-hint" onclick="toggleHint('rqhint-rq3')">💭 Hint</button><button class="btn-see-ans locked" id="ansbtn-rq3" onclick="toggleBox('rqans-rq3')" disabled>🔒 See Answer</button></div><div class="hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>ARP is non-routable — it only works on the local network segment. If a client ARPs for a remote target, it must believe that target is local. What determines whether a target is considered local or remote?</p></div><div class="model-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>The client might have a <strong>subnet mask that is too short</strong>. For example, if a client with IP address 10.2.4.5 has a subnet mask of 255.0.0.0 instead of 255.255.0.0, the client calculates that all 10.x.x.x addresses are on the local network. It will ARP for any target with an IP starting with 10 — even hosts on remote networks across a router. Since ARP is non-routable, the ARP broadcast never reaches the remote target, and the connection fails.</p></div></div><div class="practice-btn-wrap"><a href="index.html" class="practice-btn"><span class="practice-btn-icon">🦈</span><span><span>Practice What You've Learned</span><span class="practice-btn-sub">Chapter 14 Lab Exercises →</span></span></a></div></div></div>
+<aside class="sidebar"><div class="sb-card"><a class="hub-link" href="../../index.html">← Wireshark Hub</a><div class="prog-label">Progress: <span id="prog-count">0</span> / 6 answered</div><div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div></div><div class="sb-card"><h3>Quick Reference</h3><div class="qr-card"><div class="qr-term">etc/services</div><div class="qr-def">File on every host mapping service names to port numbers. Referenced in Step 1 (Port Number Resolution). Does not generate traffic.</div></div><div class="qr-card"><div class="qr-term">DNS Resolution (Step 2)</div><div class="qr-def">Order: DNS resolver cache → local hosts file → DNS server. If all fail, client cannot build the packet.</div></div><div class="qr-card"><div class="qr-term">ARP Resolution (Step 4)</div><div class="qr-def">Local MAC address lookup. Check ARP cache first; broadcast if not cached. Run arp -a to view current ARP cache.</div></div><div class="qr-card"><div class="qr-term">Default Gateway (Step 5/6)</div><div class="qr-def">Used when target is remote. Client sends to gateway MAC and trusts it knows the route. ARP resolves gateway MAC.</div></div><div class="qr-card"><div class="qr-term">No ARP in trace</div><div class="qr-def">Client already had the required MAC address in ARP cache before capture began.</div></div><div class="qr-card"><div class="qr-term">No DNS in trace</div><div class="qr-def">Client already had the target IP in DNS resolver cache or has a hosts file entry.</div></div><div class="qr-card"><div class="qr-term">ARP for remote target</div><div class="qr-def">Suspect misconfigured subnet mask that is too short — client incorrectly thinks remote host is local.</div></div></div><div class="sb-card"><h3>Trace Files</h3><ul style="font-size:12px;color:#475569;line-height:1.8;padding-left:4px;list-style:none;"><li>📄 http-riverbed-one.pcapng</li><li>📄 http-riverbed-two.pcapng</li><li>📄 net-resolutions.pcapng</li></ul></div></aside>
+</main>
+<footer>Wireshark Network Analysis (2nd Ed.) · Chapter 14: TCP/IP Analysis Overview</footer>
+<script>
+
+const PAGE_KEY = 'ws-ch14-sg';
+const INSIGHT_IDS = ['ins-tcpip', 'ins-resolution', 'ins-build'];
+const RQ_IDS = ['rq1', 'rq2', 'rq3'];
+const TOTAL = 6;
+
+function toggleInsight(id) {
+  const b = document.getElementById('body-' + id);
+  const a = document.getElementById('arr-' + id);
+  const vis = b.style.display === 'none';
+  b.style.display = vis ? 'block' : 'none';
+  a.textContent = vis ? '▴' : '▾';
+}
+function saveIns(id) {
+  const ta = document.querySelector('.ins-ta[data-key="' + id + '"]');
+  if (!ta) return;
+  localStorage.setItem(PAGE_KEY + '-' + id, ta.value);
+  const btn = document.getElementById('mibtn-' + id);
+  if (btn && ta.value.trim()) { btn.disabled = false; btn.classList.remove('locked'); }
+  updateProgress();
+}
+function saveRQ(id) {
+  const ta = document.querySelector('.rq-ta[data-key="rq-' + id + '"]');
+  if (!ta) return;
+  localStorage.setItem(PAGE_KEY + '-rq-' + id, ta.value);
+  const btn = document.getElementById('ansbtn-' + id);
+  if (btn && ta.value.trim()) { btn.disabled = false; btn.classList.remove('locked'); }
+  updateProgress();
+}
+function toggleHint(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function toggleBox(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function updateProgress() {
+  let c = 0;
+  INSIGHT_IDS.forEach(k => { if (localStorage.getItem(PAGE_KEY + '-' + k)) c++; });
+  RQ_IDS.forEach(k => { if (localStorage.getItem(PAGE_KEY + '-rq-' + k)) c++; });
+  document.getElementById('prog-count').textContent = c;
+  document.getElementById('prog-bar').style.width = (c / TOTAL * 100) + '%';
+}
+function toggleQPanel() {
+  const b = document.getElementById('q-panel-body');
+  const t = document.getElementById('qp-toggle');
+  b.classList.toggle('open');
+  t.textContent = b.classList.contains('open') ? '▴' : '▾';
+}
+function addQuestion() {
+  const i = document.getElementById('q-input');
+  const t = i.value.trim(); if (!t) return;
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  qs.push(t); localStorage.setItem(PAGE_KEY + '-questions', JSON.stringify(qs));
+  i.value = ''; renderQList();
+}
+function deleteQuestion(idx) {
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  qs.splice(idx, 1); localStorage.setItem(PAGE_KEY + '-questions', JSON.stringify(qs));
+  renderQList();
+}
+function renderQList() {
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  const ul = document.getElementById('q-list');
+  ul.innerHTML = qs.map((q, i) => '<li><span>' + q + '</span><button class="btn-del-q" onclick="deleteQuestion(' + i + ')">×</button></li>').join('');
+}
+function navTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth'});
+}
+document.addEventListener('DOMContentLoaded', () => {
+  INSIGHT_IDS.forEach(id => {
+    const ta = document.querySelector('.ins-ta[data-key="' + id + '"]');
+    const sv = localStorage.getItem(PAGE_KEY + '-' + id);
+    if (ta && sv) ta.value = sv;
+    const btn = document.getElementById('mibtn-' + id);
+    if (btn && sv && sv.trim()) { btn.disabled = false; btn.classList.remove('locked'); }
+  });
+  RQ_IDS.forEach(id => {
+    const ta = document.querySelector('.rq-ta[data-key="rq-' + id + '"]');
+    const sv = localStorage.getItem(PAGE_KEY + '-rq-' + id);
+    if (ta && sv) ta.value = sv;
+    const btn = document.getElementById('ansbtn-' + id);
+    if (btn && sv && sv.trim()) { btn.disabled = false; btn.classList.remove('locked'); }
+  });
+  document.querySelectorAll('.notes-ta').forEach((ta, i) => {
+    const sv = localStorage.getItem(PAGE_KEY + '-note-' + i);
+    if (sv) ta.value = sv;
+  });
+  renderQList(); updateProgress();
+  sessionStorage.setItem('pt', '1');
+  document.body.style.opacity = '1';
+});
+
+</script>
+</body>
+</html>
