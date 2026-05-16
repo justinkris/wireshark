@@ -1,0 +1,11 @@
+# Wireshark trace files (large binary files, not stored in git)
+*.pcap
+*.pcapng
+*.cap
+*.key
+*.enc
+*.zip
+*.pdf
+
+# macOS
+.DS_Store

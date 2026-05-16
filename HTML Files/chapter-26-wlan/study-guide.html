@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26 — Introduction to 802.11 WLAN Analysis · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 26</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 26 · Study Guide</div>
+    <h1>802.11 WLAN <em>Analysis</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 26 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">"Wireless is everywhere — <em>but you can only analyze it if you know how to capture it.</em>"</div>
+  <p class="motivation-sub">802.11 frame types, monitor mode capture, association process, WLAN troubleshooting in Wireshark. Four sections · Socratic questions.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="wlanoverview" onclick="navTo('wlanoverview')">1 · 802.11 Basics</button>
+  <button class="nav-tab" data-target="frametypes" onclick="navTo('frametypes')">2 · Frame Types</button>
+  <button class="nav-tab" data-target="wlanassoc" onclick="navTo('wlanassoc')">3 · Association</button>
+  <button class="nav-tab" data-target="wlananalysis" onclick="navTo('wlananalysis')">4 · Troubleshooting</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · 802.11 WLAN OVERVIEW</span>
+  </div>
+  <p class="socratic-insight">Wireless analysis requires a fundamental mindset shift from wired: you can't see all traffic without monitor mode, the frame format has additional fields for wireless medium access, and management frames control the connection lifecycle in ways Ethernet never needed.</p>
+  <ul class="socratic-questions">
+    <li>You start a Wireshark capture on your Wi-Fi interface but only see your own traffic. What change do you need to make to capture all wireless traffic in the area?</li>
+    <li>Why does 802.11 need four address fields in its frame header when Ethernet only needs two?</li>
+  </ul>
+  <div class="answer-area" data-section="wlanoverview">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — ENABLING MONITOR MODE</div>
+        <div class="model-answer-text">You need to enable Monitor Mode on the wireless interface. In managed (infrastructure) mode, the NIC only captures frames addressed to your own MAC or broadcast/multicast. Monitor mode puts the NIC in a promiscuous wireless mode where it captures all frames on the channel regardless of destination MAC. On macOS use airport utility or Wireshark's native monitor mode; on Linux use airmon-ng; on Windows monitor mode support varies by NIC and driver. Note: in monitor mode you lose your own network connection (the NIC is no longer associated to an AP).</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — FOUR ADDRESS FIELDS IN 802.11</div>
+        <div class="model-answer-text">802.11 infrastructure networks use up to four addresses because wireless frames may need to traverse both wireless and wired segments. The four are: (1) Receiver Address (RA) — the next-hop 802.11 receiver, (2) Transmitter Address (TA) — the device that transmitted this frame, (3) Destination Address (DA) — the ultimate destination, (4) Source Address (SA) — the original sender. In a typical AP-to-client frame, DA=client MAC, SA=remote host MAC, BSSID=AP MAC. This is more complex than Ethernet's simple src/dst pair.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="wlanoverview">
+  <div class="section-label">Section 1</div>
+  <h2>802.11 WLAN Overview</h2>
+  <p>IEEE 802.11 is the Layer 2 protocol for wireless LANs. Unlike Ethernet (cable), 802.11 uses radio frequencies and requires explicit medium access control (CSMA/CA — collision avoidance, not the detection used in Ethernet).</p>
+  <p>802.11 adds a management layer not present in Ethernet for wireless-specific functions: discovery, authentication, association. The 802.11 frame has more fields than Ethernet: <strong>Frame Control</strong> (type/subtype, flags), <strong>Duration/ID</strong> (medium reservation), <strong>four address fields</strong>, Sequence Control, QoS Control (optional), HT Control (optional), Frame Body, FCS.</p>
+
+  <div class="callout callout-amber">
+    <strong>Monitor Mode is required for full WLAN visibility</strong>
+    Monitor Mode is required to see all 802.11 management and control frames. Without monitor mode, you only see data frames addressed to your MAC. To see Beacons, Probes, Auth, and Association frames, you must use monitor mode.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">802.11 = Layer 2 wireless. Three frame types: Management (connection control), Control (medium access), Data (user data). 4 address fields (vs 2 Ethernet). Monitor Mode = see ALL frames. Managed Mode = only frames to your MAC. Filter: wlan. CSMA/CA = collision avoidance (different from Ethernet CSMA/CD).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-wlanoverview" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('wlanoverview','802.11 WLAN Overview')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-wlanoverview" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('wlanoverview')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · 802.11 FRAME TYPES</span>
+  </div>
+  <p class="socratic-insight">802.11 management frames are the control plane of wireless networking — they handle everything before a client can send data. Knowing which management frame subtypes correspond to which connection stages lets you trace exactly where a wireless connection fails.</p>
+  <ul class="socratic-questions">
+    <li>An attacker is sending deauthentication frames to disconnect users. Why is this possible with standard WPA2, and what standard was designed to fix it?</li>
+    <li>What does a Beacon frame contain and why does it need to be sent every 100ms?</li>
+  </ul>
+  <div class="answer-area" data-section="frametypes">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — DEAUTH ATTACKS AND 802.11W</div>
+        <div class="model-answer-text">In WPA2 without 802.11w (Management Frame Protection), management frames including Deauthentication are NOT authenticated or encrypted. Any device can forge a Deauth frame with a spoofed AP source MAC, and clients will disconnect immediately when they receive it — because clients have no way to verify the frame came from the real AP. 802.11w (Management Frame Protection, also called Protected Management Frames or PMF) encrypts certain management frames including Deauth and Disassociation. WPA3 mandates 802.11w.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — BEACON FRAME CONTENTS AND INTERVAL</div>
+        <div class="model-answer-text">Beacon frames contain: SSID (network name), BSSID (AP MAC), supported data rates, beacon interval, DTIM interval, capabilities (WPA/WPA2/WPA3 info, 802.11n/ac/ax support), timestamp for synchronization. Beacons are sent every 100ms (102.4ms precisely) because: clients in power-save mode wake up at beacon intervals to receive buffered frames; this interval also lets clients discover APs through passive scanning without actively probing. Without regular beacons, clients couldn't discover or maintain awareness of available APs.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="frametypes">
+  <div class="section-label">Section 2</div>
+  <h2>802.11 Frame Types</h2>
+  <p>Three 802.11 frame type categories:</p>
+  <p><strong>(1) Management frames</strong> — control the wireless relationship. Key subtypes: Beacon (AP announces itself, 100ms interval), Probe Request (client scans for APs), Probe Response (AP replies), Authentication Request/Response (pre-association auth), Association Request/Response (client joins), Reassociation (roaming to new AP), Disassociation, Deauthentication.</p>
+  <p><strong>(2) Control frames</strong> — assist frame delivery. Key subtypes: RTS/CTS (hidden node collision avoidance), ACK (Layer 2 ack for every unicast frame), Block ACK, PS-Poll (power save).</p>
+  <p><strong>(3) Data frames</strong> — carry user payload.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Frame Type</th><th>Category</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Beacon</td><td>Management</td><td>AP announces SSID and capabilities</td></tr>
+      <tr><td>Probe Req/Resp</td><td>Management</td><td>Client scans for available APs</td></tr>
+      <tr><td>Auth Req/Resp</td><td>Management</td><td>Pre-association authentication</td></tr>
+      <tr><td>Assoc Req/Resp</td><td>Management</td><td>Client formally joins AP</td></tr>
+      <tr><td>Deauth</td><td>Management</td><td>Forcibly disconnect (can be forged in WPA2)</td></tr>
+      <tr><td>RTS/CTS</td><td>Control</td><td>Collision avoidance</td></tr>
+      <tr><td>ACK</td><td>Control</td><td>Layer 2 acknowledgment</td></tr>
+      <tr><td>Data</td><td>Data</td><td>User payload</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-red">
+    <strong>Deauth frames are forgeable without 802.11w</strong>
+    Deauthentication frames are NOT protected in WPA2 without 802.11w. Forged Deauth frames from an attacker will disconnect any client. This is how Wi-Fi deauth attacks work. WPA3 mandates Management Frame Protection (802.11w) to prevent this.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Management: Beacon (AP heartbeat 100ms), Probe (scan), Auth, Assoc, Deauth (forgeable in WPA2). Control: RTS/CTS, ACK (every unicast). Data: user payload. Deauth forgeable without 802.11w. Filter beacons: wlan.fc.type_subtype==0x08. Filter deauth: wlan.fc.type_subtype==0x0c.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-frametypes" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('frametypes','802.11 Frame Types')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-frametypes" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('frametypes')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · WLAN ASSOCIATION PROCESS</span>
+  </div>
+  <p class="socratic-insight">The WLAN association process has more steps than wired Ethernet — it includes authentication and key derivation that are invisible at the application layer but visible in a wireless capture. The 4-Way Handshake (four EAPOL frames) is the step where session encryption keys are generated, and capturing it is the prerequisite for decrypting WPA2 traffic.</p>
+  <ul class="socratic-questions">
+    <li>You capture a WLAN session and see four EAPOL frames after the Association Response. What are these frames and why do they matter for traffic decryption?</li>
+    <li>If you have the Wi-Fi password (PSK) and captured the 4-Way Handshake, what Wireshark feature lets you decrypt the WPA2 traffic?</li>
+  </ul>
+  <div class="answer-area" data-section="wlanassoc">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — THE 4-WAY HANDSHAKE (EAPOL FRAMES)</div>
+        <div class="model-answer-text">The four EAPOL frames are the WPA2 4-Way Handshake — the protocol that derives the session encryption keys (PTK and GTK) from the PSK or EAP credentials. Message 1 (AP→Client): AP sends ANonce (a random number). Message 2 (Client→AP): Client sends SNonce + MIC, proving it knows the PSK. Message 3 (AP→Client): AP sends GTK (group key) + MIC. Message 4 (Client→AP): Client confirms. The derived PTK is the unique per-session encryption key for that client's unicast traffic. Without capturing the 4-Way Handshake, you cannot decrypt WPA2 traffic even if you know the PSK.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — DECRYPTING WPA2 TRAFFIC IN WIRESHARK</div>
+        <div class="model-answer-text">Preferences → Protocols → IEEE 802.11 → Decryption Keys → Add key with type "wpa-pwd" and value "password:SSID" (e.g., "mysecret:MyWifi"). Wireshark will use the captured handshake plus the PSK to derive the PTK and decrypt the traffic in the capture.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="wlanassoc">
+  <div class="section-label">Section 3</div>
+  <h2>WLAN Association Process</h2>
+  <p>WLAN connection process:</p>
+  <ol>
+    <li><strong>Passive scanning</strong> — client listens for Beacon frames.</li>
+    <li><strong>Active scanning</strong> — client sends Probe Request broadcast; APs respond with Probe Response.</li>
+    <li><strong>Open System Authentication</strong> — client sends Authentication Request; AP sends Authentication Response (formality in WPA2, no real security check here).</li>
+    <li><strong>Association</strong> — client sends Association Request with capabilities and RSN Information Element (WPA2 parameters); AP sends Association Response with AID.</li>
+    <li><strong>4-Way Handshake (EAPOL frames)</strong> — derives PTK (per-client unicast key) and GTK (group/broadcast key) from PSK + random nonces.</li>
+    <li>Client can now send encrypted data frames.</li>
+  </ol>
+
+  <div class="callout callout-blue">
+    <strong>Capturing the 4-Way Handshake</strong>
+    Capture the 4-Way Handshake by starting Wireshark in monitor mode BEFORE the client associates. If you miss the handshake, you can force a new one by sending a deauth frame or disconnecting/reconnecting the client. With the PSK + handshake, Wireshark decrypts the traffic: Preferences → Protocols → IEEE 802.11 → Decryption Keys.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">WLAN steps: Passive scan (Beacons) → Active scan (Probe Req/Resp) → Auth (open, formality) → Association (Assoc Req/Resp) → 4-Way Handshake (4 EAPOL frames = key derivation) → Data. PTK = per-client unicast key. GTK = group/broadcast key. Must capture handshake to decrypt. Add WPA key: Prefs → IEEE 802.11 → Decryption Keys.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-wlanassoc" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('wlanassoc','WLAN Association Process')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-wlanassoc" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('wlanassoc')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · WLAN ANALYSIS AND TROUBLESHOOTING</span>
+  </div>
+  <p class="socratic-insight">WLAN problems show up as recognizable patterns in the management frames. Repeated Deauths mean disconnection events (attack or AP bug). High retry rates indicate weak signal or interference. Roaming loops mean coverage gaps. Each problem has a specific filter and specific frames to examine.</p>
+  <ul class="socratic-questions">
+    <li>You see a high rate of type_subtype 0x0c (Deauthentication) frames from the same source MAC targeting multiple different clients. What might this indicate?</li>
+    <li>Wireless → WLAN Statistics shows a client with 40% retry rate. What does this indicate?</li>
+  </ul>
+  <div class="answer-area" data-section="wlananalysis">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — DEAUTH STORM SIGNATURE</div>
+        <div class="model-answer-text">This is the classic signature of a wireless deauthentication attack. One source MAC sending Deauth frames to many clients in rapid succession indicates an attacker using a deauth tool to disconnect all clients from the network. Check whether the source MAC matches a known AP's BSSID — if not, it's a forged Deauth attack. If it matches an AP BSSID, it could be a buggy or misbehaving AP.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — HIGH RETRY RATE</div>
+        <div class="model-answer-text">A 40% retry rate means 40% of transmitted frames required retransmission at the Layer 2 level — the receiver didn't acknowledge them within the retry window. Causes: weak signal (client too far from AP), interference (competing 2.4GHz devices, neighboring APs on overlapping channels), or multipath propagation issues. At 40%, the effective throughput is severely degraded. Resolution: move the client closer to the AP, change to a non-overlapping channel, or add AP coverage.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="wlananalysis">
+  <div class="section-label">Section 4</div>
+  <h2>WLAN Analysis and Troubleshooting</h2>
+  <p>WLAN display filters:</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">wlan</span></td><td>All 802.11 traffic</td></tr>
+      <tr><td><span class="filter-code">wlan.fc.type == 0</span></td><td>Management frames only</td></tr>
+      <tr><td><span class="filter-code">wlan.fc.type == 1</span></td><td>Control frames only</td></tr>
+      <tr><td><span class="filter-code">wlan.fc.type == 2</span></td><td>Data frames only</td></tr>
+      <tr><td><span class="filter-code">wlan.fc.type_subtype == 0x08</span></td><td>Beacon frames</td></tr>
+      <tr><td><span class="filter-code">wlan.fc.type_subtype == 0x04</span></td><td>Probe Request frames</td></tr>
+      <tr><td><span class="filter-code">wlan.fc.type_subtype == 0x0c</span></td><td>Deauthentication frames</td></tr>
+      <tr><td><span class="filter-code">wlan.addr == xx:xx:xx:xx:xx:xx</span></td><td>Traffic to/from specific device</td></tr>
+      <tr><td><span class="filter-code">eapol</span></td><td>4-Way Handshake frames</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>WLAN Statistics:</strong> Wireless → WLAN Statistics shows per-AP and per-client breakdown: packet counts, retry rates, signal strength (if in capture). High retry rate = signal or interference problem. Reassociation frequency = roaming behavior. Deauth frequency = instability or attack.</p>
+
+  <div class="callout callout-amber">
+    <strong>WLAN Statistics — retry rate interpretation</strong>
+    Wireless → WLAN Statistics shows per-client retry rates. High retry rates (&gt;10%) indicate interference or weak signal. Check which clients have high rates and correlate with their physical location relative to APs.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">WLAN problems: Deauth storm=attack (check if source is real AP). High retries=weak signal or interference. Roaming loops=coverage gap. Failed Auth Response (status!=0)=wrong credentials or policy. Filter deauth: wlan.fc.type_subtype==0x0c. WLAN Statistics: Wireless → WLAN Statistics. Capture WLAN: monitor mode + correct channel required.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-wlananalysis" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('wlananalysis','WLAN Analysis and Troubleshooting')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-wlananalysis" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('wlananalysis')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 26 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 4 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-wlanoverview"><input type="checkbox" onchange="toggleDone(this,'chk-wlanoverview')"> 802.11 WLAN Overview</label>
+      <label class="check-item" data-key="chk-frametypes"><input type="checkbox" onchange="toggleDone(this,'chk-frametypes')"> 802.11 Frame Types</label>
+      <label class="check-item" data-key="chk-wlanassoc"><input type="checkbox" onchange="toggleDone(this,'chk-wlanassoc')"> Association Process</label>
+      <label class="check-item" data-key="chk-wlananalysis"><input type="checkbox" onchange="toggleDone(this,'chk-wlananalysis')"> WLAN Troubleshooting</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>WLAN Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">Monitor mode</span><span class="qr-def">Required to see all frames</span></div>
+    <div class="qr-row"><span class="qr-term">Beacon</span><span class="qr-def">wlan.fc.type_subtype==0x08</span></div>
+    <div class="qr-row"><span class="qr-term">Deauth</span><span class="qr-def">wlan.fc.type_subtype==0x0c</span></div>
+    <div class="qr-row"><span class="qr-term">4-Way Handshake</span><span class="qr-def">filter eapol</span></div>
+    <div class="qr-row"><span class="qr-term">WPA2 decrypt</span><span class="qr-def">Prefs → IEEE 802.11 → Keys</span></div>
+    <div class="qr-row"><span class="qr-term">WLAN Stats</span><span class="qr-def">Wireless → WLAN Statistics</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 26 · Introduction to 802.11 WLAN Analysis · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch26-wlan';
+const SECTIONS = {
+  'wlanoverview':'802.11 WLAN Overview',
+  'frametypes':'802.11 Frame Types',
+  'wlanassoc':'WLAN Association Process',
+  'wlananalysis':'WLAN Analysis and Troubleshooting'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

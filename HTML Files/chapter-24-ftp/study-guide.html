@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 24 — Analyze FTP Traffic · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 24</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 24 · Study Guide</div>
+    <h1>Analyze FTP <em>Traffic</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 24 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">"FTP sends credentials and files in cleartext — <em>every password, every file transfer is readable in Wireshark.</em>"</div>
+  <p class="motivation-sub">FTP control and data channels, active vs passive mode, FTP commands and response codes, analyzing FTP in Wireshark. Four sections · Socratic questions.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="ftpoverview" onclick="navTo('ftpoverview')">1 · FTP Overview</button>
+  <button class="nav-tab" data-target="activevpassive" onclick="navTo('activevpassive')">2 · Active vs Passive</button>
+  <button class="nav-tab" data-target="ftpcommands" onclick="navTo('ftpcommands')">3 · FTP Commands</button>
+  <button class="nav-tab" data-target="ftpanalysis" onclick="navTo('ftpanalysis')">4 · FTP in Wireshark</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FTP OVERVIEW</span>
+  </div>
+  <p class="socratic-insight">FTP's two-channel design separates control (commands) from data (file content). Understanding that these are two distinct TCP connections explains both FTP's firewall problems and why credentials appear separately from file content in Wireshark captures.</p>
+  <ul class="socratic-questions">
+    <li>A user says they uploaded a sensitive file via FTP. What can you determine about that transfer using Wireshark?</li>
+    <li>What is the fundamental difference between SFTP and FTP — are they related protocols?</li>
+  </ul>
+  <div class="answer-area" data-section="ftpoverview">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — WHAT YOU CAN DETERMINE ABOUT AN FTP UPLOAD</div>
+        <div class="model-answer-text">On the FTP control channel (port 21): you can see the STOR command (the filename being uploaded), the login sequence (USER and PASS commands — including the plaintext password), and the server's response codes. On the FTP data channel: you can see the actual file content in the ftp-data stream, and use File → Export Objects → FTP-DATA to extract the file. Everything is cleartext — content, credentials, and filename are fully visible.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — SFTP VS FTP</div>
+        <div class="model-answer-text">SFTP (SSH File Transfer Protocol) and FTP are completely unrelated protocols despite the similar name. SFTP runs as a subsystem of SSH on port 22, encrypts everything (including credentials and file data), and has entirely different protocol mechanics. FTPS (FTP over TLS/SSL) is TLS-encrypted FTP, but still uses the same FTP command structure. FTP = port 21, completely cleartext. SFTP = port 22, completely encrypted.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ftpoverview">
+  <div class="section-label">Section 1</div>
+  <h2>FTP Overview</h2>
+  <p>FTP uses two separate TCP connections: (1) <strong>Control channel</strong> — TCP port 21, always open for the session. All commands (authentication, directory, transfer commands) travel here as cleartext text. (2) <strong>Data channel</strong> — negotiated for each file transfer or directory listing. Carries the actual file content or directory listing.</p>
+  <p>FTP is entirely cleartext — all commands, passwords, and file content are unencrypted. Use <strong>ftp</strong> filter for the control channel and <strong>ftp-data</strong> for file transfers.</p>
+
+  <div class="callout callout-red">
+    <strong>FTP transmits passwords in plaintext</strong>
+    FTP transmits usernames and passwords as plaintext. Filter <code style="font-family:monospace;background:var(--red-light);color:var(--red);padding:1px 5px;border-radius:4px;">ftp</code> and Follow TCP Stream — the PASS command contains the literal password. This is why FTP is prohibited in most security policies. Use SFTP (port 22, SSH-based) or FTPS (FTP over TLS) instead.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">FTP = 2 TCP channels: Control (port 21, always open, cleartext commands) + Data (port 20 active/negotiated passive, file content). ALL cleartext — credentials and file content visible. SFTP = SSH-based (port 22, encrypted, different protocol). FTPS = FTP over TLS. Filter: ftp (control), ftp-data (transfers).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ftpoverview" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ftpoverview','FTP Overview')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ftpoverview" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ftpoverview')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · ACTIVE VS PASSIVE MODE</span>
+  </div>
+  <p class="socratic-insight">The active vs passive distinction determines WHO initiates the data connection. This distinction is critical because it determines whether FTP works through firewalls and NAT. Understanding which mode is being used explains why FTP transfers may succeed or fail.</p>
+  <ul class="socratic-questions">
+    <li>An FTP client can log in and list directories but file transfers always fail. Is this more consistent with an active or passive mode problem?</li>
+    <li>In Wireshark, you see a PORT command in the FTP control stream. What information does it contain and who initiates the data connection?</li>
+  </ul>
+  <div class="answer-area" data-section="activevpassive">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — ACTIVE VS PASSIVE MODE FAILURE</div>
+        <div class="model-answer-text">More consistent with an active mode problem. In active mode, the server initiates the data connection back to the client — this incoming connection is typically blocked by client-side firewalls and NAT. The control session (login, LIST) works fine because the client initiates it outbound. Actual file transfers fail because the server can't initiate the inbound data connection to the client. Fix: switch the FTP client to passive mode where the client initiates both connections.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — PORT COMMAND FORMAT AND WHO INITIATES</div>
+        <div class="model-answer-text">PORT command format: PORT a,b,c,d,e,f where a.b.c.d is the client's IP address and the port number is calculated as e×256+f. For example PORT 192,168,1,100,196,134 means the client is listening on 192.168.1.100 port (196×256)+134=50310. The SERVER initiates the data connection FROM port 20 TO the client's announced IP:port.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="activevpassive">
+  <div class="section-label">Section 2</div>
+  <h2>Active vs Passive FTP Mode</h2>
+  <p><strong>Active Mode (PORT command):</strong> Client announces which port it's listening on via PORT command. Server initiates data connection FROM its port 20 TO the client's announced port. Problem: firewalls and NAT block incoming connections from the server to the client.</p>
+  <p><strong>Passive Mode (PASV command):</strong> Client sends PASV. Server responds with IP:port it's listening on. Client initiates data connection to the server. Firewall-friendly since client always initiates. Modern FTP clients default to passive mode.</p>
+  <p><strong>EPSV</strong> = Extended Passive Mode (IPv6 compatible version of PASV).</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Mode</th><th>Command</th><th>Who Initiates Data</th><th>Firewall Behavior</th></tr></thead>
+    <tbody>
+      <tr><td>Active</td><td>PORT</td><td>Server → Client</td><td>Often blocked (inbound from server)</td></tr>
+      <tr><td>Passive</td><td>PASV</td><td>Client → Server</td><td>Firewall-friendly (client initiates)</td></tr>
+      <tr><td>Extended Passive</td><td>EPSV</td><td>Client → Server</td><td>Firewall-friendly, IPv6 compatible</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-amber">
+    <strong>Identify mode in Wireshark</strong>
+    In Wireshark, look for PORT (active) or PASV (passive) commands in the FTP control stream. If transfers fail in active mode, a firewall blocking the server-initiated inbound connection is almost certainly the cause.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Active (PORT): server→client data connection, blocked by most firewalls/NAT. Passive (PASV): client→server data connection, firewall-friendly, modern default. Data filter: ftp-data. PASV response contains IP+port for client to connect to. PORT command contains client IP+port for server to connect to.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-activevpassive" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('activevpassive','Active vs Passive FTP Mode')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-activevpassive" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('activevpassive')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FTP COMMANDS</span>
+  </div>
+  <p class="socratic-insight">FTP's command set reveals exactly what happened in a session — what files were transferred, what directories were accessed, whether login succeeded or failed. Knowing these commands lets you reconstruct a complete FTP session just from the control channel stream.</p>
+  <ul class="socratic-questions">
+    <li>You see FTP response code 530 repeated 10 times. What is happening and what would you check to determine if it's a brute-force attack?</li>
+    <li>An FTP session shows <code style="font-family:monospace;background:var(--blue-glow);color:var(--blue);padding:1px 4px;border-radius:4px;">TYPE I</code> command. What does this mean for how the file data is transmitted?</li>
+  </ul>
+  <div class="answer-area" data-section="ftpcommands">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — CODE 530 AND BRUTE-FORCE DETECTION</div>
+        <div class="model-answer-text">Code 530 is "Login incorrect" — the authentication failed 10 consecutive times. To determine if it's a brute-force attack: check the USER command in each failed attempt — if the same username with different passwords is tried, it's a password-guessing attack against a known account. If different usernames are tried, it's a username enumeration + password attack. Also check the inter-attempt timing — brute force tools typically probe at machine speed (milliseconds between attempts), while a legitimate user who forgets their password will have human-speed delays (seconds between attempts).</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — TYPE I (BINARY MODE)</div>
+        <div class="model-answer-text">TYPE I (Image type, also called Binary mode) means the file data will be transferred byte-for-byte without any character translation. TYPE A (ASCII mode) performs line-ending conversion, which corrupts binary files. For any binary file (executables, images, archives), TYPE I must be used. If you see TYPE A followed by a binary file transfer, expect file corruption.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ftpcommands">
+  <div class="section-label">Section 3</div>
+  <h2>FTP Commands and Response Codes</h2>
+  <p>FTP commands travel on the control channel as cleartext text. Every command and response is readable by filtering <strong>ftp</strong> and using Follow TCP Stream.</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">USER</span></td><td>Username for authentication</td></tr>
+      <tr><td><span class="filter-code">PASS</span></td><td>Password (plaintext!)</td></tr>
+      <tr><td><span class="filter-code">LIST</span></td><td>Directory listing</td></tr>
+      <tr><td><span class="filter-code">NLST</span></td><td>Filename-only listing</td></tr>
+      <tr><td><span class="filter-code">RETR</span></td><td>Download (retrieve) a file from server</td></tr>
+      <tr><td><span class="filter-code">STOR</span></td><td>Upload (store) a file to server</td></tr>
+      <tr><td><span class="filter-code">DELE</span></td><td>Delete a file</td></tr>
+      <tr><td><span class="filter-code">CWD</span></td><td>Change working directory</td></tr>
+      <tr><td><span class="filter-code">PWD</span></td><td>Print current directory</td></tr>
+      <tr><td><span class="filter-code">PORT</span></td><td>Active mode: announce client data port</td></tr>
+      <tr><td><span class="filter-code">PASV</span></td><td>Request passive mode</td></tr>
+      <tr><td><span class="filter-code">TYPE</span></td><td>Set transfer type (A=ASCII, I=Binary)</td></tr>
+      <tr><td><span class="filter-code">QUIT</span></td><td>End session</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>FTP response codes:</strong></p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>220</td><td>Service ready (server greeting)</td></tr>
+      <tr><td>230</td><td>User logged in successfully</td></tr>
+      <tr><td>331</td><td>Username OK, need password</td></tr>
+      <tr><td>530</td><td>Login incorrect (authentication failed)</td></tr>
+      <tr><td>425</td><td>Can't open data connection</td></tr>
+      <tr><td>226</td><td>Transfer complete</td></tr>
+      <tr><td>550</td><td>File unavailable (not found or no permission)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Key commands: USER, PASS (plaintext!), RETR (download), STOR (upload), PASV, PORT, LIST, TYPE. Key codes: 220=ready, 230=logged in, 331=need pass, 530=login failed, 226=complete, 550=not found. TYPE I = binary, TYPE A = ASCII (corrupt binary files).</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ftpcommands" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ftpcommands','FTP Commands and Response Codes')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ftpcommands" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ftpcommands')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FTP ANALYSIS IN WIRESHARK</span>
+  </div>
+  <p class="socratic-insight">FTP analysis in Wireshark combines control-channel inspection (reading commands and responses as text) with data-channel analysis (extracting transferred files). The combination of Follow TCP Stream and Export Objects gives you a complete picture of the FTP session.</p>
+  <ul class="socratic-questions">
+    <li>How would you use Wireshark to recover a file transferred over FTP during a security incident?</li>
+    <li>You see FTP response code 425 "Can't open data connection." What FTP concept explains this, and what configuration change would fix it?</li>
+  </ul>
+  <div class="answer-area" data-section="ftpanalysis">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — RECOVERING A FILE FROM AN FTP CAPTURE</div>
+        <div class="model-answer-text">(1) Filter <code style="font-family:monospace;background:var(--surface-2);padding:1px 4px;border-radius:4px;">ftp-data</code> to see all data transfer packets. (2) File → Export Objects → FTP-DATA — Wireshark reassembles the FTP data stream and presents each transferred file. Select the file and click Save. (3) Alternatively, right-click a ftp-data packet → Follow → TCP Stream to see the raw transferred content. For binary files, switch the stream view to "Raw" to save the bytes correctly.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — CODE 425 AND THE FIX</div>
+        <div class="model-answer-text">Code 425 means the server couldn't open the data connection. In active mode, this means the server tried to connect back to the client on the port announced in the PORT command, but was blocked (firewall or NAT). Fix: configure the FTP client to use passive mode (PASV) — the client then initiates the data connection outbound, which works through firewalls and NAT.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="ftpanalysis">
+  <div class="section-label">Section 4</div>
+  <h2>Analyzing FTP in Wireshark</h2>
+  <p>FTP display filters:</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">ftp</span></td><td>All FTP control traffic</td></tr>
+      <tr><td><span class="filter-code">ftp-data</span></td><td>FTP data transfers only</td></tr>
+      <tr><td><span class="filter-code">ftp.request.command == "PASS"</span></td><td>Login password packets</td></tr>
+      <tr><td><span class="filter-code">ftp.response.code == 530</span></td><td>Failed login attempts</td></tr>
+      <tr><td><span class="filter-code">ftp.response.code == 226</span></td><td>Completed file transfers</td></tr>
+      <tr><td><span class="filter-code">ftp.request.command == "RETR"</span></td><td>File download commands</td></tr>
+      <tr><td><span class="filter-code">ftp.request.command == "STOR"</span></td><td>File upload commands</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Analysis workflow:</strong></p>
+  <ol>
+    <li>Filter <strong>ftp</strong> to see control channel.</li>
+    <li>Follow TCP Stream to read full session as text — commands, responses, and plaintext password in order.</li>
+    <li>Filter <strong>ftp-data</strong> to find transfers.</li>
+    <li>File → Export Objects → FTP-DATA to extract transferred files.</li>
+    <li>Time delta between RETR command and 226 response = transfer time.</li>
+  </ol>
+
+  <div class="callout callout-green">
+    <strong>Export Objects — the primary FTP forensic technique</strong>
+    File → Export Objects → FTP-DATA extracts every file transferred during the FTP session. This is the primary forensic technique for recovering files from FTP captures.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">FTP analysis: Filter ftp → Follow TCP Stream (read plaintext session including PASS) → Filter ftp-data → File → Export Objects → FTP-DATA (extract files). Failed logins: ftp.response.code==530. Transfer timing: delta between RETR and 226 response. PASS = plaintext password always visible.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ftpanalysis" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ftpanalysis','Analyzing FTP in Wireshark')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ftpanalysis" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ftpanalysis')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 24 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 4 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-ftpoverview"><input type="checkbox" onchange="toggleDone(this,'chk-ftpoverview')"> FTP Overview</label>
+      <label class="check-item" data-key="chk-activevpassive"><input type="checkbox" onchange="toggleDone(this,'chk-activevpassive')"> Active vs Passive Mode</label>
+      <label class="check-item" data-key="chk-ftpcommands"><input type="checkbox" onchange="toggleDone(this,'chk-ftpcommands')"> FTP Commands</label>
+      <label class="check-item" data-key="chk-ftpanalysis"><input type="checkbox" onchange="toggleDone(this,'chk-ftpanalysis')"> FTP in Wireshark</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>FTP Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">Control</span><span class="qr-def">TCP port 21</span></div>
+    <div class="qr-row"><span class="qr-term">Data</span><span class="qr-def">Port 20 (active) / negotiated (passive)</span></div>
+    <div class="qr-row"><span class="qr-term">PASS</span><span class="qr-def">Plaintext password</span></div>
+    <div class="qr-row"><span class="qr-term">Passive mode</span><span class="qr-def">Client initiates data</span></div>
+    <div class="qr-row"><span class="qr-term">Export files</span><span class="qr-def">File → Export Objects → FTP-DATA</span></div>
+    <div class="qr-row"><span class="qr-term">Failed login</span><span class="qr-def">ftp.response.code==530</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 24 · Analyze FTP Traffic · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch24-ftp';
+const SECTIONS = {
+  'ftpoverview':'FTP Overview',
+  'activevpassive':'Active vs Passive FTP Mode',
+  'ftpcommands':'FTP Commands and Response Codes',
+  'ftpanalysis':'Analyzing FTP in Wireshark'
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

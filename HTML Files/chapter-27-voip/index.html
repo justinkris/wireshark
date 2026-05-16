@@ -183,6 +183,12 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 .model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
 .model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
 
+.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
+.nav-sg-link:hover{color:var(--blue-deep);}
+.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
+.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
+.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
+@media(max-width:640px){.chapter-nav{padding:14px 20px;gap:10px;}.chapter-nav-btn{font-size:11px;padding:8px 14px;}}
 </style>
 </head>
 <body>
@@ -190,7 +196,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 <header>
   <div class="header-left">
     <div class="breadcrumb">
-      <a href="../index.html">Wireshark Practice Hub</a>
+      <a href="../../index.html">Wireshark Practice Hub</a>
       <span class="breadcrumb-sep">›</span>
       Chapter 27
     </div>
@@ -200,6 +206,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   </div>
 </header>
 
+<div style="background:#1a6dcc;padding:12px 60px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+  <span style="font-size:13px;color:#fff;font-family:'Epilogue',sans-serif;">📖 <strong>Study Guide available</strong> — full chapter breakdown with Socratic questions, mental notes, and analogies</span>
+  <a href="study-guide.html" style="background:#fff;color:#1a6dcc;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:'Epilogue',sans-serif;letter-spacing:.04em;">Open Study Guide →</a>
+</div>
 <div class="motivation-banner">
   <div class="motivation-text">Open the trace. <em>Trust what you see.</em></div>
   <p class="motivation-sub">Covers VoIP call setup with SIP (Session Initiation Protocol) and voice data with RTP (Realtime Transport Protocol), including SIP response codes, RTCP, codec types, call bandwidth requirements, jitter analysis, and playing back VoIP calls using Wireshark's RTP player.</p>
@@ -230,6 +240,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   <button class="nav-tab active" data-target="sec-files" onclick="navTo('sec-files')">📁 Trace Files</button>
   <button class="nav-tab" data-target="sec-questions" onclick="navTo('sec-questions')">❓ Questions</button>
   <button class="nav-tab" data-target="sec-tools" onclick="navTo('sec-tools')">🛠 Notes</button>
+  <a href="study-guide.html" class="nav-sg-link">📖 Study Guide →</a>
 </nav>
 
 <main>
@@ -451,6 +462,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
       </div>
 </aside>
 </main>
+
+<div class="chapter-nav">
+  <a href="../chapter-26-wlan/index.html" class="chapter-nav-btn">← Ch 26 · WLAN</a>
+  <a href="../chapter-28-baseline-traffic/index.html" class="chapter-nav-btn">Ch 28 · Baseline Traffic →</a>
+</div>
 
 <footer>
   <div>Chapter 27 · Introduction to Voice over IP (VoIP) Analysis</div>

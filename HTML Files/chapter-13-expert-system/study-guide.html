@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13 — Use Wireshark's Expert System · Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
+.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
+.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:40px;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-red strong{color:var(--red);}
+.callout-green strong{color:var(--green);}
+.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
+.filter-table tr:last-child td{border-bottom:none;}
+.filter-table tr:hover td{background:var(--surface-2);}
+.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
+.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
+.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
+.rcode-table tr:last-child td{border-bottom:none;}
+.rcode-table tr:hover td{background:var(--surface-2);}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-glow);color:var(--blue);}
+.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
+.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
+.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
+.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
+.socratic-block:not(.soc-open) .socratic-insight,
+.socratic-block:not(.soc-open) .socratic-questions,
+.socratic-block:not(.soc-open) .answer-area{display:none;}
+.socratic-icon{font-size:17px;flex-shrink:0;}
+.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
+.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
+.socratic-questions{list-style:none;padding:0;margin:0;}
+.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
+.socratic-questions li:last-child{border-bottom:none;}
+.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
+.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.answer-textarea:focus{border-color:var(--text);}
+.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-answer:hover:not(:disabled){opacity:.85;}
+.btn-add-answer:disabled{opacity:.5;cursor:default;}
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
+.model-answer-item:first-child{padding-top:0;}
+.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
+.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
+.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
+.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
+.analogy-label:hover::after{opacity:1;}
+.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
+.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
+.analogy-box>.analogy-img{display:none;}
+.analogy-box.expanded>.analogy-img{display:block;}
+.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
+.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
+.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
+.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
+.prompt-content[hidden]{display:none;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../../index.html">Wireshark Index</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="../index.html">Chapter 13</a>
+      <span class="breadcrumb-sep">›</span>
+      Study Guide
+    </div>
+    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 13 · Study Guide</div>
+    <h1>Wireshark's <em>Expert System</em></h1>
+    <p>Wireshark Network Analysis 2nd Ed · Chapter 13 · Laura Chappell</p>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text">"Let Wireshark's expert system do the first pass — <em>it flags the obvious problems so you can focus on the subtle ones.</em>"</div>
+  <p class="motivation-sub">Expert Information window, severity levels, event groups, filtering on expert conditions. Four sections · Socratic questions.</p>
+</div>
+
+<div class="top-panels">
+  <div class="qpanel">
+    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">— click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">— click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <button class="nav-tab active" data-target="expertoverview" onclick="navTo('expertoverview')">1 · Expert Overview</button>
+  <button class="nav-tab" data-target="severity" onclick="navTo('severity')">2 · Severity Levels</button>
+  <button class="nav-tab" data-target="eventgroups" onclick="navTo('eventgroups')">3 · Event Groups</button>
+  <button class="nav-tab" data-target="expertfilters" onclick="navTo('expertfilters')">4 · Filtering Expert Info</button>
+</nav>
+
+<main>
+<div class="main-content">
+
+<!-- ═══ SECTION 1 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · EXPERT SYSTEM OVERVIEW</span>
+  </div>
+  <p class="socratic-insight">The expert system processes every packet against hundreds of protocol heuristics and presents the results in one consolidated view. It's the fastest triage tool in Wireshark — one glance at the status bar badge tells you whether the capture has serious problems.</p>
+  <ul class="socratic-questions">
+    <li>You open a capture and the expert status bar badge is red. Before reading a single packet, what do you already know?</li>
+    <li>There are 2,000 packets in a capture but the Expert Information dialog shows only 12 events. What does this tell you about the other 1,988 packets?</li>
+  </ul>
+  <div class="answer-area" data-section="expertoverview">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — RED BADGE MEANING</div>
+        <div class="model-answer-text">At least one packet in the capture triggered an Error-level event — the most severe category. This could be a malformed packet, a bad checksum, or a serious protocol violation. You don't yet know which protocol or packet, but the expert system has flagged something worth investigating immediately. Open Analyze → Expert Information to see the full list sorted by severity.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — 12 EVENTS IN 2,000 PACKETS</div>
+        <div class="model-answer-text">The other 1,988 packets generated no expert events — they are protocol-conformant from Wireshark's perspective. Expert events are the exception, not the rule; most normal traffic generates no events at all. The 12 events are exactly where to start your investigation.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="expertoverview">
+  <div class="section-label">Section 1</div>
+  <h2>Expert Information System Overview</h2>
+  <p>Wireshark's Expert Information system automatically analyzes each packet and flags protocol anomalies using built-in heuristics. It runs continuously in the background as packets are captured or loaded.</p>
+  <p><strong>Access:</strong> Analyze → Expert Information, or click the colored status bar badge in the bottom-left corner of the Wireshark window.</p>
+  <p><strong>Status badge colors:</strong></p>
+  <ul>
+    <li><strong>Red</strong> — Error (highest severity): at least one serious protocol violation detected.</li>
+    <li><strong>Yellow/Orange</strong> — Warning: probable problems such as TCP retransmissions.</li>
+    <li><strong>Cyan/Teal</strong> — Note: informational events worth reviewing.</li>
+    <li><strong>Gray</strong> — Chat: normal protocol behavior events only.</li>
+    <li><strong>No badge</strong> — no expert events detected.</li>
+  </ul>
+  <p>The Expert Information dialog lists all events grouped by severity. Double-click any event to jump directly to that packet in the Packet List.</p>
+
+  <div class="callout callout-blue">
+    <strong>First step — check the expert badge</strong>
+    The expert badge is the first thing to check after opening any unfamiliar capture. Its color tells you in one glance whether there are serious problems (red) or the capture looks clean. Then open Expert Information for the full event list.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Expert Information: Analyze → Expert Information. Status badge: red=Error, yellow=Warning, cyan=Note, gray=Chat. No badge = no events. Double-click event → jump to packet. Shows protocol, message, packet number, and severity. Open it first on every unfamiliar capture.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-expertoverview" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('expertoverview','Expert Information System Overview')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-expertoverview" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('expertoverview')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 2 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · SEVERITY LEVELS</span>
+  </div>
+  <p class="socratic-insight">The four severity levels create a triage hierarchy. Errors demand immediate attention; Warnings are probable problems; Notes are informational context; Chat events are normal protocol behavior. Working top-down through these levels focuses your investigation on what matters most.</p>
+  <ul class="socratic-questions">
+    <li>Expert Information shows a Warning for "TCP Retransmission." Is this always a network problem? What additional context do you need?</li>
+    <li>What is the most likely reason Expert Information shows many Error-level checksum events when you capture your own machine's traffic?</li>
+  </ul>
+  <div class="answer-area" data-section="severity">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — TCP RETRANSMISSION WARNING IN CONTEXT</div>
+        <div class="model-answer-text">Not necessarily. A single TCP retransmission in a 10,000-packet capture might be a momentary glitch. Context needed: count of retransmissions as a percentage of TCP traffic (above 1% is significant), whether retransmissions cluster in time (visible on the IO Graph), and whether it's a fast retransmit (triggered by 3 dup ACKs, milliseconds gap) or a timeout retransmit (1+ second gap). Volume and timing determine severity.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — CHECKSUM ERRORS ON LOCAL TRAFFIC</div>
+        <div class="model-answer-text">TCP/UDP Checksum Offload — modern NICs compute checksums in hardware after the OS has already passed the packet to Wireshark. Wireshark captures the pre-checksum packet and reports the checksum as incorrect, but the checksum is computed correctly by the NIC before transmission. This is a false positive. Fix: Edit → Preferences → Protocols → TCP → uncheck "Validate TCP checksum if possible." The same setting exists for UDP.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="severity">
+  <div class="section-label">Section 2</div>
+  <h2>Expert Information Severity Levels</h2>
+  <p>Expert events are assigned one of four severity levels, from most to least critical:</p>
+  <ol>
+    <li><strong>Error</strong> — serious protocol violations, malformed frames, application-level errors. These prevent or severely disrupt normal operation.</li>
+    <li><strong>Warning</strong> — conditions indicating likely problems: TCP retransmissions, out-of-order segments, duplicate ACKs, zero window events.</li>
+    <li><strong>Note</strong> — informational events worth noting but not necessarily problems: TCP resets, connection close events, window updates.</li>
+    <li><strong>Chat</strong> — normal protocol events: TCP SYN, HTTP GET requests, DNS queries. Expected in every capture.</li>
+  </ol>
+  <p><strong>Triage strategy:</strong> always address Errors first, then Warnings. Notes and Chat are context, not problems.</p>
+
+  <table class="rcode-table">
+    <thead><tr><th>Severity</th><th>Badge Color</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Error</strong></td><td>Red</td><td>Malformed packets, bad checksums</td></tr>
+      <tr><td><strong>Warning</strong></td><td>Yellow/Orange</td><td>TCP retransmission, dup ACK, zero window</td></tr>
+      <tr><td><strong>Note</strong></td><td>Cyan/Teal</td><td>TCP RST, window update, connection close</td></tr>
+      <tr><td><strong>Chat</strong></td><td>Gray</td><td>TCP SYN, HTTP GET, DNS query</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">4 levels: Error (red) &gt; Warning (yellow) &gt; Note (cyan) &gt; Chat (gray). Error = malformed/serious violation. Warning = probable problem (retransmissions). Note = FYI (RSTs). Chat = normal events. Checksum errors often = NIC offload artifact (false positive). Fix in TCP preferences.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-severity" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('severity','Expert Information Severity Levels')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-severity" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('severity')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 3 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · EVENT GROUPS</span>
+  </div>
+  <p class="socratic-insight">Expert events are grouped by root cause, not just severity. The Sequence group identifies TCP reliability problems; the Application group surfaces application-layer errors; the Malformed group marks corrupt packets. Knowing which group matters for your investigation focuses your filter and your attention.</p>
+  <ul class="socratic-questions">
+    <li>You're troubleshooting slow HTTP responses. Which Expert Information event group should you check first?</li>
+    <li>You see both Sequence-group Warnings and Application-group Warnings. What does the combination of TCP retransmissions AND HTTP 503 responses suggest about the root cause?</li>
+  </ul>
+  <div class="answer-area" data-section="eventgroups">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — WHICH GROUP FOR SLOW HTTP</div>
+        <div class="model-answer-text">Start with the Application group — it catches HTTP 4xx/5xx response codes that indicate server-side errors. Then check the Sequence group — TCP retransmissions under Application-layer errors would indicate the network is also struggling under the same load. Checking both together reveals whether it's a pure application problem or a combined network-and-application problem.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — RETRANSMISSIONS + HTTP 503 COMBINATION</div>
+        <div class="model-answer-text">The combination suggests the web server is overloaded: TCP retransmissions indicate the server (or path to it) is dropping packets under load, while HTTP 503 (Service Unavailable) is the server explicitly telling clients it cannot handle more requests. Root cause is likely server resource exhaustion — not a pure network problem. The fix is at the server or load balancer, not the network path.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="eventgroups">
+  <div class="section-label">Section 3</div>
+  <h2>Expert Event Groups</h2>
+  <p>Expert events are organized into groups that reflect the root cause category, making it easier to focus your investigation:</p>
+  <ul>
+    <li><strong>Sequence</strong> — TCP sequence number problems: retransmissions, duplicate ACKs, lost segments, out-of-order. Most actionable for performance problems.</li>
+    <li><strong>Checksum</strong> — detected checksum errors. Usually a NIC offload artifact. Typically suppress in preferences.</li>
+    <li><strong>Malformed</strong> — packets violating protocol structure: incomplete headers, fields outside allowed ranges.</li>
+    <li><strong>Application</strong> — application-layer errors: HTTP 4xx/5xx status codes, FTP error codes, DNS NXDOMAIN and SERVFAIL.</li>
+    <li><strong>Protocol</strong> — general protocol events: SYN, FIN, RST. Typically Note severity.</li>
+    <li><strong>Request/Response</strong> — response time tracking for matched request-response pairs.</li>
+  </ul>
+
+  <table class="rcode-table">
+    <thead><tr><th>Group</th><th>What It Detects</th><th>Typical Severity</th></tr></thead>
+    <tbody>
+      <tr><td>Sequence</td><td>Retransmissions, dup ACKs, out-of-order</td><td>Warning</td></tr>
+      <tr><td>Checksum</td><td>Bad checksums (often NIC offload)</td><td>Error</td></tr>
+      <tr><td>Malformed</td><td>Invalid packet structure</td><td>Error</td></tr>
+      <tr><td>Application</td><td>HTTP/FTP/DNS errors</td><td>Warning</td></tr>
+      <tr><td>Protocol</td><td>SYN, FIN, RST events</td><td>Note</td></tr>
+      <tr><td>Request/Response</td><td>Response time tracking</td><td>Chat</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Key groups: Sequence (TCP loss/reorder = performance), Application (HTTP/FTP/DNS errors = app problem), Malformed (broken packets), Checksum (usually offload false positive). Sequence first for performance problems, Application for server errors. Checksum errors = likely suppress in TCP preferences.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-eventgroups" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('eventgroups','Expert Event Groups')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-eventgroups" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('eventgroups')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ SECTION 4 ═══ -->
+<div class="socratic-block">
+  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
+    <span class="socratic-icon">💭</span>
+    <span class="socratic-label">THINK FIRST · FILTERING EXPERT INFO</span>
+  </div>
+  <p class="socratic-insight">Expert events are filterable using display filter fields, letting you integrate expert analysis with the standard packet list view. This is more powerful than the Expert Information dialog alone — you can combine expert filters with protocol filters to narrow to exactly the problematic subset.</p>
+  <ul class="socratic-questions">
+    <li>Write a display filter that shows only packets with Expert Warning or higher severity.</li>
+    <li>The expert system shows "TCP Previous segment not captured." Is this always actual packet loss, or could it be a Wireshark artifact?</li>
+  </ul>
+  <div class="answer-area" data-section="expertfilters">
+    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
+    <div class="answer-buttons">
+      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+    </div>
+    <div class="model-answers" style="display:none;">
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q1 — FILTER FOR WARNING OR HIGHER</div>
+        <div class="model-answer-text"><code style="font-family:monospace">expert.severity &gt;= 8</code> (Warning = 8, Error = 32 in Wireshark's internal encoding). Some versions require <code style="font-family:monospace">_ws.expert.severity &gt;= 8</code>. If one form doesn't work in your Wireshark version, try the other — both access the same data.</div>
+      </div>
+      <div class="model-answer-item">
+        <div class="model-answer-q">Q2 — PREVIOUS SEGMENT NOT CAPTURED</div>
+        <div class="model-answer-text">It can be either. If seen on the very first packets of a capture of an already-established connection, it's a capture artifact — Wireshark missed the earlier segments because the capture started mid-stream. If seen mid-capture during an established connection where all prior segments were present, it's more likely actual packet loss. Distinguish by checking whether the gap occurs at the start of the capture (artifact) or occurs after previously unbroken coverage (real loss).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="expertfilters">
+  <div class="section-label">Section 4</div>
+  <h2>Filtering on Expert Information</h2>
+  <p>Expert system data is accessible as display filter fields, enabling integration with the packet list and combination with other protocol filters.</p>
+
+  <table class="filter-table">
+    <thead><tr><th>Filter</th><th>What It Shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="filter-code">expert.severity &gt;= 32</span></td><td>All Error-level events</td></tr>
+      <tr><td><span class="filter-code">expert.severity &gt;= 8</span></td><td>Warnings and higher (Warning + Error)</td></tr>
+      <tr><td><span class="filter-code">expert.group == "Sequence"</span></td><td>All TCP sequence issues</td></tr>
+      <tr><td><span class="filter-code">expert.message contains "Retransmission"</span></td><td>All retransmission events</td></tr>
+      <tr><td><span class="filter-code">expert.message contains "Zero Window"</span></td><td>Zero window events</td></tr>
+      <tr><td><span class="filter-code">_ws.expert.severity &gt;= 8</span></td><td>Alternative prefix (some Wireshark versions)</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Severity numeric values:</strong> Chat = 2, Note = 4, Warning = 8, Error = 32.</p>
+  <p><strong>expert.group values:</strong> "Sequence", "Checksum", "Malformed", "Application", "Protocol", "Request/Response".</p>
+
+  <div class="callout callout-amber">
+    <strong>Version compatibility — expert prefix</strong>
+    Some Wireshark versions use the <code style="font-family:monospace">_ws.expert.severity</code> prefix instead of <code style="font-family:monospace">expert.severity</code>. If one doesn't work, try the other. Both access the same expert system data.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">🧠</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Expert filters: expert.severity&gt;=32 (Errors), expert.severity&gt;=8 (Warnings+), expert.group=="Sequence", expert.message contains "Retransmission". Severity numbers: Chat=2, Note=4, Warning=8, Error=32. Some versions: _ws.expert prefix. Expert dialog = best overview; display filter = integrate with packet list.</div>
+    </div>
+  </div>
+</div>
+
+<div class="lesson-tools">
+  <div class="lesson-tools-grid">
+    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-expertfilters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('expertfilters','Filtering on Expert Information')">Add Question</button></div></div>
+    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-expertfilters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('expertfilters')">+ Add Note</button></div></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<aside class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
+      <a class="sidebar-link" href="../index.html">← Chapter 13 <span class="arr">›</span></a>
+    </div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="progress-summary">
+      <span id="prog-text">0 / 4 sections read</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-checklist">
+      <label class="check-item" data-key="chk-expertoverview"><input type="checkbox" onchange="toggleDone(this,'chk-expertoverview')"> Expert Information Overview</label>
+      <label class="check-item" data-key="chk-severity"><input type="checkbox" onchange="toggleDone(this,'chk-severity')"> Severity Levels</label>
+      <label class="check-item" data-key="chk-eventgroups"><input type="checkbox" onchange="toggleDone(this,'chk-eventgroups')"> Event Groups</label>
+      <label class="check-item" data-key="chk-expertfilters"><input type="checkbox" onchange="toggleDone(this,'chk-expertfilters')"> Filtering Expert Info</label>
+    </div>
+  </div>
+  <div class="quick-ref">
+    <h4>Ch13 Quick-Ref</h4>
+    <div class="qr-row"><span class="qr-term">Status badge</span><span class="qr-def">Red=Error, Yellow=Warn</span></div>
+    <div class="qr-row"><span class="qr-term">Access</span><span class="qr-def">Analyze → Expert Info</span></div>
+    <div class="qr-row"><span class="qr-term">expert.severity&gt;=32</span><span class="qr-def">Error filter</span></div>
+    <div class="qr-row"><span class="qr-term">expert.severity&gt;=8</span><span class="qr-def">Warning filter</span></div>
+    <div class="qr-row"><span class="qr-term">expert.group=="Sequence"</span><span class="qr-def">TCP issues</span></div>
+    <div class="qr-row"><span class="qr-term">Checksum errors</span><span class="qr-def">Usually NIC offload artifact</span></div>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <div>Chapter 13 · Use Wireshark's Expert System · Study Guide</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch13-expert';
+const SECTIONS = {
+  'expertoverview':"Expert Information System Overview",
+  'severity':"Expert Information Severity Levels",
+  'eventgroups':"Expert Event Groups",
+  'expertfilters':"Filtering on Expert Information"
+};
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
+function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
+function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded', function(){
+  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  document.querySelectorAll('.answer-area').forEach(function(area){
+    const key=PAGE_KEY+'-soc-'+area.dataset.section;
+    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+  });
+  document.querySelectorAll('.analogy-box').forEach(function(box){
+    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
+    const label=box.querySelector(':scope > .analogy-label');
+    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  });
+});
+</script>
+</body>
+</html>

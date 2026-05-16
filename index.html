@@ -4,534 +4,813 @@
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wireshark Network Analysis — Chapter Index</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Wireshark Network Analysis — Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
   --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.08);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;
+  --purple:#5c35cc;--purple-light:#ece8ff;
 }
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* ── HEADER ── */
 header{padding:48px 60px 40px;background:var(--text);}
 .header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
 .dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-h1{font-family:'Fraunces',serif;font-size:46px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:6px;}
 h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
-.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-.header-meta{display:flex;align-items:center;gap:32px;margin-top:24px;}
-.meta-stat{text-align:left;}
-.meta-stat-num{font-family:'Fraunces',serif;font-size:30px;font-weight:700;color:#93c5fd;display:block;line-height:1;}
-.meta-stat-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:2px;display:block;}
-.meta-divider{width:1px;height:36px;background:rgba(255,255,255,0.1);}
+.header-sub{font-size:12px;color:rgba(255,255,255,0.38);margin-top:6px;}
+.hub-stats{display:flex;gap:36px;margin-top:22px;flex-wrap:wrap;}
+.hub-stat{text-align:center;}
+.hub-stat-num{font-family:'Fraunces',serif;font-size:30px;font-weight:700;color:#93c5fd;display:block;}
+.hub-stat-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.38);}
+.hub-search{max-width:480px;margin:28px 0 0;position:relative;}
+.hub-search input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-family:'Epilogue',sans-serif;font-size:13px;padding:11px 16px 11px 38px;outline:none;transition:border-color .2s;}
+.hub-search input:focus{border-color:#60a5fa;}
+.hub-search input::placeholder{color:rgba(255,255,255,0.3);}
+.hub-search::before{content:'🔍';position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;}
 
-/* ── SEARCH BAR ── */
-.search-wrap{padding:20px 60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;}
-.search-box{position:relative;flex:1;max-width:480px;}
-.search-box input{width:100%;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:'Epilogue',sans-serif;font-size:13px;padding:10px 14px 10px 36px;outline:none;transition:border-color .2s;}
-.search-box input:focus{border-color:var(--blue);}
-.search-box input::placeholder{color:var(--text-muted);}
-.search-box::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;}
-.filter-btns{display:flex;gap:8px;}
-.filter-btn{background:var(--surface-2);border:1.5px solid var(--border);color:var(--text-muted);font-family:'Epilogue',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;padding:7px 16px;border-radius:8px;cursor:pointer;transition:all .15s;}
-.filter-btn:hover,.filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
-#result-count{font-size:12px;color:var(--text-muted);margin-left:auto;white-space:nowrap;}
+/* ── MOTIVATION BANNER ── */
+.motivation-banner{padding:20px 60px;min-height:76px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+
+/* ── OVERALL PROGRESS BAR ── */
+.overall-progress-bar-section{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 60px;display:flex;align-items:center;gap:20px;}
+.overall-progress-label{font-size:11px;font-weight:600;letter-spacing:.10em;color:var(--text-muted);white-space:nowrap;}
+.overall-bar-wrap{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.overall-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .4s;}
+.overall-progress-count{font-size:11px;color:var(--text-muted);white-space:nowrap;font-weight:600;}
 
 /* ── MAIN ── */
-main{flex:1;max-width:1300px;width:100%;margin:0 auto;padding:40px 60px 80px;}
-.grid-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;margin-bottom:20px;}
+main{max-width:1320px;margin:0 auto;padding:44px 60px 80px;}
 
-/* ── CHAPTER BUTTON GRID ── */
-.chapter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;}
+/* ── GROUP BLOCKS ── */
+.group-block{margin-bottom:56px;}
+.group-header{display:flex;align-items:baseline;gap:16px;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--border);flex-wrap:wrap;}
+.group-eyebrow{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;}
+.group-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);}
+.group-count{font-size:11px;color:var(--text-muted);margin-left:auto;}
 
-.ch-btn{
-  display:flex;align-items:center;gap:0;
-  background:var(--surface);border:1.5px solid var(--border);border-radius:12px;
-  text-decoration:none;color:inherit;overflow:hidden;
-  transition:border-color .18s,box-shadow .18s,transform .18s,background .18s;
-  cursor:pointer;
-}
-.ch-btn:hover{
-  border-color:var(--blue);
-  box-shadow:0 4px 20px var(--blue-glow);
-  transform:translateY(-2px);
-  background:var(--surface);
-}
-.ch-num-badge{
-  flex-shrink:0;width:64px;min-height:56px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:var(--blue-glow);border-right:1.5px solid var(--border);
-  padding:8px 0;
-  transition:background .18s,border-color .18s;
-}
-.ch-btn:hover .ch-num-badge{background:var(--blue);border-color:var(--blue);}
-.ch-label{font-size:8px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;line-height:1;transition:color .18s;}
-.ch-btn:hover .ch-label{color:rgba(255,255,255,.6);}
-.ch-number{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--blue);line-height:1;margin-top:2px;transition:color .18s;}
-.ch-btn:hover .ch-number{color:#fff;}
-
-.ch-body{flex:1;padding:12px 16px;min-width:0;}
-.ch-title{font-family:'Fraunces',serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.3;transition:color .18s;}
-.ch-btn:hover .ch-title{color:var(--blue-deep);}
-.ch-group{font-size:10px;color:var(--text-muted);margin-top:3px;letter-spacing:.04em;}
-
-.ch-arrow{flex-shrink:0;padding:0 14px;font-size:14px;color:var(--border);transition:color .18s,transform .18s;}
-.ch-btn:hover .ch-arrow{color:var(--blue);transform:translateX(3px);}
-
-/* ── GROUP SECTION HEADERS ── */
-.group-header{grid-column:1/-1;margin-top:24px;margin-bottom:4px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:12px;}
-.group-header:first-of-type{margin-top:0;}
-.group-name{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
-.group-range{font-size:11px;color:var(--text-muted);}
-
-/* ── NO RESULTS ── */
-#no-results{display:none;text-align:center;padding:60px 0;color:var(--text-muted);font-size:14px;grid-column:1/-1;}
+/* ── CHAPTER CARDS ── */
+.hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:14px;}
+.ch-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;border-top:3px solid var(--blue);}
+.ch-card-top{display:flex;justify-content:space-between;align-items:center;}
+.ch-num{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;}
+.ch-progress-dots{display:flex;gap:4px;align-items:center;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .2s;}
+.dot.done{background:var(--blue);}
+.ch-card-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--text);line-height:1.3;}
+.ch-card-desc{font-size:12px;color:var(--text-muted);line-height:1.65;flex:1;}
+.ch-card-meta{display:flex;gap:5px;flex-wrap:wrap;}
+.pill-q,.pill-f,.pill-s{font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.pill-q{background:rgba(26,109,204,.12);color:var(--blue);}
+.pill-f{background:var(--green-light);color:var(--green);}
+.pill-s{background:var(--purple-light);color:var(--purple);}
+.ch-card-links{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border-dim);margin-top:auto;}
+.ch-link-sg{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:var(--blue);color:#fff;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.04em;transition:background .15s;}
+.ch-link-sg:hover{background:var(--blue-deep);}
+.ch-link-pr{font-size:11px;font-weight:600;color:var(--text-muted);text-decoration:none;transition:color .15s;}
+.ch-link-pr:hover{color:var(--blue);}
 
 /* ── FOOTER ── */
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
 
+#no-results{display:none;text-align:center;padding:48px 0;color:var(--text-muted);font-size:14px;}
+
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   header{padding:28px 20px 28px;}
-  h1{font-size:32px;}
-  .search-wrap{padding:14px 20px;flex-wrap:wrap;}
-  .filter-btns{flex-wrap:wrap;}
+  .motivation-banner{padding:16px 20px;}
+  .overall-progress-bar-section{padding:12px 20px;}
   main{padding:28px 20px 60px;}
-  .chapter-grid{grid-template-columns:1fr;}
+  h1{font-size:30px;}
+  .hub-stats{gap:20px;}
+  .group-count{margin-left:0;}
   footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  #result-count{margin-left:0;}
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-eyebrow"><span class="dot-live"></span> WCNA Study Guide · 2nd Edition</div>
+  <div class="header-eyebrow"><span class="dot-live"></span> Wireshark · WCNA Study Guide</div>
   <h1>Wireshark <em>Network Analysis</em></h1>
-  <p class="header-sub">Laura Chappell · Chappell University · Official WCNA Certification Guide</p>
-  <div class="header-meta">
-    <div class="meta-stat">
-      <span class="meta-stat-num">33</span>
-      <span class="meta-stat-label">Chapters</span>
-    </div>
-    <div class="meta-divider"></div>
-    <div class="meta-stat">
-      <span class="meta-stat-num">284</span>
-      <span class="meta-stat-label">Practice Questions</span>
-    </div>
-    <div class="meta-divider"></div>
-    <div class="meta-stat">
-      <span class="meta-stat-num">247</span>
-      <span class="meta-stat-label">Trace Files</span>
-    </div>
+  <p class="header-sub">Official WCNA Study Guide · 2nd Edition · Laura Chappell · All 33 Chapters</p>
+  <div class="hub-stats">
+    <div class="hub-stat"><span class="hub-stat-num">33</span><span class="hub-stat-label">Chapters</span></div>
+    <div class="hub-stat"><span class="hub-stat-num">284</span><span class="hub-stat-label">Questions</span></div>
+    <div class="hub-stat"><span class="hub-stat-num">247</span><span class="hub-stat-label">Trace Files</span></div>
+    <div class="hub-stat"><span class="hub-stat-num" id="stat-done">0</span><span class="hub-stat-label">Sections Done</span></div>
+  </div>
+  <div class="hub-search">
+    <input type="text" id="hub-search" placeholder="Search chapters…" oninput="filterCards(this.value)" autocomplete="off">
   </div>
 </header>
 
-<div class="search-wrap">
-  <div class="search-box">
-    <input type="text" id="search" placeholder="Search chapters by name or topic…" oninput="filterCards(this.value)">
-  </div>
-  <div class="filter-btns">
-    <button class="filter-btn active" onclick="setGroup('all',this)">All</button>
-    <button class="filter-btn" onclick="setGroup('core',this)">Core Skills</button>
-    <button class="filter-btn" onclick="setGroup('protocols',this)">Protocols</button>
-    <button class="filter-btn" onclick="setGroup('advanced',this)">Advanced</button>
-  </div>
-  <span id="result-count">33 chapters</span>
+<div class="motivation-banner">
+  <div class="motivation-text">Every packet tells a story — <em>read it, then practise it.</em></div>
+  <p class="motivation-sub">Each chapter has a Study Guide (Socratic questions, mental notes, model answers) and a Practice set (trace files, scenario questions). Work through both.</p>
+</div>
+
+<div class="overall-progress-bar-section">
+  <span class="overall-progress-label">STUDY GUIDE PROGRESS</span>
+  <div class="overall-bar-wrap"><div class="overall-bar-fill" id="overall-fill" style="width:0%"></div></div>
+  <span class="overall-progress-count" id="overall-count">0 / 139 sections</span>
 </div>
 
 <main>
-  <div class="chapter-grid" id="grid">
 
-    <!-- ── CORE SKILLS · Ch 01–13 ── -->
-    <div class="group-header" data-group="core">
-      <span class="group-name">Core Skills</span>
-      <span class="group-range">Chapters 01–13</span>
-    </div>
-
-    <a class="ch-btn" href="HTML Files/chapter-01-world-of-network-analysis/index.html" data-group="core" data-title="The World of Network Analysis">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">01</span></div>
-      <div class="ch-body">
-        <div class="ch-title">The World of Network Analysis</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-02-introduction-to-wireshark/index.html" data-group="core" data-title="Introduction to Wireshark">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">02</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Introduction to Wireshark</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-03-capture-traffic/index.html" data-group="core" data-title="Capture Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">03</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Capture Traffic</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-04-capture-filters/index.html" data-group="core" data-title="Create and Apply Capture Filters">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">04</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Create and Apply Capture Filters</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-05-preferences/index.html" data-group="core" data-title="Define Global and Personal Preferences">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">05</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Define Global and Personal Preferences</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-06-colorize-traffic/index.html" data-group="core" data-title="Colorize Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">06</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Colorize Traffic</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-07-time-values/index.html" data-group="core" data-title="Define Time Values and Interpret Summaries">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">07</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Define Time Values and Interpret Summaries</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-08-trace-statistics/index.html" data-group="core" data-title="Interpret Basic Trace File Statistics">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">08</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Interpret Basic Trace File Statistics</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-09-display-filters/index.html" data-group="core" data-title="Create and Apply Display Filters">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">09</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Create and Apply Display Filters</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-10-follow-streams/index.html" data-group="core" data-title="Follow Streams and Reassemble Data">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">10</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Follow Streams and Reassemble Data</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-11-customize-profiles/index.html" data-group="core" data-title="Customize Wireshark Profiles">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">11</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Customize Wireshark Profiles</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-12-annotate-export/index.html" data-group="core" data-title="Annotate, Save, Export and Print Packets">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">12</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Annotate, Save, Export and Print Packets</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-13-expert-system/index.html" data-group="core" data-title="Use Wireshark's Expert System">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">13</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Use Wireshark's Expert System</div>
-        <div class="ch-group">Core Skills</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <!-- ── PROTOCOL ANALYSIS · Ch 14–27 ── -->
-    <div class="group-header" data-group="protocols">
-      <span class="group-name">Protocol Analysis</span>
-      <span class="group-range">Chapters 14–27</span>
-    </div>
-
-    <a class="ch-btn" href="HTML Files/chapter-14-tcp-ip-overview/index.html" data-group="protocols" data-title="TCP/IP Analysis Overview">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">14</span></div>
-      <div class="ch-body">
-        <div class="ch-title">TCP/IP Analysis Overview</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-15-dns/index.html" data-group="protocols" data-title="Analyze Domain Name System (DNS) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">15</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze Domain Name System (DNS) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-16-arp/index.html" data-group="protocols" data-title="Analyze Address Resolution Protocol (ARP) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">16</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze Address Resolution Protocol (ARP) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-17-ip-traffic/index.html" data-group="protocols" data-title="Analyze Internet Protocol (IPv4/IPv6) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">17</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze Internet Protocol (IPv4/IPv6) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-18-icmp/index.html" data-group="protocols" data-title="Analyze Internet Control Message Protocol (ICMPv4/ICMPv6) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">18</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze ICMP (ICMPv4/ICMPv6) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-19-udp/index.html" data-group="protocols" data-title="Analyze User Datagram Protocol (UDP) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">19</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze User Datagram Protocol (UDP) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-20-tcp/index.html" data-group="protocols" data-title="Analyze Transmission Control Protocol (TCP) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">20</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze Transmission Control Protocol (TCP) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-21-io-graphs/index.html" data-group="protocols" data-title="Graph IO Rates and TCP Trends">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">21</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Graph IO Rates and TCP Trends</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-22-dhcp/index.html" data-group="protocols" data-title="Analyze Dynamic Host Configuration Protocol (DHCPv4/DHCPv6) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">22</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze DHCP (DHCPv4/DHCPv6) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-23-http/index.html" data-group="protocols" data-title="Analyze Hypertext Transfer Protocol (HTTP) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">23</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze Hypertext Transfer Protocol (HTTP) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-24-ftp/index.html" data-group="protocols" data-title="Analyze File Transfer Protocol (FTP) Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">24</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze File Transfer Protocol (FTP) Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-25-email/index.html" data-group="protocols" data-title="Analyze Email Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">25</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze Email Traffic</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-26-wlan/index.html" data-group="protocols" data-title="Introduction to 802.11 (WLAN) Analysis">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">26</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Introduction to 802.11 (WLAN) Analysis</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-27-voip/index.html" data-group="protocols" data-title="Introduction to Voice over IP (VoIP) Analysis">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">27</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Introduction to Voice over IP (VoIP) Analysis</div>
-        <div class="ch-group">Protocol Analysis</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <!-- ── ADVANCED TOPICS · Ch 28–33 ── -->
-    <div class="group-header" data-group="advanced">
-      <span class="group-name">Advanced Topics</span>
-      <span class="group-range">Chapters 28–33</span>
-    </div>
-
-    <a class="ch-btn" href="HTML Files/chapter-28-baseline-traffic/index.html" data-group="advanced" data-title="Baseline 'Normal' Traffic Patterns">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">28</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Baseline 'Normal' Traffic Patterns</div>
-        <div class="ch-group">Advanced Topics</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-29-performance-problems/index.html" data-group="advanced" data-title="Find the Top Causes of Performance Problems">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">29</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Find the Top Causes of Performance Problems</div>
-        <div class="ch-group">Advanced Topics</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-30-network-forensics/index.html" data-group="advanced" data-title="Network Forensics Overview">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">30</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Network Forensics Overview</div>
-        <div class="ch-group">Advanced Topics</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-31-network-scanning/index.html" data-group="advanced" data-title="Detect Network Scanning and Discovery Processes">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">31</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Detect Network Scanning and Discovery Processes</div>
-        <div class="ch-group">Advanced Topics</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-32-suspect-traffic/index.html" data-group="advanced" data-title="Analyze Suspect Traffic">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">32</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Analyze Suspect Traffic</div>
-        <div class="ch-group">Advanced Topics</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <a class="ch-btn" href="HTML Files/chapter-33-command-line-tools/index.html" data-group="advanced" data-title="Effective Use of Command Line Tools">
-      <div class="ch-num-badge"><span class="ch-label">CH</span><span class="ch-number">33</span></div>
-      <div class="ch-body">
-        <div class="ch-title">Effective Use of Command Line Tools</div>
-        <div class="ch-group">Advanced Topics</div>
-      </div>
-      <span class="ch-arrow">→</span>
-    </a>
-
-    <p id="no-results">No chapters match your search.</p>
+<div class="group-block" data-group="fundamentals">
+  <div class="group-header">
+    <span class="group-eyebrow">Chapters 01–13</span>
+    <span class="group-title">Wireshark Fundamentals</span>
+    <span class="group-count">13 chapters · 52 sections</span>
   </div>
+  <div class="hub-grid">
+    <div class="ch-card" data-pagekey="ws-ch01-world" data-chkkeys="chk-why,chk-analysts,chk-placement,chk-path">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 01</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">The World of Network Analysis</h3>
+      <p class="ch-card-desc">Why packet analysis matters, types of analysts, TAP vs SPAN port, path of a packet through the network.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">9 Q</span>
+        <span class="pill-f">8 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-01-world-of-network-analysis/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-01-world-of-network-analysis/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch02-intro" data-chkkeys="chk-interface,chk-packetlist,chk-details,chk-menus">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 02</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Introduction to Wireshark</h3>
+      <p class="ch-card-desc">Three-pane interface, Packet List columns, Packet Details and Bytes panes, menus and common workflows.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">12 Q</span>
+        <span class="pill-f">14 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-02-introduction-to-wireshark/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-02-introduction-to-wireshark/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch03-capture" data-chkkeys="chk-interfaces,chk-options,chk-controls,chk-techniques">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 03</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Capture Traffic</h3>
+      <p class="ch-card-desc">Interface selection, capture options, promiscuous mode, ring buffers, live capture controls and best practices.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">10 Q</span>
+        <span class="pill-f">1 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-03-capture-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-03-capture-traffic/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch04-capfilters" data-chkkeys="chk-overview,chk-bpf,chk-combining,chk-examples">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 04</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Create and Apply Capture Filters</h3>
+      <p class="ch-card-desc">BPF syntax, host/port/net/proto primitives, combining filters with and/or/not, common filter patterns.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">9 Q</span>
+        <span class="pill-f">1 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-04-capture-filters/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-04-capture-filters/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch05-prefs" data-chkkeys="chk-prefsoverview,chk-columns,chk-nameresolution,chk-protocolprefs">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 05</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Define Global and Personal Preferences</h3>
+      <p class="ch-card-desc">Preferences dialog, column configuration, name resolution settings, protocol-specific preferences (TCP, TLS).</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">8 Q</span>
+        <span class="pill-f">5 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-05-preferences/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-05-preferences/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch06-colorize" data-chkkeys="chk-coloroverview,chk-defaultrules,chk-customrules,chk-coloranalysis">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 06</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Colorize Traffic</h3>
+      <p class="ch-card-desc">Color rules overview, default rules (Bad TCP, ARP, HTTP), creating custom rules, using color for rapid triage.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">12 Q</span>
+        <span class="pill-f">7 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-06-colorize-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-06-colorize-traffic/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch07-time" data-chkkeys="chk-timeformats,chk-reference,chk-delta,chk-summaries">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 07</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Define Time Values and Interpret Summaries</h3>
+      <p class="ch-card-desc">Time display formats, setting time references, delta times, capture file summary interpretation.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">7 Q</span>
+        <span class="pill-f">5 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-07-time-values/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-07-time-values/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch08-stats" data-chkkeys="chk-hierarchy,chk-conversations,chk-iographs,chk-flowgraph">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 08</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Interpret Basic Trace File Statistics</h3>
+      <p class="ch-card-desc">Protocol Hierarchy, Conversations and Endpoints, IO Graphs, Flow Graph — the top-down analysis toolkit.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">9 Q</span>
+        <span class="pill-f">13 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-08-trace-statistics/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-08-trace-statistics/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch09-dispfilters" data-chkkeys="chk-basics,chk-syntax,chk-commonfilters,chk-filtertools">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 09</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Create and Apply Display Filters</h3>
+      <p class="ch-card-desc">Display filter syntax, comparison operators, common protocol filters, filter buttons and bookmarks.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">8 Q</span>
+        <span class="pill-f">9 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-09-display-filters/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-09-display-filters/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch10-streams" data-chkkeys="chk-tcpstream,chk-udpstream,chk-ssl,chk-streamanalysis">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 10</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Follow Streams and Reassemble Data</h3>
+      <p class="ch-card-desc">Follow TCP/UDP/TLS streams, SSL decryption with key log files, extracting objects and credentials.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">9 Q</span>
+        <span class="pill-f">9 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-10-follow-streams/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-10-follow-streams/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch11-profiles" data-chkkeys="chk-profileoverview,chk-managing,chk-profilecontents,chk-sharing">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 11</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Customize Wireshark Profiles</h3>
+      <p class="ch-card-desc">Profile overview, creating and managing profiles, what each profile stores, sharing profiles with teams.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">8 Q</span>
+        <span class="pill-f">3 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-11-customize-profiles/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-11-customize-profiles/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch12-annotate" data-chkkeys="chk-comments,chk-saving,chk-export,chk-print">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 12</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Annotate, Save, Export and Print</h3>
+      <p class="ch-card-desc">Packet comments, saving captures (.pcapng vs .pcap), export options, marking packets and printing to PDF.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">6 Q</span>
+        <span class="pill-f">6 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-12-annotate-export/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-12-annotate-export/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch13-expert" data-chkkeys="chk-expertoverview,chk-severity,chk-eventgroups,chk-expertfilters">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 13</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Use Wireshark's Expert System</h3>
+      <p class="ch-card-desc">Expert Information overview, severity levels (Error/Warning/Note/Chat), event groups, filtering expert conditions.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">5 Q</span>
+        <span class="pill-f">5 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-13-expert-system/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-13-expert-system/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="group-block" data-group="protocols">
+  <div class="group-header">
+    <span class="group-eyebrow">Chapters 14–20</span>
+    <span class="group-title">Core Protocol Analysis</span>
+    <span class="group-count">7 chapters · 35 sections</span>
+  </div>
+  <div class="hub-grid">
+    <div class="ch-card" data-pagekey="ws-ch14-tcpip" data-chkkeys="chk-stack,chk-resolution,chk-process,chk-casestudy">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 14</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">TCP/IP Analysis Overview</h3>
+      <p class="ch-card-desc">Protocol stack layers, address resolution chain (DNS → ARP → TCP), analysis workflow, case study.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">3 Q</span>
+        <span class="pill-f">3 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-14-tcp-ip-overview/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-14-tcp-ip-overview/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch15-dns" data-chkkeys="chk-purpose,chk-queries,chk-problems,chk-structure,chk-filtering,chk-casestudy">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 15</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze DNS Traffic</h3>
+      <p class="ch-card-desc">DNS purpose, recursive queries, DNS problems and error codes, packet structure, display filters.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">8 Q</span>
+        <span class="pill-f">11 files</span>
+        <span class="pill-s">6 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-15-dns/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-15-dns/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch16-arp" data-chkkeys="chk-purpose,chk-normal,chk-gratuitous,chk-problems,chk-filtering">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 16</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze ARP Traffic</h3>
+      <p class="ch-card-desc">ARP purpose, normal ARP exchanges, Gratuitous ARP, ARP problems (duplicate IPs, poisoning), filters.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">4 Q</span>
+        <span class="pill-f">4 files</span>
+        <span class="pill-s">5 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-16-arp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-16-arp/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch17-ip" data-chkkeys="chk-ipv4-header,chk-fragmentation,chk-dscp,chk-ipv6,chk-ip-filtering">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 17</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze IP (IPv4/IPv6) Traffic</h3>
+      <p class="ch-card-desc">IPv4 header fields, IP fragmentation, DSCP QoS marking, IPv6 basics, IP display filters.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">10 Q</span>
+        <span class="pill-f">13 files</span>
+        <span class="pill-s">5 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-17-ip-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-17-ip-traffic/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch18-icmp" data-chkkeys="chk-purpose,chk-types,chk-ping,chk-traceroute,chk-icmpv6">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 18</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze ICMP Traffic</h3>
+      <p class="ch-card-desc">ICMP message types, ping analysis, traceroute mechanics, Destination Unreachable codes, ICMPv6.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">8 Q</span>
+        <span class="pill-f">8 files</span>
+        <span class="pill-s">5 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-18-icmp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-18-icmp/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch19-udp" data-chkkeys="chk-structure,chk-applications,chk-problems,chk-filtering">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 19</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze UDP Traffic</h3>
+      <p class="ch-card-desc">UDP 8-byte header, common UDP applications (DNS, DHCP, RTP), UDP problems and port unreachable.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">6 Q</span>
+        <span class="pill-f">6 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-19-udp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-19-udp/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch20-tcp" data-chkkeys="chk-header,chk-handshake,chk-sequence,chk-windowing,chk-problems,chk-teardown">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 20</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze TCP Traffic</h3>
+      <p class="ch-card-desc">TCP header fields, three-way handshake, sequence numbers, flow control, TCP problems, FIN/RST teardown.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">11 Q</span>
+        <span class="pill-f">11 files</span>
+        <span class="pill-s">6 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-20-tcp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-20-tcp/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="group-block" data-group="approtocols">
+  <div class="group-header">
+    <span class="group-eyebrow">Chapters 21–28</span>
+    <span class="group-title">Application Protocol Analysis</span>
+    <span class="group-count">8 chapters · 32 sections</span>
+  </div>
+  <div class="hub-grid">
+    <div class="ch-card" data-pagekey="ws-ch21-iographs" data-chkkeys="chk-iooverview,chk-iocustomize,chk-tcpgraphs,chk-graphreading">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 21</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Graph IO Rates and TCP Trends</h3>
+      <p class="ch-card-desc">IO Graphs overview, multi-line graph customization, TCP Stream Graphs (RTT, throughput, time-sequence).</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">10 Q</span>
+        <span class="pill-f">11 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-21-io-graphs/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-21-io-graphs/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch22-dhcp" data-chkkeys="chk-dora,chk-header,chk-options,chk-troubleshoot">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 22</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze DHCP Traffic</h3>
+      <p class="ch-card-desc">DORA process, DHCP header fields (xid, yiaddr, giaddr), DHCP options, DHCPv6, troubleshooting failures.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">7 Q</span>
+        <span class="pill-f">7 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-22-dhcp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-22-dhcp/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch23-http" data-chkkeys="chk-httprequest,chk-methods,chk-httpheaders,chk-http2">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 23</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze HTTP Traffic</h3>
+      <p class="ch-card-desc">Request/response structure, methods and status codes, key headers (Authorization, Set-Cookie), HTTP/2.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">11 Q</span>
+        <span class="pill-f">11 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-23-http/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-23-http/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch24-ftp" data-chkkeys="chk-ftpoverview,chk-activevpassive,chk-ftpcommands,chk-ftpanalysis">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 24</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze FTP Traffic</h3>
+      <p class="ch-card-desc">FTP control/data channels, active vs passive mode, FTP commands and response codes, file extraction.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">7 Q</span>
+        <span class="pill-f">7 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-24-ftp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-24-ftp/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch25-email" data-chkkeys="chk-smtp,chk-pop3,chk-imap,chk-emailanalysis">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 25</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze Email Traffic</h3>
+      <p class="ch-card-desc">SMTP sending commands, POP3 retrieval, IMAP sync model, credential exposure, email forensics (.eml export).</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">7 Q</span>
+        <span class="pill-f">7 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-25-email/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-25-email/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch26-wlan" data-chkkeys="chk-wlanoverview,chk-frametypes,chk-wlanassoc,chk-wlananalysis">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 26</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">802.11 WLAN Analysis</h3>
+      <p class="ch-card-desc">802.11 frame types, monitor mode, association process, 4-Way Handshake, WLAN troubleshooting and decryption.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">8 Q</span>
+        <span class="pill-f">7 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-26-wlan/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-26-wlan/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch27-voip" data-chkkeys="chk-voipstack,chk-sipflow,chk-rtp,chk-voiptools">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 27</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">VoIP Analysis</h3>
+      <p class="ch-card-desc">SIP + RTP protocol stack, SIP call flow, RTP quality metrics (loss/jitter/latency), Wireshark VoIP playback tools.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">6 Q</span>
+        <span class="pill-f">2 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-27-voip/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-27-voip/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch28-baseline" data-chkkeys="chk-whybaseline,chk-whatbaseline,chk-normalmetrics,chk-capturingbaseline">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 28</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Baseline 'Normal' Traffic Patterns</h3>
+      <p class="ch-card-desc">Why baseline, what to measure, normal traffic metric ranges, capturing and documenting baselines.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">18 Q</span>
+        <span class="pill-f">5 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-28-baseline-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-28-baseline-traffic/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="group-block" data-group="security">
+  <div class="group-header">
+    <span class="group-eyebrow">Chapters 29–33</span>
+    <span class="group-title">Security and Performance</span>
+    <span class="group-count">5 chapters · 20 sections</span>
+  </div>
+  <div class="hub-grid">
+    <div class="ch-card" data-pagekey="ws-ch29-performance" data-chkkeys="chk-topcauses,chk-latency,chk-packetloss,chk-slowserver">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 29</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Top Causes of Performance Problems</h3>
+      <p class="ch-card-desc">Five root causes, measuring network RTT vs server response time, packet loss analysis, slow server detection.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">12 Q</span>
+        <span class="pill-f">12 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-29-performance-problems/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-29-performance-problems/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch30-forensics" data-chkkeys="chk-forensicsoverview,chk-preservation,chk-reconstruction,chk-attackerid">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 30</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Network Forensics Overview</h3>
+      <p class="ch-card-desc">Forensics methodology, evidence preservation and chain of custody, session reconstruction, attacker identification.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">6 Q</span>
+        <span class="pill-f">6 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-30-network-forensics/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-30-network-forensics/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch31-scanning" data-chkkeys="chk-scantypes,chk-tcppatterns,chk-osfingerprint,chk-scandetect">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 31</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Detect Network Scanning</h3>
+      <p class="ch-card-desc">Port scan types (SYN/FIN/Xmas/Null/ACK), TCP scan signatures, OS fingerprinting, identifying scanners in Wireshark.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">13 Q</span>
+        <span class="pill-f">13 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-31-network-scanning/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-31-network-scanning/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch32-suspect" data-chkkeys="chk-malwareindicators,chk-botnet,chk-exfiltration,chk-dnsanomalies">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 32</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Analyze Suspect Traffic</h3>
+      <p class="ch-card-desc">Malware beaconing patterns, botnet C2 traffic, data exfiltration signatures, DNS anomalies and tunneling.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">13 Q</span>
+        <span class="pill-f">14 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-32-suspect-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-32-suspect-traffic/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+    <div class="ch-card" data-pagekey="ws-ch33-cmdline" data-chkkeys="chk-tshark,chk-tsharkfilters,chk-editcapmergecap,chk-capinfodumpcap">
+      <div class="ch-card-top">
+        <span class="ch-num">Chapter 33</span>
+        <div class="ch-progress-dots"></div>
+      </div>
+      <h3 class="ch-card-title">Command Line Tools</h3>
+      <p class="ch-card-desc">tshark capture and field extraction, tshark statistics, editcap (split/convert), mergecap, capinfos, dumpcap.</p>
+      <div class="ch-card-meta">
+        <span class="pill-q">4 Q</span>
+        <span class="pill-f">3 files</span>
+        <span class="pill-s">4 sections</span>
+      </div>
+      <div class="ch-card-links">
+        <a href="HTML Files/chapter-33-command-line-tools/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
+        <a href="HTML Files/chapter-33-command-line-tools/index.html" class="ch-link-pr">❓ Practice →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p id="no-results">No chapters match your search.</p>
 </main>
 
 <footer>
   <div>Wireshark® Network Analysis 2nd Ed · Laura Chappell · Chappell University</div>
-  <div>Chapter Index</div>
+  <div>Study &amp; Practice Hub</div>
 </footer>
 
 <script>
-var activeGroup = 'all';
+const CHAPTER_CARDS = document.querySelectorAll('.ch-card[data-pagekey]');
 
-function setGroup(g, btn) {
-  activeGroup = g;
-  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  filterCards(document.getElementById('search').value);
+function renderDots(card) {
+  const pk = card.dataset.pagekey;
+  const cks = card.dataset.chkkeys;
+  const dotsEl = card.querySelector('.ch-progress-dots');
+  if (!pk || !cks || !dotsEl) return;
+  const keys = cks.split(',').filter(Boolean);
+  dotsEl.innerHTML = '';
+  keys.forEach(function(k) {
+    const d = document.createElement('span');
+    d.className = 'dot' + (localStorage.getItem(pk + '-' + k) === '1' ? ' done' : '');
+    dotsEl.appendChild(d);
+  });
+}
+
+function updateOverallProgress() {
+  let total = 0, done = 0;
+  CHAPTER_CARDS.forEach(function(card) {
+    const pk = card.dataset.pagekey;
+    const cks = card.dataset.chkkeys;
+    if (!pk || !cks) return;
+    cks.split(',').filter(Boolean).forEach(function(k) {
+      total++;
+      if (localStorage.getItem(pk + '-' + k) === '1') done++;
+    });
+  });
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const fill = document.getElementById('overall-fill');
+  const count = document.getElementById('overall-count');
+  const statDone = document.getElementById('stat-done');
+  if (fill) fill.style.width = pct + '%';
+  if (count) count.textContent = done + ' / ' + total + ' sections';
+  if (statDone) statDone.textContent = done;
 }
 
 function filterCards(q) {
-  var lq = q.toLowerCase().trim();
-  var headers = document.querySelectorAll('.group-header');
-  var cards = document.querySelectorAll('.ch-btn');
-  var visible = 0;
-
-  // Hide/show group headers
-  headers.forEach(function(h) {
-    var g = h.dataset.group;
-    h.style.display = (activeGroup === 'all' || activeGroup === g) ? '' : 'none';
+  const lq = q.toLowerCase().trim();
+  let visible = 0;
+  document.querySelectorAll('.ch-card').forEach(function(c) {
+    const match = !lq || c.textContent.toLowerCase().includes(lq);
+    c.style.display = match ? '' : 'none';
+    if (match) visible++;
   });
-
-  // Hide/show cards
-  cards.forEach(function(c) {
-    var g = c.dataset.group;
-    var title = c.dataset.title.toLowerCase();
-    var num = c.querySelector('.ch-number').textContent;
-    var groupMatch = activeGroup === 'all' || activeGroup === g;
-    var textMatch = !lq || title.includes(lq) || num.includes(lq) || c.textContent.toLowerCase().includes(lq);
-    var show = groupMatch && textMatch;
-    c.style.display = show ? '' : 'none';
-    if (show) visible++;
+  document.querySelectorAll('.group-block').forEach(function(g) {
+    const anyVisible = [...g.querySelectorAll('.ch-card')].some(c => c.style.display !== 'none');
+    g.style.display = anyVisible ? '' : 'none';
   });
-
-  // Hide group headers with no visible children
-  headers.forEach(function(h) {
-    if (h.style.display === 'none') return;
-    var g = h.dataset.group;
-    var anyVisible = false;
-    cards.forEach(function(c){ if (c.dataset.group === g && c.style.display !== 'none') anyVisible = true; });
-    h.style.display = anyVisible ? '' : 'none';
-  });
-
-  document.getElementById('no-results').style.display = visible ? 'none' : 'block';
-  document.getElementById('result-count').textContent = visible + ' chapter' + (visible !== 1 ? 's' : '');
+  const nr = document.getElementById('no-results');
+  if (nr) nr.style.display = visible ? 'none' : 'block';
 }
 
-// Page transitions
-document.querySelectorAll('a[href]').forEach(function(a) {
-  if (a.href && !a.href.startsWith('#')) {
-    a.addEventListener('click', function(e) {
-      sessionStorage.setItem('pt','1');
-      document.body.style.opacity = '0';
-      document.body.style.transition = 'opacity .22s';
-      setTimeout(function(){ window.location = a.href; }, 220);
-      e.preventDefault();
-    });
-  }
+function initPT() {
+  document.querySelectorAll('a[href]').forEach(function(a) {
+    if (a.href && !a.href.startsWith('#') && a.target !== '_blank') {
+      a.addEventListener('click', function(e) {
+        sessionStorage.setItem('pt', '1');
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity .22s';
+        setTimeout(function() { window.location = a.href; }, 220);
+        e.preventDefault();
+      });
+    }
+  });
+  setTimeout(function() {
+    document.body.style.transition = 'opacity .3s';
+    document.body.style.opacity = '1';
+  }, 10);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  CHAPTER_CARDS.forEach(function(card) { renderDots(card); });
+  updateOverallProgress();
+  initPT();
 });
-setTimeout(function(){ document.body.style.transition = 'opacity .3s'; document.body.style.opacity = '1'; }, 10);
 </script>
 </body>
 </html>

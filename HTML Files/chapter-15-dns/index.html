@@ -183,6 +183,12 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 .model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
 .model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
 
+.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
+.nav-sg-link:hover{color:var(--blue-deep);}
+.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
+.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
+.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
+@media(max-width:640px){.chapter-nav{padding:14px 20px;gap:10px;}.chapter-nav-btn{font-size:11px;padding:8px 14px;}}
 </style>
 </head>
 <body>
@@ -190,7 +196,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 <header>
   <div class="header-left">
     <div class="breadcrumb">
-      <a href="../index.html">Wireshark Practice Hub</a>
+      <a href="../../index.html">Wireshark Practice Hub</a>
       <span class="breadcrumb-sep">›</span>
       Chapter 15
     </div>
@@ -234,6 +240,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   <button class="nav-tab active" data-target="sec-files" onclick="navTo('sec-files')">📁 Trace Files</button>
   <button class="nav-tab" data-target="sec-questions" onclick="navTo('sec-questions')">❓ Questions</button>
   <button class="nav-tab" data-target="sec-tools" onclick="navTo('sec-tools')">🛠 Notes</button>
+  <a href="study-guide.html" class="nav-sg-link">📖 Study Guide →</a>
 </nav>
 
 <main>
@@ -503,6 +510,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
       </div>
 </aside>
 </main>
+
+<div class="chapter-nav">
+  <a href="../chapter-14-tcp-ip-overview/index.html" class="chapter-nav-btn">← Ch 14 · TCP/IP Overview</a>
+  <a href="../chapter-16-arp/index.html" class="chapter-nav-btn">Ch 16 · ARP →</a>
+</div>
 
 <footer>
   <div>Chapter 15 · Analyze Domain Name System (DNS) Traffic</div>
