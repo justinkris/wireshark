@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 19: Analyze UDP Traffic | Wireshark Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
+  --border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{color:var(--blue);text-decoration:none;}
+header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-right:1px solid var(--border);}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
+.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
+.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-green strong{color:var(--green);}
+.callout-red strong{color:var(--red);}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
+.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
+.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
+.step-block p:last-child{margin-bottom:0;}
+.step-block ul{padding-left:18px;margin:6px 0;}
+.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
+.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
+.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
+.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
+.insight-block:not(.ins-open) .ins-body{display:none;}
+.ins-icon{font-size:17px;flex-shrink:0;}
+.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
+.ins-body{padding:0 20px 18px;}
+.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
+.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.ins-ta:focus{border-color:var(--blue);}
+.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-save-ins:hover:not(:disabled){opacity:.85;}
+.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
+.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-hint-ins:hover{background:var(--amber-light);}
+.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
+.btn-model-ins:not(:disabled):hover{opacity:.85;}
+.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.ins-hint-box .hm-label{color:var(--amber);}
+.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.ins-model-box .hm-label{color:var(--blue);}
+.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
+.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
+.fig-ph-icon{font-size:36px;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-trace{color:var(--blue);font-style:italic;}
+.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
+.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
+.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
+.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.cs-body ul{padding-left:20px;margin:8px 0 14px;}
+.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
+.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
+.cs-ph-icon{font-size:40px;display:block;}
+.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
+.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
+.btn-cs-prompt:hover{color:var(--blue);}
+.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
+.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
+.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
+.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
+.tldr-block p+p{margin-top:10px;}
+.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
+.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
+.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
+.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
+.rq-ta:focus{border-color:var(--blue);}
+.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-save:hover:not(:disabled){opacity:.85;}
+.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
+.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-hint:hover{background:var(--amber-light);}
+.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
+.btn-rq-ans:not(:disabled):hover{opacity:.85;}
+.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.rq-hint-box .hm-label{color:var(--amber);}
+.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
+.rq-hint-box p:last-child{margin-bottom:0;}
+.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.rq-ans-box .hm-label{color:var(--blue);}
+.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.rq-ans-box p:last-child{margin-bottom:0;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
+.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
+.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
+.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+  .practice-cta{padding:36px 20px;}
+  .btn-practice-cta{font-size:15px;padding:16px 32px;}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="header-left">
+<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 19<span class="breadcrumb-sep">›</span>Full Study Guide</div>
+<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 19</div>
+<h1>Analyze User Datagram Protocol <em>(UDP) Traffic</em></h1>
+<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
+</div>
+</header>
+<div class="motivation-banner">
+<div class="motivation-text"> <em>UDP is deceptively simple — and that simplicity is exactly why it's used for DNS, DHCP, VoIP, and more.</em></div>
+<p class="motivation-sub">When you understand UDP, you understand why most broadcast and real-time traffic bypasses TCP entirely.</p>
+</div>
+<div class="top-panels">
+<div class="qpanel">
+<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+<span class="qpanel-title">MY QUESTIONS</span>
+<span class="qpanel-count" id="qpanel-count">0</span>
+<span class="qpanel-hint">— click to expand</span>
+<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+</button>
+<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+</div>
+<div class="notes-panel">
+<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+<span class="notes-panel-title">MY NOTES</span>
+<span class="notes-panel-count" id="notes-panel-count">0</span>
+<span class="notes-panel-hint">— click to expand</span>
+<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+</button>
+<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+</div>
+</div>
+<nav class="section-nav">
+<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of UDP</button><button class="nav-tab" data-target="sec-normal" onclick="navTo('sec-normal')">Normal UDP Traffic</button><button class="nav-tab" data-target="sec-problems" onclick="navTo('sec-problems')">UDP Problems</button><button class="nav-tab" data-target="sec-structure" onclick="navTo('sec-structure')">UDP Packet Structure</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Filters & Case Study</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+</nav>
+<main>
+<div class="main-content">
+<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF UDP</span></div><div class="ins-body"><p class="ins-q">UDP and TCP are both transport protocols at Layer 4 — but they make opposite tradeoffs. If you had to choose between guaranteed delivery and low overhead, when would each choice be appropriate? What kind of applications would fail with TCP but work fine with UDP?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Consider: real-time audio/video, DNS queries, online gaming, DHCP. What happens if a VoIP audio packet arrives 2 seconds late? What if a DNS query packet gets retransmitted?</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>UDP wins when: latency matters more than reliability (VoIP — a late audio packet is useless), when the application handles its own reliability (TFTP, QUIC), when the overhead of TCP handshakes is unacceptable (DNS queries — faster to resend than to do a three-way handshake), or for one-to-many delivery (DHCP broadcasts, video multicast). TCP's handshake overhead (3 packets before data) and retransmission delays are dealbreakers for real-time apps. A VoIP call with TCP retransmissions would stutter badly — better to drop the packet and play silence.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of UDP</h2><p>If you capture a trace of broadcast/multicast traffic you already have a lot of UDP-based communications. UDP provides for <strong>connectionless transport services</strong>. Broadcast and multicast traffic flows over UDP. The UDP header port fields identify the application using the transport. Because UDP uses a simple 8-byte header that consists of four fields, UDP itself rarely experiences much trouble. UDP is defined in RFC 768.</p><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig218-udp-stack.png" alt="Figure 218: UDP offers connectionless transport service — operating at Layer 4 above IP and below application protocols" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 218 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 218.</strong> UDP offers connectionless transport service — operating at Layer 4 above IP and below application protocols </div></div><p>Common applications that use UDP are DHCP/BOOTP, SIP, RTP, DNS, TFTP, and various streaming video applications.</p><div class="callout callout-blue"><strong>UDP IS BORING — AND THAT'S GOOD</strong><p>As Laura Chappell writes in this chapter: "UDP is relatively boring compared to the exciting, complex world of TCP." UDP problems are simple: either the port is blocked (firewall) or the UDP traffic generates an ICMP Destination Unreachable/Port Unreachable response. There's no connection state, no retransmission, no window management to troubleshoot.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">UDP = connectionless, no guaranteed delivery, no ordering, no retransmission. 8-byte header (4 fields only). RFC 768. Best for: real-time (VoIP/video), DNS, DHCP, SNMP, multicast. Applications handle their own reliability or accept loss. No TCP handshake overhead.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of UDP')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-normal"><div class="insight-hdr" onclick="toggleInsight('ins-normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL UDP TRAFFIC</span></div><div class="ins-body"><p class="ins-q">Normal UDP communications use destination port numbers to identify the target application. DNS typically uses port 53, DHCP uses 67/68, NTP uses 123. Most applications use a temporary (ephemeral) port number for the client side. What determines the range of ephemeral port numbers, and how does this affect filtering?</p><textarea class="ins-ta" data-key="ins-normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-normal" onclick="saveIns('ins-normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-normal" onclick="toggleInsModel('ins-normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-normal" style="display:none"><div class="hm-label">HINT</div><p>Consider: if you want to capture only DNS queries (from clients TO servers), which port and direction would you filter on? How does the ephemeral port make client-side filtering harder?</p></div><div class="ins-model-box" id="model-ins-normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Ephemeral (temporary) port numbers are assigned by the OS for each new connection and released when communication ends. Ranges vary by OS: Windows typically uses 49152-65535, Linux uses 32768-60999. Filtering on destination port 53 catches DNS queries (clients sending to servers). Filtering on source port 53 catches DNS responses (servers responding to clients). The ephemeral source port on clients changes each transaction, making it impractical to filter on client source ports. Use <code>udp.dstport==53</code> for queries and <code>udp.srcport==53</code> for responses, or just <code>udp.port==53</code> for both.</p></div></div></div><div class="section-block" id="sec-normal"><h2>Analyze Normal UDP Traffic</h2><p>Normal UDP communications, such as DHCP Discover packets, are sent with the destination port number of the desired service. DHCP uses UDP as the transport protocol — port 68 for the client and port 67 for the server. Figure 219 shows the UDP header in a DHCP packet.</p><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig219-udp-dhcp.png" alt="Figure 219: A UDP-based DHCP startup sequence — the UDP header is only 8 bytes long, containing only source and destination port, length, and checksum [dhcp-boot.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 219 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 219.</strong> A UDP-based DHCP startup sequence — the UDP header is only 8 bytes long, containing only source and destination port, length, and checksum [dhcp-boot.pcapng] <span class="fig-trace">[dhcp-boot.pcapng]</span></div></div><p>Most applications use an ephemeral (temporary) port number for the client side of the communications. For example, a DNS query is typically sent to port 53. The source port is a temporary number assigned for this communication only. For more information on DHCP communications, refer to Chapter 22.</p><div class="callout callout-green"><strong>COMMON UDP PORT NUMBERS</strong><p>DNS: 53 | DHCP server: 67 | DHCP client: 68 | TFTP: 69 | NTP: 123 | SNMP: 161/162 | NetBIOS Name: 137 | RTP (VoIP): dynamic (usually 16384-32767) | SIP: 5060 | Teredo: 3544</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">UDP destination port = server application. Source port = ephemeral (temporary, client-side). DNS: port 53. DHCP: 67 (server) + 68 (client). SNMP: 161. NTP: 123. Filter: udp.dstport==53 (queries) vs udp.srcport==53 (responses). Wireshark shows port name if in services file.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal UDP Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-problems"><div class="insight-hdr" onclick="toggleInsight('ins-problems')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · UDP PROBLEMS</span></div><div class="ins-body"><p class="ins-q">There are very few problems that occur directly with UDP itself — but port-based firewalls can cause UDP to appear broken. When a firewall blocks UDP traffic, it may silently discard the packets. How can you tell the difference between a silent firewall drop and a service that simply isn't running?</p><textarea class="ins-ta" data-key="ins-problems" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-problems" onclick="saveIns('ins-problems')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-problems')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-problems" onclick="toggleInsModel('ins-problems')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-problems" style="display:none"><div class="hm-label">HINT</div><p>Think about what response you'd expect if the UDP port is blocked by a firewall vs. if the port is simply closed (no process listening). What ICMP message would each scenario generate — or not generate?</p></div><div class="ins-model-box" id="model-ins-problems" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Service not running: generates ICMP Destination Unreachable, Port Unreachable (Type 3, Code 3) — the host tells you the port isn't open. Firewall silently dropping: NO response at all — the UDP packet disappears. You'll see your UDP requests striped in the trace (if using Wireshark colorization) with no ICMP responses. Moving Wireshark to different network points can help determine where the silently-dropped packets are being discarded. UDP scans are visible as "striping" — alternating UDP requests and ICMP Port Unreachable responses.</p></div></div></div><div class="section-block" id="sec-problems"><h2>Analyze UDP Problems</h2><p>There are very few problems that can occur directly with UDP. One potential problem is blocked traffic based on the UDP port number value.</p><p>Figure 220 shows the results of capturing UDP traffic on a network that consists of a firewall that does not forward traffic sent to certain port numbers. In this case, the firewall is blocking traffic to ports 161 (SNMP) and 5060 (SIP). Rather than responding with ICMP Destination Unreachable/Port Unreachable (Type 3/Code 3) packets, the firewall silently discards the packets. Your trace file only shows the UDP traffic — no responses.</p><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig220-udp-firewall.png" alt="Figure 220: The lack of responses is caused by a port filtering firewall — UDP packets are sent but no ICMP Port Unreachable responses are received [udp-snmpportblock.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 220 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 220.</strong> The lack of responses is caused by a port filtering firewall — UDP packets are sent but no ICMP Port Unreachable responses are received [udp-snmpportblock.pcapng] <span class="fig-trace">[udp-snmpportblock.pcapng]</span></div></div><div class="callout callout-red"><strong>SILENT FIREWALL DROP vs PORT CLOSED</strong><p><strong>Port closed (no service)</strong>: host sends ICMP Type 3, Code 3 (Port Unreachable) — you'll see alternating UDP requests and ICMP responses in Wireshark (striping).<br><strong>Firewall silently drops</strong>: no ICMP response — only the UDP requests appear in the trace. This makes UDP troubleshooting harder because there's no explicit rejection signal.</p></div><p>UDP scans are evident when you see the striping of UDP packets and ICMP Port Unreachable responses using Wireshark's default coloring rules. Figure 221 shows a UDP scan targeting 192.168.1.123 — the UDP scan has not located an open UDP port yet as each UDP packet has triggered an ICMP Destination Unreachable/Port Unreachable response.</p><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig221-udp-pentest.png" alt="Figure 221: A UDP scan triggers a series of ICMP Destination Unreachable/Port Unreachable responses [udp-pentest.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 221 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 221.</strong> A UDP scan triggers a series of ICMP Destination Unreachable/Port Unreachable responses [udp-pentest.pcapng] <span class="fig-trace">[udp-pentest.pcapng]</span></div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">UDP problem #1: port blocked by firewall → no ICMP response, UDP request disappears. UDP problem #2: port closed → ICMP Type 3 Code 3 (Port Unreachable). UDP scan: alternating UDP + ICMP Port Unreachable = striping. Silent discard = firewall. ICMP Port Unreachable = service not running.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','UDP Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-structure"><div class="insight-hdr" onclick="toggleInsight('ins-structure')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · UDP PACKET STRUCTURE</span></div><div class="ins-body"><p class="ins-q">The UDP header is only 8 bytes — just source port, destination port, length, and checksum. Why does UDP include a Length field when the IP header already contains a Total Length field? And why is the UDP checksum optional (0x0000) in some implementations?</p><textarea class="ins-ta" data-key="ins-structure" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-structure" onclick="saveIns('ins-structure')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-structure')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-structure" onclick="toggleInsModel('ins-structure')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-structure" style="display:none"><div class="hm-label">HINT</div><p>Think about what information you'd need to find where the UDP payload starts and ends. Also consider: if checksums are optional, what protection does a UDP datagram have against corruption?</p></div><div class="ins-model-box" id="model-ins-structure" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The Length field IS redundant with IP Total Length, but it allows the UDP layer to calculate payload size without examining the IP header — keeping layers independent. The checksum is "optional" in IPv4 UDP (a value of 0x0000 means not computed) because the application may not need the overhead or may handle its own error checking. When 0x0000: the recipient shouldn't validate it. In practice, most modern OS implementations do compute UDP checksums. IPv6 makes UDP checksums mandatory (no 0x0000 allowed). UDP's only real protection otherwise is Ethernet CRC — which is stripped before delivery to UDP.</p></div></div></div><div class="section-block" id="sec-structure"><h2>Dissect the UDP Packet Structure</h2><p>The UDP header is defined with the value 17 (0x11) in the IP header Protocol field. The UDP header only contains four fields and is always 8 bytes long.</p><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig222-udp-header.png" alt="Figure 222: The UDP header is only 8 bytes long — source port, destination port, length, and checksum [dns-misc.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 222 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 222.</strong> The UDP header is only 8 bytes long — source port, destination port, length, and checksum [dns-misc.pcapng] <span class="fig-trace">[dns-misc.pcapng]</span></div></div><h3>Source Port Field</h3><p>The source port field has the same purpose in TCP and UDP — to open a listening port for response packets, and in some cases, define the application or protocol that is sending the packet.</p><h3>Destination Port Field</h3><p>This field value defines the destination application or process for the packet. In some instances the source and destination port numbers are the same for client and server processes. In other instances, you may find a separate and unique number for the client and server process (as in the case of DHCP). Still another variation is to allow the client to use temporary port numbers for their side of the communications and a well-known port number for the server side of the communications.</p><h3>Length Field</h3><p>The length field defines the length of the packet from the UDP header to the end of valid data (not including any data link padding). This is a redundant field — you can calculate it from the IP Total Length field. However, it allows the UDP layer to determine payload size independently of the IP layer. Consider the following three length fields:</p><ul><li>IP Header Length = 5 (denoted in 4-byte increments) → IP header is 20 bytes long</li><li>IP Total Length Field = 329 bytes</li><li>The data after the IP header is 309 bytes (329-20). The UDP length field should also be 309 bytes (including the 8-byte UDP header).</li></ul><h3>Checksum Field</h3><p>The checksum is performed on the contents of the UDP header (except the checksum field itself), the data, and a pseudoheader derived from the IP header. The pseudoheader contains: source IP, destination IP, protocol field, and UDP length field.</p><p>UDP-based communications do not always require a checksum — sometimes you will see this field set to all zeros (0x0000) which tells the recipient that the checksum should not be validated. UDP checksums are optional in IPv4 but mandatory in IPv6.</p><div class="callout callout-blue"><strong>UDP LENGTH FIELD CALCULATION</strong><p>UDP Length Field = UDP header (8 bytes) + UDP payload. If IP Total Length is 329 and IP header is 20 bytes, the UDP segment is 309 bytes. Subtract the 8-byte UDP header and you know there are 301 bytes of actual data payload. This can help identify unusual packet sizes or potential padding issues.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">UDP header: 4 fields, always 8 bytes. Source port + Dest port + Length + Checksum. Checksum optional in IPv4 (0x0000 = not computed). Checksum mandatory in IPv6. Length field = UDP header + payload (redundant with IP Total Length but useful for layer independence). IP Protocol 17 = UDP.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-structure" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('structure','UDP Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-structure" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('structure')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-filters"><h2>Filter on UDP Traffic — Case Study</h2><h3>UDP Display Filters</h3><p>The capture filter for UDP traffic is simply <code>udp</code>. The display filter syntax is also <code>udp</code>.</p><div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:12px 0;font-family:'SF Mono',monospace;font-size:12px;line-height:2;"><b style="color:var(--blue)">udp.srcport==161</b> — SNMP response (port 161)<br><b style="color:var(--blue)">udp.dstport==137</b> — NetBIOS Name Service<br><b style="color:var(--blue)">udp.length &gt; 248</b> — UDP packets &gt;240 data bytes (8 byte header)<br><b style="color:var(--blue)">udp.port==53</b> — DNS traffic (client + server)<br><b style="color:var(--blue)">udp.port==123</b> — NTP traffic<br><b style="color:var(--blue)">udp && !icmp</b> — UDP traffic without associated ICMP errors<br></div><h3>Case Study: Troubleshooting Time Synchronization</h3><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C19-CS1.png" alt="Troubleshooting Time Synchronization" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C19-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C19-CS1.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network engineer at an ESU Seattle branch office sits at a computer with a Wireshark capture showing NTP traffic (UDP port 123). The capture shows NTP packets going to the correct server but taking an unexpected route — they bypass the nearest switch and go to a firewall instead. A network diagram on the whiteboard shows the NTP server with an incorrectly configured default gateway pointing to the firewall instead of the local network. The engineer is on the phone with a Cisco TAC engineer. Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 1</div><div class="cs-title">Troubleshooting Time Synchronization</div><div class="cs-sub"><em>Submitted by: Delfino L. Tiongco, ESU Seattle Networks Branch</em></div><div class="cs-body"><p>I was asked to troubleshoot a switch that was not getting updates from our NTP (Network Time Protocol) server. Further investigation revealed that a few routers and switches were also not synchronizing with the NTP server.</p><p>I opened a Technical Assistance Center (TAC) case with Cisco and we went to troubleshoot the issue.</p><p>We found out that all NTP traffic (<code>udp.port==123</code>) was being forwarded by the router to the NTP server before the last switch. So it was <em>not</em> a Cisco routing issue.</p><p>I started using Wireshark to determine where the traffic from the NTP server was going.</p><p>To my surprise, the next hop for the Layer 2 traffic from the NTP server was going to the firewall instead of the nearest switch and router. The NTP server was not configured with our default gateway. Reconfiguring the NTP server fixed the problem.</p><p>So, again — Wireshark to the rescue!</p></div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">UDP filter: udp. Specific ports: udp.port==53 (DNS), udp.port==67 (DHCP server), udp.port==123 (NTP). UDP capture filter: udp. UDP problems most commonly: firewall blocking (no response) or service not running (ICMP Port Unreachable). Wireshark's UDP port display uses the services file for port name resolution.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filters','Filters & Case Study')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filters')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 19</h3><p>UDP offers connectionless transport services. The UDP header itself is a simple 8-byte header primarily used to define the port number of the services supported. The checksum field in the UDP header may not even be used.</p><p>When a target does not support services on the desired port, the target responds with an ICMP Destination Unreachable/Port Unreachable response.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q19.1</div><div class="rq-q">What is the purpose of UDP?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Focus on what UDP provides and what it deliberately omits — and why that makes it useful for certain applications.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>UDP provides for <strong>connectionless transport services</strong>. The UDP header identifies the application using the transport in the port fields. UDP does not guarantee delivery, ordering, or error recovery — it provides best-effort delivery only. Applications that need reliability must implement their own mechanisms. UDP is preferred for: real-time applications (VoIP, video streaming) where latency matters more than reliability, DNS queries where the overhead of TCP handshakes is too high, DHCP where broadcasts must be used, and multicast/broadcast delivery where TCP's point-to-point design doesn't apply.</p></div></div><div class="rq-card"><div class="rq-num">Q19.2</div><div class="rq-q">How does a UDP-based application recover from packet loss?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>UDP has no built-in retransmission mechanism — so where does recovery come from?</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>UDP itself is connectionless so it <strong>cannot help recover from packet loss</strong>. Applications must use their own retransmission process including timeout value and retry count value. Examples: DNS resends a query if no response is received within a timeout. TFTP uses its own acknowledgment and retransmission mechanism per 512-byte block. Some applications (like VoIP) choose not to recover at all — they simply drop the packet and accept the audio gap, because a late retransmitted packet would arrive too late to be useful.</p></div></div><div class="rq-card"><div class="rq-num">Q19.3</div><div class="rq-q">Why would a UDP packet contain a checksum value of 0x0000?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>The UDP checksum is optional in IPv4 — when would an application or OS choose not to compute it?</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>Since the UDP checksum is optional in IPv4, this field <strong>may contain 0x0000 when UDP checksums are not used</strong>. A value of 0x0000 tells the recipient not to validate the checksum. This may be done to reduce CPU overhead on the sending host when the application trusts the lower-layer error detection (Ethernet CRC). Note that in IPv6, the UDP checksum is <strong>mandatory</strong> — you should never see 0x0000 in a UDP packet carried over IPv6. If you do see 0x0000 in an IPv6 UDP packet, it indicates a protocol violation or a bug.</p></div></div>
+</div>
+<div class="sidebar">
+<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 19 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Section Progress</h3><div class="progress-summary" id="prog-text">0 / 5 sections read</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-checklist"><label class="check-item" data-key="chk-purpose"><input type="checkbox" onchange="toggleDone(this,'chk-purpose')"> Purpose of UDP</label><label class="check-item" data-key="chk-normal"><input type="checkbox" onchange="toggleDone(this,'chk-normal')"> Normal UDP Traffic</label><label class="check-item" data-key="chk-problems"><input type="checkbox" onchange="toggleDone(this,'chk-problems')"> UDP Problems</label><label class="check-item" data-key="chk-structure"><input type="checkbox" onchange="toggleDone(this,'chk-structure')"> UDP Packet Structure</label><label class="check-item" data-key="chk-filters"><input type="checkbox" onchange="toggleDone(this,'chk-filters')"> Filters & Case Study</label></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 7 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>UDP Key Filters</h4><div class="qr-row"><span class="qr-term">udp</span><span class="qr-def">All UDP traffic</span></div><div class="qr-row"><span class="qr-term">udp.srcport==161</span><span class="qr-def">SNMP response</span></div><div class="qr-row"><span class="qr-term">udp.dstport==137</span><span class="qr-def">NetBIOS Name</span></div><div class="qr-row"><span class="qr-term">udp.length &gt; 248</span><span class="qr-def">UDP &gt;240 data bytes</span></div><div class="qr-row"><span class="qr-term">udp.port==53</span><span class="qr-def">DNS (client+server)</span></div><div class="qr-row"><span class="qr-term">udp.port==67</span><span class="qr-def">DHCP server port</span></div><div class="qr-row"><span class="qr-term">udp.port==123</span><span class="qr-def">NTP</span></div></div></div><div class="sidebar-card"><h3>Trace Files</h3><div class="trace-list">dhcp-boot.pcapng<br>dns-misc.pcapng<br>udp-echo.pcapng<br>udp-general.pcapng<br>udp-pentest.pcapng<br>udp-snmpportblock.pcapng</div></div>
+</div>
+</main>
+<div class="practice-cta">
+<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
+<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
+</div>
+<footer>
+<div>Wireshark Network Analysis — 2nd Edition</div>
+<div>Chapter 19: Analyze UDP Traffic</div>
+</footer>
+<script>
+
+const PAGE_KEY='ws-ch19-full';
+const SECTIONS={'purpose':'Purpose of UDP','normal':'Normal UDP Traffic','problems':'UDP Problems','structure':'UDP Packet Structure','filters':'Filters & Case Study','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-purpose','ins-normal','ins-problems','ins-structure'];
+const RQ_IDS=['rq1','rq2','rq3'];
+const TOTAL=7;
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
+function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
+function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  INSIGHT_IDS.forEach(function(id){
+    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+  });
+  RQ_IDS.forEach(function(id){
+    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+  });
+});
+</script>
+</body>
+</html>
