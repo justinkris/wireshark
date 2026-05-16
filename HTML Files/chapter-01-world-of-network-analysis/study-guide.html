@@ -114,6 +114,9 @@ code{background:#f0f4f8;padding:2px 6px;border-radius:4px;font-size:13px;color:#
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:40px;color:#93c5fd;text-align:center;}
 .cs-ph-icon{font-size:48px;display:block;}
 .cs-ph-sub{font-size:12px;color:#64748b;margin-top:4px;line-height:1.5;}
+.cs-img-inline{margin:12px 0 16px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;}
+.cs-img-inline .cs-img-wrap{background:#1e293b;min-height:160px;}
+.cs-img-inline .cs-prompt-row{padding:8px 14px;border-top:1px solid #e2e8f0;background:#f8fafc;}
 .cs-prompt-row{padding:10px 16px;border-top:1px solid #e2e8f0;background:#f8fafc;}
 .btn-prompt{background:none;border:none;font-size:12px;color:#64748b;cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-prompt:hover{color:#1a6dcc;}
@@ -814,6 +817,21 @@ footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8;border-top:1p
     <div class="cs-eyebrow">Case Study 1</div>
     <div class="cs-title">Pruning the "Puke"</div>
     <div class="cs-sub">Submitted by: Mitch Dickey, Frederick County Public Schools, VA</div>
+    <div class="cs-img-inline">
+      <div class="cs-img-wrap">
+        <img src="../all-casestudy-pictures/C1-CS1.png" alt="Illustration: Pruning the Puke"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="cs-img-ph" style="display:none">
+          <span class="cs-ph-icon">🖼️</span>
+          <div><strong>C1-CS1.png</strong></div>
+          <div class="cs-ph-sub">Generate this illustration and save to<br><code>all-casestudy-pictures/C1-CS1.png</code></div>
+        </div>
+      </div>
+      <div class="cs-prompt-row">
+        <button class="btn-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button>
+        <div class="cs-prompt-text" hidden>Simple cartoon of a cheerful network admin in a school hallway using oversized garden shears to snip tangled cables from a messy network switch. The cut cables fall into a bin. On the other side of the switch, the remaining cables are clean and organised. Minimal text. Flat, simple cartoon style with bold outlines and a few bright colours.</div>
+      </div>
+    </div>
     <div class="cs-body">
       <p>Our school district comprises 24 buildings and roughly 50 VLANs. Generally speaking, each campus has one VLAN for data and one for voice. We operate in a NetWare environment with at least one NetWare server at each campus. Each campus links back to an aggregate location before being sent on to the router — what some call "Router on a Stick."</p>
       <p>I use Wireshark regularly to monitor traffic patterns and remove unnecessary traffic from the VLANs I manage. Two types of traffic I've eliminated: <strong>NetBIOS and SMB</strong>. Since we use NetWare's NDPS for printing, we don't need Windows File and Printer Sharing. I recently sampled four other VLANs (out of my control) using a five-minute PCAP. After capture, I sifted through traffic using filters to determine what percentage was NetBIOS and SMB:</p>
@@ -826,27 +844,27 @@ footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8;border-top:1p
       <p>Although the results were lower than I expected, trimming what I did find could still be beneficial to switch/router processing and — most of all — security. I have also used Wireshark to track down and remove other unnecessary protocols like SNMP and SSDP.</p>
     </div>
   </div>
-  <div class="cs-img-block">
-  <div class="cs-img-wrap">
-    <img src="../all-casestudy-pictures/C1-CS1.png" alt="Illustration: Pruning the Puke"
-         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-    <div class="cs-img-ph" style="display:none">
-      <span class="cs-ph-icon">🖼️</span>
-      <div><strong>C1-CS1.png</strong></div>
-      <div class="cs-ph-sub">Generate this illustration and save to<br><code>all-casestudy-pictures/C1-CS1.png</code></div>
-    </div>
-  </div>
-  <div class="cs-prompt-row">
-    <button class="btn-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button>
-    <div class="cs-prompt-text" hidden>A school network administrator standing confidently in a clean school hallway, holding a clipboard with the Wireshark logo. Around the network racks, tangled cable bundles labelled 'NetBIOS', 'SMB', and 'SNMP' are floating away like pruned tree branches being tossed into a recycling bin. Small percentage badges (2.5%, 9%, 5%) hover above each discarded bundle. The school buildings visible in the background are connected by slim, clean fiber cables — minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
-  </div>
-</div>
 
   <!-- Case Study 2 -->
   <div class="case-study-block">
     <div class="cs-eyebrow">Case Study 2</div>
     <div class="cs-title">The "Securely Invisible" Network</div>
     <div class="cs-sub">Network Security Consultant · Campus Environment</div>
+    <div class="cs-img-inline">
+      <div class="cs-img-wrap">
+        <img src="../all-casestudy-pictures/C1-CS2.png" alt="Illustration: The Securely Invisible Network"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="cs-img-ph" style="display:none">
+          <span class="cs-ph-icon">🖼️</span>
+          <div><strong>C1-CS2.png</strong></div>
+          <div class="cs-ph-sub">Generate this illustration and save to<br><code>all-casestudy-pictures/C1-CS2.png</code></div>
+        </div>
+      </div>
+      <div class="cs-prompt-row">
+        <button class="btn-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button>
+        <div class="cs-prompt-text" hidden>Simple cartoon of a suited consultant standing outside a glass-walled office building, holding a magnifying glass. Through the transparent walls, open envelopes are visibly floating around inside between employees. The consultant looks surprised. Minimal text. Flat, simple cartoon style with bold outlines and a few bright colours.</div>
+      </div>
+    </div>
     <div class="cs-body">
       <p>One customer's network consisted of 22 buildings in a campus-style setting. Management complained that the network was slow at times and asked a consultant to come on-site to determine the cause of poor network performance.</p>
       <p>Upon arrival, I was asked to <strong>sign a legal document stating that I would not listen to the network traffic</strong> to isolate the problem — (you, as I do, must question why they called me).</p>
@@ -855,21 +873,6 @@ footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8;border-top:1p
       <p>Once I began listening to their network traffic, it became evident that they had good reason to be concerned. Their <strong>Lotus Notes implementation was misconfigured — all emails traveled through the network in clear text</strong>. Over the next few hours of listening we found several applications that sent sensitive data across the network in clear text. By the time I left, they had a list of security enhancements to implement.</p>
     </div>
   </div>
-  <div class="cs-img-block">
-  <div class="cs-img-wrap">
-    <img src="../all-casestudy-pictures/C1-CS2.png" alt="Illustration: The Securely Invisible Network"
-         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-    <div class="cs-img-ph" style="display:none">
-      <span class="cs-ph-icon">🖼️</span>
-      <div><strong>C1-CS2.png</strong></div>
-      <div class="cs-ph-sub">Generate this illustration and save to<br><code>all-casestudy-pictures/C1-CS2.png</code></div>
-    </div>
-  </div>
-  <div class="cs-prompt-row">
-    <button class="btn-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button>
-    <div class="cs-prompt-text" hidden>A business consultant standing outside a 22-building corporate campus whose walls are completely transparent glass. Inside, employees are sending emails that float as open envelopes with visible text — including a Lotus Notes logo. A 'No Listening!' sign hangs on the door while the consultant effortlessly reads the clear-text data through the glass walls using a Wireshark magnifying glass. The consultant holds a tablet showing captured packets. Flat illustration, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
-  </div>
-</div>
 
   <div class="notes-card">
     <div class="notes-label">My Notes — Case Studies</div>
