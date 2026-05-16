@@ -189,6 +189,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   .lesson-tools-grid{grid-template-columns:1fr;}
   footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
 }
+.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
+.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
+.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
+.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);font-family:'Epilogue',sans-serif;}
+@media(max-width:640px){.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
 </style>
 </head>
 <body>
@@ -539,6 +544,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   </div>
 </aside>
 </main>
+
+<div class="practice-cta">
+  <a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
+  <p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
+</div>
 
 <footer>
   <div>Chapter 29 · Find Top Causes of Performance Problems · Study Guide</div>

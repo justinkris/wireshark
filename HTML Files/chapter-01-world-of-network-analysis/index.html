@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ch 01: The World of Network Analysis — Wireshark Practice</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -20,13 +19,10 @@
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-
-/* ── HEADER ── */
 header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
 .header-left{flex:1;}
 .breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}.breadcrumb a:hover{text-decoration:underline;}
 .breadcrumb-sep{color:rgba(255,255,255,0.2);}
 .header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
 .dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
@@ -34,14 +30,10 @@ header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:fl
 h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
 h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
 header p.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-
-/* ── MOTIVATION BANNER ── */
 .motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
 .motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
 .motivation-text em{font-style:italic;color:var(--blue);}
 .motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-
-/* ── TOP PANELS ── */
 .top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
 .top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
 .top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
@@ -65,37 +57,29 @@ header p.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;
 .notes-panel-body{display:none;padding:0 32px 22px;}
 .notes-panel-body.open{display:block;}
 .no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-group{margin-bottom:12px;}
-.q-group-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;}
 .q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
 .q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
 .q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
 .q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
 .q-del:hover{color:var(--red);}
-
-/* ── SECTION NAV ── */
 .section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
 .nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
 .nav-tab:hover{color:var(--text);}
 .nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-
-/* ── MAIN GRID ── */
+.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
+.nav-sg-link:hover{color:var(--blue-deep);}
 main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
 .main-content{min-width:0;}
-
-/* ── SECTION BLOCK ── */
-.section-block{margin-bottom:40px;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
-.section-block p,.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0;}
-.section-block li{margin-bottom:4px;}
-
-/* ── FILE BADGES ── */
-.files-grid{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;}
-.file-badge{background:var(--green-light);border:1px solid var(--green-border);color:var(--green);font-size:11px;font-weight:600;font-family:'SF Mono','Fira Code',monospace;padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
-.file-badge::before{content:'📄';font-size:10px;}
-
+/* ── SESSION BLOCK ── */
+.session-block{margin-bottom:48px;}
+.session-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--blue-dim);}
+.session-file{font-family:'SF Mono','Fira Code',monospace;font-size:14px;font-weight:700;color:var(--blue);}
+.session-badge{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;}
+.session-scenario{background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;padding:16px 20px;margin-bottom:24px;}
+.session-scenario p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
+.session-scenario p:last-child{margin-bottom:0;}
+.session-scenario code{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:var(--blue);}
+.session-scenario strong{color:var(--text);}
 /* ── PRACTICE QUESTION CARDS ── */
 .practice-q{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;border-top:3px solid var(--blue);}
 .practice-q-header{padding:16px 20px 12px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border-dim);}
@@ -112,25 +96,29 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .btn-clear-ans{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;}
 .btn-clear-ans:hover{border-color:var(--red);color:var(--red);}
 .saved-indicator{font-size:11px;color:var(--green);min-width:60px;}
-
-/* ── MENTAL NOTE ── */
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-
-/* ── LESSON TOOLS ── */
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all .15s;}
+.btn-see-answer:disabled{opacity:0.45;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answer-block{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--blue);}
+.model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
+/* ── SESSION NOTES ── */
+.session-notes-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-top:4px;}
+.session-notes-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.session-notes-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:72px;outline:none;line-height:1.6;}
+.session-notes-ta:focus{border-color:var(--blue);}
+/* ── OPTIONAL TRACES ── */
+.optional-section-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.optional-section-sub{font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:24px;padding:14px 18px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;}
+.optional-trace-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.optional-trace-header{background:var(--text);padding:11px 18px;display:flex;align-items:center;gap:10px;}
+.optional-trace-name{font-family:'SF Mono','Fira Code',monospace;font-size:12px;font-weight:700;color:#93c5fd;}
+.optional-trace-body{padding:16px 18px;}
+.optional-trace-desc{font-size:13px;color:var(--text-soft);line-height:1.72;margin-bottom:14px;}
+.optional-trace-notes-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.optional-trace-notes-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:52px;outline:none;line-height:1.6;}
+.optional-trace-notes-ta:focus{border-color:var(--blue);}
 /* ── SIDEBAR ── */
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
@@ -139,27 +127,19 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arrow{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
 .progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
 .progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
 .progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-
-/* ── QUICK-REF (sidebar dark cards) ── */
 .quick-ref{background:var(--text);border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;}
 .qr-def{color:rgba(255,255,255,0.65);font-size:11px;text-align:right;max-width:55%;}
-
-/* ── FOOTER ── */
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-
-/* ── RESPONSIVE ── */
+.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
+.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
+.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
 @media(max-width:900px){
   header{padding:24px 20px 20px;flex-direction:column;}
   .motivation-banner{padding:16px 20px;}
@@ -170,25 +150,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   main{grid-template-columns:1fr;padding:24px 20px 60px;}
   .sidebar{position:static;}
   footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
   h1{font-size:30px;}
+  .chapter-nav{padding:14px 20px;gap:10px;}
+  .chapter-nav-btn{font-size:11px;padding:8px 14px;}
 }
-
-/* ── MODEL ANSWER REVEAL ── */
-.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all .15s;}
-.btn-see-answer:disabled{opacity:0.45;cursor:not-allowed;}
-.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
-.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
-.model-answer-block{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--blue);}
-.model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
-.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
-
-.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
-.nav-sg-link:hover{color:var(--blue-deep);}
-.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
-.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
-.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
-@media(max-width:640px){.chapter-nav{padding:14px 20px;gap:10px;}.chapter-nav-btn{font-size:11px;padding:8px 14px;}}
 </style>
 </head>
 <body>
@@ -196,13 +161,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 <header>
   <div class="header-left">
     <div class="breadcrumb">
-      <a href="../../index.html">Wireshark Practice Hub</a>
+      <a href="../../index.html">Wireshark Hub</a>
       <span class="breadcrumb-sep">›</span>
       Chapter 01
     </div>
     <div class="header-eyebrow"><span class="dot-live"></span> Practice · Chapter 01</div>
     <h1>The World of Network Analysis <em>Practice</em></h1>
-    <p class="header-sub">9 practice questions · 8 trace files</p>
+    <p class="header-sub">4 practice questions · 8 trace files · 3 review questions</p>
   </div>
 </header>
 
@@ -210,9 +175,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   <span style="font-size:13px;color:#fff;font-family:'Epilogue',sans-serif;">📖 <strong>Study Guide available</strong> — full chapter breakdown with Socratic questions, mental notes, and analogies</span>
   <a href="study-guide.html" style="background:#fff;color:#1a6dcc;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:'Epilogue',sans-serif;letter-spacing:.04em;">Open Study Guide →</a>
 </div>
+
 <div class="motivation-banner">
   <div class="motivation-text">Open the trace. <em>Trust what you see.</em></div>
-  <p class="motivation-sub">Introduces network analysis concepts by following packets through switches, routers, NAT/PAT devices and other infrastructure. Covers how network analysis is used for performance troubleshooting, security analysis, and capacity planning, with an end-to-end walkthrough of launching a first capture session.</p>
+  <p class="motivation-sub">Follow the traffic through switches, routers and NAT devices. Use Wireshark to see DNS resolution, ARP lookups, TCP handshakes, and HTTP requests play out packet by packet. Chapter 1: The World of Network Analysis.</p>
 </div>
 
 <div class="top-panels">
@@ -232,286 +198,329 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
       <span class="notes-panel-hint">— click to expand</span>
       <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
     </button>
-    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet. Add one from any question below.</p></div>
   </div>
 </div>
 
 <nav class="section-nav">
-  <button class="nav-tab active" data-target="sec-files" onclick="navTo('sec-files')">📁 Trace Files</button>
-  <button class="nav-tab" data-target="sec-questions" onclick="navTo('sec-questions')">❓ Questions</button>
-  <button class="nav-tab" data-target="sec-tools" onclick="navTo('sec-tools')">🛠 Notes</button>
+  <button class="nav-tab active" data-target="sec-practice" onclick="navTo('sec-practice')">&#10067; Practice Session</button>
+  <button class="nav-tab" data-target="sec-optional" onclick="navTo('sec-optional')">&#128196; Optional Traces</button>
+  <button class="nav-tab" data-target="sec-review" onclick="navTo('sec-review')">&#128203; Review Questions</button>
   <a href="study-guide.html" class="nav-sg-link">📖 Study Guide →</a>
 </nav>
 
 <main>
 <div class="main-content">
 
-  <div class="section-block" id="sec-files">
-    <div class="section-label">Chapter 01 · Trace Files</div>
-    <h2>Files for This Chapter</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;">Download from <a href="https://www.wiresharkbook.com" target="_blank" style="color:var(--blue)">wiresharkbook.com</a> and open in Wireshark before answering.</p>
-    <div class="files-grid">
-      <span class="file-badge">gen-googlemaps.pcapng</span><span class="file-badge">http-chappellu2011.pcapng</span><span class="file-badge">http-wiresharkdownload.pcapng</span><span class="file-badge">http-wiresharkdownload-slow.pcapng</span><span class="file-badge">icmp-ping-basic.pcapng</span><span class="file-badge">sec-nessus.pcapng</span><span class="file-badge">telnet.pcapng</span><span class="file-badge">vlan-general.pcapng</span>
+<!-- ═══ PRACTICE SESSION ═══ -->
+<div id="sec-practice">
+
+<div class="session-block">
+  <div class="session-header">
+    <span class="session-file">gen-googlemaps.pcapng</span>
+    <span class="session-badge">4 questions</span>
+  </div>
+  <div class="session-scenario">
+    <p>Download the trace files available in the Download section of the book website, <strong>www.wiresharkbook.com</strong>. There are many trace files and other book supplement files available on the book website. Consider copying them all to your drive now.</p>
+    <p>In Wireshark, open <code>gen-googlemaps.pcapng</code>. This trace file contains the traffic from a web browsing session to <strong>maps.google.com</strong>.</p>
+    <p>Our client is <strong>192.168.0.106</strong>. Our default gateway, <strong>192.168.0.1</strong>, offers DNS services as well.</p>
+    <p>Answer the following questions about this trace file.</p>
+  </div>
+
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q1</span>
+      <p class="q-body-text">What is the hardware address of the client that is browsing to maps.google.com?</p>
     </div>
-    <div class="mental-note-block">
-      <div class="mental-note-block-icon">🧠</div>
-      <div class="mental-note-block-inner">
-        <div class="mental-note-block-label">MENTAL NOTE</div>
-        <div class="mental-note-block-text">Introduces network analysis concepts by following packets through switches, routers, NAT/PAT devices and other infrastructure. Covers how network analysis is used for performance t</div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="1" rows="2" placeholder="Type your answer here…" oninput="onAnswerInput(1,this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-save-ans" onclick="saveAnswer(1,document.querySelector('[data-q=\'1\']').value)">&#10003; Save</button>
+          <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="saved-indicator" id="saved-1"></span>
+          <button class="btn-see-answer" id="reveal-1" onclick="revealAnswer(1)" disabled>&#128274; See Model Answer</button>
+        </div>
+      </div>
+      <div class="model-answer-block" id="model-1" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">The client hardware address is <strong>AsustekC_b0:30:23</strong> (full form: <strong>00:17:31:b0:30:23</strong>). It appears in packets 1 and 2 (ARP request/reply). In packet 1, the ARP request Source field shows the client sending from this address. Wireshark resolves the first 3 bytes (OUI = 00:17:31) to AsustekC, identifying the network adapter manufacturer as ASUSTek. You can also see it inside the ARP packet itself in the Packet Details pane under “Sender MAC address.”</div>
       </div>
     </div>
   </div>
 
-  <div class="section-block" id="sec-questions">
-    <div class="section-label">Practice What You've Learned</div>
-    <h2>Questions</h2>
-    
-        
-        <div class="practice-q" id="q1">
-          <div class="practice-q-header">
-            <span class="q-badge">Q1</span>
-            <p class="q-body-text">Download the trace files available in the Download section of the book website, www.wiresharkbook.com.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="1" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(1, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-1"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q2</span>
+      <p class="q-body-text">What is the IP address of the DNS server (which is also the router)?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="2" rows="2" placeholder="Type your answer here…" oninput="onAnswerInput(2,this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-save-ans" onclick="saveAnswer(2,document.querySelector('[data-q=\'2\']').value)">&#10003; Save</button>
+          <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
         </div>
-        <div class="practice-q" id="q2">
-          <div class="practice-q-header">
-            <span class="q-badge">Q2</span>
-            <p class="q-body-text">Open gen-googlemaps.pcapng. What is the hardware address of the client that is browsing to maps.google.com?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="2" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(2, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-2"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="saved-indicator" id="saved-2"></span>
+          <button class="btn-see-answer" id="reveal-2" onclick="revealAnswer(2)" disabled>&#128274; See Model Answer</button>
         </div>
-        <div class="practice-q" id="q3">
-          <div class="practice-q-header">
-            <span class="q-badge">Q3</span>
-            <p class="q-body-text">What is the IP address of the DNS server (which is also the router)?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="3" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(3, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-3"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q4">
-          <div class="practice-q-header">
-            <span class="q-badge">Q4</span>
-            <p class="q-body-text">What is the hardware address of the DNS server/router?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="4" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(4, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-4"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q5">
-          <div class="practice-q-header">
-            <span class="q-badge">Q5</span>
-            <p class="q-body-text">What IP addresses are associated with maps.google.com?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="5" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(5, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-5"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-5" disabled onclick="revealAnswer(5)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-5" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">The first two ARP packets reveal the IP addresses and hardware addresses of both the client and the DNS server/router. From ARP alone, we can determine the network topology — specifically that the DNS server is on the same local network as the client, since ARP is non-routable. The OUI portion of the hardware address also indicates the manufacturer of each device.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q6">
-          <div class="practice-q-header">
-            <span class="q-badge">Q6</span>
-            <p class="q-body-text">What can we learn just from the first two ARP packets?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="6" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(6, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-6"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-6" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">The DNS query/response pair shows how name resolution works before any HTTP connection is made. The client sends a query to its local DNS server asking for the IP address of maps.google.com, and the response returns a CNAME record plus multiple A records. The presence of multiple IP addresses indicates Google uses load balancing or anycast, giving clients multiple connection options.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q7">
-          <div class="practice-q-header">
-            <span class="q-badge">Q7</span>
-            <p class="q-body-text">Examine packets 3 and 4 (DNS query/response). How many address records are provided in the DNS response?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="7" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(7, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-7"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-7" disabled onclick="revealAnswer(7)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-7" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">The client sends the TCP SYN to the router's MAC address but uses the remote IP address of maps.google.com as the destination IP. This demonstrates how routing works at the packet level: the MAC header targets the local gateway while the IP header targets the final destination, and routers swap out MAC headers at each hop while keeping the IP header intact.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q8">
-          <div class="practice-q-header">
-            <span class="q-badge">Q8</span>
-            <p class="q-body-text">Examine the TCP connection in packets 5, 6 and 7. What dynamic source port is the client using?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="8" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(8, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-8"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-8" disabled onclick="revealAnswer(8)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-8" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">The HTTP GET request is the client's way of requesting the root page from the server. The server responds with an ACK first (acknowledging receipt of the GET), then sends the actual page data in subsequent packets. This separation between the transport-layer acknowledgment and the application-layer response illustrates TCP's reliable delivery mechanism.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q9">
-          <div class="practice-q-header">
-            <span class="q-badge">Q9</span>
-            <p class="q-body-text">In packet 8, what command does the client send, and what happens in packets 9 and 10?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="9" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(9, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-9"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(9)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-  </div>
-
-  <div class="section-block" id="sec-tools">
-    <div class="section-label">Study Tools</div>
-    <h2>Questions &amp; Notes</h2>
-    <div class="lesson-tools">
-      <div class="lesson-tools-grid">
-        <div>
-          <div class="tool-label">Ask a Question</div>
-          <textarea class="tool-textarea" id="q-general" placeholder="What are you unsure about in this chapter?" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('general')">Add Question</button></div>
-        </div>
-        <div>
-          <div class="tool-label">Add a Note</div>
-          <textarea class="tool-textarea" id="note-general" placeholder="Key insight, pattern, or tip to remember…" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addNote('general')">+ Add Note</button></div>
-        </div>
+      </div>
+      <div class="model-answer-block" id="model-2" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">The DNS server IP is <strong>192.168.0.1</strong>. This is visible in packet 1 (ARP request target IP = 192.168.0.1) and confirmed in packet 3 (DNS query Destination IP = 192.168.0.1). Since the DNS server is the default gateway on this /24 network, it also acts as the router for traffic leaving the local segment. ARP is used to discover its hardware address before the DNS query can be sent.</div>
       </div>
     </div>
   </div>
 
-</div>
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q3</span>
+      <p class="q-body-text">What is the hardware address of the DNS server/router?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="3" rows="2" placeholder="Type your answer here…" oninput="onAnswerInput(3,this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-save-ans" onclick="saveAnswer(3,document.querySelector('[data-q=\'3\']').value)">&#10003; Save</button>
+          <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="saved-indicator" id="saved-3"></span>
+          <button class="btn-see-answer" id="reveal-3" onclick="revealAnswer(3)" disabled>&#128274; See Model Answer</button>
+        </div>
+      </div>
+      <div class="model-answer-block" id="model-3" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">The DNS server/router hardware address appears in packet 2 (ARP reply) where the router responds with its MAC address as the ARP Sender MAC. The Packet List pane shows it in the Destination column of packet 1 and the Source column of packet 2, displayed in OUI-resolved form (the first 3 bytes identify the manufacturer). Look inside the Ethernet II header of packet 3 — the Destination hardware address matches the router’s MAC that was learned from the ARP exchange.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q4</span>
+      <p class="q-body-text">What IP addresses are associated with maps.google.com?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="4" rows="2" placeholder="Type your answer here…" oninput="onAnswerInput(4,this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-save-ans" onclick="saveAnswer(4,document.querySelector('[data-q=\'4\']').value)">&#10003; Save</button>
+          <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="saved-indicator" id="saved-4"></span>
+          <button class="btn-see-answer" id="reveal-4" onclick="revealAnswer(4)" disabled>&#128274; See Model Answer</button>
+        </div>
+      </div>
+      <div class="model-answer-block" id="model-4" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">The DNS response (packet 4) returns <strong>7 records</strong>: one CNAME record indicating that maps.google.com’s canonical name is <strong>maps.l.google.com</strong>, and six A records with IPv4 addresses. The first address listed is <strong>74.125.19.147</strong>. The presence of multiple A records indicates Google uses load balancing or anycast — the client will connect to whichever IP it picks first (typically the first one). Expand the Answers section in the DNS response in Packet Details to see all six addresses.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="session-notes-area">
+    <div class="session-notes-label">Session Notes</div>
+    <textarea class="session-notes-ta" id="session-notes-practice" placeholder="Notes on this trace file…"></textarea>
+  </div>
+</div><!-- /session-block -->
+</div><!-- /sec-practice -->
+
+<!-- ═══ OPTIONAL TRACES ═══ -->
+<div id="sec-optional" style="margin-top:16px;">
+  <div class="optional-section-title">Optional Traces</div>
+  <div class="optional-section-sub">The following table lists the trace files you worked with and a few other trace files at <strong>www.wiresharkbook.com</strong> that you might want to review.</div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">gen-googlemaps.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">This trace file depicts a simple web browsing session to www.google.com. The client performed an ARP query to get the hardware address of the DNS server and then sent a query to that DNS server to resolve the IP address for www.google.com. After receiving a successful response, the client makes a TCP connection to the server on port 80 and requests to GET the main page. The page is downloaded successfully.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">http-chappellu2011.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">We are browsing to the www.chappellU.com website, but we’re getting a 404 error. The browser requires several connections to download the page elements so the best way to know what is “Not Found” is to follow the stream on the 404 response. Refer to <a href="../chapter-23-http/study-guide.html" style="color:var(--blue);font-weight:600;">Chapter 23: Analyze HTTP Traffic</a>.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">http-wiresharkdownload.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">Gerald had a bit of fun with the wireshark.org site – check out the X-Slogan text in packet 6. That’s not the only slogan coming down the line. Apply an <code style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:12px;font-family:'SF Mono',monospace;">http.response.code</code> display filter to find the other message from Gerald. The request to download the Wireshark file is seen in packet 33. It took just over 30 seconds for the download.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">http-wiresharkdownload-slow.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">This is the trace file referred to in this chapter. The request to download the Wireshark file is seen in packet 561. It took over 60 seconds for the download.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">icmp-ping-basic.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">This is the simplest of all ping operations — it begins with the DNS resolution process for the target name and continues to an IPv4 Echo Request followed by an ICMP Echo Reply. Refer to <a href="../chapter-18-icmp/study-guide.html" style="color:var(--blue);font-weight:600;">Chapter 18: Analyze ICMP Traffic</a>.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">sec-nessus.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">Nessus (www.nessus.org), the penetration testing tool, doesn’t try to be sneaky. Use the Find feature to search for the string ‘nessus’ in this trace file (do not search case sensitive). You’ll find the ‘nessus’ signature all over in this trace file. In addition, you’ll see the unusual ping packet (packet 3) used by Xprobe2 when the Nessus scan runs. Refer to <a href="../chapter-32-suspect-traffic/study-guide.html" style="color:var(--blue);font-weight:600;">Chapter 32: Analyze Suspect Traffic</a>.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">telnet.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">Someone makes a telnet connection to a Cisco router to run the ‘show version’ command which is echoed back, as is the exit command. The password, however, is not echoed back. Follow the DO, DON’T, WILL and WON’T command as the client and server negotiate the connection behavior. Refer to <a href="../chapter-20-tcp/study-guide.html" style="color:var(--blue);font-weight:600;">Chapter 20: Analyze TCP Traffic</a>.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">vlan-general.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">This trace shows an X11 communication on a VLAN. You can see the VLAN tag directly after the Ethernet header and before the IP header. Refer to <a href="../chapter-03-capture-traffic/study-guide.html" style="color:var(--blue);font-weight:600;">Chapter 3: Capture Traffic</a>.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="Your observations on this trace…"></textarea>
+    </div>
+  </div>
+</div><!-- /sec-optional -->
+
+<!-- ═══ REVIEW QUESTIONS ═══ -->
+<div id="sec-review" style="margin-top:32px;">
+  <div class="optional-section-title">Review Questions</div>
+  <div class="optional-section-sub">These are the official WCNA exam-style review questions from the end of Chapter 1. Write your answer before revealing the model answer.</div>
+
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q1.1</span>
+      <p class="q-body-text">What is the purpose of network analysis?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="r1" rows="3" placeholder="Type your answer here…" oninput="onAnswerInput('r1',this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-save-ans" onclick="saveAnswer('r1',document.querySelector('[data-q=\"r1\"]').value)">&#10003; Save</button>
+          <button class="btn-clear-ans" onclick="clearAnswer('r1')">Clear</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="saved-indicator" id="saved-r1"></span>
+          <button class="btn-see-answer" id="reveal-r1" onclick="revealAnswer('r1')" disabled>&#128274; See Model Answer</button>
+        </div>
+      </div>
+      <div class="model-answer-block" id="model-r1" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">Network analysis offers an insight into network communications to identify performance problems, locate security breaches, analyze application behavior, and perform capacity planning.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q1.2</span>
+      <p class="q-body-text">Name at least three troubleshooting tasks that can be performed using network analysis.</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="r2" rows="3" placeholder="Type your answer here…" oninput="onAnswerInput('r2',this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-save-ans" onclick="saveAnswer('r2',document.querySelector('[data-q=\"r2\"]').value)">&#10003; Save</button>
+          <button class="btn-clear-ans" onclick="clearAnswer('r2')">Clear</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="saved-indicator" id="saved-r2"></span>
+          <button class="btn-see-answer" id="reveal-r2" onclick="revealAnswer('r2')" disabled>&#128274; See Model Answer</button>
+        </div>
+      </div>
+      <div class="model-answer-block" id="model-r2" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">Any three of the following: (1) Locate faulty network devices, (2) Measure high delays along a path, (3) Locate the point of packet loss, (4) Identify device or software misconfigurations, (5) Identify network errors and service refusals, (6) Graph queuing delays, (7) Identify asynchronous traffic prioritization.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q1.3</span>
+      <p class="q-body-text">Why is network analysis considered a security risk by some companies?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="r3" rows="3" placeholder="Type your answer here…" oninput="onAnswerInput('r3',this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-save-ans" onclick="saveAnswer('r3',document.querySelector('[data-q=\"r3\"]').value)">&#10003; Save</button>
+          <button class="btn-clear-ans" onclick="clearAnswer('r3')">Clear</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="saved-indicator" id="saved-r3"></span>
+          <button class="btn-see-answer" id="reveal-r3" onclick="revealAnswer('r3')" disabled>&#128274; See Model Answer</button>
+        </div>
+      </div>
+      <div class="model-answer-block" id="model-r3" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">Some companies consider network analysis to be a security risk because it involves tapping into network traffic and eavesdropping on communications. These companies fear that unencrypted information (data, email, etc.) may be seen by the network analyst. In reality, however, the network analyst can identify unsecure network communications to prevent unauthorized eavesdroppers from gaining insight into confidential communications.</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /sec-review -->
+
+</div><!-- /main-content -->
 
 <aside class="sidebar">
   <div class="sidebar-card">
     <h3>Navigation</h3>
     <div class="sidebar-nav-links">
-      <a class="sidebar-link" href="../index.html">🦈 All Chapters <span class="arrow">›</span></a>
-      
-      <a class="sidebar-link" href="../chapter-02/index.html"><span>→</span> Ch 02: Introduction to Wireshark…<span class="arrow">›</span></a>
+      <a class="sidebar-link" href="../../index.html"><span>&#127968;</span> Wireshark Hub<span class="arrow">&#8250;</span></a>
+      <a class="sidebar-link" href="study-guide.html"><span>&#128214;</span> Study Guide<span class="arrow">&#8250;</span></a>
     </div>
   </div>
-
   <div class="sidebar-card">
-    <h3>Progress — Ch 01</h3>
-    <div class="progress-summary">
-      <span id="prog-text">0 / 9 answered</span>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
-    </div>
-    <div class="progress-checklist">
-      <label class="check-item" data-qi="1"><input type="checkbox" onchange="updateProgress()"> Q1: Download the trace files available in the Download sect…</label><label class="check-item" data-qi="2"><input type="checkbox" onchange="updateProgress()"> Q2: Open gen-googlemaps.pcapng. What is the hardware addres…</label><label class="check-item" data-qi="3"><input type="checkbox" onchange="updateProgress()"> Q3: What is the IP address of the DNS server (which is also…</label><label class="check-item" data-qi="4"><input type="checkbox" onchange="updateProgress()"> Q4: What is the hardware address of the DNS server/router?</label><label class="check-item" data-qi="5"><input type="checkbox" onchange="updateProgress()"> Q5: What IP addresses are associated with maps.google.com?</label><label class="check-item" data-qi="6"><input type="checkbox" onchange="updateProgress()"> Q6: What can we learn just from the first two ARP packets?</label><label class="check-item" data-qi="7"><input type="checkbox" onchange="updateProgress()"> Q7: Examine packets 3 and 4 (DNS query/response). How many …</label><label class="check-item" data-qi="8"><input type="checkbox" onchange="updateProgress()"> Q8: Examine the TCP connection in packets 5, 6 and 7. What …</label><label class="check-item" data-qi="9"><input type="checkbox" onchange="updateProgress()"> Q9: In packet 8, what command does the client send, and wha…</label>
+    <h3>Progress</h3>
+    <div class="progress-summary"><span id="prog-text">0 / 4 answered</span><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div></div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Trace Files</h3>
+    <div class="quick-ref">
+      <h4>Chapter 01 Traces</h4>
+      <div class="qr-row"><span class="qr-term">gen-googlemaps.pcapng</span><span class="qr-def">Main session</span></div>
+      <div class="qr-row"><span class="qr-term">http-chappellu2011.pcapng</span><span class="qr-def">404 errors</span></div>
+      <div class="qr-row"><span class="qr-term">http-wiresharkdownload.pcapng</span><span class="qr-def">File download</span></div>
+      <div class="qr-row"><span class="qr-term">http-wiresharkdownload-slow.pcapng</span><span class="qr-def">Slow download</span></div>
+      <div class="qr-row"><span class="qr-term">icmp-ping-basic.pcapng</span><span class="qr-def">Simple ping</span></div>
+      <div class="qr-row"><span class="qr-term">sec-nessus.pcapng</span><span class="qr-def">Nessus scan</span></div>
+      <div class="qr-row"><span class="qr-term">telnet.pcapng</span><span class="qr-def">Telnet session</span></div>
+      <div class="qr-row"><span class="qr-term">vlan-general.pcapng</span><span class="qr-def">VLAN traffic</span></div>
     </div>
   </div>
-
-  
-      <div class="quick-ref">
-        <h4>Trace Files</h4>
-        <div class="qr-row"><span class="qr-term">gen-googlemaps.pcapng</span><span class="qr-def">Gen Googlemaps</span></div><div class="qr-row"><span class="qr-term">http-chappellu2011.pcapng</span><span class="qr-def">Http Chappellu2011</span></div><div class="qr-row"><span class="qr-term">http-wiresharkdownload.pcapng</span><span class="qr-def">Http Wiresharkdownload</span></div><div class="qr-row"><span class="qr-term">http-wiresharkdownload-slow.pcapng</span><span class="qr-def">Http Wiresharkdownload Slow</span></div><div class="qr-row"><span class="qr-term">icmp-ping-basic.pcapng</span><span class="qr-def">Icmp Ping Basic</span></div>
-      </div>
 </aside>
 </main>
 
@@ -522,85 +531,50 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <footer>
   <div>Chapter 01 · The World of Network Analysis</div>
-  <div>Wireshark Network Analysis 2nd Ed</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
 </footer>
 
 <script>
+const PAGE_KEY = 'ws-ch01';
+const TOTAL_Q = 4;
 
-const PAGE_KEY='ws-ch01';
-const TOTAL_Q=9;
-
-// ── Q-Panel ──
 function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');}
 function saveQArr(qs){localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));}
 function addQuestion(key){const ta=document.getElementById('q-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const qs=getQArr();qs.push({id:Date.now(),section:key,text});saveQArr(qs);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
 function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
 function toggleQPanel(){const body=document.getElementById('qpanel-body');const header=document.getElementById('qpanel-header');const chevron=document.getElementById('qpanel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',open);}
-function renderQPanel(){const qs=getQArr();const count=document.getElementById('qpanel-count');if(count){count.textContent=qs.length;count.style.display=qs.length?'inline':'none';}const hint=document.querySelector('.qpanel-hint');if(hint)hint.textContent=qs.length?`— ${qs.length} question${qs.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('qpanel-body');if(!body)return;if(!qs.length){body.innerHTML='<p class="no-questions">No questions yet.</p>';return;}let html='';qs.forEach((q,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;
-});body.innerHTML=html;}
+function renderQPanel(){const qs=getQArr();const count=document.getElementById('qpanel-count');if(count){count.textContent=qs.length;count.style.display=qs.length?'inline':'none';}const body=document.getElementById('qpanel-body');if(!body)return;if(!qs.length){body.innerHTML='<p class="no-questions">No questions yet.</p>';return;}let html='';qs.forEach((q,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">&#10005;</button></div>`;});body.innerHTML=html;}
 
-// ── Notes Panel ──
 function getNotesArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
 function saveNotesArr(ns){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(ns));}
 function addNote(key){const ta=document.getElementById('note-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const ns=getNotesArr();ns.push({id:Date.now(),section:key,text});saveNotesArr(ns);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
 function deleteNote(id){saveNotesArr(getNotesArr().filter(n=>n.id!==id));renderNotesPanel();}
 function toggleNotesPanel(){const body=document.getElementById('notes-panel-body');const header=document.getElementById('notes-panel-header');const chevron=document.getElementById('notes-panel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',open);}
-function renderNotesPanel(){const ns=getNotesArr();const count=document.getElementById('notes-panel-count');if(count){count.textContent=ns.length;count.style.display=ns.length?'inline':'none';}const hint=document.querySelector('.notes-panel-hint');if(hint)hint.textContent=ns.length?`— ${ns.length} note${ns.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('notes-panel-body');if(!body)return;if(!ns.length){body.innerHTML='<p class="no-questions">No notes yet. Add one from any question below.</p>';return;}let html='';ns.forEach((n,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${n.id})">✕</button></div>`;
-});body.innerHTML=html;}
+function renderNotesPanel(){const ns=getNotesArr();const count=document.getElementById('notes-panel-count');if(count){count.textContent=ns.length;count.style.display=ns.length?'inline':'none';}const body=document.getElementById('notes-panel-body');if(!body)return;if(!ns.length){body.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let html='';ns.forEach((n,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${n.id})">&#10005;</button></div>`;});body.innerHTML=html;}
 
-// ── Answer autosave ──
+function onAnswerInput(q,val){localStorage.setItem(PAGE_KEY+'-ans-'+q,val);const btn=document.getElementById('reveal-'+q);if(btn)btn.disabled=!val.trim();updateProgress();}
+function revealAnswer(q){const block=document.getElementById('model-'+q);const btn=document.getElementById('reveal-'+q);if(!block||!btn)return;const hidden=block.style.display==='none'||block.style.display==='';block.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'🔒 See Model Answer';}
+function saveAnswer(q,val){localStorage.setItem(PAGE_KEY+'-ans-'+q,val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const btn=document.getElementById('reveal-'+q);if(btn)btn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
-function onAnswerInput(q, val) {
-  localStorage.setItem(PAGE_KEY + '-ans-' + q, val);
-  const saveEl = document.getElementById('saved-' + q);
-  if (saveEl) { saveEl.textContent = val.trim() ? '' : ''; }
-  const revealBtn = document.getElementById('reveal-' + q);
-  if (revealBtn) revealBtn.disabled = !val.trim();
-  updateProgress();
-}
-function revealAnswer(q) {
-  const block = document.getElementById('model-' + q);
-  const btn   = document.getElementById('reveal-' + q);
-  if (!block || !btn) return;
-  const hidden = block.style.display === 'none' || block.style.display === '';
-  block.style.display = hidden ? 'block' : 'none';
-  btn.textContent = hidden ? '▲ Hide Model Answer' : '💡 See Model Answer';
-}
+function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
 
-function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
-
-// ── Progress ──
-function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}
-
-// ── Section nav highlight ──
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
 function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 
-// ── Page transitions ──
 function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
 
-document.addEventListener('DOMContentLoaded', function(){
-  renderQPanel(); renderNotesPanel();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  // Restore saved answers
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')=='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')=='true')toggleNotesPanel();
   document.querySelectorAll('[data-q]').forEach(function(ta){
     const q=ta.dataset.q;
     const saved=localStorage.getItem(PAGE_KEY+'-ans-'+q);
-    if(saved)ta.value=saved;
+    if(saved){ta.value=saved;const btn=document.getElementById('reveal-'+q);if(btn&&saved.trim())btn.disabled=false;}
   });
   updateProgress();
   initSectionNav();
-  // Restore reveal button state for saved answers
-  document.querySelectorAll('[data-q]').forEach(function(ta) {
-    const q = ta.dataset.q;
-    const saved = localStorage.getItem(PAGE_KEY + '-ans-' + q);
-    if (saved && saved.trim()) {
-      const btn = document.getElementById('reveal-' + q);
-      if (btn) btn.disabled = false;
-    }
-  });
   initPT();
 });
 </script>
