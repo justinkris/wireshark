@@ -2,503 +2,138 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch 33: Effective Use of Command Line Tools — Wireshark Practice</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
-}
-html.pt-init body{opacity:0;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-
-/* ── HEADER ── */
-header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
-.header-left{flex:1;}
-.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
-.breadcrumb-sep{color:rgba(255,255,255,0.2);}
-.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
-.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
-h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
-header p.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-
-/* ── MOTIVATION BANNER ── */
-.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
-.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
-.motivation-text em{font-style:italic;color:var(--blue);}
-.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-
-/* ── TOP PANELS ── */
-.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
-.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
-.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
-.qpanel{background:var(--surface);}
-.qpanel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.qpanel-header:hover,.qpanel-header.open{background:var(--surface-2);}
-.qpanel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.qpanel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.qpanel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.qpanel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.qpanel-body{display:none;padding:0 32px 22px;}
-.qpanel-body.open{display:block;}
-.notes-panel{background:var(--surface);}
-.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
-.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.notes-panel-body{display:none;padding:0 32px 22px;}
-.notes-panel-body.open{display:block;}
-.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-group{margin-bottom:12px;}
-.q-group-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;}
-.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
-.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
-.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
-.q-del:hover{color:var(--red);}
-
-/* ── SECTION NAV ── */
-.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
-.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
-.nav-tab:hover{color:var(--text);}
-.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-
-/* ── MAIN GRID ── */
-main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
-.main-content{min-width:0;}
-
-/* ── SECTION BLOCK ── */
-.section-block{margin-bottom:40px;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
-.section-block p,.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0;}
-.section-block li{margin-bottom:4px;}
-
-/* ── FILE BADGES ── */
-.files-grid{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;}
-.file-badge{background:var(--green-light);border:1px solid var(--green-border);color:var(--green);font-size:11px;font-weight:600;font-family:'SF Mono','Fira Code',monospace;padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
-.file-badge::before{content:'📄';font-size:10px;}
-
-/* ── PRACTICE QUESTION CARDS ── */
-.practice-q{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;border-top:3px solid var(--blue);}
-.practice-q-header{padding:16px 20px 12px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border-dim);}
-.q-badge{flex-shrink:0;background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;margin-top:1px;font-family:'Epilogue',sans-serif;}
-.q-body-text{font-size:14px;line-height:1.65;color:var(--text);}
-.practice-q-answer{padding:14px 20px;background:var(--surface-2);}
-.answer-label-sm{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;display:block;}
-.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:44px;outline:none;line-height:1.6;}
-.answer-textarea:focus{border-color:var(--blue);}
-.answer-textarea::placeholder{color:var(--text-muted);}
-.answer-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
-.btn-save-ans{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-save-ans:hover{opacity:.85;}
-.btn-clear-ans{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-clear-ans:hover{border-color:var(--red);color:var(--red);}
-.saved-indicator{font-size:11px;color:var(--green);min-width:60px;}
-
-/* ── MENTAL NOTE ── */
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-
-/* ── LESSON TOOLS ── */
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-
-/* ── SIDEBAR ── */
-.sidebar{position:sticky;top:60px;}
-.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
-.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
-.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
-.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
-.sidebar-link .arrow{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-
-/* ── QUICK-REF (sidebar dark cards) ── */
-.quick-ref{background:var(--text);border-radius:10px;padding:16px 18px;margin-top:8px;}
-.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px;}
-.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;}
-.qr-row:last-child{border-bottom:none;}
-.qr-term{color:#93c5fd;font-weight:600;}
-.qr-def{color:rgba(255,255,255,0.65);font-size:11px;text-align:right;max-width:55%;}
-
-/* ── FOOTER ── */
-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-
-/* ── RESPONSIVE ── */
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  h1{font-size:30px;}
-}
-
-/* ── MODEL ANSWER REVEAL ── */
-.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all .15s;}
-.btn-see-answer:disabled{opacity:0.45;cursor:not-allowed;}
-.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
-.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
-.model-answer-block{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--blue);}
-.model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
-.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
-
-.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
-.nav-sg-link:hover{color:var(--blue-deep);}
-.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
-.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
-.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
-@media(max-width:640px){.chapter-nav{padding:14px 20px;gap:10px;}.chapter-nav-btn{font-size:11px;padding:8px 14px;}}
-</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 33: Command-Line Tools — Wireshark Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+<style>html.pt-init body{opacity:0;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Epilogue',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh;}header{background:#0d1a2e;color:#fff;padding:18px 32px 22px;}.breadcrumb{font-size:12px;color:#93c5fd;margin-bottom:8px;}.breadcrumb a{color:#93c5fd;text-decoration:none;}.eyebrow{display:inline-flex;align-items:center;gap:8px;background:#1e3a5f;border-radius:20px;padding:4px 14px;font-size:11px;color:#93c5fd;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}.dot{width:7px;height:7px;border-radius:50%;background:#93c5fd;animation:pulse 2s infinite;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}h1{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;line-height:1.2;}h1 em{font-style:italic;color:#93c5fd;}.motivation-banner{background:#eef4ff;border-left:4px solid #1a6dcc;padding:12px 20px;margin:0 32px;font-family:'Fraunces',serif;font-style:italic;color:#1e3a5f;font-size:1.05rem;}.ch-nav{display:flex;justify-content:space-between;padding:10px 32px;background:#e2eaf5;border-bottom:1px solid #bfdbfe;}.nav-btn{font-size:13px;color:#1a6dcc;text-decoration:none;font-weight:600;padding:4px 10px;border-radius:6px;background:#fff;border:1px solid #bfdbfe;}.nav-btn:hover{background:#eef4ff;}.q-panel-wrap{padding:16px 32px 0;}.q-panel{background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;}.q-panel-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;cursor:pointer;background:#eef4ff;}.q-panel-hdr h3{font-size:14px;font-weight:600;color:#1a6dcc;}.q-panel-body{padding:12px 16px;display:none;}.q-panel-body.open{display:block;}.q-input-row{display:flex;gap:8px;margin-bottom:10px;}.q-input{flex:1;border:1px solid #bfdbfe;border-radius:6px;padding:8px 10px;font-size:13px;font-family:'Epilogue',sans-serif;}.btn-add-q{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;}.q-list{list-style:none;}.q-list li{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f0f4f8;font-size:13px;}.btn-del-q{background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:0 4px;}main{display:grid;grid-template-columns:1fr 320px;gap:24px;padding:24px 32px;max-width:1400px;margin:0 auto;}.content{min-width:0;}.intro-box{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:20px 24px;margin-bottom:20px;line-height:1.7;font-size:15px;}.intro-box h2{font-family:'Fraunces',serif;font-size:1.3rem;color:#0d1a2e;margin-bottom:10px;}.section-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a6dcc;margin:24px 0 10px;}.qa-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:20px;margin-bottom:14px;}.qa-badge{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6dcc;margin-bottom:8px;}.qa-question{font-size:15px;line-height:1.6;margin-bottom:12px;}.ans-input{width:100%;border:1px solid #bfdbfe;border-radius:6px;padding:10px;font-size:14px;font-family:'Epilogue',sans-serif;resize:vertical;}.qa-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}.btn-save{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;cursor:pointer;font-weight:600;}.btn-clear{background:#f0f4f8;color:#475569;border:1px solid #bfdbfe;border-radius:6px;padding:7px 16px;font-size:13px;cursor:pointer;}.btn-reveal{background:#0d1a2e;color:#93c5fd;border:none;border-radius:6px;padding:7px 16px;font-size:13px;cursor:pointer;font-weight:600;}.btn-reveal.locked{opacity:.5;cursor:not-allowed;}.model-answer{margin-top:14px;background:#f8fafc;border-left:3px solid #1a6dcc;padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;line-height:1.7;}.opt-section{margin-top:8px;}.opt-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:16px 20px;margin-bottom:10px;}.opt-name{font-weight:700;font-size:14px;color:#0d1a2e;margin-bottom:4px;font-family:'Fraunces',serif;}.opt-desc{font-size:13px;color:#475569;line-height:1.6;margin-bottom:8px;}.opt-note{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;}.sidebar{position:sticky;top:20px;align-self:start;display:flex;flex-direction:column;gap:16px;}.sidebar-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;}.sidebar-card h3{font-size:13px;font-weight:700;color:#0d1a2e;margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em;}.progress-bar-wrap{background:#e2e8f0;border-radius:99px;height:8px;margin:6px 0 12px;}.progress-bar{background:#1a6dcc;height:8px;border-radius:99px;transition:width .3s;}.progress-label{font-size:12px;color:#64748b;}.hub-link{display:block;text-align:center;background:#1a6dcc;color:#fff;border-radius:8px;padding:10px;font-weight:600;font-size:14px;text-decoration:none;margin-bottom:10px;}.qr-card{background:#0d1a2e;color:#e2e8f0;border-radius:8px;padding:12px;margin-bottom:8px;}.qr-term{font-size:12px;font-weight:700;color:#93c5fd;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}.qr-def{font-size:13px;line-height:1.5;}footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:32px;}@media(max-width:900px){main{grid-template-columns:1fr;}}</style>
 </head>
 <body>
-
-<header>
-  <div class="header-left">
-    <div class="breadcrumb">
-      <a href="../../index.html">Wireshark Practice Hub</a>
-      <span class="breadcrumb-sep">›</span>
-      Chapter 33
-    </div>
-    <div class="header-eyebrow"><span class="dot-live"></span> Practice · Chapter 33</div>
-    <h1>Effective Use of Command Line Tools <em>Practice</em></h1>
-    <p class="header-sub">4 practice questions · 3 trace files</p>
-  </div>
-</header>
-
-<div style="background:#1a6dcc;padding:12px 60px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-  <span style="font-size:13px;color:#fff;font-family:'Epilogue',sans-serif;">📖 <strong>Study Guide available</strong> — full chapter breakdown with Socratic questions, mental notes, and analogies</span>
-  <a href="study-guide.html" style="background:#fff;color:#1a6dcc;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:'Epilogue',sans-serif;letter-spacing:.04em;">Open Study Guide →</a>
-</div>
-<div class="motivation-banner">
-  <div class="motivation-text">Open the trace. <em>Trust what you see.</em></div>
-  <p class="motivation-sub">Covers Wireshark's suite of command-line tools: Tshark for command-line capture and analysis, Capinfos for trace file statistics, Mergecap for merging multiple trace files, Editcap for manipulating trace files (splitting, timestamp adjustment, duplicate removal), Dumpcap for lightweight capture, and Text2pcap for converting hex dumps to pcap format.</p>
-</div>
-
-<div class="top-panels">
-  <div class="qpanel" id="qpanel">
-    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-      <span class="qpanel-title">MY QUESTIONS</span>
-      <span class="qpanel-count" id="qpanel-count">0</span>
-      <span class="qpanel-hint">— click to expand</span>
-      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-    </button>
-    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
-  </div>
-  <div class="notes-panel" id="notes-panel">
-    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-      <span class="notes-panel-title">MY NOTES</span>
-      <span class="notes-panel-count" id="notes-panel-count">0</span>
-      <span class="notes-panel-hint">— click to expand</span>
-      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-    </button>
-    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-  </div>
-</div>
-
-<nav class="section-nav">
-  <button class="nav-tab active" data-target="sec-files" onclick="navTo('sec-files')">📁 Trace Files</button>
-  <button class="nav-tab" data-target="sec-questions" onclick="navTo('sec-questions')">❓ Questions</button>
-  <button class="nav-tab" data-target="sec-tools" onclick="navTo('sec-tools')">🛠 Notes</button>
-  <a href="study-guide.html" class="nav-sg-link">📖 Study Guide →</a>
-</nav>
-
+<header><div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a> › Chapter 33: Command-Line Tools</div><div class="eyebrow"><span class="dot"></span> Practice Lab</div><h1>Chapter 33: Command-Line Tools</h1></header>
+<div class="motivation-banner">Work through each scenario, record your observations, then check the model answers.</div>
+<div class="ch-nav"><a class="nav-btn" href="../chapter-32-suspect-traffic/index.html">← Chapter 32: Suspect Traffic</a><a class="nav-btn" href="../../index.html">Hub</a></div>
+<div class="q-panel-wrap"><div class="q-panel"><div class="q-panel-hdr" onclick="toggleQPanel()"><h3>💭 My Questions</h3><span id="qp-toggle">▾</span></div><div class="q-panel-body" id="q-panel-body"><div class="q-input-row"><input class="q-input" id="q-input" type="text" placeholder="Add a question…"><button class="btn-add-q" onclick="addQuestion()">+ Add</button></div><ul class="q-list" id="q-list"></ul></div></div></div>
 <main>
-<div class="main-content">
-
-  <div class="section-block" id="sec-files">
-    <div class="section-label">Chapter 33 · Trace Files</div>
-    <h2>Files for This Chapter</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;">Download from <a href="https://www.wiresharkbook.com" target="_blank" style="color:var(--blue)">wiresharkbook.com</a> and open in Wireshark before answering.</p>
-    <div class="files-grid">
-      <span class="file-badge">ftp-clientside.pcapng</span><span class="file-badge">ftp-serverside.pcapng</span><span class="file-badge">tcp-pktloss94040.pcapng</span>
+<div class="content">
+  <div class="intro-box"><h2>Chapter 33: Command-Line Tools</h2><p>Chapter 33 covers Wireshark's command-line companions — TShark (CLI packet analyzer), dumpcap (high-performance capture engine), Capinfos (trace file info), and Editcap/Mergecap (trace file manipulation). These tools enable scripting, automation, and large-scale trace analysis.</p></div>
+  <div class="section-label">Guided Practice — TShark Commands</div>
+<div class="qa-card" id="card-q1">
+  <div class="qa-badge">Concept — Q1</div>
+  <div class="qa-question">What is TShark, and how does it relate to Wireshark? Write a TShark command that captures 100 packets on interface eth0 and saves them to a file called output.pcap.</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="q1" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('q1')">Save</button>
+      <button class="btn-clear" onclick="clearAns('q1')">Clear</button>
+      <button class="btn-reveal locked" id="rev-q1" onclick="revealAns('q1')" disabled>🔒 Model Answer</button>
     </div>
-    <div class="mental-note-block">
-      <div class="mental-note-block-icon">🧠</div>
-      <div class="mental-note-block-inner">
-        <div class="mental-note-block-label">MENTAL NOTE</div>
-        <div class="mental-note-block-text">Covers Wireshark's suite of command-line tools: Tshark for command-line capture and analysis, Capinfos for trace file statistics, Mergecap for merging multiple trace files, Editcap</div>
-      </div>
-    </div>
+    <div class="model-answer" id="ma-q1" style="display:none">TShark is Wireshark's command-line counterpart — it uses the same dissectors and display filters as the GUI but runs without a graphical interface, making it ideal for remote servers, scripts, and automation. Command: <code>tshark -i eth0 -c 100 -w output.pcap</code>. Flags: <code>-i</code> = interface, <code>-c</code> = count (stop after N packets), <code>-w</code> = write to file.</div>
   </div>
-
-  <div class="section-block" id="sec-questions">
-    <div class="section-label">Practice What You've Learned</div>
-    <h2>Questions</h2>
-    
-        
-        <div class="practice-q" id="q1">
-          <div class="practice-q-header">
-            <span class="q-badge">Q1</span>
-            <p class="q-body-text">Open ftp-clientside.pcapng and ftp-serverside.pcapng. What is the timestamp of the first packet in each trace file? Use editcap if you need to alter the timestamp of one trace file to align them.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="1" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(1, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-1"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-1" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">The timestamps in the two trace files were likely captured on different hosts that were not time-synchronized via NTP. The client-side trace and server-side trace will have timestamps reflecting their respective local clocks, which may differ by milliseconds or more. Use editcap with the -t parameter to adjust one file's timestamps before merging.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q2">
-          <div class="practice-q-header">
-            <span class="q-badge">Q2</span>
-            <p class="q-body-text">Use Mergecap to combine ftp-clientside.pcapng and ftp-serverside.pcapng. Let Wireshark merge the files based on timestamp information.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="2" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(2, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-2"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-2" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">When the merged trace is examined, both copies of each packet appear — one captured at the client location and one captured at the server location. They are not true duplicates because the MAC headers differ: the client-side copy shows the client's MAC as source, while the server-side copy shows the last router hop's MAC as source. Adding a hardware address column to the Packet List pane makes this distinction immediately visible.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q3">
-          <div class="practice-q-header">
-            <span class="q-badge">Q3</span>
-            <p class="q-body-text">When you examine the combined trace file, you will see what appear to be duplicates. Examine the MAC header to see the differences. Add a hardware address column to the Packet List pane to make this more evident.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="3" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(3, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-3"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-3" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">Use the command: editcap -c 20000 tcp-pktloss94040.pcapng split_output.pcapng. The -c parameter specifies the maximum packet count per output file, and Editcap will automatically create sequentially numbered files with date/timestamp suffixes, each containing no more than 20,000 packets.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q4">
-          <div class="practice-q-header">
-            <span class="q-badge">Q4</span>
-            <p class="q-body-text">Open tcp-pktloss94040.pcapng. Consider building an IO Graph to compare the various TCP problems. Use Editcap to split the file into separate trace files with a maximum of 20,000 packets in each.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="4" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(4, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-4"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-  </div>
-
-  <div class="section-block" id="sec-tools">
-    <div class="section-label">Study Tools</div>
-    <h2>Questions &amp; Notes</h2>
-    <div class="lesson-tools">
-      <div class="lesson-tools-grid">
-        <div>
-          <div class="tool-label">Ask a Question</div>
-          <textarea class="tool-textarea" id="q-general" placeholder="What are you unsure about in this chapter?" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('general')">Add Question</button></div>
-        </div>
-        <div>
-          <div class="tool-label">Add a Note</div>
-          <textarea class="tool-textarea" id="note-general" placeholder="Key insight, pattern, or tip to remember…" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addNote('general')">+ Add Note</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
-
-<aside class="sidebar">
-  <div class="sidebar-card">
-    <h3>Navigation</h3>
-    <div class="sidebar-nav-links">
-      <a class="sidebar-link" href="../index.html">🦈 All Chapters <span class="arrow">›</span></a>
-      <a class="sidebar-link" href="../chapter-32/index.html"><span>←</span> Ch 32: Analyze Suspect Traffic…<span class="arrow">›</span></a>
-      
+<div class="qa-card" id="card-q2">
+  <div class="qa-badge">Concept — Q2</div>
+  <div class="qa-question">Write a TShark command that reads an existing trace file and prints only the source IP, destination IP, and protocol for each packet. Then write one that counts HTTP GET requests.</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="q2" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('q2')">Save</button>
+      <button class="btn-clear" onclick="clearAns('q2')">Clear</button>
+      <button class="btn-reveal locked" id="rev-q2" onclick="revealAns('q2')" disabled>🔒 Model Answer</button>
     </div>
+    <div class="model-answer" id="ma-q2" style="display:none">Print fields: <code>tshark -r input.pcap -T fields -e ip.src -e ip.dst -e _ws.col.Protocol</code>. Count HTTP GETs: <code>tshark -r input.pcap -Y 'http.request.method=="GET"' | wc -l</code>. The <code>-Y</code> flag applies a display filter (same syntax as Wireshark GUI). <code>-T fields -e</code> extracts specific fields in tab-delimited format, ideal for piping to grep, awk, or Python.</div>
   </div>
-
-  <div class="sidebar-card">
-    <h3>Progress — Ch 33</h3>
-    <div class="progress-summary">
-      <span id="prog-text">0 / 4 answered</span>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+<div class="qa-card" id="card-q3">
+  <div class="qa-badge">Concept — Q3</div>
+  <div class="qa-question">What is the purpose of <code>editcap</code> and <code>mergecap</code>? Give a use-case for each.</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="q3" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('q3')">Save</button>
+      <button class="btn-clear" onclick="clearAns('q3')">Clear</button>
+      <button class="btn-reveal locked" id="rev-q3" onclick="revealAns('q3')" disabled>🔒 Model Answer</button>
     </div>
-    <div class="progress-checklist">
-      <label class="check-item" data-qi="1"><input type="checkbox" onchange="updateProgress()"> Q1: Open ftp-clientside.pcapng and ftp-serverside.pcapng. W…</label><label class="check-item" data-qi="2"><input type="checkbox" onchange="updateProgress()"> Q2: Use Mergecap to combine ftp-clientside.pcapng and ftp-s…</label><label class="check-item" data-qi="3"><input type="checkbox" onchange="updateProgress()"> Q3: When you examine the combined trace file, you will see …</label><label class="check-item" data-qi="4"><input type="checkbox" onchange="updateProgress()"> Q4: Open tcp-pktloss94040.pcapng. Consider building an IO G…</label>
-    </div>
+    <div class="model-answer" id="ma-q3" style="display:none"><code>editcap</code> modifies existing trace files: split a large capture into time-based segments (<code>editcap -i 60 big.pcap chunk_.pcap</code> = one file per 60 seconds), remove duplicate packets (<code>-d</code>), or convert between capture formats. <code>mergecap</code> combines multiple pcap files into one (<code>mergecap -w combined.pcap file1.pcap file2.pcap</code>), useful when you have captures from multiple interfaces or time periods that need to be analyzed together.</div>
   </div>
-
+</div>
+  <div class="section-label">Optional Traces</div>
+  <div class="opt-section">
+<div class="opt-card">
+  <div class="opt-name">TShark — live analysis</div>
+  <div class="opt-desc">Open a terminal and run: <code>tshark -i [your-interface] -Y 'dns' -T fields -e dns.qry.name</code>. Watch DNS queries scroll in real time. Replace 'dns' with 'http.request' to watch HTTP requests live.</div>
+  <textarea class="opt-note" rows="2" placeholder="TShark live output observations…"></textarea>
+</div>
+<div class="opt-card">
+  <div class="opt-name">Capinfos — trace metadata</div>
+  <div class="opt-desc">Run <code>capinfos [any-trace.pcapng]</code> on one of the book's trace files. Record: file format, number of packets, duration, average packet rate, data byte rate. This is faster than opening Wireshark's Statistics > Summary.</div>
+  <textarea class="opt-note" rows="2" placeholder="Capinfos output values…"></textarea>
+</div>
+<div class="opt-card">
+  <div class="opt-name">TShark — statistics mode</div>
+  <div class="opt-desc">Run <code>tshark -r [trace.pcap] -q -z io,stat,1</code> to get a per-second I/O statistics report from the command line. Compare to Wireshark's I/O Graph.</div>
+  <textarea class="opt-note" rows="2" placeholder="TShark statistics output observations…"></textarea>
+</div></div>
+  <div class="section-label">Review Questions</div>
   
-      <div class="quick-ref">
-        <h4>Trace Files</h4>
-        <div class="qr-row"><span class="qr-term">ftp-clientside.pcapng</span><span class="qr-def">Ftp Clientside</span></div><div class="qr-row"><span class="qr-term">ftp-serverside.pcapng</span><span class="qr-def">Ftp Serverside</span></div><div class="qr-row"><span class="qr-term">tcp-pktloss94040.pcapng</span><span class="qr-def">Tcp Pktloss94040</span></div>
-      </div>
-</aside>
-</main>
-
-<div class="chapter-nav">
-  <a href="../chapter-32-suspect-traffic/index.html" class="chapter-nav-btn">← Ch 32 · Suspect Traffic</a>
-  <span></span>
+<div class="qa-card" id="card-r1">
+  <div class="qa-badge">Review Q33.1</div>
+  <div class="qa-question">What TShark flag applies a display filter when reading a trace file, and what flag applies a capture filter during live capture?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="r1" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('r1')">Save</button>
+      <button class="btn-clear" onclick="clearAns('r1')">Clear</button>
+      <button class="btn-reveal locked" id="rev-r1" onclick="revealAns('r1')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="model-answer" id="ma-r1" style="display:none">Display filter (reading files or live): <code>-Y 'filter-expression'</code> (same syntax as Wireshark display filters). Capture filter (live capture only): <code>-f 'bpf-expression'</code> (BPF syntax). Example: <code>tshark -i eth0 -f 'port 80' -Y 'http.request.method=="GET"'</code> captures only port 80 traffic (-f) then applies display filter to show only GETs (-Y).</div>
+  </div>
 </div>
-
-<footer>
-  <div>Chapter 33 · Effective Use of Command Line Tools</div>
-  <div>Wireshark Network Analysis 2nd Ed</div>
-</footer>
-
-<script>
-
-const PAGE_KEY='ws-ch33';
-const TOTAL_Q=4;
-
-// ── Q-Panel ──
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');}
-function saveQArr(qs){localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));}
-function addQuestion(key){const ta=document.getElementById('q-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const qs=getQArr();qs.push({id:Date.now(),section:key,text});saveQArr(qs);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const body=document.getElementById('qpanel-body');const header=document.getElementById('qpanel-header');const chevron=document.getElementById('qpanel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',open);}
-function renderQPanel(){const qs=getQArr();const count=document.getElementById('qpanel-count');if(count){count.textContent=qs.length;count.style.display=qs.length?'inline':'none';}const hint=document.querySelector('.qpanel-hint');if(hint)hint.textContent=qs.length?`— ${qs.length} question${qs.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('qpanel-body');if(!body)return;if(!qs.length){body.innerHTML='<p class="no-questions">No questions yet.</p>';return;}let html='';qs.forEach((q,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;
-});body.innerHTML=html;}
-
-// ── Notes Panel ──
-function getNotesArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNotesArr(ns){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(ns));}
-function addNote(key){const ta=document.getElementById('note-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const ns=getNotesArr();ns.push({id:Date.now(),section:key,text});saveNotesArr(ns);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNotesArr(getNotesArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const body=document.getElementById('notes-panel-body');const header=document.getElementById('notes-panel-header');const chevron=document.getElementById('notes-panel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',open);}
-function renderNotesPanel(){const ns=getNotesArr();const count=document.getElementById('notes-panel-count');if(count){count.textContent=ns.length;count.style.display=ns.length?'inline':'none';}const hint=document.querySelector('.notes-panel-hint');if(hint)hint.textContent=ns.length?`— ${ns.length} note${ns.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('notes-panel-body');if(!body)return;if(!ns.length){body.innerHTML='<p class="no-questions">No notes yet. Add one from any question below.</p>';return;}let html='';ns.forEach((n,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${n.id})">✕</button></div>`;
-});body.innerHTML=html;}
-
-// ── Answer autosave ──
-
-function onAnswerInput(q, val) {
-  localStorage.setItem(PAGE_KEY + '-ans-' + q, val);
-  const saveEl = document.getElementById('saved-' + q);
-  if (saveEl) { saveEl.textContent = val.trim() ? '' : ''; }
-  const revealBtn = document.getElementById('reveal-' + q);
-  if (revealBtn) revealBtn.disabled = !val.trim();
-  updateProgress();
-}
-function revealAnswer(q) {
-  const block = document.getElementById('model-' + q);
-  const btn   = document.getElementById('reveal-' + q);
-  if (!block || !btn) return;
-  const hidden = block.style.display === 'none' || block.style.display === '';
-  block.style.display = hidden ? 'block' : 'none';
-  btn.textContent = hidden ? '▲ Hide Model Answer' : '💡 See Model Answer';
-}
-
-function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
-
-// ── Progress ──
-function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}
-
-// ── Section nav highlight ──
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-
-// ── Page transitions ──
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-
-document.addEventListener('DOMContentLoaded', function(){
-  renderQPanel(); renderNotesPanel();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  // Restore saved answers
-  document.querySelectorAll('[data-q]').forEach(function(ta){
-    const q=ta.dataset.q;
-    const saved=localStorage.getItem(PAGE_KEY+'-ans-'+q);
-    if(saved)ta.value=saved;
-  });
-  updateProgress();
-  initSectionNav();
-  // Restore reveal button state for saved answers
-  document.querySelectorAll('[data-q]').forEach(function(ta) {
-    const q = ta.dataset.q;
-    const saved = localStorage.getItem(PAGE_KEY + '-ans-' + q);
-    if (saved && saved.trim()) {
-      const btn = document.getElementById('reveal-' + q);
-      if (btn) btn.disabled = false;
-    }
-  });
-  initPT();
-});
-</script>
+<div class="qa-card" id="card-r2">
+  <div class="qa-badge">Review Q33.2</div>
+  <div class="qa-question">What is dumpcap, and when would you use it instead of TShark or Wireshark?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="r2" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('r2')">Save</button>
+      <button class="btn-clear" onclick="clearAns('r2')">Clear</button>
+      <button class="btn-reveal locked" id="rev-r2" onclick="revealAns('r2')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="model-answer" id="ma-r2" style="display:none">Dumpcap is Wireshark's dedicated capture engine — it runs with minimal overhead and can capture at very high packet rates without dropping packets, even on busy links. Use it when you need long-running captures on production systems where you can't afford the overhead of the full TShark dissection engine. It only captures (no analysis); you analyze the resulting pcap files later with TShark or Wireshark. It also supports ring buffer mode (<code>-b filesize:100 -b files:10</code>) for continuous capture with automatic file rotation.</div>
+  </div>
+</div>
+<div class="qa-card" id="card-r3">
+  <div class="qa-badge">Review Q33.3</div>
+  <div class="qa-question">How would you use editcap to extract only the first 10 minutes of traffic from a 2-hour capture file?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="r3" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('r3')">Save</button>
+      <button class="btn-clear" onclick="clearAns('r3')">Clear</button>
+      <button class="btn-reveal locked" id="rev-r3" onclick="revealAns('r3')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="model-answer" id="ma-r3" style="display:none"><code>editcap -A [start-time] -B [end-time] input.pcap output.pcap</code> where times are in YYYY-MM-DD HH:MM:SS format. Alternatively, to extract by packet count: <code>editcap -r input.pcap output.pcap 1-N</code> where N is the packet number corresponding to 10 minutes in. Or split by time intervals: <code>editcap -i 600 input.pcap chunk_.pcap</code> splits into 600-second (10-minute) files automatically.</div>
+  </div>
+</div>
+</div>
+<div class="sidebar">
+  <div class="sidebar-card"><a class="hub-link" href="../../index.html">← Wireshark Hub</a><h3>Progress</h3><div class="progress-label"><span id="prog-count">0</span> / 6 answered</div><div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div></div>
+  <div class="sidebar-card"><h3>Quick Reference</h3><div class="qr-card"><div class="qr-term">tshark -Y 'filter'</div><div class="qr-def">Apply display filter when reading/capturing. Same syntax as GUI.</div></div>
+<div class="qr-card"><div class="qr-term">tshark -T fields -e</div><div class="qr-def">Extract specific fields in tab-delimited output for scripting.</div></div>
+<div class="qr-card"><div class="qr-term">dumpcap</div><div class="qr-def">High-performance capture-only engine. Use for long captures on busy links.</div></div>
+<div class="qr-card"><div class="qr-term">editcap / mergecap</div><div class="qr-def">Split/modify or merge pcap files. editcap -i 60 = 60-second splits.</div></div>
+</div>
+</div>
+</main>
+<footer>Wireshark Network Analysis · Chapter 33: Command-Line Tools</footer>
+<script>const PAGE_KEY='ws-ch33';const PROG_KEYS=["q1", "q2", "q3", "r1", "r2", "r3"];const TOTAL_Q=6;
+function saveAns(k){const ta=document.querySelector(`.ans-input[data-key="${k}"]`);if(!ta)return;localStorage.setItem(PAGE_KEY+'-ans-'+k,ta.value);const b=document.getElementById('rev-'+k);if(b&&ta.value.trim()){b.disabled=false;b.classList.remove('locked')}updateProgress()}
+function clearAns(k){const ta=document.querySelector(`.ans-input[data-key="${k}"]`);if(ta){ta.value='';localStorage.removeItem(PAGE_KEY+'-ans-'+k)}const b=document.getElementById('rev-'+k);if(b){b.disabled=true;b.classList.add('locked')}const m=document.getElementById('ma-'+k);if(m)m.style.display='none';updateProgress()}
+function revealAns(k){const m=document.getElementById('ma-'+k);if(m)m.style.display=m.style.display==='none'?'block':'none'}
+function updateProgress(){let c=0;PROG_KEYS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-ans-'+k))c++});document.getElementById('prog-count').textContent=c;document.getElementById('prog-bar').style.width=(c/TOTAL_Q*100)+'%'}
+function toggleQPanel(){const b=document.getElementById('q-panel-body');const t=document.getElementById('qp-toggle');b.classList.toggle('open');t.textContent=b.classList.contains('open')?'▴':'▾'}
+function addQuestion(){const i=document.getElementById('q-input');const t=i.value.trim();if(!t)return;const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.push(t);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));i.value='';renderQList()}
+function deleteQuestion(idx){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.splice(idx,1);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));renderQList()}
+function renderQList(){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');const ul=document.getElementById('q-list');ul.innerHTML=qs.map((q,i)=>`<li><span>${q}</span><button class="btn-del-q" onclick="deleteQuestion(${i})">×</button></li>`).join('')}
+document.addEventListener('DOMContentLoaded',()=>{PROG_KEYS.forEach(k=>{const ta=document.querySelector(`.ans-input[data-key="${k}"]`);const sv=localStorage.getItem(PAGE_KEY+'-ans-'+k);if(ta&&sv)ta.value=sv;const b=document.getElementById('rev-'+k);if(b&&sv&&sv.trim()){b.disabled=false;b.classList.remove('locked')}});document.querySelectorAll('.opt-note').forEach((ta,i)=>{const sv=localStorage.getItem(PAGE_KEY+'-opt-'+i);if(sv)ta.value=sv;ta.addEventListener('input',()=>localStorage.setItem(PAGE_KEY+'-opt-'+i,ta.value))});renderQList();updateProgress();sessionStorage.setItem('pt','1');document.body.style.opacity='1'});</script>
 </body>
 </html>

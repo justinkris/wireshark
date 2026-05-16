@@ -2,577 +2,1085 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chapter 1 — The World of Network Analysis · Study Guide</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 1: The World of Network Analysis — Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
-}
 html.pt-init body{opacity:0;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
-.header-left{flex:1;}
-.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
-.breadcrumb-sep{color:rgba(255,255,255,0.2);}
-.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
-.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
-h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
-header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
-.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
-.motivation-text em{font-style:italic;color:var(--blue);}
-.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
-.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
-.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
-.qpanel,.notes-panel{background:var(--surface);}
-.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
-.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
-.qpanel-body.open,.notes-panel-body.open{display:block;}
-.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.q-item:last-child{border-bottom:none;}
-.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
-.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
-.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
-.q-del:hover{color:var(--red);}
-.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
-.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
-.nav-tab:hover{color:var(--text);}
-.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
-.main-content{min-width:0;}
-.section-block{margin-bottom:40px;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
-.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
-.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.section-block strong{color:var(--text);font-weight:600;}
-.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
-.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
-.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
-.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
-.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
-.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
-.callout-blue strong{color:var(--blue);}
-.callout-amber strong{color:var(--amber);}
-.callout-red strong{color:var(--red);}
-.callout-green strong{color:var(--green);}
-.filter-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
-.filter-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
-.filter-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);vertical-align:top;}
-.filter-table tr:last-child td{border-bottom:none;}
-.filter-table tr:hover td{background:var(--surface-2);}
-.filter-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);background:var(--blue-glow);padding:2px 7px;border-radius:5px;}
-.rcode-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
-.rcode-table th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;}
-.rcode-table td{padding:9px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;}
-.rcode-table tr:last-child td{border-bottom:none;}
-.rcode-table tr:hover td{background:var(--surface-2);}
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
-.badge-red{background:var(--red-light);color:var(--red);}
-.badge-amber{background:var(--amber-light);color:var(--amber);}
-.badge-green{background:var(--green-light);color:var(--green);}
-.badge-blue{background:var(--blue-glow);color:var(--blue);}
-.socratic-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:16px;border-top:3px solid var(--blue);}
-.socratic-header{display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;user-select:none;}
-.socratic-header::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
-.socratic-block.soc-open .socratic-header{margin-bottom:10px;}
-.socratic-block.soc-open .socratic-header::after{content:'▾ Collapse';}
-.socratic-block:not(.soc-open) .socratic-insight,
-.socratic-block:not(.soc-open) .socratic-questions,
-.socratic-block:not(.soc-open) .answer-area{display:none;}
-.socratic-icon{font-size:17px;flex-shrink:0;}
-.socratic-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text-muted);}
-.socratic-insight{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;border-left:3px solid var(--border);padding-left:12px;font-style:italic;}
-.socratic-questions{list-style:none;padding:0;margin:0;}
-.socratic-questions li{font-size:12.5px;color:var(--text);padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--border-dim);line-height:1.6;}
-.socratic-questions li:last-child{border-bottom:none;}
-.socratic-questions li::before{content:'?';position:absolute;left:0;font-weight:700;font-size:12px;top:8px;color:var(--blue);}
-.answer-area{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
-.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.answer-textarea:focus{border-color:var(--text);}
-.answer-textarea:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
-.answer-buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
-.btn-add-answer{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-answer:hover:not(:disabled){opacity:.85;}
-.btn-add-answer:disabled{opacity:.5;cursor:default;}
-.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-see-answer:disabled{opacity:.5;cursor:not-allowed;}
-.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
-.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
-.model-answers{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-.model-answer-item{padding:10px 0;border-bottom:1px solid var(--border-dim);}
-.model-answer-item:first-child{padding-top:0;}
-.model-answer-item:last-child{border-bottom:none;padding-bottom:0;}
-.model-answer-q{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:4px;}
-.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.7;}
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.analogy-box{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #b45309;border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;}
-.analogy-label{display:flex;align-items:center;gap:6px;user-select:none;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.16em;color:#b45309;margin-bottom:4px;}
-.analogy-label::after{content:'▾  Reveal illustration';margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:none;opacity:.75;}
-.analogy-label:hover::after{opacity:1;}
-.analogy-box.expanded>.analogy-label::after{content:'▴  Hide illustration';}
-.analogy-text{font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}
-.analogy-box>.analogy-img{display:none;}
-.analogy-box.expanded>.analogy-img{display:block;}
-.analogy-img{margin-top:14px;background:rgba(255,255,255,0.5);border-radius:10px;padding:14px;text-align:center;}
-.prompt-toggle{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Epilogue',sans-serif;text-transform:uppercase;}
-.prompt-toggle:hover{color:var(--text);border-color:var(--text);}
-.prompt-content{margin-top:10px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:8px;font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.65;text-align:left;}
-.prompt-content[hidden]{display:none;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-.sidebar{position:sticky;top:60px;}
-.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
-.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
-.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
-.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
-.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
-.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
-.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
-.qr-row:last-child{border-bottom:none;}
-.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
-.qr-def{color:rgba(255,255,255,.6);text-align:right;}
-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-}
-.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
-.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
-.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
-.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);font-family:'Epilogue',sans-serif;}
-@media(max-width:640px){.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:#eef4ff;color:#0d1a2e;min-height:100vh;}
+a{color:#1a6dcc;text-decoration:none;}
+
+/* Header */
+header{background:#0d1a2e;padding:22px 36px 26px;color:#fff;}
+.breadcrumb{font-size:12px;color:#93c5fd;margin-bottom:10px;}
+.breadcrumb a{color:#93c5fd;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:#1e3a5f;border-radius:20px;padding:4px 14px;font-size:11px;color:#93c5fd;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#93c5fd;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;line-height:1.15;}
+h1 em{font-style:italic;color:#93c5fd;}
+.header-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:6px;}
+
+/* Section nav */
+.sec-nav{background:#fff;border-bottom:2px solid #bfdbfe;position:sticky;top:0;z-index:40;overflow-x:auto;}
+.sec-nav-inner{display:flex;padding:0 28px;gap:2px;min-width:max-content;}
+.sec-tab{font-size:12px;font-weight:600;color:#475569;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;}
+.sec-tab:hover{color:#1a6dcc;border-color:#bfdbfe;}
+
+/* Q Panel */
+.q-panel-wrap{padding:14px 32px 0;}
+.q-panel{background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;}
+.q-panel-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;cursor:pointer;background:#eef4ff;}
+.q-panel-hdr h3{font-size:14px;font-weight:600;color:#1a6dcc;}
+.q-panel-body{padding:12px 16px;display:none;}
+.q-panel-body.open{display:block;}
+.q-input-row{display:flex;gap:8px;margin-bottom:10px;}
+.q-input{flex:1;border:1px solid #bfdbfe;border-radius:6px;padding:8px 10px;font-size:13px;font-family:'Epilogue',sans-serif;}
+.btn-add-q{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;}
+.q-list{list-style:none;}
+.q-list li{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f0f4f8;font-size:13px;}
+.btn-del-q{background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:0 4px;}
+
+/* Main layout */
+main{display:grid;grid-template-columns:1fr 310px;gap:24px;padding:24px 32px;max-width:1400px;margin:0 auto;}
+.content{min-width:0;}
+
+/* Section wrapper */
+.sg-section{margin-bottom:40px;}
+.sec-anchor{display:block;height:64px;margin-top:-64px;visibility:hidden;}
+.sec-heading{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:#0d1a2e;margin:28px 0 6px;padding-top:8px;border-top:2px solid #bfdbfe;}
+.sec-sub{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a6dcc;margin:20px 0 6px;}
+.content-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:22px 26px;margin-bottom:16px;line-height:1.75;font-size:15px;}
+.content-card p{margin-bottom:12px;}
+.content-card p:last-child{margin-bottom:0;}
+.content-card ul,.content-card ol{padding-left:20px;margin:8px 0 12px;}
+.content-card li{margin-bottom:5px;line-height:1.6;}
+.content-card h4{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#0d1a2e;margin:16px 0 6px;}
+.content-card strong{color:#0f3d7a;}
+code{background:#f0f4f8;padding:2px 6px;border-radius:4px;font-size:13px;color:#1a6dcc;}
+
+/* Steps */
+.step-block{margin:12px 0;padding:14px 18px;background:#f8fafc;border-left:3px solid #1a6dcc;border-radius:0 8px 8px 0;}
+.step-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#1a6dcc;margin-bottom:4px;}
+
+/* Tips */
+.tip-block{background:#f0fdf4;border:1px solid #a7e0c0;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:14px;line-height:1.65;}
+.tip-block::before{content:"✦ TIP · ";font-weight:700;color:#1a7c4a;font-size:11px;letter-spacing:.08em;display:block;margin-bottom:4px;}
+
+/* Insight block */
+.insight-block{background:#fff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.insight-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;cursor:pointer;background:#eef4ff;border-bottom:1px solid #bfdbfe;}
+.insight-hdr:hover{background:#dbeafe;}
+.ins-icon{font-size:16px;}
+.ins-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6dcc;flex:1;}
+.ins-arr{font-size:14px;color:#1a6dcc;transition:transform .2s;}
+.ins-body{padding:18px 20px;}
+.ins-q{font-size:15px;line-height:1.65;margin-bottom:12px;color:#1e3a5f;font-style:italic;}
+.ins-ta{width:100%;border:1px solid #bfdbfe;border-radius:6px;padding:10px;font-size:14px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:90px;}
+.ins-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-save-ins{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-hint{background:#fff8e1;color:#92400e;border:1px solid #fcd34d;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-model-ins,.btn-see-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-model-ins.locked,.btn-see-ans.locked{opacity:.45;cursor:not-allowed;}
+.hint-box{margin-top:12px;background:#fff8e1;border:1px solid #fcd34d;border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.65;}
+.model-box{margin-top:12px;background:#f8fafc;border-left:3px solid #1a6dcc;border-radius:0 8px 8px 0;padding:14px 16px;font-size:14px;line-height:1.65;}
+.hm-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin-bottom:6px;}
+
+/* Figures */
+.figure-block{margin:20px 0;background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:14px;text-align:center;}
+.fig-ph-icon{font-size:40px;}
+.fig-cap{padding:10px 16px;font-size:13px;color:#475569;line-height:1.5;border-top:1px solid #e2e8f0;background:#f8fafc;}
+.fig-trace{color:#1a6dcc;font-style:italic;}
+
+/* Case study */
+.case-study-block{background:#fff;border:1px solid #bfdbfe;border-top:4px solid #f59e0b;border-radius:10px;padding:22px 26px;margin-bottom:16px;}
+.cs-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f59e0b;margin-bottom:6px;}
+.cs-title{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:#0d1a2e;margin-bottom:4px;}
+.cs-sub{font-size:12px;color:#64748b;margin-bottom:14px;font-style:italic;}
+.cs-body{font-size:15px;line-height:1.75;}
+.cs-body p{margin-bottom:12px;}
+.cs-body ul{padding-left:20px;margin:8px 0 12px;}
+.cs-body li{margin-bottom:5px;line-height:1.6;}
+
+/* CS image block */
+.cs-img-block{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:24px;}
+.cs-img-wrap{background:#1e293b;min-height:200px;display:flex;align-items:center;justify-content:center;}
+.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:40px;color:#93c5fd;text-align:center;}
+.cs-ph-icon{font-size:48px;display:block;}
+.cs-ph-sub{font-size:12px;color:#64748b;margin-top:4px;line-height:1.5;}
+.cs-prompt-row{padding:10px 16px;border-top:1px solid #e2e8f0;background:#f8fafc;}
+.btn-prompt{background:none;border:none;font-size:12px;color:#64748b;cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
+.btn-prompt:hover{color:#1a6dcc;}
+.cs-prompt-text{margin-top:8px;font-size:12px;color:#475569;line-height:1.65;font-style:italic;background:#f0f4f8;border-radius:6px;padding:10px 12px;}
+
+/* Review questions */
+.rq-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:20px 24px;margin-bottom:14px;}
+.rq-num{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a6dcc;margin-bottom:6px;}
+.rq-q{font-size:15px;font-weight:600;color:#0d1a2e;margin-bottom:12px;line-height:1.5;}
+.rq-ta{width:100%;border:1px solid #bfdbfe;border-radius:6px;padding:10px;font-size:14px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:90px;}
+.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+
+/* Notes area */
+.notes-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;margin-top:12px;}
+.notes-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin-bottom:8px;}
+.notes-ta{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:64px;color:#0d1a2e;}
+
+/* TLDR */
+.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:26px 30px;margin:32px 0 20px;}
+.tldr-eyebrow{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.tldr-block h3{font-family:'Fraunces',serif;font-size:1.3rem;color:#fff;margin-bottom:14px;}
+.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
+
+/* Practice button */
+.practice-btn-wrap{text-align:center;margin:32px 0 16px;}
+.practice-btn{display:inline-flex;align-items:center;gap:12px;background:#1a6dcc;color:#fff;font-family:'Epilogue',sans-serif;font-size:1.1rem;font-weight:700;padding:18px 36px;border-radius:12px;text-decoration:none;transition:background .2s,transform .1s;letter-spacing:.01em;}
+.practice-btn:hover{background:#0f3d7a;transform:translateY(-2px);}
+.practice-btn-icon{font-size:24px;}
+.practice-btn-sub{font-size:12px;font-weight:400;opacity:.8;display:block;margin-top:2px;}
+
+/* Sidebar */
+.sidebar{position:sticky;top:52px;align-self:start;display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 70px);overflow-y:auto;}
+.sb-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;}
+.sb-card h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#0d1a2e;margin-bottom:12px;}
+.hub-link{display:block;text-align:center;background:#1a6dcc;color:#fff;border-radius:8px;padding:10px;font-weight:600;font-size:13px;text-decoration:none;margin-bottom:10px;}
+.prog-label{font-size:12px;color:#64748b;margin-bottom:4px;}
+.prog-bar-wrap{background:#e2e8f0;border-radius:99px;height:8px;margin-bottom:4px;}
+.prog-bar{background:#1a6dcc;height:8px;border-radius:99px;transition:width .3s;}
+.qr-card{background:#0d1a2e;color:#e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:7px;}
+.qr-term{font-size:11px;font-weight:700;color:#93c5fd;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.qr-def{font-size:12px;line-height:1.5;}
+
+footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:16px;}
+@media(max-width:900px){main{grid-template-columns:1fr;}.sidebar{position:static;max-height:none;}}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="header-left">
-    <div class="breadcrumb">
-      <a href="../../index.html">Wireshark Index</a>
-      <span class="breadcrumb-sep">›</span>
-      <a href="../index.html">Chapter 1</a>
-      <span class="breadcrumb-sep">›</span>
-      Study Guide
-    </div>
-    <div class="header-eyebrow"><span class="dot-live"></span> Chapter 1 · Study Guide</div>
-    <h1>The World of Network <em>Analysis</em></h1>
-    <p>Wireshark Network Analysis 2nd Ed · Chapter 1 · Laura Chappell</p>
-  </div>
+  <div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a> › Chapter 1</div>
+  <div class="eyebrow"><span class="dot"></span> Study Guide</div>
+  <h1>Chapter 1: <em>The World of Network Analysis</em></h1>
+  <div class="header-sub">Wireshark Network Analysis, 2nd Edition · Laura Chappell</div>
 </header>
 
-<div class="motivation-banner">
-  <div class="motivation-text">"You can't fix what you can't see — <em>packet analysis is how you see everything.</em>"</div>
-  <p class="motivation-sub">Why network analysis matters, types of analysts, network tap vs SPAN port, path of a packet. Four sections · Socratic questions · Click-to-reveal model answers.</p>
-</div>
+<div class="sec-nav"><div class="sec-nav-inner"><a class="sec-tab" href="#sec-define">Define</a><a class="sec-tab" href="#sec-example">Analysis Example</a><a class="sec-tab" href="#sec-trouble">Troubleshooting</a><a class="sec-tab" href="#sec-security">Security Scenario</a><a class="sec-tab" href="#sec-secissues">Security &amp; Ethics</a><a class="sec-tab" href="#sec-needle">Needle in Haystack</a><a class="sec-tab" href="#sec-checklist">Analysis Tasks</a><a class="sec-tab" href="#sec-flows">Traffic Flows</a><a class="sec-tab" href="#sec-launch">Launch Session</a><a class="sec-tab" href="#sec-cases">Case Studies</a><a class="sec-tab" href="#sec-tldr">TL;DR</a><a class="sec-tab" href="#sec-review">Review Q's</a></div></div>
 
-<div class="top-panels">
-  <div class="qpanel">
-    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-      <span class="qpanel-title">MY QUESTIONS</span>
-      <span class="qpanel-count" id="qpanel-count">0</span>
-      <span class="qpanel-hint">— click to expand</span>
-      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-    </button>
-    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
-  </div>
-  <div class="notes-panel">
-    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-      <span class="notes-panel-title">MY NOTES</span>
-      <span class="notes-panel-count" id="notes-panel-count">0</span>
-      <span class="notes-panel-hint">— click to expand</span>
-      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-    </button>
-    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+<div class="q-panel-wrap">
+  <div class="q-panel">
+    <div class="q-panel-hdr" onclick="toggleQPanel()">
+      <h3>💭 My Questions</h3><span id="qp-toggle">▾</span>
+    </div>
+    <div class="q-panel-body" id="q-panel-body">
+      <div class="q-input-row">
+        <input class="q-input" id="q-input" type="text" placeholder="Add a question about this chapter…">
+        <button class="btn-add-q" onclick="addQuestion()">+ Add</button>
+      </div>
+      <ul class="q-list" id="q-list"></ul>
+    </div>
   </div>
 </div>
-
-<nav class="section-nav">
-  <button class="nav-tab active" data-target="why" onclick="navTo('why')">1 · Why Analysis</button>
-  <button class="nav-tab" data-target="analysts" onclick="navTo('analysts')">2 · Analyst Types</button>
-  <button class="nav-tab" data-target="placement" onclick="navTo('placement')">3 · Capture Placement</button>
-  <button class="nav-tab" data-target="path" onclick="navTo('path')">4 · Path of a Packet</button>
-</nav>
 
 <main>
-<div class="main-content">
+<div class="content">
 
-<!-- ═══ SECTION 1 ═══ -->
-<div class="socratic-block">
-  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
-    <span class="socratic-icon">💭</span>
-    <span class="socratic-label">THINK FIRST · WHY NETWORK ANALYSIS</span>
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 1: DEFINE NETWORK ANALYSIS
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-define"></span>
+<div class="insight-block" id="ins-define">
+  <div class="insight-hdr" onclick="toggleInsight('ins-define')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · DEFINE NETWORK ANALYSIS</span>
+    <span class="ins-arr" id="arr-ins-define">▾</span>
   </div>
-  <p class="socratic-insight">Packet analysis is the ground truth of networking — it shows you exactly what crossed the wire, not what a device or log summarizes. Before you dive in, consider what logs and SNMP can and cannot tell you about a network problem.</p>
-  <ul class="socratic-questions">
-    <li>A network engineer says "the router logs show no errors." A user says "the web page loads slowly." Which source do you trust more, and why?</li>
-    <li>Name two types of problems that packet analysis can detect that SNMP and logs cannot.</li>
-  </ul>
-  <div class="answer-area" data-section="why">
-    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
-    <div class="answer-buttons">
-      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+  <div class="ins-body" id="body-ins-define" style="display:none">
+    <p class="ins-q">Before reading this section — in your own words, what is 'network analysis'? Name two types of problems you think it could help diagnose.</p>
+    <textarea class="ins-ta" data-key="ins-define" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-define')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-define')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-define" onclick="toggleBox('model-ins-define')" disabled>🔒 Model Answer</button>
     </div>
-    <div class="model-answers" style="display:none;">
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q1 — LOGS VS PACKET CAPTURE FOR SLOW PAGE LOADS</div>
-        <div class="model-answer-text">The packet capture is more trustworthy for diagnosing slow page loads. Router logs report events the router considers noteworthy — they won't record a slow application response, high TCP RTT, or inefficient HTTP behavior unless those specifically trigger a log entry. A packet capture shows the actual bytes exchanged, timestamps between requests and responses, TCP retransmissions, and the exact time the server took to respond. "No errors in the logs" only means no errors the router was configured to log — it says nothing about application-layer latency, network path inefficiency, or server response time.</div>
-      </div>
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q2 — PROBLEMS ONLY PACKET ANALYSIS DETECTS</div>
-        <div class="model-answer-text">Two examples: (1) TCP retransmissions — a packet is sent, lost, and resent. SNMP and logs will show the connection succeeded, but only a packet capture reveals the retransmissions that added latency. (2) Application protocol errors — a server sends an HTTP 200 OK but the response body is malformed or truncated. Logs record the 200 status; only a packet capture shows the actual bytes returned and reveals the malformation. Other examples include ARP cache poisoning, SYN floods, and misconfigured keepalives — all invisible in logs but immediately visible in a capture.</div>
-      </div>
-    </div>
+    <div class="hint-box" id="hint-ins-define" style="display:none"><div class="hm-label">HINT</div><p>Think about what it means to actually <em>watch</em> the packets traveling on a wire. What kinds of things would be visible that are invisible from an application's point of view?</p></div>
+    <div class="model-box" id="model-ins-define" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Network analysis (aka 'protocol analysis') is the process of <strong>listening to and analyzing network traffic</strong> to identify performance problems, locate security breaches, analyze application behavior, and perform capacity planning. Three skills are required to excel: (1) a solid understanding of TCP/IP communications, (2) comfort using Wireshark, and (3) familiarity with packet structures and typical packet flows.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Define Network Analysis</h2>
+  <div class="content-card">
+    <p>Network analysis is the process of <strong>listening to and analyzing network traffic</strong>. It offers insight into network communications to identify performance problems, locate security breaches, analyze application behavior, and perform capacity planning. Network analysis (aka "protocol analysis") is a process used by IT professionals responsible for network performance and security.</p>
+    <p>To be a top-notch network analyst, you need three foundational skills:</p>
+    <ol>
+      <li>A solid understanding of TCP/IP communications</li>
+      <li>Comfort using Wireshark</li>
+      <li>Familiarity with packet structures and typical packet flows</li>
+    </ol>
+    <p>Network analyzer tools are often referred to as "sniffers" and may be hardware-plus-software or software-only solutions. Wireshark is an open-source, software-only solution — the world's most popular network analyzer.</p>
+  </div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Define Network Analysis</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-<div class="section-block" id="why">
-  <div class="section-label">Section 1</div>
-  <h2>Why Network Analysis Matters</h2>
-  <p>Network analysts use packet analysis to troubleshoot connectivity, measure performance, verify security, and audit application behavior. Wireshark is a packet analyzer (sniffer) that captures frames off the wire and decodes them into human-readable protocol fields. Unlike logs and SNMP, which summarize events, packet captures show the exact bytes exchanged — the ground truth of network communication.</p>
-
-  <div class="callout callout-blue">
-    <strong>The ground truth principle</strong>
-    Packet analysis is the only technique that lets you see exactly what was sent and received, not what a device or application reports it sent.
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 2: FOLLOW AN ANALYSIS EXAMPLE
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-example"></span>
+<div class="insight-block" id="ins-example">
+  <div class="insight-hdr" onclick="toggleInsight('ins-example')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · ANALYSIS EXAMPLE</span>
+    <span class="ins-arr" id="arr-ins-example">▾</span>
+  </div>
+  <div class="ins-body" id="body-ins-example" style="display:none">
+    <p class="ins-q">Your file download is taking 10× longer than expected. Before opening Wireshark — where do you suspect the bottleneck might be, and how would you verify your guess without packet-level visibility?</p>
+    <textarea class="ins-ta" data-key="ins-example" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-example')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-example')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-example" onclick="toggleBox('model-ins-example')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="hint-box" id="hint-ins-example" style="display:none"><div class="hm-label">HINT</div><p>Think about the chain of events in a download: DNS query → TCP handshake → HTTP GET → server response → data transfer. The delay could be in any of these steps — each requires a different fix.</p></div>
+    <div class="model-box" id="model-ins-example" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Without Wireshark you're guessing: Is it DNS? The TCP setup? The server? Your ISP? With Wireshark you can <strong>measure each step precisely</strong> — DNS response time, TCP RTT from SYN/SYN-ACK delta, Time to First Byte (server processing), and actual throughput rate. Each points to a different root cause and a different team's responsibility.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Follow an Analysis Example</h2>
+  <div class="content-card">
+    <p>A typical network analysis session includes three tasks:</p>
+    <ul>
+      <li>Capture packets at the appropriate location</li>
+      <li>Apply filters to focus on traffic of interest</li>
+      <li>Review and identify anomalies in the traffic</li>
+    </ul>
+    <p>Consider browsing to <strong>www.wireshark.org/download.html</strong>. Here's what happens at the packet level:</p>
+    <ol>
+      <li>Your system performs a <strong>DNS lookup</strong> for www.wireshark.org — both A (IPv4) and AAAA (IPv6) records may be requested simultaneously on dual-stack systems.</li>
+      <li>Your client makes a <strong>TCP connection</strong> and sends an HTTP GET request for the default page (<code>GET /</code>).</li>
+      <li>The server responds with <strong>200 OK</strong> and begins downloading the page, followed by stylesheets, images, and other resources.</li>
+    </ol>
   </div>
 
-  <div class="mental-note-block">
-    <div class="mental-note-block-icon">🧠</div>
-    <div class="mental-note-block-inner">
-      <div class="mental-note-block-label">MENTAL NOTE</div>
-      <div class="mental-note-block-text">Wireshark = packet analyzer (not protocol generator). Captures frames off wire. Decodes each header layer. Shows ground truth — what actually crossed the wire, not what was logged. Used for: troubleshooting, performance, security, app behavior.</div>
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig1-client-requests-default-page.png" alt="Figure 1: The client requests the Wireshark default page"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 1 — open trace file in Wireshark to view this screen</span>
     </div>
   </div>
+  <div class="fig-cap"><strong>Figure 1.</strong> The client requests the Wireshark default page <span class="fig-trace">[http-wiresharkdownload-slow.pcapng]</span></div>
+</div>
 
-  <div class="analogy-box">
-    <div class="analogy-label">Analogy</div>
-    <div class="analogy-text">Like a court reporter transcribing every word spoken — not summarizing, not interpreting, just writing down exactly what was said. You review the transcript to find exactly who said what and when.</div>
+  <div class="content-card">
+    <p>When you click <strong>Download Wireshark</strong>, your browser requests <code>/download.html</code> and may perform another DNS query before making a TCP connection to the download server and sending a <code>GET</code> for the Wireshark executable.</p>
+    <p><em>What might you feel if there's a communications problem?</em> You'd wait, and wait, and wait — your browser spinning without progress. With Wireshark running, you would have known long before the frustration set in exactly where the delay was occurring. <strong>The packets never lie.</strong></p>
+  </div>
+
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig2-you-request-wireshark-executable.png" alt="Figure 2: You request the Wireshark executable"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 2 — open trace file in Wireshark to view this screen</span>
+    </div>
+  </div>
+  <div class="fig-cap"><strong>Figure 2.</strong> You request the Wireshark executable <span class="fig-trace">[http-wiresharkdownload-slow.pcapng]</span></div>
+</div>
+
+  <div class="content-card">
+    <p>Network analysis adds an indispensable tool to the network — just as an X-ray is indispensable to a hospital emergency room. We can <strong>SEE</strong> the DNS query being sent out, catch the timely response, watch the TCP connection request, and measure how long the server takes to respond.</p>
+    <p>In the world of finger pointing, <em>it's only the network analyst's finger that counts.</em></p>
+  </div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Analysis Example</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-<div class="lesson-tools">
-  <div class="lesson-tools-grid">
-    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-why" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('why','Why Network Analysis Matters')">Add Question</button></div></div>
-    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-why" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('why')">+ Add Note</button></div></div>
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 3: WALK-THROUGH OF A TROUBLESHOOTING SESSION
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-trouble"></span>
+<div class="insight-block" id="ins-trouble">
+  <div class="insight-hdr" onclick="toggleInsight('ins-trouble')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · TROUBLESHOOTING METHODOLOGY</span>
+    <span class="ins-arr" id="arr-ins-trouble">▾</span>
+  </div>
+  <div class="ins-body" id="body-ins-trouble" style="display:none">
+    <p class="ins-q">The troubleshooting case study follows Plan → Capture → Analyze → Repeat. Why is the 'Plan' step critical? What happens if you skip it and just start capturing everywhere?</p>
+    <textarea class="ins-ta" data-key="ins-trouble" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-trouble')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-trouble')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-trouble" onclick="toggleBox('model-ins-trouble')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="hint-box" id="hint-ins-trouble" style="display:none"><div class="hm-label">HINT</div><p>Consider: capturing at the wrong location may show you none of the problem traffic. And without knowing <em>who</em> is affected and <em>when</em>, you may capture thousands of packets that have nothing to do with the issue.</p></div>
+    <div class="model-box" id="model-ins-trouble" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Planning ensures you capture in the right place to <strong>witness the actual problem</strong>. In the case study, the team identified Mike as the consistently affected user and placed the capture probe as close to his machine as possible. Without this, a random capture on the backbone would have drowned the problem in irrelevant traffic. Planning also reveals the best capture method (TAP vs SPAN) and any filter needed.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Walk-Through of a Troubleshooting Session</h2>
+  <div class="content-card">
+    <p>This is based on an actual customer issue: branch office uploads to corporate headquarters took <strong>3 minutes when healthy</strong>, but now take <strong>10–15 minutes</strong>. Three IT staffers were assembled to assist: the infrastructure IT manager, the client IT manager, and the server IT manager.</p>
+  </div>
+
+  <div class="content-card">
+    <h4>Step 1: Plan</h4>
+    <div class="step-block">
+      <div class="step-label">Plan</div>
+      <p>The team focused on the one user who complained repeatedly — "Mike." The goal: capture as close to Mike's machine as possible. No full-duplex TAP was available, so they connected Wireshark to Mike's upstream switch and used <strong>port spanning</strong> to listen in on Mike's traffic. They verified the span command worked before proceeding.</p>
+    </div>
+
+    <h4>Step 2: Capture</h4>
+    <div class="step-block">
+      <div class="step-label">Capture</div>
+      <p>Captured all traffic without any filter. While watching live, they noticed <strong>packets highlighted in black with red foreground</strong> — Bad TCP packets flagged by Wireshark's Expert system. After Mike completed a slow upload, they stopped capturing.</p>
+    </div>
+
+    <h4>Step 3: Analyze</h4>
+    <div class="step-block">
+      <div class="step-label">Analyze</div>
+      <p>The team isolated the file upload conversation using <strong>Statistics &gt; Conversations</strong>, sorted by highest byte count, and filtered on that conversation. Key findings:</p>
+      <ul>
+        <li><strong>TCP RTT:</strong> 65ms — acceptable.</li>
+        <li><strong>IO Graph:</strong> consistently low at ~2.5 Mbps (lousy all the way through).</li>
+        <li><strong>Expert Info:</strong> &gt;12% of 20,000 packets were flagged bad — over 1,000 Retransmissions and Fast Retransmissions. Hundreds of Duplicate ACKs indicated the server noticed packet loss.</li>
+        <li>No "Previous Segment Lost" — Wireshark saw both the original and retransmission, meaning packet loss occurred <em>after</em> the capture point.</li>
+      </ul>
+    </div>
+
+    <h4>Step 4: Repeat</h4>
+    <div class="step-block">
+      <div class="step-label">Repeat</div>
+      <p>Set up capture just off the server. Critical discovery: Mike's TCP handshake <strong>did not show SACK support</strong> — instead they found <strong>"4 NOPs"</strong> (padding) in the TCP options area. A router along the path was stripping the SACK option and replacing it with padding. The server, believing Mike didn't support SACK, couldn't use selective acknowledgments for recovery — every lost packet forced a full retransmission of everything from the lost packet forward.</p>
+      <p>The culprit was a <strong>security device that performed TCP normalization</strong> as a (mis)feature. A vendor software update and reconfiguration resolved the issue.</p>
+    </div>
+  </div>
+
+  <div class="tip-block">
+    Wireshark now flags "4 NOPs in a Row" as an Expert Info warning — the very issue identified in this case study prompted the Wireshark developers to add this detection at Sharkfest 2010.
+  </div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Troubleshooting Walk-Through</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-
-<!-- ═══ SECTION 2 ═══ -->
-<div class="socratic-block">
-  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
-    <span class="socratic-icon">💭</span>
-    <span class="socratic-label">THINK FIRST · ANALYST TYPES</span>
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 4: WALK-THROUGH — SECURITY SCENARIO
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-security"></span>
+<div class="insight-block" id="ins-security">
+  <div class="insight-hdr" onclick="toggleInsight('ins-security')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · SECURITY INVESTIGATION</span>
+    <span class="ins-arr" id="arr-ins-security">▾</span>
   </div>
-  <p class="socratic-insight">Three analyst roles use the same tool — Wireshark — but look at completely different fields and patterns. The questions they ask shape what they filter for. Before reading, consider how a security analyst and a network analyst would look at the same capture differently.</p>
-  <ul class="socratic-questions">
-    <li>A security analyst and a network analyst are both looking at the same capture. What would each one focus on first?</li>
-    <li>If an application analyst sees high response times but no TCP retransmissions, where should they look next?</li>
-  </ul>
-  <div class="answer-area" data-section="analysts">
-    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
-    <div class="answer-buttons">
-      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+  <div class="ins-body" id="body-ins-security" style="display:none">
+    <p class="ins-q">How does a security investigation differ from a performance troubleshooting session? Name at least two additional considerations that apply specifically to security forensics work.</p>
+    <textarea class="ins-ta" data-key="ins-security" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-security')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-security')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-security" onclick="toggleBox('model-ins-security')" disabled>🔒 Model Answer</button>
     </div>
-    <div class="model-answers" style="display:none;">
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q1 — SECURITY VS NETWORK ANALYST FOCUS</div>
-        <div class="model-answer-text">A network analyst would first look at Layers 1–4: are there duplicate IPs (ARP conflicts), DHCP failures, routing issues, high TCP retransmission rates, or incorrect subnet configurations? They'd check the Conversations view, look at TCP flags, and examine routing paths. A security analyst would look for reconnaissance indicators — port scans, unexpected outbound connections, protocols on non-standard ports, DNS requests to unusual domains, or encrypted traffic to suspicious IPs. They might apply a filter for tcp.flags.syn==1 to find connection attempts, or check for large data transfers that could indicate exfiltration. Same capture, completely different mental models.</div>
-      </div>
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q2 — HIGH RESPONSE TIMES WITH NO RETRANSMISSIONS</div>
-        <div class="model-answer-text">If response times are high but TCP shows no retransmissions, the network path is likely not the bottleneck. The application analyst should next look at the server's time-to-first-byte: how long between the client's request and the server's first response packet? If that delta is large (e.g., 2–3 seconds), the server application itself is slow — database query, backend processing, or application code. They could also examine application-layer headers (HTTP status codes, response sizes) and check whether slow queries are hitting a specific URL or endpoint. The network is clean; the problem is in the application or server stack.</div>
-      </div>
+    <div class="hint-box" id="hint-ins-security" style="display:none"><div class="hm-label">HINT</div><p>Think about: evidence admissibility in court, the risk of alerting the suspect, and what you're actually looking for (behavioral patterns vs latency/timing).</p></div>
+    <div class="model-box" id="model-ins-security" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Security investigations require: (1) <strong>Evidence handling</strong> — maintain chain of custody in case the matter goes to court; do not install software on the suspect machine. (2) <strong>Stealth</strong> — use a hardware TAP (not a SPAN port or software agent) to avoid any detectable footprint on the suspect's traffic. (3) <strong>Behavioral pattern recognition</strong> — you're looking for unusual ports, IRC commands, scanning signatures, or outbound connections, not just high latency.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Walk-Through of a Typical Security Scenario</h2>
+  <div class="content-card">
+    <p>A user ("SUSPECT1") complained of slow performance and an inability to shut down or hibernate their machine. One IT staffer, Colton, led the investigation.</p>
+  </div>
+  <div class="content-card">
+    <h4>Step 1: Plan</h4>
+    <div class="step-block"><div class="step-label">Plan</div>
+      <p>Colton began with <strong>proper evidence handling</strong> considerations — any findings might go to Court. He did NOT install Wireshark on SUSPECT1 to avoid contaminating the machine. Instead, he connected a <strong>full-duplex TAP</strong> to SUSPECT1 and set Wireshark to <strong>stealth mode</strong> (no IP address on the capture interface).</p>
     </div>
+
+    <h4>Step 2: Capture</h4>
+    <div class="step-block"><div class="step-label">Capture</div>
+      <p>Captured all traffic without filters to see everything to/from SUSPECT1. Almost immediately, Colton saw a <strong>huge number of TCP SYN packets</strong> to port 135 (NetBIOS Session Service) and port 445 (NetBIOS Directory Service), plus some ICMP traffic.</p>
+    </div>
+
+    <h4>Step 3: Analyze</h4>
+    <div class="step-block"><div class="step-label">Analyze</div>
+      <p>In the traffic, Colton saw SUSPECT1 connect to an outside server on <strong>TCP port 18067</strong> — an unusual port. Following that TCP stream revealed recognizable IRC commands: <strong>USeR, NiCK, JOiN</strong>. These commands were altered from standard capitalization to evade case-sensitive IDS/firewall detection.</p>
+      <p>The IRC channel was being used to <strong>download a malicious application</strong>. SUSPECT1 was infected with a bot. The bot also revealed the IRC server's host name and which security vulnerability had been exploited.</p>
+    </div>
+
+    <h4>Step 4: Secure</h4>
+    <div class="step-block"><div class="step-label">Secure</div>
+      <p>Colton isolated SUSPECT1 from the network and began cleaning the host. He blocked access to the IRC server to prevent other hosts from connecting to the C2. He monitored remaining network traffic to identify other potentially infected hosts.</p>
+    </div>
+
+    <h4>Step 5: Document</h4>
+    <div class="step-block"><div class="step-label">Document</div>
+      <p>Colton documented his findings and process to educate: (1) users on symptoms experienced, (2) management on future vulnerability concerns, and (3) IT staff on procedures for network cleanup.</p>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <h4>Troubleshooting Tasks for the Network Analyst</h4>
+    <ul>
+      <li>Locate faulty network devices</li>
+      <li>Identify device or software misconfigurations</li>
+      <li>Measure high delays along a path</li>
+      <li>Locate the point of packet loss</li>
+      <li>Identify network errors and service refusals</li>
+      <li>Graph queuing delays</li>
+    </ul>
+    <h4>Security Tasks for the Network Analyst</h4>
+    <ul>
+      <li>Perform intrusion detection</li>
+      <li>Identify and define malicious traffic signatures</li>
+      <li>Passively discover hosts, operating systems and services</li>
+      <li>Log traffic for forensics examination</li>
+      <li>Capture traffic as evidence</li>
+      <li>Test firewall blocking · Validate secure login and data traversal</li>
+    </ul>
+    <h4>Optimization Tasks</h4>
+    <ul>
+      <li>Analyzing current bandwidth usage</li>
+      <li>Evaluating efficient use of packet sizes in data transfer applications</li>
+      <li>Evaluating response times across a network</li>
+      <li>Validating proper system configurations</li>
+    </ul>
+    <h4>Application Analysis Tasks</h4>
+    <ul>
+      <li>Analyzing application bandwidth requirements</li>
+      <li>Identifying application protocols and ports in use</li>
+      <li>Validating secure application data traversal</li>
+    </ul>
+  </div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Security Scenario</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-<div class="section-block" id="analysts">
-  <div class="section-label">Section 2</div>
-  <h2>Types of Network Analysts</h2>
-  <p>Three analyst roles use Wireshark differently. <strong>(1) Network/IT analysts</strong> focus on Layers 1–4 — connectivity, routing, duplicate IPs, DHCP failures. <strong>(2) Security analysts</strong> look for scanning, malware callbacks, unusual protocols, exfiltration. <strong>(3) Application analysts</strong> focus on Layers 5–7 — slow response times, malformed requests, application errors. Understanding your role determines which protocols and fields you focus on.</p>
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 5: UNDERSTAND SECURITY ISSUES
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-secissues"></span>
+<div class="insight-block" id="ins-secissues">
+  <div class="insight-hdr" onclick="toggleInsight('ins-secissues')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · SECURITY, ETHICS &amp; LEGALITY</span>
+    <span class="ins-arr" id="arr-ins-secissues">▾</span>
+  </div>
+  <div class="ins-body" id="body-ins-secissues" style="display:none">
+    <p class="ins-q">Why might a company that bans network analysis tools from its security team actually be MORE vulnerable, not less?</p>
+    <textarea class="ins-ta" data-key="ins-secissues" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-secissues')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-secissues')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-secissues" onclick="toggleBox('model-ins-secissues')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="hint-box" id="hint-ins-secissues" style="display:none"><div class="hm-label">HINT</div><p>Think about the difference between an authorized analyst using Wireshark and an unauthorized attacker using it. Who benefits from the ban?</p></div>
+    <div class="model-box" id="model-ins-secissues" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Banning analysis tools from defenders gives attackers an asymmetric advantage — malicious insiders and external attackers will use these tools regardless of policy. The authorized analyst uses Wireshark to <strong>find and fix unencrypted communications</strong> before attackers exploit them. The 'Securely Invisible Network' case study demonstrates exactly this: by refusing to allow analysis, management left unencrypted Lotus Notes email traffic exposed for anyone with a sniffer to read.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Understand Security Issues Related to Network Analysis</h2>
+  <div class="content-card">
+    <h4>Define Policies Regarding Network Analysis</h4>
+    <p>Companies should define specific policies stating <strong>who can use a network analyzer, when, where, and how</strong>. If you are a consultant, consider adding a "Network Analysis" clause to your non-disclosure agreement.</p>
 
-  <div class="callout callout-amber">
-    <strong>All three hats</strong>
-    Most real-world analysts wear all three hats at different times. Wireshark handles all three perspectives — it's the same tool, just filtered differently.
+    <h4>Files Containing Network Traffic Should be Secured</h4>
+    <p>Trace files (.pcap, .pcapng) contain actual packet data — including potentially confidential information. Ensure a <strong>secure storage solution</strong> for all captured traffic.</p>
+
+    <h4>Protect Your Network against Unwanted "Sniffers"</h4>
+    <p>Switches make network analysis more challenging (they only forward traffic to the intended port). However, unused switch ports in common areas should be <strong>deactivated</strong> to prevent unauthorized plugging in. The <strong>best protection</strong> is to encrypt network traffic — but note that broadcast traffic (DHCP, ARP) cannot be encrypted.</p>
+
+    <h4>Be Aware of Legal Issues</h4>
+    <p>In the U.S., <strong>Title I of the ECPA (Electronic Communications and Privacy Act)</strong> — the Wiretap Act — prohibits the intentional interception of any wire, oral, or electronic communication without authorization. In the EU, the <strong>EU Data Protection Directive</strong> (95/46/EC) applies.</p>
   </div>
 
-  <div class="mental-note-block">
-    <div class="mental-note-block-icon">🧠</div>
-    <div class="mental-note-block-inner">
-      <div class="mental-note-block-label">MENTAL NOTE</div>
-      <div class="mental-note-block-text">3 analyst types: Network (L1–4, connectivity), Security (malware/scans/exfil), Application (L5–7, response times). Wireshark serves all three — just filter/focus differently.</div>
-    </div>
+  <div class="tip-block">
+    <strong>Avoid Prison Time:</strong> If capturing traffic with Personally Identifiable Information (PII), HIPAA records, or other protected information, the trace files should not leave the facility. Have an appropriate General Liability and Errors &amp; Omissions rider. Always consult your company's legal counsel before beginning any capture on a production network.
+  </div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Security Issues</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-<div class="lesson-tools">
-  <div class="lesson-tools-grid">
-    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-analysts" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('analysts','Types of Network Analysts')">Add Question</button></div></div>
-    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-analysts" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('analysts')">+ Add Note</button></div></div>
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 6: OVERCOME THE NEEDLE IN THE HAYSTACK ISSUE
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-needle"></span>
+<div class="insight-block" id="ins-needle">
+  <div class="insight-hdr" onclick="toggleInsight('ins-needle')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · NEEDLE IN THE HAYSTACK</span>
+    <span class="ins-arr" id="arr-ins-needle">▾</span>
+  </div>
+  <div class="ins-body" id="body-ins-needle" style="display:none">
+    <p class="ins-q">You open a 500,000-packet capture file and have 30 minutes to find the root cause of a performance complaint. List your top three strategies to narrow the field quickly — without reading every packet.</p>
+    <textarea class="ins-ta" data-key="ins-needle" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-needle')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-needle')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-needle" onclick="toggleBox('model-ins-needle')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="hint-box" id="hint-ins-needle" style="display:none"><div class="hm-label">HINT</div><p>Hint: Wireshark has statistical views that summarize thousands of packets in seconds. What can you learn from a high-level summary before diving into individual frames?</p></div>
+    <div class="model-box" id="model-ins-needle" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>(1) <strong>Statistics &gt; Conversations</strong> — sort by bytes to find the top-volume pairs; the problem conversation is almost always the highest-traffic one. (2) <strong>Analyze &gt; Expert Information</strong> — Wireshark automatically flags TCP retransmissions, zero windows, and resets; click Errors and Warnings first. (3) <strong>Display filter on the affected host</strong> — <code>ip.addr == [client-ip]</code> reduces 500,000 packets to the few hundred relevant ones immediately.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Overcome the "Needle in the Haystack Issue"</h2>
+  <div class="content-card">
+    <p>Many new analysts capture thousands (or millions) of packets and face a feeling of drowning in data. Several non-pharmaceutical procedures can deal with this:</p>
+    <ul>
+      <li><strong>Place the analyzer appropriately</strong> — close to the source of the problem (Ch. 3)</li>
+      <li><strong>Apply capture filters</strong> — reduce what you capture using BPF syntax (Ch. 4)</li>
+      <li><strong>Apply display filters</strong> — focus on specific conversations, connections, protocols, or applications (Ch. 9)</li>
+      <li><strong>Colorize traffic</strong> — use color rules to spot anomalies at a glance (Ch. 6)</li>
+      <li><strong>Reassemble streams</strong> — see the data exchanged rather than individual packets (Ch. 10)</li>
+      <li><strong>Save subsets</strong> — export only the relevant portions to a new file (Ch. 12)</li>
+      <li><strong>Build graphs</strong> — use IO graphs or conversation statistics to depict overall traffic patterns (Ch. 8 &amp; 21)</li>
+    </ul>
+  </div>
+
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig3-use-filters-in-graphs.png" alt="Figure 3: Use filters in graphs to identify traffic patterns"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 3 — open trace file in Wireshark to view this screen</span>
+    </div>
+  </div>
+  <div class="fig-cap"><strong>Figure 3.</strong> Use filters in graphs to identify traffic patterns <span class="fig-trace">[sec-nessus.pcapng]</span></div>
+</div>
+
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Needle in the Haystack</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-
-<!-- ═══ SECTION 3 ═══ -->
-<div class="socratic-block">
-  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
-    <span class="socratic-icon">💭</span>
-    <span class="socratic-label">THINK FIRST · CAPTURE PLACEMENT</span>
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 7: REVIEW A CHECKLIST OF ANALYSIS TASKS
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-checklist"></span>
+<div class="insight-block" id="ins-checklist">
+  <div class="insight-hdr" onclick="toggleInsight('ins-checklist')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · PROACTIVE VS REACTIVE ANALYSIS</span>
+    <span class="ins-arr" id="arr-ins-checklist">▾</span>
   </div>
-  <p class="socratic-insight">Where you place your capture device determines what you can see. A tap and a SPAN port both copy traffic, but they behave very differently under load — and in forensics, the difference can mean the difference between catching an attacker and missing the evidence.</p>
-  <ul class="socratic-questions">
-    <li>You're investigating a suspected data exfiltration. Should you use a TAP or a SPAN port, and why?</li>
-    <li>A SPAN port shows a connection was established, but the user says the application never connected. How could a SPAN port cause this discrepancy?</li>
-  </ul>
-  <div class="answer-area" data-section="placement">
-    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
-    <div class="answer-buttons">
-      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+  <div class="ins-body" id="body-ins-checklist" style="display:none">
+    <p class="ins-q">What is the difference between proactive and reactive network analysis? Which provides more value — and why is only one of them routinely done in most organizations?</p>
+    <textarea class="ins-ta" data-key="ins-checklist" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-checklist')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-checklist')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-checklist" onclick="toggleBox('model-ins-checklist')" disabled>🔒 Model Answer</button>
     </div>
-    <div class="model-answers" style="display:none;">
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q1 — TAP VS SPAN FOR EXFILTRATION INVESTIGATION</div>
-        <div class="model-answer-text">Use a TAP. In a forensics investigation, completeness is mandatory — you cannot afford to miss any packet. A TAP is a passive inline hardware device that copies every frame regardless of switch CPU load, including malformed frames and error frames that a SPAN port might drop. A SPAN port shares the switch's CPU and can drop mirrored packets when the switch is busy, and some SPAN implementations do not forward frames with errors (which may be exactly what an attacker sends). For exfiltration forensics, a missed packet could be the packet that contains the stolen data or the C2 callback — a TAP guarantees you see everything.</div>
-      </div>
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q2 — SPAN PORT DISCREPANCY EXPLANATION</div>
-        <div class="model-answer-text">A SPAN port under load can drop mirrored packets even while the actual switch forwarding path is unaffected. The switch's primary job is forwarding frames at line rate — mirroring is a secondary function that consumes extra CPU and memory. If the switch was busy when the critical application packets were transmitted, the SPAN port may have dropped those mirrored copies while the real packets were successfully forwarded. The result: the SPAN capture appears to show an incomplete or failed connection, while the actual hosts exchanged data normally. This is why SPAN ports can be misleading — what you see in the capture may not reflect what actually happened on the wire.</div>
-      </div>
-    </div>
+    <div class="hint-box" id="hint-ins-checklist" style="display:none"><div class="hm-label">HINT</div><p>Think about the economics of 'no visible problem right now.' How do you justify spending time on analysis when users aren't complaining?</p></div>
+    <div class="model-box" id="model-ins-checklist" style="display:none"><div class="hm-label">MODEL ANSWER</div><p><strong>Proactive</strong> analysis captures baselines and finds problems before users complain — it's more valuable because it prevents outages and informs capacity planning. <strong>Reactive</strong> analysis happens after a complaint, meaning the impact has already occurred. Reactive is far more common because proactive work is hard to justify to management: 'the network seems fine' doesn't create urgency, and the value of prevention is invisible until something goes wrong.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Review a Checklist of Analysis Tasks</h2>
+  <div class="content-card">
+    <p>Analysis tasks can be <strong>proactive</strong> (before problems occur) or <strong>reactive</strong> (after a complaint). Proactive analysis is more valuable — reactive is more common.</p>
+    <p>Sample analysis tasks achievable with Wireshark:</p>
+    <ul>
+      <li>Find the top talkers on the network</li>
+      <li>Identify protocols and applications in use</li>
+      <li>Determine average packets per second and bytes per second</li>
+      <li>Spot delays between client requests due to slow processing</li>
+      <li>Locate misconfigured hosts</li>
+      <li>Detect network or host congestion slowing file transfers</li>
+      <li>Identify asynchronous traffic prioritization</li>
+      <li>Quickly identify HTTP error responses (client and server problems)</li>
+      <li>Graph HTTP flows to examine website referral rates</li>
+      <li>Identify unusual scanning traffic on the network</li>
+      <li>Play back VoIP conversations to hear quality effects of network problems</li>
+      <li>Identify average and unacceptable service response times (SRT)</li>
+      <li>Spot unusual protocols and unrecognized port number usage</li>
+    </ul>
+    <p>Networks vary greatly. The number and type of analysis tasks depends on your network's traffic characteristics.</p>
+  </div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Analysis Task Checklist</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-<div class="section-block" id="placement">
-  <div class="section-label">Section 3</div>
-  <h2>Network Tap vs SPAN Port (Capture Placement)</h2>
-  <p>Where you capture determines what you see. Two primary methods: <strong>(1) Network TAP (Test Access Point)</strong> — a passive physical device inserted inline that copies all traffic without affecting it. TAPs are the gold standard: they see all traffic including errors, and they don't miss packets under load. <strong>(2) SPAN port (Switched Port ANalyzer) / Mirror port</strong> — a switch feature that copies selected port traffic to a designated analysis port. SPAN is cheaper and easier to deploy but can drop packets under load, may not copy all error frames, and half-duplex SPAN can combine both directions into one direction.</p>
-
-  <div class="callout callout-amber">
-    <strong>SPAN under load</strong>
-    SPAN ports can drop packets when the switch CPU is busy — a TAP never drops because it's passive hardware.
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 8: UNDERSTAND NETWORK TRAFFIC FLOWS
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-flows"></span>
+<div class="insight-block" id="ins-flows">
+  <div class="insight-hdr" onclick="toggleInsight('ins-flows')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · NETWORK TRAFFIC FLOWS</span>
+    <span class="ins-arr" id="arr-ins-flows">▾</span>
   </div>
-
-  <div class="callout callout-blue">
-    <strong>Forensics preference</strong>
-    For security forensics, always prefer a TAP — a SPAN might miss the exact malicious packet that matters.
-  </div>
-
-  <div class="mental-note-block">
-    <div class="mental-note-block-icon">🧠</div>
-    <div class="mental-note-block-inner">
-      <div class="mental-note-block-label">MENTAL NOTE</div>
-      <div class="mental-note-block-text">TAP = inline passive hardware, sees ALL traffic including errors, never drops packets. SPAN = switch feature, easier/cheaper, can miss packets under load, may not forward error frames. Forensics and baselining: prefer TAP. Quick field analysis: SPAN is acceptable.</div>
+  <div class="ins-body" id="body-ins-flows" style="display:none">
+    <p class="ins-q">A packet travels from your laptop to www.google.com through three routers. What happens to the MAC address at each hop? What stays constant the entire journey?</p>
+    <textarea class="ins-ta" data-key="ins-flows" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-flows')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-flows')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-flows" onclick="toggleBox('model-ins-flows')" disabled>🔒 Model Answer</button>
     </div>
+    <div class="hint-box" id="hint-ins-flows" style="display:none"><div class="hm-label">HINT</div><p>Focus on the difference between Layer 2 (MAC) and Layer 3 (IP). Which layer does a switch operate at? Which layer does a router operate at?</p></div>
+    <div class="model-box" id="model-ins-flows" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>At each router: the old MAC header is <strong>stripped and replaced</strong> with a new one pointing to the next-hop router's MAC address. The IP TTL is decremented by 1. The source and destination <strong>IP addresses never change</strong> (unless NAT is involved). The destination MAC only becomes the target device's actual MAC when the packet reaches the final local network segment — not before.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Understand Network Traffic Flows</h2>
+
+  <div class="content-card">
+    <h4>Switching Overview</h4>
+    <p>Switches are <strong>Layer 2 devices</strong> that forward packets based on the <strong>destination MAC address</strong>. They do not change the MAC or IP addresses. If the destination MAC is unknown, the switch floods the packet out all ports. Broadcasts and multicasts are also forwarded out all ports (unless IGMP snooping is configured).</p>
+  </div>
+
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig4-switches-do-not-alter-mac-or-ip.png" alt="Figure 4: Switches do not alter the MAC or IP address in a packet"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 4 — open trace file in Wireshark to view this screen</span>
+    </div>
+  </div>
+  <div class="fig-cap"><strong>Figure 4.</strong> Switches do not alter the MAC or IP address in a packet </div>
+</div>
+
+  <div class="content-card">
+    <h4>Routing Overview</h4>
+    <p>Routers are <strong>Layer 3 devices</strong> that forward packets based on the <strong>destination IP address</strong>. At each hop, the router:</p>
+    <ol>
+      <li>Verifies the checksum (bad checksum = packet dropped)</li>
+      <li>Strips the incoming MAC header (Ethernet)</li>
+      <li>Checks the IP TTL (TTL=1 → discard + send ICMP Time Exceeded)</li>
+      <li>Decrements the TTL by 1</li>
+      <li>Looks up the destination network in its routing table</li>
+      <li>Creates a <strong>new MAC header</strong> pointing to the next hop</li>
+      <li>Forwards the packet</li>
+    </ol>
+    <p>The <strong>source and destination IP addresses never change</strong> as a packet traverses routers (unless NAT is applied).</p>
+  </div>
+
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig5-routers-change-destination-mac.png" alt="Figure 5: Routers change the destination MAC address to the target (if local) or next router (if remote)"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 5 — open trace file in Wireshark to view this screen</span>
+    </div>
+  </div>
+  <div class="fig-cap"><strong>Figure 5.</strong> Routers change the destination MAC address to the target (if local) or next router (if remote) </div>
+</div>
+
+  <div class="content-card">
+    <h4>Proxy, Firewall and NAT/PAT Overview</h4>
+    <p>Firewalls allow or deny traffic based on rules. Basic firewalls operate at Layer 3. <strong>NAT systems alter IP addresses</strong> — hiding the client's private IP. PAT systems also alter port information to demultiplex multiple internal connections through a single outbound IP. On either side of a NAT device, the IP addresses you see will not match — you must look past the IP header to correlate flows.</p>
+    <p><strong>Proxy servers</strong> create two separate TCP connections — client connects to proxy, proxy connects to target. Two totally separate conversations exist in the packet capture.</p>
+  </div>
+
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig6-firewall-uses-nat.png" alt="Figure 6: The firewall uses NAT to hide the true source IP address"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 6 — open trace file in Wireshark to view this screen</span>
+    </div>
+  </div>
+  <div class="fig-cap"><strong>Figure 6.</strong> The firewall uses NAT to hide the true source IP address </div>
+</div>
+
+  <div class="content-card">
+    <h4>Other Technologies that Affect Packets</h4>
+    <p><strong>VLANs (802.1Q)</strong> add a 4-byte tag to Ethernet frames to create virtual networks on a single physical switch. The tag is inserted between the source MAC and the EtherType field. Wireshark decodes VLAN tags and displays the VLAN ID.</p>
+    <p><strong>MPLS</strong> prepends a special label header to packets, forwarding based on the label rather than IP routing table lookups. The label is stripped when the packet exits the MPLS network.</p>
+    <p><strong>WAN optimization devices</strong> (like Riverbed Steelhead) compress traffic, cache content locally, and alter TCP behavior — which can confuse analysis. Always capture before and after such devices to see what they're changing.</p>
+  </div>
+
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig7-vlan-tags-separate-virtual-networks.png" alt="Figure 7: VLAN tags separate virtual networks"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 7 — open trace file in Wireshark to view this screen</span>
+    </div>
+  </div>
+  <div class="fig-cap"><strong>Figure 7.</strong> VLAN tags separate virtual networks <span class="fig-trace">[vlan-general.pcapng]</span></div>
+</div>
+
+  <div class="tip-block">
+    <strong>Warnings about "Smarter" Infrastructure Devices:</strong> Cisco ASA devices perform "TCP normalization" which can strip TCP options (like SACK) — the exact cause of the troubleshooting case study in this chapter. WAN optimizers can also alter packet and data stream processing in ways that look like anomalies. Always capture before and after any traffic-altering device to understand what it's doing.
+  </div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Traffic Flows</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-<div class="lesson-tools">
-  <div class="lesson-tools-grid">
-    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-placement" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('placement','Network Tap vs SPAN Port')">Add Question</button></div></div>
-    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-placement" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('placement')">+ Add Note</button></div></div>
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 9: LAUNCH AN ANALYSIS SESSION
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-launch"></span>
+<div class="insight-block" id="ins-launch">
+  <div class="insight-hdr" onclick="toggleInsight('ins-launch')">
+    <span class="ins-icon">💡</span>
+    <span class="ins-label">THINK FIRST · LAUNCHING YOUR FIRST SESSION</span>
+    <span class="ins-arr" id="arr-ins-launch">▾</span>
+  </div>
+  <div class="ins-body" id="body-ins-launch" style="display:none">
+    <p class="ins-q">Before starting your very first live capture, what three things should you confirm or prepare to ensure the capture is useful and legal?</p>
+    <textarea class="ins-ta" data-key="ins-launch" rows="4" placeholder="Write your answer here before reading the section…"></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" onclick="saveIns('ins-launch')">Save Answer</button>
+      <button class="btn-hint" onclick="toggleHint('hint-ins-launch')">💭 Hint</button>
+      <button class="btn-model-ins locked" id="mibtn-ins-launch" onclick="toggleBox('model-ins-launch')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="hint-box" id="hint-ins-launch" style="display:none"><div class="hm-label">HINT</div><p>Think beyond the technical setup — consider authorization, what traffic you'll see, and how to ensure you capture the full DNS/TCP sequence from the start.</p></div>
+    <div class="model-box" id="model-ins-launch" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>(1) <strong>Authorization</strong> — confirm you have permission to capture on this network. Unauthorized capture may violate wiretapping laws. (2) <strong>Interface selection</strong> — choose the correct adapter (wired vs. wireless, correct NIC). (3) <strong>Cache clearing</strong> — clear your browser cache AND DNS cache before browsing so Wireshark captures the full sequence: ARP, DNS query/response, TCP handshake, HTTP GET. Without cache clearing, you'll miss the DNS lookup and connection setup entirely.</p></div>
+  </div>
+</div>
+<div class="sg-section">
+  <h2 class="sec-heading">Launch an Analysis Session</h2>
+  <div class="content-card">
+    <p>You can start capturing and analyzing traffic right now. Follow these steps to get a feel for analyzing traffic on a wired network:</p>
+
+    <div class="step-block"><div class="step-label">Step 1</div>
+      <p>Install Wireshark (latest stable release from wireshark.org/download.html).</p>
+    </div>
+    <div class="step-block"><div class="step-label">Step 2</div>
+      <p>Launch Wireshark. Click on your wired network adapter in the Interface List on the Start Page, then click <strong>Start</strong>.</p>
+    </div>
+    <div class="step-block"><div class="step-label">Step 3</div>
+      <p>Clear your browser cache AND DNS cache before this step. Then, while Wireshark is capturing, launch your browser and visit a website (e.g., www.chappellu.com).</p>
+    </div>
+    <div class="step-block"><div class="step-label">Step 4</div>
+      <p>Select <strong>Capture | Stop</strong> or click the Stop Capture button.</p>
+    </div>
+    <div class="step-block"><div class="step-label">Step 5</div>
+      <p>Look through the captured traffic. You should see: ARP (if the DNS server wasn't in your ARP cache), DNS query/response (A and AAAA records on dual-stack systems), TCP handshake (SYN, SYN-ACK, ACK), and HTTP GET request for the main page.</p>
+    </div>
+    <div class="step-block"><div class="step-label">Step 6</div>
+      <p>Select <strong>File | Save</strong> and create a <code>\mytraces</code> directory. Save using the .pcapng format.</p>
+    </div>
+  </div>
+
+  <div class="figure-block">
+  <div class="fig-img-wrap">
+    <img src="figures/fig8-client-makes-get-request.png" alt="Figure 8: The client makes a GET request for the main page"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fig-placeholder" style="display:none">
+      <span class="fig-ph-icon">📷</span>
+      <span>Figure 8 — open trace file in Wireshark to view this screen</span>
+    </div>
+  </div>
+  <div class="fig-cap"><strong>Figure 8.</strong> The client makes a GET request for the main page <span class="fig-trace">[http-chappellu2011.pcapng]</span></div>
+</div>
+
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Launch Session</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     CASE STUDIES
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-cases"></span>
+<div class="sg-section">
+  <h2 class="sec-heading">Case Studies</h2>
 
-<!-- ═══ SECTION 4 ═══ -->
-<div class="socratic-block">
-  <div class="socratic-header" onclick="this.closest('.socratic-block').classList.toggle('soc-open')">
-    <span class="socratic-icon">💭</span>
-    <span class="socratic-label">THINK FIRST · PATH OF A PACKET</span>
+  <!-- Case Study 1 -->
+  <div class="case-study-block">
+    <div class="cs-eyebrow">Case Study 1</div>
+    <div class="cs-title">Pruning the "Puke"</div>
+    <div class="cs-sub">Submitted by: Mitch Dickey, Frederick County Public Schools, VA</div>
+    <div class="cs-body">
+      <p>Our school district comprises 24 buildings and roughly 50 VLANs. Generally speaking, each campus has one VLAN for data and one for voice. We operate in a NetWare environment with at least one NetWare server at each campus. Each campus links back to an aggregate location before being sent on to the router — what some call "Router on a Stick."</p>
+      <p>I use Wireshark regularly to monitor traffic patterns and remove unnecessary traffic from the VLANs I manage. Two types of traffic I've eliminated: <strong>NetBIOS and SMB</strong>. Since we use NetWare's NDPS for printing, we don't need Windows File and Printer Sharing. I recently sampled four other VLANs (out of my control) using a five-minute PCAP. After capture, I sifted through traffic using filters to determine what percentage was NetBIOS and SMB:</p>
+      <ul>
+        <li>50,898 packets → <strong>1,321 packets (2.5%)</strong> NetBIOS/SMB</li>
+        <li>175,824 packets → <strong>16,480 packets (9%)</strong> NetBIOS/SMB</li>
+        <li>295,911 packets → <strong>14,102 packets (5%)</strong> NetBIOS/SMB</li>
+        <li>115,814 packets → <strong>333 packets (&lt;1%)</strong> NetBIOS/SMB</li>
+      </ul>
+      <p>Although the results were lower than I expected, trimming what I did find could still be beneficial to switch/router processing and — most of all — security. I have also used Wireshark to track down and remove other unnecessary protocols like SNMP and SSDP.</p>
+    </div>
   </div>
-  <p class="socratic-insight">Every packet travels through multiple layers — and at each router hop, something changes while something stays constant. Understanding what changes and what doesn't is fundamental to reading packet captures correctly.</p>
-  <ul class="socratic-questions">
-    <li>A packet leaves a client and passes through two routers before reaching a server. What changes in the Ethernet header at each router, and what stays the same?</li>
-    <li>Wireshark captures at Layer 2. What information is available to you that would NOT be visible if you captured only at Layer 3 (IP)?</li>
-  </ul>
-  <div class="answer-area" data-section="path">
-    <textarea class="answer-textarea" placeholder="Write your own thoughts here before revealing the model answer..." rows="3"></textarea>
-    <div class="answer-buttons">
-      <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-      <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
+  <div class="cs-img-block">
+  <div class="cs-img-wrap">
+    <img src="../all-casestudy-pictures/C1-CS1.png" alt="Illustration: Pruning the Puke"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="cs-img-ph" style="display:none">
+      <span class="cs-ph-icon">🖼️</span>
+      <div><strong>C1-CS1.png</strong></div>
+      <div class="cs-ph-sub">Generate this illustration and save to<br><code>all-casestudy-pictures/C1-CS1.png</code></div>
     </div>
-    <div class="model-answers" style="display:none;">
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q1 — WHAT CHANGES AT EACH ROUTER HOP</div>
-        <div class="model-answer-text">At each router hop, the Ethernet frame is stripped and rebuilt: the source MAC address changes to the router's outgoing interface MAC, and the destination MAC changes to the next hop's MAC (either the next router or the final server). What stays the same: the source and destination IP addresses (unless NAT is involved). This is fundamental to how routing works — IP addresses are end-to-end identifiers, while MAC addresses are only hop-to-hop identifiers valid on the local segment. If you capture on the same segment as the server, you'll see the last router's MAC as the source, not the original client's MAC. This is why you can't track the original client's MAC across routers.</div>
-      </div>
-      <div class="model-answer-item">
-        <div class="model-answer-q">Q2 — LAYER 2 CAPTURE VS LAYER 3 ONLY</div>
-        <div class="model-answer-text">Capturing at Layer 2 gives you: (1) The full Ethernet header — source and destination MAC addresses, allowing you to identify devices on the local segment even if they share an IP (ARP poisoning detection). (2) The Ethernet type field, which tells you the Layer 3 protocol (IPv4, IPv6, ARP, VLAN-tagged, etc.). (3) The Frame Check Sequence (FCS) — the Layer 2 error detection field. A bad FCS indicates physical-layer errors (bad cable, faulty NIC, EMI). (4) VLAN tags (802.1Q) if present. (5) ARP packets, which exist only at Layer 2 and are invisible to Layer 3-only captures. All of this context is lost if you only capture at the IP layer.</div>
-      </div>
-    </div>
+  </div>
+  <div class="cs-prompt-row">
+    <button class="btn-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button>
+    <div class="cs-prompt-text" hidden>A school network administrator standing confidently in a clean school hallway, holding a clipboard with the Wireshark logo. Around the network racks, tangled cable bundles labelled 'NetBIOS', 'SMB', and 'SNMP' are floating away like pruned tree branches being tossed into a recycling bin. Small percentage badges (2.5%, 9%, 5%) hover above each discarded bundle. The school buildings visible in the background are connected by slim, clean fiber cables — minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
   </div>
 </div>
 
-<div class="section-block" id="path">
-  <div class="section-label">Section 4</div>
-  <h2>Path of a Packet Through a Network</h2>
-  <p>Trace the journey of a packet from application to wire: <strong>(1)</strong> Application generates data. <strong>(2)</strong> Transport layer (TCP/UDP) adds port numbers and breaks data into segments. <strong>(3)</strong> Network layer (IP) adds source/destination IP addresses and routing info. <strong>(4)</strong> Data Link layer (Ethernet) adds source/destination MAC addresses and frames the packet for the local segment. <strong>(5)</strong> Physical layer converts bits to electrical/optical/radio signals. At each router hop, the MAC addresses change (new hop's MAC) but the IP addresses stay constant. Wireshark captures at the Data Link layer — it sees the complete frame.</p>
-
-  <div class="callout callout-green">
-    <strong>Wireshark captures at Layer 2</strong>
-    Wireshark captures at Layer 2 — you see the full Ethernet frame including the MAC header and FCS. Everything above that (IP, TCP, application) is payload inside the frame.
-  </div>
-
-  <div class="mental-note-block">
-    <div class="mental-note-block-icon">🧠</div>
-    <div class="mental-note-block-inner">
-      <div class="mental-note-block-label">MENTAL NOTE</div>
-      <div class="mental-note-block-text">Packet journey: App → TCP/UDP (ports) → IP (addresses) → Ethernet (MACs) → Physical (bits). Wireshark captures at L2 — sees full Ethernet frame. MAC changes per hop; IP stays constant. FCS (frame check sequence) = Layer 2 error detection.</div>
+  <!-- Case Study 2 -->
+  <div class="case-study-block">
+    <div class="cs-eyebrow">Case Study 2</div>
+    <div class="cs-title">The "Securely Invisible" Network</div>
+    <div class="cs-sub">Network Security Consultant · Campus Environment</div>
+    <div class="cs-body">
+      <p>One customer's network consisted of 22 buildings in a campus-style setting. Management complained that the network was slow at times and asked a consultant to come on-site to determine the cause of poor network performance.</p>
+      <p>Upon arrival, I was asked to <strong>sign a legal document stating that I would not listen to the network traffic</strong> to isolate the problem — (you, as I do, must question why they called me).</p>
+      <p>Management was concerned that confidential data may traverse their network in unencrypted form. They were ignoring the fact that there are many ways for someone to tap into their network. If their data is visible to a network analyst, it would be best to verify that and fix the problem — not just assume that no one is listening.</p>
+      <p>It took several meetings with various individuals to convince management that they were a bit "off" on their thinking.</p>
+      <p>Once I began listening to their network traffic, it became evident that they had good reason to be concerned. Their <strong>Lotus Notes implementation was misconfigured — all emails traveled through the network in clear text</strong>. Over the next few hours of listening we found several applications that sent sensitive data across the network in clear text. By the time I left, they had a list of security enhancements to implement.</p>
     </div>
+  </div>
+  <div class="cs-img-block">
+  <div class="cs-img-wrap">
+    <img src="../all-casestudy-pictures/C1-CS2.png" alt="Illustration: The Securely Invisible Network"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="cs-img-ph" style="display:none">
+      <span class="cs-ph-icon">🖼️</span>
+      <div><strong>C1-CS2.png</strong></div>
+      <div class="cs-ph-sub">Generate this illustration and save to<br><code>all-casestudy-pictures/C1-CS2.png</code></div>
+    </div>
+  </div>
+  <div class="cs-prompt-row">
+    <button class="btn-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button>
+    <div class="cs-prompt-text" hidden>A business consultant standing outside a 22-building corporate campus whose walls are completely transparent glass. Inside, employees are sending emails that float as open envelopes with visible text — including a Lotus Notes logo. A 'No Listening!' sign hangs on the door while the consultant effortlessly reads the clear-text data through the glass walls using a Wireshark magnifying glass. The consultant holds a tablet showing captured packets. Flat illustration, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
   </div>
 </div>
 
-<div class="lesson-tools">
-  <div class="lesson-tools-grid">
-    <div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-path" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('path','Path of a Packet Through a Network')">Add Question</button></div></div>
-    <div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-path" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('path')">+ Add Note</button></div></div>
+  <div class="notes-card">
+    <div class="notes-label">My Notes — Case Studies</div>
+    <textarea class="notes-ta" rows="3" placeholder="Your notes…"></textarea>
   </div>
 </div>
 
-</div><!-- /main-content -->
+<!-- ═══════════════════════════════════════════════════════════════
+     TL;DR — SUMMARY
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-tldr"></span>
+<div class="sg-section">
+  <h2 class="sec-heading">TL;DR — Chapter Summary</h2>
+  <div class="tldr-block">
+    <div class="tldr-eyebrow">Summary</div>
+    <h3>The World of Network Analysis</h3>
+    <p>Network analysis offers an insight into network communications. When performance problems plague the network, guesswork can often be time-consuming and lead to inaccurate conclusions — costing you and your company time and money. A full understanding of the network traffic flows is necessary to (a) place the analyzer properly on the network and (b) identify possible causes of network problems.</p>
+    <p style="margin-top:12px">At this point it is recommended that you follow the procedures listed in <em>Launch an Analysis Session</em> and review the section entitled <em>Follow an Analysis Example</em>.</p>
+  </div>
+</div>
 
-<aside class="sidebar">
-  <div class="sidebar-card">
-    <h3>Navigation</h3>
-    <div class="sidebar-nav-links">
-      <a class="sidebar-link" href="../../index.html">🦈 Chapter Index <span class="arr">›</span></a>
-      <a class="sidebar-link" href="../index.html">← Chapter 1 <span class="arr">›</span></a>
+<!-- ═══════════════════════════════════════════════════════════════
+     REVIEW QUESTIONS
+════════════════════════════════════════════════════════════════ -->
+<span class="sec-anchor" id="sec-review"></span>
+<div class="sg-section">
+  <h2 class="sec-heading">Review Questions</h2>
+  <p style="font-size:14px;color:#475569;margin-bottom:16px">Write your answer before the model answer unlocks. Use the Hint button for a nudge in the right direction.</p>
+  <div class="rq-card" id="rq-rq1">
+  <div class="rq-num">Q1.1</div>
+  <div class="rq-q">What is the purpose of network analysis?</div>
+  <textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea>
+  <div class="rq-btn-row">
+    <button class="btn-save-ins" onclick="saveRQ('rq1')">Save Answer</button>
+    <button class="btn-hint" onclick="toggleHint('rqhint-rq1')">💭 Hint</button>
+    <button class="btn-see-ans locked" id="ansbtn-rq1" onclick="toggleBox('rqans-rq1')" disabled>🔒 See Answer</button>
+  </div>
+  <div class="hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about the four main activities that motivate IT professionals to reach for a network analyzer — they cover performance, security, application behavior, and planning.</p></div>
+  <div class="model-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>Network analysis offers an insight into network communications to <strong>identify performance problems, locate security breaches, analyze application behavior, and perform capacity planning</strong>.</p></div>
+</div>
+  <div class="rq-card" id="rq-rq2">
+  <div class="rq-num">Q1.2</div>
+  <div class="rq-q">Name at least three troubleshooting tasks that can be performed using network analysis.</div>
+  <textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea>
+  <div class="rq-btn-row">
+    <button class="btn-save-ins" onclick="saveRQ('rq2')">Save Answer</button>
+    <button class="btn-hint" onclick="toggleHint('rqhint-rq2')">💭 Hint</button>
+    <button class="btn-see-ans locked" id="ansbtn-rq2" onclick="toggleBox('rqans-rq2')" disabled>🔒 See Answer</button>
+  </div>
+  <div class="hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Think about three different 'what's wrong' scenarios: a device that's dropping packets, a path that feels slow, and a service that's refusing connections.</p></div>
+  <div class="model-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>Any three of: <strong>Locate faulty network devices</strong> · Identify device or software misconfigurations · <strong>Measure high delays along a path</strong> · <strong>Locate the point of packet loss</strong> · Identify network errors and service refusals · Graph queuing delays.</p></div>
+</div>
+  <div class="rq-card" id="rq-rq3">
+  <div class="rq-num">Q1.3</div>
+  <div class="rq-q">Why is network analysis considered a security risk by some companies?</div>
+  <textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea>
+  <div class="rq-btn-row">
+    <button class="btn-save-ins" onclick="saveRQ('rq3')">Save Answer</button>
+    <button class="btn-hint" onclick="toggleHint('rqhint-rq3')">💭 Hint</button>
+    <button class="btn-see-ans locked" id="ansbtn-rq3" onclick="toggleBox('rqans-rq3')" disabled>🔒 See Answer</button>
+  </div>
+  <div class="hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>Think about what a malicious insider (or external attacker with network access) could learn from unencrypted traffic on a corporate network.</p></div>
+  <div class="model-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>Some companies fear that unencrypted information — usernames, passwords, emails, and business data — may be seen by anyone running a network analyzer. In reality, a network analyst can <strong>identify unsecure communications to prevent unauthorized eavesdroppers</strong> from gaining access to confidential data. Banning authorized analysis often leaves the network more vulnerable, not less.</p></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PRACTICE BUTTON
+════════════════════════════════════════════════════════════════ -->
+<div class="practice-btn-wrap">
+  <a href="index.html" class="practice-btn">
+    <span class="practice-btn-icon">❓</span>
+    <span>
+      Practice What You've Learned
+      <span class="practice-btn-sub">Open the Chapter 1 hands-on practice lab →</span>
+    </span>
+  </a>
+</div>
+
+</div><!-- /content -->
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="sb-card">
+    <a class="hub-link" href="../../index.html">← Wireshark Hub</a>
+    <div class="prog-label">Progress: <span id="prog-count">0</span> / 12 answered</div>
+    <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+  </div>
+
+  <div class="sb-card">
+    <h3>Quick Reference</h3>
+    <div class="qr-card"><div class="qr-term">Network Analysis</div><div class="qr-def">Listening to &amp; analyzing traffic to find performance problems, security breaches, app behavior, capacity needs.</div></div>
+    <div class="qr-card"><div class="qr-term">Plan→Capture→Analyze→Repeat</div><div class="qr-def">The 4-step troubleshooting methodology. Always plan first — identify the best capture point.</div></div>
+    <div class="qr-card"><div class="qr-term">Switch (L2)</div><div class="qr-def">Forwards by MAC address. Does NOT change MAC or IP. Floods unknown destinations.</div></div>
+    <div class="qr-card"><div class="qr-term">Router (L3)</div><div class="qr-def">Forwards by IP. Strips &amp; replaces MAC header each hop. Decrements TTL. IPs unchanged (sans NAT).</div></div>
+    <div class="qr-card"><div class="qr-term">NAT / PAT</div><div class="qr-def">Alters source IP (NAT) and source port (PAT). IPs don't match across NAT boundary.</div></div>
+    <div class="qr-card"><div class="qr-term">ECPA (US Wiretap Act)</div><div class="qr-def">Prohibits unauthorized interception of electronic communications. Get written authorization first.</div></div>
+    <div class="qr-card"><div class="qr-term">VLAN Tag (802.1Q)</div><div class="qr-def">4-byte tag between source MAC and EtherType. Contains VLAN ID (e.g., VLAN 32).</div></div>
+    <div class="qr-card"><div class="qr-term">SACK (Selective ACK)</div><div class="qr-def">TCP option that lets receiver specify exactly which segments were lost — enables efficient recovery. Negotiated in handshake.</div></div>
+  </div>
+
+  <div class="sb-card">
+    <h3>Trace Files — Chapter 1</h3>
+    <div style="font-size:12px;line-height:1.7;color:#475569;">
+      <div style="margin-bottom:6px"><strong>gen-googlemaps.pcapng</strong><br>Web browsing to maps.google.com — ARP, DNS, TCP, HTTP.</div>
+      <div style="margin-bottom:6px"><strong>http-wiresharkdownload-slow.pcapng</strong><br>Slow Wireshark download — the chapter analysis example.</div>
+      <div style="margin-bottom:6px"><strong>http-wiresharkdownload.pcapng</strong><br>Normal Wireshark download for comparison.</div>
+      <div style="margin-bottom:6px"><strong>http-chappellu2011.pcapng</strong><br>Browsing chappellU.com — dual-stack DNS visible.</div>
+      <div style="margin-bottom:6px"><strong>icmp-ping-basic.pcapng</strong><br>Simple ping — DNS, ICMP Echo Request/Reply.</div>
+      <div style="margin-bottom:6px"><strong>sec-nessus.pcapng</strong><br>Nessus vulnerability scan — unusual ICMP, 'nessus' strings.</div>
+      <div style="margin-bottom:6px"><strong>telnet.pcapng</strong><br>Telnet to Cisco router — clear-text credentials.</div>
+      <div><strong>vlan-general.pcapng</strong><br>X11 communication on a VLAN — 802.1Q tag visible.</div>
     </div>
   </div>
-  <div class="sidebar-card">
-    <h3>Progress</h3>
-    <div class="progress-summary">
-      <span id="prog-text">0 / 4 sections read</span>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
-    </div>
-    <div class="progress-checklist">
-      <label class="check-item" data-key="chk-why"><input type="checkbox" onchange="toggleDone(this,'chk-why')"> Why Network Analysis Matters</label>
-      <label class="check-item" data-key="chk-analysts"><input type="checkbox" onchange="toggleDone(this,'chk-analysts')"> Types of Network Analysts</label>
-      <label class="check-item" data-key="chk-placement"><input type="checkbox" onchange="toggleDone(this,'chk-placement')"> Network Tap vs SPAN Port</label>
-      <label class="check-item" data-key="chk-path"><input type="checkbox" onchange="toggleDone(this,'chk-path')"> Path of a Packet</label>
-    </div>
-  </div>
-  <div class="quick-ref">
-    <h4>Ch 1 Quick-Ref</h4>
-    <div class="qr-row"><span class="qr-term">TAP</span><span class="qr-def">Inline passive hardware</span></div>
-    <div class="qr-row"><span class="qr-term">SPAN</span><span class="qr-def">Switch mirror port</span></div>
-    <div class="qr-row"><span class="qr-term">L2 Capture</span><span class="qr-def">Full Ethernet frame</span></div>
-    <div class="qr-row"><span class="qr-term">3 Roles</span><span class="qr-def">Network, Security, App</span></div>
-    <div class="qr-row"><span class="qr-term">Ground Truth</span><span class="qr-def">Exact bytes on wire</span></div>
-    <div class="qr-row"><span class="qr-term">Analyst Goal</span><span class="qr-def">See what actually happened</span></div>
-  </div>
-</aside>
+</div>
 </main>
 
-<div class="practice-cta">
-  <a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-  <p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-
-<footer>
-  <div>Chapter 1 · The World of Network Analysis · Study Guide</div>
-  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
-</footer>
-
+<footer>Wireshark Network Analysis, 2nd Edition · Chapter 1: The World of Network Analysis</footer>
 <script>
-const PAGE_KEY = 'ws-ch01-world';
-const SECTIONS = {
-  'why':'Why Network Analysis Matters',
-  'analysts':'Types of Network Analysts',
-  'placement':'Network Tap vs SPAN Port',
-  'path':'Path of a Packet Through a Network'
-};
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim()){ta.focus();return;}const key=PAGE_KEY+'-soc-'+area.dataset.section;try{localStorage.setItem(key,ta.value);}catch(e){}ta.disabled=true;btn.textContent='✓ Answer saved';btn.disabled=true;const see=area.querySelector('.btn-see-answer');see.disabled=false;see.textContent='💡 See Model Answer';}
-function revealSocAnswer(btn){if(btn.disabled)return;const ma=btn.closest('.answer-area').querySelector('.model-answers');const hidden=ma.style.display==='none'||!ma.style.display;ma.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'💡 See Model Answer';}
-function togglePrompt(btn){const c=btn.nextElementSibling;const h=c.hasAttribute('hidden');if(h){c.removeAttribute('hidden');btn.textContent='▴ Hide analogy image prompt';}else{c.setAttribute('hidden','');btn.textContent='▾ Show analogy image prompt';}}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=`${done} / ${items.length} sections read`;const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded', function(){
-  renderQPanel(); renderNotesPanel(); initChecks(); initSectionNav(); initPT();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  document.querySelectorAll('.answer-area').forEach(function(area){
-    const key=PAGE_KEY+'-soc-'+area.dataset.section;
-    try{const saved=localStorage.getItem(key);if(saved){const ta=area.querySelector('.answer-textarea');ta.value=saved;ta.disabled=true;const addBtn=area.querySelector('.btn-add-answer');addBtn.textContent='✓ Answer saved';addBtn.disabled=true;const seeBtn=area.querySelector('.btn-see-answer');seeBtn.disabled=false;seeBtn.textContent='💡 See Model Answer';}}catch(e){}
+const PAGE_KEY='ws-ch01-sg';
+const PROG_KEYS=["ins-define","ins-example","ins-trouble","ins-security","ins-secissues","ins-needle","ins-checklist","ins-flows","ins-launch","rq-rq1","rq-rq2","rq-rq3"];
+const TOTAL=12;
+
+function toggleInsight(id){
+  const b=document.getElementById('body-'+id);
+  const a=document.getElementById('arr-'+id);
+  const vis=b.style.display==='none';
+  b.style.display=vis?'block':'none';
+  a.textContent=vis?'▴':'▾';
+}
+function saveIns(id){
+  const ta=document.querySelector(`.ins-ta[data-key="${id}"]`);
+  if(!ta)return;
+  localStorage.setItem(PAGE_KEY+'-'+id,ta.value);
+  const btn=document.getElementById('mibtn-'+id);
+  if(btn&&ta.value.trim()){btn.disabled=false;btn.classList.remove('locked');}
+  updateProgress();
+}
+function saveRQ(id){
+  const ta=document.querySelector(`.rq-ta[data-key="rq-${id}"]`);
+  if(!ta)return;
+  localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);
+  const btn=document.getElementById('ansbtn-'+id);
+  if(btn&&ta.value.trim()){btn.disabled=false;btn.classList.remove('locked');}
+  updateProgress();
+}
+function toggleHint(id){
+  const el=document.getElementById(id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+function toggleBox(id){
+  const el=document.getElementById(id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+function updateProgress(){
+  let c=0;
+  PROG_KEYS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});
+  const lbl=document.getElementById('prog-count');
+  const bar=document.getElementById('prog-bar');
+  if(lbl)lbl.textContent=c;
+  if(bar)bar.style.width=(c/TOTAL*100)+'%';
+}
+function toggleQPanel(){
+  const b=document.getElementById('q-panel-body');
+  const t=document.getElementById('qp-toggle');
+  b.classList.toggle('open');
+  t.textContent=b.classList.contains('open')?'▴':'▾';
+}
+function addQuestion(){
+  const i=document.getElementById('q-input');
+  const t=i.value.trim();if(!t)return;
+  const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');
+  qs.push(t);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));
+  i.value='';renderQList();
+}
+function deleteQuestion(idx){
+  const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');
+  qs.splice(idx,1);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));
+  renderQList();
+}
+function renderQList(){
+  const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');
+  const ul=document.getElementById('q-list');
+  ul.innerHTML=qs.map((q,i)=>`<li><span>${q}</span><button class="btn-del-q" onclick="deleteQuestion(${i})">×</button></li>`).join('');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  // Restore insight answers
+  ['ins-define','ins-example','ins-trouble','ins-security','ins-secissues','ins-needle','ins-checklist','ins-flows','ins-launch'].forEach(id=>{
+    const ta=document.querySelector(`.ins-ta[data-key="${id}"]`);
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv)ta.value=sv;
+    const btn=document.getElementById('mibtn-'+id);
+    if(btn&&sv&&sv.trim()){btn.disabled=false;btn.classList.remove('locked');}
   });
-  document.querySelectorAll('.analogy-box').forEach(function(box){
-    if(box.dataset.init)return;box.dataset.init='1';box.classList.add('expanded');
-    const label=box.querySelector(':scope > .analogy-label');
-    if(label)label.addEventListener('click',()=>box.classList.toggle('expanded'));
+  // Restore RQ answers
+  ['rq1','rq2','rq3'].forEach(id=>{
+    const ta=document.querySelector(`.rq-ta[data-key="rq-${id}"]`);
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv)ta.value=sv;
+    const btn=document.getElementById('ansbtn-'+id);
+    if(btn&&sv&&sv.trim()){btn.disabled=false;btn.classList.remove('locked');}
   });
+  // Restore notes
+  document.querySelectorAll('.notes-ta').forEach((ta,i)=>{
+    const sv=localStorage.getItem(PAGE_KEY+'-note-'+i);
+    if(sv)ta.value=sv;
+    ta.addEventListener('input',()=>localStorage.setItem(PAGE_KEY+'-note-'+i,ta.value));
+  });
+  renderQList();updateProgress();
+  sessionStorage.setItem('pt','1');
+  document.body.style.opacity='1';
 });
 </script>
 </body>

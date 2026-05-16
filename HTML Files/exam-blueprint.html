@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WCNA Exam Blueprint — Wireshark</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-dim:#bfdbfe;--green:#1a7c4a;--green-light:#d4f0e0;--red:#b91c1c;}
+html.pt-init body{opacity:0;}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{padding:48px 60px 36px;background:var(--text);}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.stats-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 60px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;}
+.stat-item{display:flex;align-items:center;gap:10px;}
+.stat-label{font-size:11px;font-weight:600;letter-spacing:.10em;color:var(--text-muted);text-transform:uppercase;}
+.stat-val{font-size:22px;font-weight:700;color:var(--blue);font-family:'Fraunces',serif;}
+.stat-done{color:var(--green);}
+.stat-reviewed{color:#7c3aed;}
+.overall-bar{flex:1;min-width:200px;}
+.bar-wrap{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.bar-fill-done{height:100%;background:var(--green);border-radius:99px;transition:width .3s;}
+.bar-fill-rev{height:100%;background:#7c3aed;border-radius:99px;transition:width .3s;}
+.main-wrap{max-width:1100px;margin:0 auto;padding:32px 60px 80px;}
+.chapter-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;}
+.chapter-head{display:flex;align-items:center;gap:16px;padding:18px 24px;background:var(--text);cursor:pointer;user-select:none;}
+.chapter-head:hover{background:#1a2d4a;}
+.chapter-num{background:rgba(147,197,253,0.15);border:1px solid rgba(147,197,253,0.3);color:#93c5fd;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.chapter-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:#fff;flex:1;}
+.chapter-progress{display:flex;align-items:center;gap:12px;white-space:nowrap;}
+.ch-prog-done{font-size:11px;color:#6ee7b7;font-weight:600;}
+.ch-prog-rev{font-size:11px;color:#c4b5fd;font-weight:600;}
+.chapter-chevron{font-size:13px;color:rgba(255,255,255,0.4);margin-left:8px;transition:transform .2s;}
+.chapter-card.open .chapter-chevron{transform:rotate(180deg);}
+.chapter-body{display:none;padding:8px 24px 20px;}
+.chapter-card.open .chapter-body{display:block;}
+.obj-list{list-style:none;margin-top:12px;}
+.obj-item{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:8px;margin-bottom:4px;border:1px solid transparent;transition:border-color .15s,background .15s;}
+.obj-item:hover{background:var(--surface-2);border-color:var(--border-dim);}
+.obj-item.done-and-reviewed{background:#f0fdf4;border-color:var(--green);}
+.obj-item.done-only{background:#eff6ff;border-color:var(--blue-dim);}
+.obj-item.reviewed-only{background:#faf5ff;border-color:#e9d5ff;}
+.obj-text{flex:1;font-size:13px;color:var(--text-soft);line-height:1.5;}
+.obj-text.is-done{text-decoration:line-through;color:var(--text-muted);}
+.cb-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.cb-label{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text-muted);}
+.cb-done{accent-color:var(--green);width:15px;height:15px;cursor:pointer;}
+.cb-reviewed{accent-color:#7c3aed;width:15px;height:15px;cursor:pointer;}
+.sg-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--blue);text-decoration:none;margin-top:12px;padding:5px 12px;border:1px solid var(--blue-dim);border-radius:6px;transition:background .15s;}
+.sg-link:hover{background:var(--blue-dim);}
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+.filter-btn{padding:7px 18px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-family:'Epilogue',sans-serif;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .15s;}
+.filter-btn.active,.filter-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+.reset-all{margin-left:auto;padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:none;font-family:'Epilogue',sans-serif;font-size:11px;color:var(--red);cursor:pointer;}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){header,.stats-bar,.main-wrap,footer{padding-left:20px;padding-right:20px;}h1{font-size:28px;}.chapter-title{font-size:15px;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="breadcrumb"><a href="../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Exam Blueprint</div>
+  <div class="header-eyebrow"><span class="dot-live"></span> WCNA Exam Preparation</div>
+  <h1>Exam Blueprint <em>Checklist</em></h1>
+  <p class="header-sub">Wireshark Certified Network Analyst · 33 chapters · Track your progress per objective</p>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-label">Total Objectives</span><span class="stat-val" id="total-count">0</span></div>
+  <div class="stat-item"><span class="stat-label">Done</span><span class="stat-val stat-done" id="done-count">0</span></div>
+  <div class="stat-item"><span class="stat-label">Reviewed</span><span class="stat-val stat-reviewed" id="rev-count">0</span></div>
+  <div class="overall-bar">
+    <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text-muted);margin-bottom:4px;">
+      <span>DONE</span><span id="done-pct">0%</span>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill-done" id="bar-done" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text-muted);margin-top:6px;margin-bottom:4px;">
+      <span>REVIEWED</span><span id="rev-pct">0%</span>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill-rev" id="bar-rev" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="main-wrap">
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All Chapters</button>
+  <button class="filter-btn" onclick="setFilter('undone',this)">Not Done</button>
+  <button class="filter-btn" onclick="setFilter('done',this)">Done</button>
+  <button class="filter-btn" onclick="setFilter('notreviewed',this)">Not Reviewed</button>
+  <button class="filter-btn" onclick="expandAll()">Expand All</button>
+  <button class="filter-btn" onclick="collapseAll()">Collapse All</button>
+  <button class="reset-all" onclick="resetAll()">Reset All</button>
+</div>
+<div id="chapters"></div>
+</div>
+
+<footer>
+  <div>WCNA Exam Blueprint · Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
+  <div>Progress saved automatically in your browser</div>
+</footer>
+
+<script>
+const KEY = 'wcna-blueprint';
+
+const CHAPTERS = [
+  {num:1, title:"The World of Network Analysis", slug:"chapter-01-world-of-network-analysis", objectives:[
+    "Define Network Analysis",
+    "Troubleshooting Tasks for the Network Analyst",
+    "Security Tasks for the Network Analyst",
+    "Optimization Tasks for the Network Analyst",
+    "Application Analysis Tasks for the Network Analyst",
+    "Be Aware of Legal Issues of Listening to Network Traffic",
+    "Overcome the \"Needle in the Haystack\" Issue",
+    "Review a Checklist of Analysis Tasks",
+    "Understand Network Traffic Flows"
+  ]},
+  {num:2, title:"Introduction to Wireshark", slug:"chapter-02-introduction-to-wireshark", objectives:[
+    "Wireshark Creation and Maintenance",
+    "Obtain the Latest Version of Wireshark",
+    "Compare Wireshark Release and Development Versions",
+    "Report a Wireshark Bug or Submit an Enhancement",
+    "Capture Packets on Wired or Wireless Networks",
+    "Open Various Trace File Types",
+    "Understand How Wireshark Processes Packets",
+    "Use the Start Page",
+    "Identify the Nine GUI Elements",
+    "Navigate Wireshark's Main Menu",
+    "Use the Main Toolbar for Efficiency",
+    "Focus Faster with the Filter Toolbar",
+    "Make the Wireless Toolbar Visible",
+    "Work Faster Using RightClick Functionality",
+    "Functions of the Menus and Toolbars"
+  ]},
+  {num:3, title:"Capture Traffic", slug:"chapter-03-capture-traffic", objectives:[
+    "Know Where to Tap Into the Network",
+    "Run Wireshark Locally",
+    "Capture Traffic on Switched Networks",
+    "Use a Test Access Port (TAP) on Full-Duplex Networks",
+    "Set up Port Spanning/Port Mirroring on a Switch",
+    "Analyze Routed Networks",
+    "Analyze Wireless Networks",
+    "Capture at Two Locations (Dual Captures)",
+    "Select the Right Capture Interface",
+    "Capture on Multiple Adapters Simultaneously",
+    "Interface Details (Windows Only)",
+    "Capture Traffic Remotely",
+    "Automatically Save Packets to One or More Files",
+    "Optimize Wireshark to Avoid Dropping Packets",
+    "Conserve Memory with Command-Line Capture"
+  ]},
+  {num:4, title:"Create and Apply Capture Filters", slug:"chapter-04-capture-filters", objectives:[
+    "The Purpose of Capture Filters",
+    "Apply a Capture Filter to an Interface",
+    "Build Your Own Set of Capture Filters",
+    "Filter by a Protocol",
+    "Create MAC/IP Address or Host Name Capture Filters",
+    "Capture One Application's Traffic Only",
+    "Use Operators to Combine Capture Filters",
+    "Create Capture Filters to Look for Byte Values",
+    "Manually Edit the Capture Filters File",
+    "Share Capture Filters with Others"
+  ]},
+  {num:5, title:"Define Global and Personal Preferences", slug:"chapter-05-preferences", objectives:[
+    "Find Your Configuration Folders",
+    "Set Global and Personal Configurations",
+    "Customize Your User Interface Settings",
+    "Define Your Capture Preferences",
+    "Automatically Resolve IP and MAC Names",
+    "Plot IP Addresses on a World Map with GeoIP",
+    "Resolve Port Numbers (Transport Name Resolution)",
+    "Resolve SNMP Information",
+    "Configure Filter Expressions",
+    "Configure Statistics Settings",
+    "Define ARP, TCP, HTTP/HTTPS and Other Protocol Settings",
+    "Configure Protocol Settings with RightClick"
+  ]},
+  {num:6, title:"Colorize Traffic", slug:"chapter-06-colorize-traffic", objectives:[
+    "Use Colors to Differentiate Traffic",
+    "Disable One or More Coloring Rules",
+    "Share and Manage Coloring Rules",
+    "Identify Why a Packet is a Certain Color",
+    "Create a \"Butt Ugly\" Coloring Rule for HTTP Errors",
+    "Color Conversations to Distinguish Them",
+    "Temporarily Mark Packets of Interest"
+  ]},
+  {num:7, title:"Define Time Values and Interpret Summaries", slug:"chapter-07-time-values", objectives:[
+    "Use Time to Identify Network Problems",
+    "Understand How Wireshark Measures Packet Time",
+    "Choose the Ideal Time Display Format",
+    "Identify Delays with Time Values",
+    "Create Additional Time Columns",
+    "Measure Packet Arrival Times with a Time Reference",
+    "Identify Client, Server and Path Delays",
+    "Calculate End-to-End Path Delays",
+    "Locate Slow Server Responses",
+    "Spot Overloaded Clients",
+    "View a Summary of Traffic Rates, Packet Sizes and Overall Bytes Transferred"
+  ]},
+  {num:8, title:"Interpret Basic Trace File Statistics", slug:"chapter-08-trace-statistics", objectives:[
+    "Launch Wireshark Statistics",
+    "Identify Network Protocols and Applications",
+    "Identify the Most Active Conversations",
+    "List Endpoints and Map Them on the Earth",
+    "Spot Suspicious Targets with GeoIP",
+    "List Conversations or Endpoints for Specific Traffic Types",
+    "Evaluate Packet Lengths",
+    "List All IPv4/IPv6 Addresses in the Traffic",
+    "List All Destinations in the Traffic",
+    "List UDP and TCP Usage",
+    "Analyze UDP Multicast Streams",
+    "Graph the Flow of Traffic",
+    "Gather Your HTTP Statistics",
+    "Examine All WLAN Statistics"
+  ]},
+  {num:9, title:"Create and Apply Display Filters", slug:"chapter-09-display-filters", objectives:[
+    "Understand the Purpose of Display Filters",
+    "Create Display Filters Using Auto-Complete",
+    "Apply Saved Display Filters",
+    "Use Expressions for Filter Assistance",
+    "Make Display Filters Quickly Using RightClick Filtering",
+    "Filter on Conversations and Endpoints",
+    "Understand Display Filter Syntax",
+    "Combine Display Filters with Comparison Operators",
+    "Alter Display Filter Meaning with Parentheses",
+    "Filter on the Existence of a Field",
+    "Filter on Specific Bytes in a Packet",
+    "Find Key Words in Upper or Lower Case",
+    "Use Display Filter Macros for Complex Filtering",
+    "Avoid Common Display Filter Mistakes",
+    "Manually Edit the dfilters File"
+  ]},
+  {num:10, title:"Follow Streams and Reassemble Data", slug:"chapter-10-follow-streams", objectives:[
+    "Follow and Reassemble UDP Conversations",
+    "Follow and Reassemble TCP Conversations",
+    "Follow and Reassemble SSL Conversations",
+    "Identify Common File Types"
+  ]},
+  {num:11, title:"Customize Wireshark Profiles", slug:"chapter-11-customize-profiles", objectives:[
+    "Customize Wireshark with Profiles",
+    "Create a New Profile",
+    "Share Profiles",
+    "Create a Troubleshooting Profile",
+    "Create a Corporate Profile",
+    "Create a WLAN Profile",
+    "Create a VoIP Profile",
+    "Create a Security Profile"
+  ]},
+  {num:12, title:"Annotate, Save, Export and Print Packets", slug:"chapter-12-annotate-export", objectives:[
+    "Annotate a Packet or an Entire Trace File",
+    "Save Filtered, Marked and Ranges of Packets",
+    "Export Packet Content for Use in Other Programs",
+    "Export SSL Keys",
+    "Save Conversations, Endpoints, IO Graphs and Flow Graph Information",
+    "Export Packet Bytes"
+  ]},
+  {num:13, title:"Use Wireshark's Expert System", slug:"chapter-13-expert-system", objectives:[
+    "Launch Expert Info Quickly",
+    "Colorize Expert Info Elements",
+    "Filter on TCP Expert Information Elements",
+    "Understand TCP Expert Information"
+  ]},
+  {num:14, title:"TCP/IP Analysis Overview", slug:"chapter-14-tcp-ip-overview", objectives:[
+    "TCP/IP Functionality Overview",
+    "Follow the Multi-Step Resolution Process",
+    "Step 1: Port Number Resolution",
+    "Step 2: Network Name Resolution (Optional)",
+    "Step 3: Route Resolution—When the Target is Local",
+    "Step 4: Local MAC Address Resolution",
+    "Step 5: Route Resolution—When the Target is Remote",
+    "Step 6: Local MAC Address Resolution for a Gateway"
+  ]},
+  {num:15, title:"Analyze Domain Name System (DNS) Traffic", slug:"chapter-15-dns", objectives:[
+    "The Purpose of DNS",
+    "Analyze Normal DNS Queries/Responses",
+    "Analyze DNS Problems",
+    "Dissect the DNS Packet Structure",
+    "Filter on DNS/MDNS Traffic"
+  ]},
+  {num:16, title:"Analyze Address Resolution Protocol (ARP) Traffic", slug:"chapter-16-arp", objectives:[
+    "Identify the Purpose of ARP",
+    "Analyze Normal ARP Requests/Responses",
+    "Analyze Gratuitous ARP",
+    "Analyze ARP Problems",
+    "Dissect the ARP Packet Structure",
+    "Filter on ARP Traffic"
+  ]},
+  {num:17, title:"Analyze Internet Protocol (IPv4/IPv6) Traffic", slug:"chapter-17-ip", objectives:[
+    "Identify the Purpose of IP",
+    "Analyze Normal IPv4 Traffic",
+    "Analyze IPv4 Problems",
+    "Dissect the IPv4 Packet Structure",
+    "Filter on IPv4 Traffic",
+    "Sanitize Your IP Addresses in Trace Files",
+    "Set Your IPv4 Protocol Preferences"
+  ]},
+  {num:18, title:"Analyze Internet Control Message Protocol (ICMPv4/ICMPV6) Traffic", slug:"chapter-18-icmp", objectives:[
+    "The Purpose of ICMP",
+    "Analyze Normal ICMP Traffic",
+    "Analyze ICMP Problems",
+    "Dissect the ICMP Packet Structure",
+    "Basic ICMPv6 Functionality",
+    "Filter on ICMP and ICMPv6 Traffic"
+  ]},
+  {num:19, title:"Analyze User Datagram Protocol (UDP) Traffic", slug:"chapter-19-udp", objectives:[
+    "The Purpose of UDP",
+    "Analyze Normal UDP Traffic",
+    "Analyze UDP Problems",
+    "Dissect the UDP Packet Structure",
+    "Filter on UDP Traffic"
+  ]},
+  {num:20, title:"Analyze Transmission Control Protocol (TCP) Traffic", slug:"chapter-20-tcp", objectives:[
+    "The Purpose of TCP",
+    "Analyze Normal TCP Communications",
+    "The Establishment of TCP Connections",
+    "When TCP-based Services are Refused",
+    "The Termination of TCP Connections",
+    "How TCP Tracks Packets Sequentially",
+    "How TCP Recovers from Packet Loss",
+    "Improve Packet Loss Recovery with Selective Acknowledgments",
+    "Understand TCP Flow Control",
+    "Analyze TCP Problems",
+    "Dissect the TCP Packet Structure",
+    "Filter on TCP Traffic",
+    "Set TCP Protocol Preferences"
+  ]},
+  {num:21, title:"Graph IO Rates and TCP Trends", slug:"chapter-21-io-graphs", objectives:[
+    "Use Graphs to View Trends",
+    "Generate Basic IO Graphs",
+    "Filter IO Graphs",
+    "Generate Advanced IO Graphs",
+    "Compare Traffic Trends in IO Graphs",
+    "Graph Round Trip Time",
+    "Graph Throughput Rates",
+    "Graph TCP Sequence Numbers over Time",
+    "Interpret TCP Window Size Issues",
+    "Interpret Packet Loss, Duplicate ACKs and Retransmissions"
+  ]},
+  {num:22, title:"Analyze Dynamic Host Configuration Protocol (DHCPv4/DHCPv6) Traffic", slug:"chapter-22-dhcp", objectives:[
+    "The Purpose of DHCP",
+    "Analyze Normal DHCP Traffic",
+    "Analyze DHCP Problems",
+    "Dissect the DHCP Packet Structure",
+    "Filter on DHCP/DHCPv6 Traffic",
+    "Display BOOTP-DHCP Statistics"
+  ]},
+  {num:23, title:"Analyze Hypertext Transfer Protocol (HTTP) Traffic", slug:"chapter-23-http", objectives:[
+    "The Purpose of HTTP",
+    "Analyze Normal HTTP Communications",
+    "Analyze HTTP Problems",
+    "Dissect HTTP Packet Structures",
+    "Filter on HTTP or HTTPS Traffic",
+    "Export HTTP Objects",
+    "Display HTTP Statistics",
+    "Graph HTTP Traffic Flows",
+    "Set HTTP Preferences",
+    "Analyze HTTPS Communications",
+    "Analyze SSL/TLS Handshake",
+    "Analyze TLS Encrypted Alerts",
+    "Decrypt HTTPS Traffic",
+    "Export SSL Keys"
+  ]},
+  {num:24, title:"Analyze File Transfer Protocol (FTP) Traffic", slug:"chapter-24-ftp", objectives:[
+    "The Purpose of FTP",
+    "Analyze Normal FTP Communications",
+    "Analyze Passive Mode Connections",
+    "Analyze Active Mode Connections",
+    "Analyze FTP Problems",
+    "Dissect the FTP Packet Structure",
+    "Filter on FTP Traffic",
+    "Reassemble FTP Traffic"
+  ]},
+  {num:25, title:"Analyze Email Traffic", slug:"chapter-25-email", objectives:[
+    "Analyze Normal POP Communications",
+    "Analyze POP Problems",
+    "Dissect the POP Packet Structure",
+    "Filter on POP Traffic",
+    "Analyze Normal SMTP Communications",
+    "Analyze SMTP Problems",
+    "Dissect the SMTP Packet Structure",
+    "Filter on SMTP Traffic"
+  ]},
+  {num:26, title:"Introduction to 802.11 (WLAN) Analysis", slug:"chapter-26-wlan", objectives:[
+    "Analyze Signal Strength and Interference",
+    "Capture WLAN Traffic",
+    "Compare Monitor Mode vs. Promiscuous Mode",
+    "Select the Wireless Interface",
+    "Set Up WLAN Decryption",
+    "Select to Prepend Radiotap or PPI Headers",
+    "Compare Signal Strength and Signal-to-Noise Ratios",
+    "Understand 802.11 Traffic Basics",
+    "Analyze Normal 802.11 Communications",
+    "Dissect the 802.11 Frame Structure",
+    "Filter on All WLAN Traffic",
+    "Analyze Frame Control Types and Subtypes",
+    "Customize Wireshark for WLAN Analysis"
+  ]},
+  {num:27, title:"Introduction to Voice over IP (VoIP) Analysis", slug:"chapter-27-voip", objectives:[
+    "Understand VoIP Traffic Flows",
+    "Session Bandwidth and RTP Port Definition",
+    "Analyze VoIP Problems",
+    "Examine SIP Traffic",
+    "Examine RTP Traffic",
+    "Play Back VoIP Conversations",
+    "RTP Player Marker Definitions",
+    "Create a VoIP Profile",
+    "Filter on VoIP Traffic"
+  ]},
+  {num:28, title:"Baseline \"Normal\" Traffic Patterns", slug:"chapter-28-baseline", objectives:[
+    "Understand the Importance of Baselining",
+    "Baseline Broadcast and Multicast Types and Rates",
+    "Baseline Protocols and Applications",
+    "Baseline Boot up Sequences",
+    "Baseline Login/Logout Sequences",
+    "Baseline Traffic during Idle Time",
+    "Baseline Application Launch Sequences and Key Tasks",
+    "Baseline Web Browsing Sessions",
+    "Baseline Name Resolution Sessions",
+    "Baseline Throughput Tests",
+    "Baseline Wireless Connectivity",
+    "Baseline VoIP Communications"
+  ]},
+  {num:29, title:"Find the Top Causes of Performance Problems", slug:"chapter-29-performance", objectives:[
+    "Troubleshoot Performance Problems",
+    "Identify High Latency Times",
+    "Point to Slow Processing Times",
+    "Find the Location of Packet Loss",
+    "Watch Signs of Misconfigurations",
+    "Analyze Traffic Redirections",
+    "Watch for Small Payload Sizes",
+    "Look for Congestion",
+    "Identify Application Faults",
+    "Note Any Name Resolution Faults"
+  ]},
+  {num:30, title:"Network Forensics Overview", slug:"chapter-30-forensics", objectives:[
+    "Compare Host vs. Network Forensics",
+    "Gather Evidence",
+    "Avoid Detection",
+    "Handle Evidence Properly",
+    "Recognize Unusual Traffic Patterns",
+    "Color Unusual Traffic Patterns"
+  ]},
+  {num:31, title:"Detect Scanning and Discovery Processes", slug:"chapter-31-network-scanning", objectives:[
+    "The Purpose of Discovery and Reconnaissance Processes",
+    "Detect ARP Scans (aka ARP Sweeps)",
+    "Detect ICMP Ping Sweeps",
+    "Detect Various Types of TCP Port Scans",
+    "Detect UDP Port Scans",
+    "Detect IP Protocol Scans",
+    "Understand Idle Scans",
+    "Know Your ICMP Types and Codes",
+    "Analyze Traceroute Path Discovery",
+    "Detect Dynamic Router Discovery",
+    "Understand Application Mapping Processes",
+    "Use Wireshark for Passive OS Fingerprinting",
+    "Detect Active OS Fingerprinting",
+    "Identify Spoofed Addresses in Scans"
+  ]},
+  {num:32, title:"Analyze Suspect Traffic", slug:"chapter-32-suspect-traffic", objectives:[
+    "Identify Vulnerabilities in the TCP/IP Resolution Processes",
+    "Find Maliciously Malformed Packets",
+    "Identify Invalid or 'Dark' Destination Addresses",
+    "Differentiate Between Flooding and Denial of Service Traffic",
+    "Find Clear Text Passwords and Data",
+    "Identify Phone Home Traffic",
+    "Catch Unusual Protocols and Applications",
+    "Locate Route Redirection that Uses ICMP",
+    "Catch ARP Poisoning",
+    "Catch IP Fragmentation and Overwriting",
+    "Spot TCP Splicing",
+    "Watch Other Unusual TCP Traffic",
+    "Identify Password Cracking Attempts",
+    "Build Filters and Coloring Rules from IDS Rules"
+  ]},
+  {num:33, title:"Effective Use of Command-Line Tools", slug:"chapter-33-command-line", objectives:[
+    "Understand the Power of Command-Line Tools",
+    "Use Wireshark.exe (Command-Line Launch)",
+    "Capture Traffic with Tshark",
+    "List Trace File Details with Capinfos",
+    "Edit Trace Files with Editcap",
+    "Merge Trace Files with Mergecap",
+    "Convert Text with Text2pcap",
+    "Capture Traffic with Dumpcap",
+    "Understand Rawshark"
+  ]}
+];
+
+function getState(){return JSON.parse(localStorage.getItem(KEY)||'{}');}
+function setState(s){localStorage.setItem(KEY,JSON.stringify(s));}
+
+function objKey(chNum, idx){return `ch${chNum}-obj${idx}`;}
+
+function updateStats(){
+  const s = getState();
+  let total=0, done=0, rev=0;
+  CHAPTERS.forEach(ch=>{
+    ch.objectives.forEach((obj,i)=>{
+      total++;
+      const k=objKey(ch.num,i);
+      if(s[k+'_done']) done++;
+      if(s[k+'_rev']) rev++;
+    });
+  });
+  document.getElementById('total-count').textContent=total;
+  document.getElementById('done-count').textContent=done;
+  document.getElementById('rev-count').textContent=rev;
+  const dp=total?Math.round(done/total*100):0;
+  const rp=total?Math.round(rev/total*100):0;
+  document.getElementById('done-pct').textContent=dp+'%';
+  document.getElementById('rev-pct').textContent=rp+'%';
+  document.getElementById('bar-done').style.width=dp+'%';
+  document.getElementById('bar-rev').style.width=rp+'%';
+}
+
+function updateChapterProgress(chNum){
+  const s=getState();
+  const ch=CHAPTERS.find(c=>c.num===chNum);
+  let done=0,rev=0;
+  ch.objectives.forEach((_,i)=>{
+    const k=objKey(chNum,i);
+    if(s[k+'_done']) done++;
+    if(s[k+'_rev']) rev++;
+  });
+  const dEl=document.getElementById(`ch${chNum}-done`);
+  const rEl=document.getElementById(`ch${chNum}-rev`);
+  if(dEl) dEl.textContent=done+'/'+ch.objectives.length+' done';
+  if(rEl) rEl.textContent=rev+'/'+ch.objectives.length+' reviewed';
+}
+
+function toggle(chNum, idx, type){
+  const s=getState();
+  const k=objKey(chNum,idx)+'_'+type;
+  s[k]=!s[k];
+  setState(s);
+  const item=document.getElementById(`obj-${chNum}-${idx}`);
+  if(item){
+    const isDone=s[objKey(chNum,idx)+'_done'];
+    const isRev=s[objKey(chNum,idx)+'_rev'];
+    item.className='obj-item'+(isDone&&isRev?' done-and-reviewed':isDone?' done-only':isRev?' reviewed-only':'');
+    const txt=item.querySelector('.obj-text');
+    if(txt) txt.className='obj-text'+(isDone?' is-done':'');
+  }
+  updateChapterProgress(chNum);
+  updateStats();
+}
+
+function buildChapters(){
+  const s=getState();
+  const wrap=document.getElementById('chapters');
+  wrap.innerHTML='';
+  CHAPTERS.forEach(ch=>{
+    let doneCt=0,revCt=0;
+    ch.objectives.forEach((_,i)=>{
+      const k=objKey(ch.num,i);
+      if(s[k+'_done']) doneCt++;
+      if(s[k+'_rev']) revCt++;
+    });
+    const card=document.createElement('div');
+    card.className='chapter-card';
+    card.id='ch-card-'+ch.num;
+
+    let objHTML='';
+    ch.objectives.forEach((obj,i)=>{
+      const k=objKey(ch.num,i);
+      const isDone=!!s[k+'_done'];
+      const isRev=!!s[k+'_rev'];
+      const cls='obj-item'+(isDone&&isRev?' done-and-reviewed':isDone?' done-only':isRev?' reviewed-only':'');
+      const txtCls='obj-text'+(isDone?' is-done':'');
+      objHTML+=`<li class="${cls}" id="obj-${ch.num}-${i}">
+        <span class="${txtCls}">${obj}</span>
+        <div class="cb-wrap">
+          <span class="cb-label">Done</span>
+          <input type="checkbox" class="cb-done" ${isDone?'checked':''} onchange="toggle(${ch.num},${i},'done')">
+        </div>
+        <div class="cb-wrap">
+          <span class="cb-label">Reviewed</span>
+          <input type="checkbox" class="cb-reviewed" ${isRev?'checked':''} onchange="toggle(${ch.num},${i},'rev')">
+        </div>
+      </li>`;
+    });
+
+    const sgPath=`chapter-${String(ch.num).padStart(2,'0')}-${ch.slug.replace(/^chapter-\d+-/,'')}`;
+    card.innerHTML=`
+      <div class="chapter-head" onclick="toggleCard(${ch.num})">
+        <span class="chapter-num">Ch ${String(ch.num).padStart(2,'0')}</span>
+        <span class="chapter-title">${ch.title}</span>
+        <div class="chapter-progress">
+          <span class="ch-prog-done" id="ch${ch.num}-done">${doneCt}/${ch.objectives.length} done</span>
+          <span class="ch-prog-rev" id="ch${ch.num}-rev">${revCt}/${ch.objectives.length} reviewed</span>
+        </div>
+        <span class="chapter-chevron">▾</span>
+      </div>
+      <div class="chapter-body">
+        <ul class="obj-list">${objHTML}</ul>
+        <a class="sg-link" href="${sgPath}/study-guide.html">📖 Open Study Guide →</a>
+        &nbsp;
+        <a class="sg-link" href="${sgPath}/index.html">❓ Open Practice Page →</a>
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function toggleCard(chNum){
+  const card=document.getElementById('ch-card-'+chNum);
+  if(card) card.classList.toggle('open');
+}
+function expandAll(){document.querySelectorAll('.chapter-card').forEach(c=>c.classList.add('open'));}
+function collapseAll(){document.querySelectorAll('.chapter-card').forEach(c=>c.classList.remove('open'));}
+
+function setFilter(type, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const s=getState();
+  CHAPTERS.forEach(ch=>{
+    const card=document.getElementById('ch-card-'+ch.num);
+    if(!card) return;
+    if(type==='all'){card.style.display='';return;}
+    let show=false;
+    ch.objectives.forEach((_,i)=>{
+      const k=objKey(ch.num,i);
+      const isDone=!!s[k+'_done'];
+      const isRev=!!s[k+'_rev'];
+      if(type==='undone'&&!isDone) show=true;
+      if(type==='done'&&isDone) show=true;
+      if(type==='notreviewed'&&!isRev) show=true;
+    });
+    card.style.display=show?'':'none';
+  });
+}
+
+function resetAll(){
+  if(!confirm('Reset ALL progress? This cannot be undone.')) return;
+  localStorage.removeItem(KEY);
+  buildChapters();
+  updateStats();
+}
+
+function initPT(){
+  document.querySelectorAll('a[href]').forEach(function(a){
+    if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){
+      a.addEventListener('click',function(e){
+        sessionStorage.setItem('pt','1');
+        document.body.style.opacity='0';
+        document.body.style.transition='opacity .22s';
+        setTimeout(function(){window.location=a.href;},220);
+        e.preventDefault();
+      });
+    }
+  });
+  setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);
+}
+
+buildChapters();
+updateStats();
+initPT();
+</script>
+</body>
+</html>

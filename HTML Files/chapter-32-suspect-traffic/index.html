@@ -2,679 +2,138 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch 32: Analyze Suspect Traffic — Wireshark Practice</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-  --purple:#5c35cc;--purple-light:#ece8ff;--purple-border:#c8bbff;
-}
-html.pt-init body{opacity:0;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-
-/* ── HEADER ── */
-header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
-.header-left{flex:1;}
-.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
-.breadcrumb-sep{color:rgba(255,255,255,0.2);}
-.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
-.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
-h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
-header p.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-
-/* ── MOTIVATION BANNER ── */
-.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
-.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
-.motivation-text em{font-style:italic;color:var(--blue);}
-.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-
-/* ── TOP PANELS ── */
-.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
-.top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
-.top-panels .qpanel-body{padding-left:32px;padding-right:32px;}
-.qpanel{background:var(--surface);}
-.qpanel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.qpanel-header:hover,.qpanel-header.open{background:var(--surface-2);}
-.qpanel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.qpanel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.qpanel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.qpanel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.qpanel-body{display:none;padding:0 32px 22px;}
-.qpanel-body.open{display:block;}
-.notes-panel{background:var(--surface);}
-.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
-.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.notes-panel-body{display:none;padding:0 32px 22px;}
-.notes-panel-body.open{display:block;}
-.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-group{margin-bottom:12px;}
-.q-group-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;}
-.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
-.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
-.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
-.q-del:hover{color:var(--red);}
-
-/* ── SECTION NAV ── */
-.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
-.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
-.nav-tab:hover{color:var(--text);}
-.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-
-/* ── MAIN GRID ── */
-main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
-.main-content{min-width:0;}
-
-/* ── SECTION BLOCK ── */
-.section-block{margin-bottom:40px;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
-.section-block p,.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0;}
-.section-block li{margin-bottom:4px;}
-
-/* ── FILE BADGES ── */
-.files-grid{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;}
-.file-badge{background:var(--green-light);border:1px solid var(--green-border);color:var(--green);font-size:11px;font-weight:600;font-family:'SF Mono','Fira Code',monospace;padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
-.file-badge::before{content:'📄';font-size:10px;}
-
-/* ── PRACTICE QUESTION CARDS ── */
-.practice-q{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;border-top:3px solid var(--blue);}
-.practice-q-header{padding:16px 20px 12px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border-dim);}
-.q-badge{flex-shrink:0;background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;margin-top:1px;font-family:'Epilogue',sans-serif;}
-.q-body-text{font-size:14px;line-height:1.65;color:var(--text);}
-.practice-q-answer{padding:14px 20px;background:var(--surface-2);}
-.answer-label-sm{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;display:block;}
-.answer-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:44px;outline:none;line-height:1.6;}
-.answer-textarea:focus{border-color:var(--blue);}
-.answer-textarea::placeholder{color:var(--text-muted);}
-.answer-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
-.btn-save-ans{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-save-ans:hover{opacity:.85;}
-.btn-clear-ans{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-clear-ans:hover{border-color:var(--red);color:var(--red);}
-.saved-indicator{font-size:11px;color:var(--green);min-width:60px;}
-
-/* ── MENTAL NOTE ── */
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-
-/* ── LESSON TOOLS ── */
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-
-/* ── SIDEBAR ── */
-.sidebar{position:sticky;top:60px;}
-.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
-.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
-.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
-.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
-.sidebar-link .arrow{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-
-/* ── QUICK-REF (sidebar dark cards) ── */
-.quick-ref{background:var(--text);border-radius:10px;padding:16px 18px;margin-top:8px;}
-.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px;}
-.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;}
-.qr-row:last-child{border-bottom:none;}
-.qr-term{color:#93c5fd;font-weight:600;}
-.qr-def{color:rgba(255,255,255,0.65);font-size:11px;text-align:right;max-width:55%;}
-
-/* ── FOOTER ── */
-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-
-/* ── RESPONSIVE ── */
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .top-panels .qpanel-header,.top-panels .qpanel-body,.notes-panel-header,.notes-panel-body{padding-left:20px;padding-right:20px;}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  h1{font-size:30px;}
-}
-
-/* ── MODEL ANSWER REVEAL ── */
-.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all .15s;}
-.btn-see-answer:disabled{opacity:0.45;cursor:not-allowed;}
-.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
-.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
-.model-answer-block{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--blue);}
-.model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
-.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
-
-.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
-.nav-sg-link:hover{color:var(--blue-deep);}
-.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
-.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
-.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
-@media(max-width:640px){.chapter-nav{padding:14px 20px;gap:10px;}.chapter-nav-btn{font-size:11px;padding:8px 14px;}}
-</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 32: Suspect Traffic — Wireshark Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+<style>html.pt-init body{opacity:0;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Epilogue',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh;}header{background:#0d1a2e;color:#fff;padding:18px 32px 22px;}.breadcrumb{font-size:12px;color:#93c5fd;margin-bottom:8px;}.breadcrumb a{color:#93c5fd;text-decoration:none;}.eyebrow{display:inline-flex;align-items:center;gap:8px;background:#1e3a5f;border-radius:20px;padding:4px 14px;font-size:11px;color:#93c5fd;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}.dot{width:7px;height:7px;border-radius:50%;background:#93c5fd;animation:pulse 2s infinite;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}h1{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;line-height:1.2;}h1 em{font-style:italic;color:#93c5fd;}.motivation-banner{background:#eef4ff;border-left:4px solid #1a6dcc;padding:12px 20px;margin:0 32px;font-family:'Fraunces',serif;font-style:italic;color:#1e3a5f;font-size:1.05rem;}.ch-nav{display:flex;justify-content:space-between;padding:10px 32px;background:#e2eaf5;border-bottom:1px solid #bfdbfe;}.nav-btn{font-size:13px;color:#1a6dcc;text-decoration:none;font-weight:600;padding:4px 10px;border-radius:6px;background:#fff;border:1px solid #bfdbfe;}.nav-btn:hover{background:#eef4ff;}.q-panel-wrap{padding:16px 32px 0;}.q-panel{background:#fff;border:1px solid #bfdbfe;border-radius:10px;overflow:hidden;}.q-panel-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;cursor:pointer;background:#eef4ff;}.q-panel-hdr h3{font-size:14px;font-weight:600;color:#1a6dcc;}.q-panel-body{padding:12px 16px;display:none;}.q-panel-body.open{display:block;}.q-input-row{display:flex;gap:8px;margin-bottom:10px;}.q-input{flex:1;border:1px solid #bfdbfe;border-radius:6px;padding:8px 10px;font-size:13px;font-family:'Epilogue',sans-serif;}.btn-add-q{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;}.q-list{list-style:none;}.q-list li{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f0f4f8;font-size:13px;}.btn-del-q{background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:0 4px;}main{display:grid;grid-template-columns:1fr 320px;gap:24px;padding:24px 32px;max-width:1400px;margin:0 auto;}.content{min-width:0;}.intro-box{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:20px 24px;margin-bottom:20px;line-height:1.7;font-size:15px;}.intro-box h2{font-family:'Fraunces',serif;font-size:1.3rem;color:#0d1a2e;margin-bottom:10px;}.section-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a6dcc;margin:24px 0 10px;}.qa-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:20px;margin-bottom:14px;}.qa-badge{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6dcc;margin-bottom:8px;}.qa-question{font-size:15px;line-height:1.6;margin-bottom:12px;}.ans-input{width:100%;border:1px solid #bfdbfe;border-radius:6px;padding:10px;font-size:14px;font-family:'Epilogue',sans-serif;resize:vertical;}.qa-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}.btn-save{background:#1a6dcc;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;cursor:pointer;font-weight:600;}.btn-clear{background:#f0f4f8;color:#475569;border:1px solid #bfdbfe;border-radius:6px;padding:7px 16px;font-size:13px;cursor:pointer;}.btn-reveal{background:#0d1a2e;color:#93c5fd;border:none;border-radius:6px;padding:7px 16px;font-size:13px;cursor:pointer;font-weight:600;}.btn-reveal.locked{opacity:.5;cursor:not-allowed;}.model-answer{margin-top:14px;background:#f8fafc;border-left:3px solid #1a6dcc;padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;line-height:1.7;}.opt-section{margin-top:8px;}.opt-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:16px 20px;margin-bottom:10px;}.opt-name{font-weight:700;font-size:14px;color:#0d1a2e;margin-bottom:4px;font-family:'Fraunces',serif;}.opt-desc{font-size:13px;color:#475569;line-height:1.6;margin-bottom:8px;}.opt-note{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;}.sidebar{position:sticky;top:20px;align-self:start;display:flex;flex-direction:column;gap:16px;}.sidebar-card{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;}.sidebar-card h3{font-size:13px;font-weight:700;color:#0d1a2e;margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em;}.progress-bar-wrap{background:#e2e8f0;border-radius:99px;height:8px;margin:6px 0 12px;}.progress-bar{background:#1a6dcc;height:8px;border-radius:99px;transition:width .3s;}.progress-label{font-size:12px;color:#64748b;}.hub-link{display:block;text-align:center;background:#1a6dcc;color:#fff;border-radius:8px;padding:10px;font-weight:600;font-size:14px;text-decoration:none;margin-bottom:10px;}.qr-card{background:#0d1a2e;color:#e2e8f0;border-radius:8px;padding:12px;margin-bottom:8px;}.qr-term{font-size:12px;font-weight:700;color:#93c5fd;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}.qr-def{font-size:13px;line-height:1.5;}footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:32px;}@media(max-width:900px){main{grid-template-columns:1fr;}}</style>
 </head>
 <body>
-
-<header>
-  <div class="header-left">
-    <div class="breadcrumb">
-      <a href="../../index.html">Wireshark Practice Hub</a>
-      <span class="breadcrumb-sep">›</span>
-      Chapter 32
-    </div>
-    <div class="header-eyebrow"><span class="dot-live"></span> Practice · Chapter 32</div>
-    <h1>Analyze Suspect Traffic <em>Practice</em></h1>
-    <p class="header-sub">13 practice questions · 14 trace files</p>
-  </div>
-</header>
-
-<div style="background:#1a6dcc;padding:12px 60px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-  <span style="font-size:13px;color:#fff;font-family:'Epilogue',sans-serif;">📖 <strong>Study Guide available</strong> — full chapter breakdown with Socratic questions, mental notes, and analogies</span>
-  <a href="study-guide.html" style="background:#fff;color:#1a6dcc;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:'Epilogue',sans-serif;letter-spacing:.04em;">Open Study Guide →</a>
-</div>
-<div class="motivation-banner">
-  <div class="motivation-text">Open the trace. <em>Trust what you see.</em></div>
-  <p class="motivation-sub">Covers identifying and analyzing suspect traffic patterns including malformed packets, dark addresses, looping traffic, unusual protocols, man-in-the-middle ARP poisoning, DNS cache poisoning, TCP splicing, password cracking attempts, and how to build Wireshark display filters and coloring rules from IDS/IPS rules.</p>
-</div>
-
-<div class="top-panels">
-  <div class="qpanel" id="qpanel">
-    <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-      <span class="qpanel-title">MY QUESTIONS</span>
-      <span class="qpanel-count" id="qpanel-count">0</span>
-      <span class="qpanel-hint">— click to expand</span>
-      <span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-    </button>
-    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
-  </div>
-  <div class="notes-panel" id="notes-panel">
-    <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-      <span class="notes-panel-title">MY NOTES</span>
-      <span class="notes-panel-count" id="notes-panel-count">0</span>
-      <span class="notes-panel-hint">— click to expand</span>
-      <span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-    </button>
-    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-  </div>
-</div>
-
-<nav class="section-nav">
-  <button class="nav-tab active" data-target="sec-files" onclick="navTo('sec-files')">📁 Trace Files</button>
-  <button class="nav-tab" data-target="sec-questions" onclick="navTo('sec-questions')">❓ Questions</button>
-  <button class="nav-tab" data-target="sec-tools" onclick="navTo('sec-tools')">🛠 Notes</button>
-  <a href="study-guide.html" class="nav-sg-link">📖 Study Guide →</a>
-</nav>
-
+<header><div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a> › Chapter 32: Suspect Traffic</div><div class="eyebrow"><span class="dot"></span> Practice Lab</div><h1>Chapter 32: Suspect Traffic</h1></header>
+<div class="motivation-banner">Work through each scenario, record your observations, then check the model answers.</div>
+<div class="ch-nav"><a class="nav-btn" href="../chapter-31-network-scanning/index.html">← Chapter 31: Network Scanning</a><a class="nav-btn" href="../../index.html">Hub</a><a class="nav-btn" href="../chapter-33-command-line-tools/index.html">Chapter 33: Command-Line Tools →</a></div>
+<div class="q-panel-wrap"><div class="q-panel"><div class="q-panel-hdr" onclick="toggleQPanel()"><h3>💭 My Questions</h3><span id="qp-toggle">▾</span></div><div class="q-panel-body" id="q-panel-body"><div class="q-input-row"><input class="q-input" id="q-input" type="text" placeholder="Add a question…"><button class="btn-add-q" onclick="addQuestion()">+ Add</button></div><ul class="q-list" id="q-list"></ul></div></div></div>
 <main>
-<div class="main-content">
-
-  <div class="section-block" id="sec-files">
-    <div class="section-label">Chapter 32 · Trace Files</div>
-    <h2>Files for This Chapter</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;">Download from <a href="https://www.wiresharkbook.com" target="_blank" style="color:var(--blue)">wiresharkbook.com</a> and open in Wireshark before answering.</p>
-    <div class="files-grid">
-      <span class="file-badge">app-norton-update2012.pcapng</span><span class="file-badge">arp-poison.pcapng</span><span class="file-badge">arp-sweep.pcapng</span><span class="file-badge">icmpredirect.pcapng</span><span class="file-badge">ip-fragments.pcapng</span><span class="file-badge">sec-bruteforce.pcapng</span><span class="file-badge">sec-clientdying.pcapng</span><span class="file-badge">sec-dictionary2.pcapng</span><span class="file-badge">sec-macof.pcapng</span><span class="file-badge">sec-password-setting.pcapng</span><span class="file-badge">sec-sickclient.pcapng</span><span class="file-badge">sec-sql-attack.pcapng</span><span class="file-badge">smb-protocol-request-reply.pcapng</span><span class="file-badge">tcp-splice.pcapng</span>
+<div class="content">
+  <div class="intro-box"><h2>Chapter 32: Suspect Traffic</h2><p>Chapter 32 covers analyzing suspect and malicious traffic — malware beaconing, data exfiltration, ARP poisoning, and botnet C2 communications. You'll apply forensic techniques to identify anomalous traffic patterns that deviate from known-good baseline behavior.</p></div>
+  <div class="section-label">Guided Analysis — Suspect Traffic Patterns</div>
+<div class="qa-card" id="card-q1">
+  <div class="qa-badge">Concept — Q1</div>
+  <div class="qa-question">Malware often communicates with C2 servers in a regular 'beaconing' pattern. How would you detect beaconing in Wireshark? What statistical characteristics distinguish beaconing from normal traffic?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="q1" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('q1')">Save</button>
+      <button class="btn-clear" onclick="clearAns('q1')">Clear</button>
+      <button class="btn-reveal locked" id="rev-q1" onclick="revealAns('q1')" disabled>🔒 Model Answer</button>
     </div>
-    <div class="mental-note-block">
-      <div class="mental-note-block-icon">🧠</div>
-      <div class="mental-note-block-inner">
-        <div class="mental-note-block-label">MENTAL NOTE</div>
-        <div class="mental-note-block-text">Covers identifying and analyzing suspect traffic patterns including malformed packets, dark addresses, looping traffic, unusual protocols, man-in-the-middle ARP poisoning, DNS cach</div>
-      </div>
-    </div>
+    <div class="model-answer" id="ma-q1" style="display:none">Use Statistics > Conversations to find IP pairs with very regular communication intervals. Then use I/O Graph filtered to that IP pair — regular spikes at fixed intervals (e.g., every 60 seconds exactly) indicate beaconing. Normal user traffic is irregular and bursty. Beaconing exhibits: consistent inter-packet timing, fixed packet sizes, same destination port, and traffic even when the user is away from the computer.</div>
   </div>
-
-  <div class="section-block" id="sec-questions">
-    <div class="section-label">Practice What You've Learned</div>
-    <h2>Questions</h2>
-    
-        
-        <div class="practice-q" id="q1">
-          <div class="practice-q-header">
-            <span class="q-badge">Q1</span>
-            <p class="q-body-text">Open app-norton-update2012.pcapng. What would be a recognizable signature of this Norton update traffic?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="1" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(1, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-1"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q2">
-          <div class="practice-q-header">
-            <span class="q-badge">Q2</span>
-            <p class="q-body-text">Open arp-poison.pcapng. Sketch the communications on paper paying close attention to the MAC header and advertised MAC address in the ARP packets. Can you map out the contents of the ARP tables of each poisoned host? What are the limitations of ARP poisoning?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="2" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(2, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-2"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q3">
-          <div class="practice-q-header">
-            <span class="q-badge">Q3</span>
-            <p class="q-body-text">Open arp-sweep.pcapng. What are the limitations of an ARP sweep? Why don't you need a tap or span port to capture this traffic?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="3" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(3, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-3"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-3" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">ARP poisoning works by sending unsolicited ARP Reply packets that map a victim host's IP address to the attacker's MAC address. This causes other hosts (and the default gateway) to update their ARP caches with the false mapping, redirecting traffic intended for the victim through the attacker. ARP poisoning is limited to the local network segment because ARP is non-routable, and it can be detected when Wireshark's duplicate IP address detection feature triggers warnings about inconsistent MAC-to-IP mappings.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q4">
-          <div class="practice-q-header">
-            <span class="q-badge">Q4</span>
-            <p class="q-body-text">Open icmpredirect.pcapng. When is an ICMP Redirect acceptable? What type of coloring rule could you create to locate unacceptable ICMP Redirects?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="4" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(4, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-4"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q5">
-          <div class="practice-q-header">
-            <span class="q-badge">Q5</span>
-            <p class="q-body-text">Open ip-fragments.pcapng. Add a column for the Fragment Offset field value. What would indicate the sender is using fragment override?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="5" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(5, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-5"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q6">
-          <div class="practice-q-header">
-            <span class="q-badge">Q6</span>
-            <p class="q-body-text">Open sec-bruteforce.pcapng. Apply a display filter for USER or PASS commands. What usernames and passwords were attempted? How many connections did this brute force attack establish?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="6" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(6, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-6"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-6" disabled onclick="revealAnswer(6)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-6" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">The display filter to find traffic containing 'password' in either case uses the matches operator with a case-insensitive regular expression: frame matches '(?i)password'. The (?i) flag makes the match case-insensitive, so it will match 'password', 'Password', 'PASSWORD', and any other capitalization variant.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q7">
-          <div class="practice-q-header">
-            <span class="q-badge">Q7</span>
-            <p class="q-body-text">Open sec-clientdying.pcapng. What files did the host download? What protocols were used for the downloads?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="7" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(7, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-7"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q8">
-          <div class="practice-q-header">
-            <span class="q-badge">Q8</span>
-            <p class="q-body-text">Open sec-dictionary2.pcapng. What coloring rule could you create to make the 'Password not accepted' designation more visible?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="8" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(8, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-8"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q9">
-          <div class="practice-q-header">
-            <span class="q-badge">Q9</span>
-            <p class="q-body-text">Open sec-macof.pcapng. What is the IO rate? What is the packet per second rate? Can you identify the signature in this flood traffic?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="9" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(9, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-9"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(9)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q10">
-          <div class="practice-q-header">
-            <span class="q-badge">Q10</span>
-            <p class="q-body-text">Open sec-password-setting.pcapng. How do you filter on all traffic that contains the string 'password' in either upper or lower case?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="10" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(10, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-10"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(10)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q11">
-          <div class="practice-q-header">
-            <span class="q-badge">Q11</span>
-            <p class="q-body-text">Open sec-sickclient.pcapng. The client hits an IRC channel as user 'l l l l' and begins scanning for port 139. Check the rate of the scan. What is this host infected with?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="11" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(11, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-11"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(11)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q12">
-          <div class="practice-q-header">
-            <span class="q-badge">Q12</span>
-            <p class="q-body-text">Open sec-sql-attack.pcapng. After the SQL login attempt with username 'sa', apply a display filter on SQL Error Number 18456. How many packets matched?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="12" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(12, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-12"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(12)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q13">
-          <div class="practice-q-header">
-            <span class="q-badge">Q13</span>
-            <p class="q-body-text">Open tcp-splice.pcapng. What is the fastest way to view the true message inside spliced packets?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="13" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(13, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-13"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(13)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-  </div>
-
-  <div class="section-block" id="sec-tools">
-    <div class="section-label">Study Tools</div>
-    <h2>Questions &amp; Notes</h2>
-    <div class="lesson-tools">
-      <div class="lesson-tools-grid">
-        <div>
-          <div class="tool-label">Ask a Question</div>
-          <textarea class="tool-textarea" id="q-general" placeholder="What are you unsure about in this chapter?" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('general')">Add Question</button></div>
-        </div>
-        <div>
-          <div class="tool-label">Add a Note</div>
-          <textarea class="tool-textarea" id="note-general" placeholder="Key insight, pattern, or tip to remember…" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addNote('general')">+ Add Note</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
-
-<aside class="sidebar">
-  <div class="sidebar-card">
-    <h3>Navigation</h3>
-    <div class="sidebar-nav-links">
-      <a class="sidebar-link" href="../index.html">🦈 All Chapters <span class="arrow">›</span></a>
-      <a class="sidebar-link" href="../chapter-31/index.html"><span>←</span> Ch 31: Detect Network Scanning and Discov…<span class="arrow">›</span></a>
-      <a class="sidebar-link" href="../chapter-33/index.html"><span>→</span> Ch 33: Effective Use of Command Line Tool…<span class="arrow">›</span></a>
+<div class="qa-card" id="card-q2">
+  <div class="qa-badge">Trace: arp-poison.pcapng — Q2</div>
+  <div class="qa-question">Open <strong>arp-poison.pcapng</strong>. Apply filter <code>arp</code>. What is ARP poisoning, and what pattern in the ARP traffic indicates it is occurring?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="q2" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('q2')">Save</button>
+      <button class="btn-clear" onclick="clearAns('q2')">Clear</button>
+      <button class="btn-reveal locked" id="rev-q2" onclick="revealAns('q2')" disabled>🔒 Model Answer</button>
     </div>
+    <div class="model-answer" id="ma-q2" style="display:none">ARP poisoning sends gratuitous ARP replies to update other hosts' ARP caches with the attacker's MAC address mapped to a legitimate IP (e.g., the gateway IP). This redirects traffic through the attacker (man-in-the-middle). Signs: (1) ARP replies without preceding ARP requests (gratuitous ARPs). (2) Multiple MAC addresses claiming the same IP. (3) An IP that suddenly maps to a different MAC than the baseline. Filter for gratuitous ARPs: <code>arp.isgratuitous == 1</code>.</div>
   </div>
-
-  <div class="sidebar-card">
-    <h3>Progress — Ch 32</h3>
-    <div class="progress-summary">
-      <span id="prog-text">0 / 13 answered</span>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+<div class="qa-card" id="card-q3">
+  <div class="qa-badge">Concept — Q3</div>
+  <div class="qa-question">How would you detect data exfiltration over DNS in a packet capture? What specific filters and statistics would you examine?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="q3" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('q3')">Save</button>
+      <button class="btn-clear" onclick="clearAns('q3')">Clear</button>
+      <button class="btn-reveal locked" id="rev-q3" onclick="revealAns('q3')" disabled>🔒 Model Answer</button>
     </div>
-    <div class="progress-checklist">
-      <label class="check-item" data-qi="1"><input type="checkbox" onchange="updateProgress()"> Q1: Open app-norton-update2012.pcapng. What would be a reco…</label><label class="check-item" data-qi="2"><input type="checkbox" onchange="updateProgress()"> Q2: Open arp-poison.pcapng. Sketch the communications on pa…</label><label class="check-item" data-qi="3"><input type="checkbox" onchange="updateProgress()"> Q3: Open arp-sweep.pcapng. What are the limitations of an A…</label><label class="check-item" data-qi="4"><input type="checkbox" onchange="updateProgress()"> Q4: Open icmpredirect.pcapng. When is an ICMP Redirect acce…</label><label class="check-item" data-qi="5"><input type="checkbox" onchange="updateProgress()"> Q5: Open ip-fragments.pcapng. Add a column for the Fragment…</label><label class="check-item" data-qi="6"><input type="checkbox" onchange="updateProgress()"> Q6: Open sec-bruteforce.pcapng. Apply a display filter for …</label><label class="check-item" data-qi="7"><input type="checkbox" onchange="updateProgress()"> Q7: Open sec-clientdying.pcapng. What files did the host do…</label><label class="check-item" data-qi="8"><input type="checkbox" onchange="updateProgress()"> Q8: Open sec-dictionary2.pcapng. What coloring rule could y…</label><label class="check-item" data-qi="9"><input type="checkbox" onchange="updateProgress()"> Q9: Open sec-macof.pcapng. What is the IO rate? What is the…</label><label class="check-item" data-qi="10"><input type="checkbox" onchange="updateProgress()"> Q10: Open sec-password-setting.pcapng. How do you filter on …</label><label class="check-item" data-qi="11"><input type="checkbox" onchange="updateProgress()"> Q11: Open sec-sickclient.pcapng. The client hits an IRC chan…</label><label class="check-item" data-qi="12"><input type="checkbox" onchange="updateProgress()"> Q12: Open sec-sql-attack.pcapng. After the SQL login attempt…</label><label class="check-item" data-qi="13"><input type="checkbox" onchange="updateProgress()"> Q13: Open tcp-splice.pcapng. What is the fastest way to view…</label>
-    </div>
+    <div class="model-answer" id="ma-q3" style="display:none">(1) Apply <code>dns</code> and check Statistics > Conversations — excessive DNS to a single unusual authoritative server. (2) Filter <code>dns.qry.name</code> and look for long subdomain strings (>30 chars before the domain root). (3) Apply <code>dns &amp;&amp; frame.len > 200</code> — abnormally large DNS packets. (4) Filter <code>dns.qry.type == 16</code> for TXT queries. (5) Look for consistent intervals in I/O Graph filtered to DNS — beaconing via DNS is common in tunneling tools.</div>
   </div>
-
+</div>
+  <div class="section-label">Optional Traces</div>
+  <div class="opt-section">
+<div class="opt-card">
+  <div class="opt-name">arp-poison.pcapng</div>
+  <div class="opt-desc">Apply <code>arp</code>. Look for <code>arp.isgratuitous==1</code>. Identify which IP is being 'hijacked' and what MAC is the poisoner. Then look at traffic after the poison — do you see the victim's traffic now appearing to route through the attacker?</div>
+  <textarea class="opt-note" rows="2" placeholder="ARP poisoning observations…"></textarea>
+</div>
+<div class="opt-card">
+  <div class="opt-name">sec-strangescan.pcapng</div>
+  <div class="opt-desc">Beyond port scanning, look for payload content in any established connections. Apply <code>tcp contains "cmd"</code> or <code>tcp contains "shell"</code> to search for command execution strings in TCP payloads.</div>
+  <textarea class="opt-note" rows="2" placeholder="Command injection string search observations…"></textarea>
+</div>
+<div class="opt-card">
+  <div class="opt-name">Any trace — exfiltration detection</div>
+  <div class="opt-desc">Go to Statistics > Conversations. Sort by bytes sent from internal IPs to external IPs. Any internal host sending unusually large volumes outbound (compared to baseline) may be exfiltrating data. Note: inbound-heavy = normal web browsing; outbound-heavy = potential exfiltration.</div>
+  <textarea class="opt-note" rows="2" placeholder="Exfiltration detection observations…"></textarea>
+</div></div>
+  <div class="section-label">Review Questions</div>
   
-      <div class="quick-ref">
-        <h4>Trace Files</h4>
-        <div class="qr-row"><span class="qr-term">app-norton-update2012.pcapng</span><span class="qr-def">App Norton Update2012</span></div><div class="qr-row"><span class="qr-term">arp-poison.pcapng</span><span class="qr-def">Arp Poison</span></div><div class="qr-row"><span class="qr-term">arp-sweep.pcapng</span><span class="qr-def">Arp Sweep</span></div><div class="qr-row"><span class="qr-term">icmpredirect.pcapng</span><span class="qr-def">Icmpredirect</span></div><div class="qr-row"><span class="qr-term">ip-fragments.pcapng</span><span class="qr-def">Ip Fragments</span></div>
-      </div>
-</aside>
-</main>
-
-<div class="chapter-nav">
-  <a href="../chapter-31-network-scanning/index.html" class="chapter-nav-btn">← Ch 31 · Network Scanning</a>
-  <a href="../chapter-33-command-line-tools/index.html" class="chapter-nav-btn">Ch 33 · Command-Line Tools →</a>
+<div class="qa-card" id="card-r1">
+  <div class="qa-badge">Review Q32.1</div>
+  <div class="qa-question">What is ARP cache poisoning and what Wireshark filter identifies gratuitous ARP packets used in an attack?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="r1" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('r1')">Save</button>
+      <button class="btn-clear" onclick="clearAns('r1')">Clear</button>
+      <button class="btn-reveal locked" id="rev-r1" onclick="revealAns('r1')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="model-answer" id="ma-r1" style="display:none">ARP cache poisoning (ARP spoofing) involves sending unsolicited ARP replies that associate the attacker's MAC with a legitimate IP address, redirecting traffic through the attacker for man-in-the-middle interception. Filter: <code>arp.isgratuitous == 1</code> finds gratuitous ARP replies. Also look for <code>arp.duplicate-address-detected</code> which Wireshark flags when two ARP entries for the same IP have different MACs.</div>
+  </div>
 </div>
-
-<footer>
-  <div>Chapter 32 · Analyze Suspect Traffic</div>
-  <div>Wireshark Network Analysis 2nd Ed</div>
-</footer>
-
-<script>
-
-const PAGE_KEY='ws-ch32';
-const TOTAL_Q=13;
-
-// ── Q-Panel ──
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');}
-function saveQArr(qs){localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));}
-function addQuestion(key){const ta=document.getElementById('q-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const qs=getQArr();qs.push({id:Date.now(),section:key,text});saveQArr(qs);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const body=document.getElementById('qpanel-body');const header=document.getElementById('qpanel-header');const chevron=document.getElementById('qpanel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',open);}
-function renderQPanel(){const qs=getQArr();const count=document.getElementById('qpanel-count');if(count){count.textContent=qs.length;count.style.display=qs.length?'inline':'none';}const hint=document.querySelector('.qpanel-hint');if(hint)hint.textContent=qs.length?`— ${qs.length} question${qs.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('qpanel-body');if(!body)return;if(!qs.length){body.innerHTML='<p class="no-questions">No questions yet.</p>';return;}let html='';qs.forEach((q,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;
-});body.innerHTML=html;}
-
-// ── Notes Panel ──
-function getNotesArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNotesArr(ns){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(ns));}
-function addNote(key){const ta=document.getElementById('note-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const ns=getNotesArr();ns.push({id:Date.now(),section:key,text});saveNotesArr(ns);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNotesArr(getNotesArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const body=document.getElementById('notes-panel-body');const header=document.getElementById('notes-panel-header');const chevron=document.getElementById('notes-panel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',open);}
-function renderNotesPanel(){const ns=getNotesArr();const count=document.getElementById('notes-panel-count');if(count){count.textContent=ns.length;count.style.display=ns.length?'inline':'none';}const hint=document.querySelector('.notes-panel-hint');if(hint)hint.textContent=ns.length?`— ${ns.length} note${ns.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('notes-panel-body');if(!body)return;if(!ns.length){body.innerHTML='<p class="no-questions">No notes yet. Add one from any question below.</p>';return;}let html='';ns.forEach((n,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${n.id})">✕</button></div>`;
-});body.innerHTML=html;}
-
-// ── Answer autosave ──
-
-function onAnswerInput(q, val) {
-  localStorage.setItem(PAGE_KEY + '-ans-' + q, val);
-  const saveEl = document.getElementById('saved-' + q);
-  if (saveEl) { saveEl.textContent = val.trim() ? '' : ''; }
-  const revealBtn = document.getElementById('reveal-' + q);
-  if (revealBtn) revealBtn.disabled = !val.trim();
-  updateProgress();
-}
-function revealAnswer(q) {
-  const block = document.getElementById('model-' + q);
-  const btn   = document.getElementById('reveal-' + q);
-  if (!block || !btn) return;
-  const hidden = block.style.display === 'none' || block.style.display === '';
-  block.style.display = hidden ? 'block' : 'none';
-  btn.textContent = hidden ? '▲ Hide Model Answer' : '💡 See Model Answer';
-}
-
-function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
-
-// ── Progress ──
-function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}
-
-// ── Section nav highlight ──
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-
-// ── Page transitions ──
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-
-document.addEventListener('DOMContentLoaded', function(){
-  renderQPanel(); renderNotesPanel();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  // Restore saved answers
-  document.querySelectorAll('[data-q]').forEach(function(ta){
-    const q=ta.dataset.q;
-    const saved=localStorage.getItem(PAGE_KEY+'-ans-'+q);
-    if(saved)ta.value=saved;
-  });
-  updateProgress();
-  initSectionNav();
-  // Restore reveal button state for saved answers
-  document.querySelectorAll('[data-q]').forEach(function(ta) {
-    const q = ta.dataset.q;
-    const saved = localStorage.getItem(PAGE_KEY + '-ans-' + q);
-    if (saved && saved.trim()) {
-      const btn = document.getElementById('reveal-' + q);
-      if (btn) btn.disabled = false;
-    }
-  });
-  initPT();
-});
-</script>
+<div class="qa-card" id="card-r2">
+  <div class="qa-badge">Review Q32.2</div>
+  <div class="qa-question">What behavioral pattern distinguishes malware C2 beaconing from normal user web traffic in an I/O Graph?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="r2" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('r2')">Save</button>
+      <button class="btn-clear" onclick="clearAns('r2')">Clear</button>
+      <button class="btn-reveal locked" id="rev-r2" onclick="revealAns('r2')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="model-answer" id="ma-r2" style="display:none">C2 beaconing: regular, periodic spikes at fixed intervals regardless of time of day; traffic continues even outside business hours; consistent packet sizes and destination IP. Normal web traffic: irregular, bursty, correlates with user activity (stops at night/weekends), highly variable packet sizes and many different destination IPs. I/O Graph interval: use 1-second buckets over several hours to visualize the regularity.</div>
+  </div>
+</div>
+<div class="qa-card" id="card-r3">
+  <div class="qa-badge">Review Q32.3</div>
+  <div class="qa-question">What Wireshark filter searches for a specific string in packet payloads, and how might you use this during a malware investigation?</div>
+  <div class="qa-answer-area">
+    <textarea class="ans-input" data-key="r3" rows="3" placeholder="Your answer…"></textarea>
+    <div class="qa-btns">
+      <button class="btn-save" onclick="saveAns('r3')">Save</button>
+      <button class="btn-clear" onclick="clearAns('r3')">Clear</button>
+      <button class="btn-reveal locked" id="rev-r3" onclick="revealAns('r3')" disabled>🔒 Model Answer</button>
+    </div>
+    <div class="model-answer" id="ma-r3" style="display:none"><code>frame contains "string"</code> searches all packet bytes for the literal string. Protocol-specific: <code>tcp contains "password"</code>, <code>http contains "malware.exe"</code>, <code>dns.qry.name contains "evil.com"</code>. During malware investigation: search for known IOCs (Indicators of Compromise) — C2 domain names, URL paths from threat intel feeds, specific user-agent strings, or unique strings from the malware binary (if known).</div>
+  </div>
+</div>
+</div>
+<div class="sidebar">
+  <div class="sidebar-card"><a class="hub-link" href="../../index.html">← Wireshark Hub</a><h3>Progress</h3><div class="progress-label"><span id="prog-count">0</span> / 6 answered</div><div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div></div>
+  <div class="sidebar-card"><h3>Quick Reference</h3><div class="qr-card"><div class="qr-term">arp.isgratuitous == 1</div><div class="qr-def">Gratuitous ARP — unsolicited reply used in ARP poisoning/MITM.</div></div>
+<div class="qr-card"><div class="qr-term">C2 Beaconing</div><div class="qr-def">Regular, periodic outbound connections at fixed intervals. Malware hallmark.</div></div>
+<div class="qr-card"><div class="qr-term">frame contains "str"</div><div class="qr-def">Search packet payload for string. Use for IOC matching.</div></div>
+<div class="qr-card"><div class="qr-term">DNS Tunneling</div><div class="qr-def">Data embedded in DNS queries/responses. Look for long subdomains, TXT queries.</div></div>
+</div>
+</div>
+</main>
+<footer>Wireshark Network Analysis · Chapter 32: Suspect Traffic</footer>
+<script>const PAGE_KEY='ws-ch32';const PROG_KEYS=["q1", "q2", "q3", "r1", "r2", "r3"];const TOTAL_Q=6;
+function saveAns(k){const ta=document.querySelector(`.ans-input[data-key="${k}"]`);if(!ta)return;localStorage.setItem(PAGE_KEY+'-ans-'+k,ta.value);const b=document.getElementById('rev-'+k);if(b&&ta.value.trim()){b.disabled=false;b.classList.remove('locked')}updateProgress()}
+function clearAns(k){const ta=document.querySelector(`.ans-input[data-key="${k}"]`);if(ta){ta.value='';localStorage.removeItem(PAGE_KEY+'-ans-'+k)}const b=document.getElementById('rev-'+k);if(b){b.disabled=true;b.classList.add('locked')}const m=document.getElementById('ma-'+k);if(m)m.style.display='none';updateProgress()}
+function revealAns(k){const m=document.getElementById('ma-'+k);if(m)m.style.display=m.style.display==='none'?'block':'none'}
+function updateProgress(){let c=0;PROG_KEYS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-ans-'+k))c++});document.getElementById('prog-count').textContent=c;document.getElementById('prog-bar').style.width=(c/TOTAL_Q*100)+'%'}
+function toggleQPanel(){const b=document.getElementById('q-panel-body');const t=document.getElementById('qp-toggle');b.classList.toggle('open');t.textContent=b.classList.contains('open')?'▴':'▾'}
+function addQuestion(){const i=document.getElementById('q-input');const t=i.value.trim();if(!t)return;const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.push(t);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));i.value='';renderQList()}
+function deleteQuestion(idx){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.splice(idx,1);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));renderQList()}
+function renderQList(){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');const ul=document.getElementById('q-list');ul.innerHTML=qs.map((q,i)=>`<li><span>${q}</span><button class="btn-del-q" onclick="deleteQuestion(${i})">×</button></li>`).join('')}
+document.addEventListener('DOMContentLoaded',()=>{PROG_KEYS.forEach(k=>{const ta=document.querySelector(`.ans-input[data-key="${k}"]`);const sv=localStorage.getItem(PAGE_KEY+'-ans-'+k);if(ta&&sv)ta.value=sv;const b=document.getElementById('rev-'+k);if(b&&sv&&sv.trim()){b.disabled=false;b.classList.remove('locked')}});document.querySelectorAll('.opt-note').forEach((ta,i)=>{const sv=localStorage.getItem(PAGE_KEY+'-opt-'+i);if(sv)ta.value=sv;ta.addEventListener('input',()=>localStorage.setItem(PAGE_KEY+'-opt-'+i,ta.value))});renderQList();updateProgress();sessionStorage.setItem('pt','1');document.body.style.opacity='1'});</script>
 </body>
 </html>
