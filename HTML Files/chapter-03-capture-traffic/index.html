@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ch 03: Capture Traffic — Wireshark Practice</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -20,13 +19,10 @@
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-
-/* ── HEADER ── */
 header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
 .header-left{flex:1;}
 .breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}.breadcrumb a:hover{text-decoration:underline;}
 .breadcrumb-sep{color:rgba(255,255,255,0.2);}
 .header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
 .dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
@@ -34,14 +30,10 @@ header{padding:48px 60px 36px;background:var(--text);display:flex;align-items:fl
 h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
 h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
 header p.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-
-/* ── MOTIVATION BANNER ── */
 .motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
 .motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
 .motivation-text em{font-style:italic;color:var(--blue);}
 .motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-
-/* ── TOP PANELS ── */
 .top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
 .top-panels .qpanel{border-bottom:none;border-right:1px solid var(--border);}
 .top-panels .qpanel-header{padding-left:32px;padding-right:32px;}
@@ -65,38 +57,29 @@ header p.header-sub{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;
 .notes-panel-body{display:none;padding:0 32px 22px;}
 .notes-panel-body.open{display:block;}
 .no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-group{margin-bottom:12px;}
-.q-group-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;}
 .q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
 .q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
 .q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
 .q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
 .q-del:hover{color:var(--red);}
-
-/* ── SECTION NAV ── */
 .section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
 .nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
 .nav-tab:hover{color:var(--text);}
 .nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-
-/* ── MAIN GRID ── */
+.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
+.nav-sg-link:hover{color:var(--blue-deep);}
 main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
 .main-content{min-width:0;}
-
-/* ── SECTION BLOCK ── */
-.section-block{margin-bottom:40px;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;}
-.section-block p,.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0;}
-.section-block li{margin-bottom:4px;}
-
-/* ── FILE BADGES ── */
-.files-grid{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;}
-.file-badge{background:var(--green-light);border:1px solid var(--green-border);color:var(--green);font-size:11px;font-weight:600;font-family:'SF Mono','Fira Code',monospace;padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
-.file-badge::before{content:'📄';font-size:10px;}
-
-/* ── PRACTICE QUESTION CARDS ── */
+.session-block{margin-bottom:48px;}
+.session-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--blue-dim);}
+.session-file{font-family:'SF Mono','Fira Code',monospace;font-size:14px;font-weight:700;color:var(--blue);}
+.session-badge{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;}
+.session-scenario{background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;padding:16px 20px;margin-bottom:24px;}
+.session-scenario p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
+.session-scenario p:last-child{margin-bottom:0;}
+.session-scenario code{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:var(--blue);}
+.session-scenario strong{color:var(--text);}
+.session-scenario ul{margin:8px 0 0 20px;font-size:14px;color:var(--text-soft);line-height:1.75;}
 .practice-q{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;border-top:3px solid var(--blue);}
 .practice-q-header{padding:16px 20px 12px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border-dim);}
 .q-badge{flex-shrink:0;background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;margin-top:1px;font-family:'Epilogue',sans-serif;}
@@ -112,26 +95,27 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .btn-clear-ans{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;}
 .btn-clear-ans:hover{border-color:var(--red);color:var(--red);}
 .saved-indicator{font-size:11px;color:var(--green);min-width:60px;}
-
-/* ── MENTAL NOTE ── */
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-
-/* ── LESSON TOOLS ── */
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:var(--text);color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-
-/* ── SIDEBAR ── */
+.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all .15s;}
+.btn-see-answer:disabled{opacity:0.45;cursor:not-allowed;}
+.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
+.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
+.model-answer-block{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--blue);}
+.model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
+.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
+.session-notes-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-top:4px;}
+.session-notes-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.session-notes-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:72px;outline:none;line-height:1.6;}
+.session-notes-ta:focus{border-color:var(--blue);}
+.optional-section-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.optional-section-sub{font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:24px;padding:14px 18px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;}
+.optional-trace-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.optional-trace-header{background:var(--text);padding:11px 18px;display:flex;align-items:center;gap:10px;}
+.optional-trace-name{font-family:'SF Mono','Fira Code',monospace;font-size:12px;font-weight:700;color:#93c5fd;}
+.optional-trace-body{padding:16px 18px;}
+.optional-trace-desc{font-size:13px;color:var(--text-soft);line-height:1.72;margin-bottom:14px;}
+.optional-trace-notes-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.optional-trace-notes-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:52px;outline:none;line-height:1.6;}
+.optional-trace-notes-ta:focus{border-color:var(--blue);}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -139,27 +123,19 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arrow{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
 .progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
 .progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
 .progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-
-/* ── QUICK-REF (sidebar dark cards) ── */
 .quick-ref{background:var(--text);border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;}
-.qr-def{color:rgba(255,255,255,0.65);font-size:11px;text-align:right;max-width:55%;}
-
-/* ── FOOTER ── */
+.qr-def{color:rgba(255,255,255,0.65);font-size:11px;text-align:right;max-width:60%;}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-
-/* ── RESPONSIVE ── */
+.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
+.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
+.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
 @media(max-width:900px){
   header{padding:24px 20px 20px;flex-direction:column;}
   .motivation-banner{padding:16px 20px;}
@@ -170,25 +146,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   main{grid-template-columns:1fr;padding:24px 20px 60px;}
   .sidebar{position:static;}
   footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
   h1{font-size:30px;}
+  .chapter-nav{padding:14px 20px;gap:10px;}
+  .chapter-nav-btn{font-size:11px;padding:8px 14px;}
 }
-
-/* ── MODEL ANSWER REVEAL ── */
-.btn-see-answer{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all .15s;}
-.btn-see-answer:disabled{opacity:0.45;cursor:not-allowed;}
-.btn-see-answer:not(:disabled){color:var(--blue);border-color:var(--blue);}
-.btn-see-answer:hover:not(:disabled){background:var(--blue-glow);}
-.model-answer-block{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--blue);}
-.model-answer-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
-.model-answer-text{font-size:13px;color:var(--text-soft);line-height:1.75;}
-
-.nav-sg-link{margin-left:auto;display:inline-flex;align-items:center;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:2px solid var(--blue);white-space:nowrap;transition:color .15s;}
-.nav-sg-link:hover{color:var(--blue-deep);}
-.chapter-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:var(--surface);border-top:1px solid var(--border);}
-.chapter-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;transition:background .15s,border-color .15s;}
-.chapter-nav-btn:hover{background:var(--blue-dim);border-color:var(--blue);}
-@media(max-width:640px){.chapter-nav{padding:14px 20px;gap:10px;}.chapter-nav-btn{font-size:11px;padding:8px 14px;}}
 </style>
 </head>
 <body>
@@ -196,13 +157,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 <header>
   <div class="header-left">
     <div class="breadcrumb">
-      <a href="../../index.html">Wireshark Practice Hub</a>
+      <a href="../../index.html">Wireshark Hub</a>
       <span class="breadcrumb-sep">›</span>
       Chapter 03
     </div>
     <div class="header-eyebrow"><span class="dot-live"></span> Practice · Chapter 03</div>
     <h1>Capture Traffic <em>Practice</em></h1>
-    <p class="header-sub">10 practice questions · 1 trace files</p>
+    <p class="header-sub">Hands-on capture tasks · 1 navigation trace · 3 review questions</p>
   </div>
 </header>
 
@@ -210,9 +171,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
   <span style="font-size:13px;color:#fff;font-family:'Epilogue',sans-serif;">📖 <strong>Study Guide available</strong> — full chapter breakdown with Socratic questions, mental notes, and analogies</span>
   <a href="study-guide.html" style="background:#fff;color:#1a6dcc;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:'Epilogue',sans-serif;letter-spacing:.04em;">Open Study Guide →</a>
 </div>
+
 <div class="motivation-banner">
-  <div class="motivation-text">Open the trace. <em>Trust what you see.</em></div>
-  <p class="motivation-sub">Explains how and where to capture traffic on wired and wireless networks, including local capture, port spanning, full-duplex taps, remote capture with rpcapd, and WLAN monitor mode. Covers saving to file sets, using ring buffers, optimizing Wireshark to avoid dropping packets, and command-line capture alternatives.</p>
+  <div class="motivation-text">Capture it right <em>the first time.</em></div>
+  <p class="motivation-sub">Tap into the network, select the right interface, configure capture options, and understand what your position on the network determines you can see. Chapter 3: Capture Traffic.</p>
 </div>
 
 <div class="top-panels">
@@ -237,297 +199,211 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 </div>
 
 <nav class="section-nav">
-  <button class="nav-tab active" data-target="sec-files" onclick="navTo('sec-files')">📁 Trace Files</button>
-  <button class="nav-tab" data-target="sec-questions" onclick="navTo('sec-questions')">❓ Questions</button>
-  <button class="nav-tab" data-target="sec-tools" onclick="navTo('sec-tools')">🛠 Notes</button>
+  <button class="nav-tab active" data-target="sec-practice" onclick="navTo('sec-practice')">&#10067; Practice Tasks</button>
+  <button class="nav-tab" data-target="sec-optional" onclick="navTo('sec-optional')">&#128196; Optional Traces</button>
+  <button class="nav-tab" data-target="sec-review" onclick="navTo('sec-review')">&#128203; Review Questions</button>
   <a href="study-guide.html" class="nav-sg-link">📖 Study Guide →</a>
 </nav>
 
 <main>
 <div class="main-content">
 
-  <div class="section-block" id="sec-files">
-    <div class="section-label">Chapter 03 · Trace Files</div>
-    <h2>Files for This Chapter</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;">Download from <a href="https://www.wiresharkbook.com" target="_blank" style="color:var(--blue)">wiresharkbook.com</a> and open in Wireshark before answering.</p>
-    <div class="files-grid">
-      <span class="file-badge">vlan-general.pcapng</span>
+<!-- ═══ PRACTICE TASKS ═══ -->
+<div id="sec-practice">
+
+<div class="session-block">
+  <div class="session-header">
+    <span class="session-file">Live Capture Practice</span>
+    <span class="session-badge">Self-directed tasks</span>
+  </div>
+  <div class="session-scenario">
+    <p>Download the practice trace files available from the Download section of the book website, <strong>www.wiresharkbook.com</strong>. Use these trace files to practice the tasks and tricks contained in this chapter.</p>
+    <p>The tasks below require your own Wireshark installation and a live network connection. Work through each task and record your observations.</p>
+  </div>
+
+  <div class="practice-q" style="border-top-color:var(--green);">
+    <div class="practice-q-header">
+      <span class="q-badge" style="background:var(--green);">Task 1</span>
+      <p class="q-body-text">Capture web browsing traffic on your local system — learn what you can capture without port spanning or using a full-duplex tap. Select <strong>Capture | Interfaces</strong> and wait a few moments to see which interface(s) are seeing traffic. Click <strong>Start</strong> to begin capturing on one of these interfaces.</p>
     </div>
-    <div class="mental-note-block">
-      <div class="mental-note-block-icon">🧠</div>
-      <div class="mental-note-block-inner">
-        <div class="mental-note-block-label">MENTAL NOTE</div>
-        <div class="mental-note-block-text">Explains how and where to capture traffic on wired and wireless networks, including local capture, port spanning, full-duplex taps, remote capture with rpcapd, and WLAN monitor mod</div>
+    <div class="practice-q-answer">
+      <div class="session-notes-label">My Notes</div>
+      <textarea class="session-notes-ta" placeholder="Which interfaces appeared? Which was most active?"></textarea>
+    </div>
+  </div>
+
+  <div class="practice-q" style="border-top-color:var(--green);">
+    <div class="practice-q-header">
+      <span class="q-badge" style="background:var(--green);">Task 2</span>
+      <p class="q-body-text">Launch your web browser and browse to <strong>www.wiresharkbook.com</strong>. After the page has loaded, select <strong>Capture | Stop</strong> or click the <strong>Stop Capture</strong> button on the Main Toolbar. Select <strong>File | Save</strong> and call your trace file <code>wiresharkbook1.pcapng</code>.</p>
+    </div>
+    <div class="practice-q-answer">
+      <div class="session-notes-label">My Notes</div>
+      <textarea class="session-notes-ta" placeholder="How many packets were captured? What protocols do you see?"></textarea>
+    </div>
+  </div>
+
+  <div class="practice-q" style="border-top-color:var(--green);">
+    <div class="practice-q-header">
+      <span class="q-badge" style="background:var(--green);">Task 3</span>
+      <p class="q-body-text">If you have a wireless adapter on your system, start a capture using that WLAN interface. If you receive an error message indicating that the "capture session could not be initiated (failed to set hardware filter to promiscuous mode)", close the alert window and select <strong>Capture | Options</strong>, choose your WLAN adapter, disable (uncheck) <strong>Capture packets in promiscuous mode</strong> and click <strong>Start</strong>. Browse to <strong>www.wiresharkbook.com</strong> and then stop your capture session. Examine the traffic to see what data link header was placed on your traffic.</p>
+    </div>
+    <div class="practice-q-answer">
+      <div class="session-notes-label">My Notes</div>
+      <textarea class="session-notes-ta" placeholder="Was promiscuous mode supported? What data link header type appeared?"></textarea>
+    </div>
+  </div>
+
+  <div class="practice-q" style="border-top-color:var(--green);">
+    <div class="practice-q-header">
+      <span class="q-badge" style="background:var(--green);">Task 4</span>
+      <p class="q-body-text">If you have a switch, practice spanning a port that connects to a system configured as a testing host. To ensure your spanning works properly, use that testing system to browse to <strong>www.wiresharkbook.com</strong>. If your spanning process worked correctly you should be able to see all traffic to or from your testing host.</p>
+    </div>
+    <div class="practice-q-answer">
+      <div class="session-notes-label">My Notes</div>
+      <textarea class="session-notes-ta" placeholder="Did spanning work? Could you see traffic from the test host?"></textarea>
+    </div>
+  </div>
+
+  <div class="practice-q" style="border-top-color:var(--green);">
+    <div class="practice-q-header">
+      <span class="q-badge" style="background:var(--green);">Task 5</span>
+      <p class="q-body-text">Perform a remote capture test by installing WinPcap on another network host and running <code>rpcapd -n</code> on that host. On your local Wireshark system, open <strong>Capture | Options</strong> and select <strong>Remote</strong> in the Interfaces option. Define the IP address of the host running rpcap. Select the remote interface to capture from and begin capturing. Analyze the traffic you have captured from the remote host to verify the process worked.</p>
+    </div>
+    <div class="practice-q-answer">
+      <div class="session-notes-label">My Notes</div>
+      <textarea class="session-notes-ta" placeholder="Did remote capture work? What interface did you select on the remote host?"></textarea>
+    </div>
+  </div>
+
+  <div class="practice-q" style="border-top-color:var(--green);">
+    <div class="practice-q-header">
+      <span class="q-badge" style="background:var(--green);">Task 6</span>
+      <p class="q-body-text">Practice capturing your own traffic to file sets. Name your capture files <code>testset1.pcapng</code> and use multiple files — create the next file every 30 seconds. Use a ring buffer of 5 files and stop capturing after 10 files. Start your capture and begin browsing a number of web sites for the next 7 minutes or so. Check to determine if Wireshark automatically stopped capturing and identify your five files of the file set. Their names should begin with <code>testset1_00006</code>, <code>testset1_00007</code>, <code>testset1_00008</code>, <code>testset1_00009</code>, and <code>testset1_00010</code>.</p>
+    </div>
+    <div class="practice-q-answer">
+      <div class="session-notes-label">My Notes</div>
+      <textarea class="session-notes-ta" placeholder="Did the ring buffer work correctly? Which files were saved?"></textarea>
+    </div>
+  </div>
+
+  <div class="session-notes-area">
+    <div class="session-notes-label">Session Notes</div>
+    <textarea class="session-notes-ta" id="session-notes-practice" placeholder="Overall observations from this capture practice session…"></textarea>
+  </div>
+</div><!-- /session-block -->
+</div><!-- /sec-practice -->
+
+<!-- ═══ OPTIONAL TRACES ═══ -->
+<div id="sec-optional" style="margin-top:16px;">
+  <div class="optional-section-title">Optional Traces</div>
+  <div class="optional-section-sub">Practice navigating Wireshark's interface with the following trace file from <strong>www.wiresharkbook.com</strong>.</div>
+
+  <div class="optional-trace-card">
+    <div class="optional-trace-header"><span class="optional-trace-name">vlan-general.pcapng</span></div>
+    <div class="optional-trace-body">
+      <p class="optional-trace-desc">This trace shows an X11 communication on a VLAN. You can see the VLAN tag directly after the Ethernet header and before the IP header. Open the trace and expand the Ethernet header fields to see the 802.1Q VLAN tag embedded in the frame. Note the VLAN ID and how Wireshark identifies and labels this encapsulation.</p>
+      <div class="optional-trace-notes-label">My Notes</div>
+      <textarea class="optional-trace-notes-ta" placeholder="What VLAN ID did you find? What did X11 traffic look like?"></textarea>
+    </div>
+  </div>
+</div><!-- /sec-optional -->
+
+<!-- ═══ REVIEW QUESTIONS ═══ -->
+<div id="sec-review" style="margin-top:32px;">
+  <div class="optional-section-title">Review Questions</div>
+  <div class="optional-section-sub">Official WCNA exam-style review questions from the end of Chapter 3. Write your answer before revealing the model answer.</div>
+
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q3.1</span>
+      <p class="q-body-text">If you connect a Wireshark host directly into a switch, what traffic can you expect to see by default?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="r1" rows="3" placeholder="Type your answer here…" oninput="onAnswerInput('r1',this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;"><button class="btn-save-ans" onclick="saveAnswer('r1',document.querySelector('[data-q=\'r1\']').value)">✓ Save</button><button class="btn-clear-ans" onclick="clearAnswer('r1')">Clear</button></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="saved-indicator" id="saved-r1"></span><button class="btn-see-answer" id="reveal-r1" onclick="revealAnswer('r1')" disabled>🔒 See Model Answer</button></div>
+      </div>
+      <div class="model-answer-block" id="model-r1" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">By default, switches forward all broadcast packets, multicast packets (unless configured to block multicast forwarding), packets destined to the Wireshark host's hardware address, and packets destined to unknown hardware addresses. You will not see unicast traffic intended for other hosts unless the switch is configured for port spanning/mirroring.</div>
       </div>
     </div>
   </div>
 
-  <div class="section-block" id="sec-questions">
-    <div class="section-label">Practice What You've Learned</div>
-    <h2>Questions</h2>
-    
-        
-        <div class="practice-q" id="q1">
-          <div class="practice-q-header">
-            <span class="q-badge">Q1</span>
-            <p class="q-body-text">Capture web browsing traffic on your local system—learn what you can capture without port spanning or a full-duplex tap.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="1" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(1, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-1"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-1" disabled onclick="revealAnswer(1)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(1)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-1" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">When a Wireshark host is plugged directly into a switch port without port spanning or a tap configured, the switch's MAC address learning function means it will only forward traffic to that port that is addressed to the Wireshark host's MAC address, plus broadcasts, multicasts, and frames destined to unknown MAC addresses. You will not see unicast traffic between other hosts on the switch.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q2">
-          <div class="practice-q-header">
-            <span class="q-badge">Q2</span>
-            <p class="q-body-text">Select Capture | Interfaces and wait a few moments to see which interface(s) are seeing traffic. Click Start to begin capturing on one of these interfaces.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="2" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(2, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-2"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-2" disabled onclick="revealAnswer(2)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(2)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-2" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">Promiscuous mode allows a network adapter to capture traffic addressed to other MAC addresses on the same segment, not just its own. Monitor mode (rfmon mode) goes further — the adapter does not associate with any SSID and instead captures all 802.11 management, control, and data frames from all SSIDs on the currently selected channel, regardless of encryption or association state.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q3">
-          <div class="practice-q-header">
-            <span class="q-badge">Q3</span>
-            <p class="q-body-text">Launch your web browser and browse to www.wiresharkbook.com.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="3" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(3, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-3"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-see-answer" id="reveal-3" disabled onclick="revealAnswer(3)">🔒 See Model Answer</button>
-                <button class="btn-clear-ans" onclick="clearAnswer(3)">Clear</button>
-              </div>
-            </div>
-            
-        <div class="model-answer-block" id="model-3" style="display:none;">
-          <div class="model-answer-label">Model Answer</div>
-          <div class="model-answer-text">File sets break a long capture session into multiple smaller, sequentially named trace files. This makes individual files faster to open and navigate in Wireshark, and allows ring buffer configurations that discard old files to prevent filling a hard drive. Smaller files also make it easier to jump directly to a time period of interest without scrolling through a massive single file.</div>
-        </div>
-          </div>
-        </div>
-        <div class="practice-q" id="q4">
-          <div class="practice-q-header">
-            <span class="q-badge">Q4</span>
-            <p class="q-body-text">After the page has loaded, select Capture | Stop or click the Stop Capture button.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="4" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(4, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-4"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(4)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q5">
-          <div class="practice-q-header">
-            <span class="q-badge">Q5</span>
-            <p class="q-body-text">Select File | Save and call your trace file wiresharkbook1.pcapng.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="5" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(5, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-5"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(5)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q6">
-          <div class="practice-q-header">
-            <span class="q-badge">Q6</span>
-            <p class="q-body-text">If you have a wireless adapter, start a capture using that WLAN interface. If you receive a promiscuous mode error, disable Capture packets in promiscuous mode and try again. What data link header was placed on your WLAN traffic?</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="6" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(6, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-6"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(6)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q7">
-          <div class="practice-q-header">
-            <span class="q-badge">Q7</span>
-            <p class="q-body-text">If you have a switch, practice spanning a port connected to a testing host and verify you captured all traffic to/from that host.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="7" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(7, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-7"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(7)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q8">
-          <div class="practice-q-header">
-            <span class="q-badge">Q8</span>
-            <p class="q-body-text">If you have a tap, connect it between a switch and your testing host and verify you captured full-duplex traffic.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="8" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(8, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-8"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(8)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q9">
-          <div class="practice-q-header">
-            <span class="q-badge">Q9</span>
-            <p class="q-body-text">Perform a remote capture test by installing WinPcap on another host, running rpcapd -n, and connecting Wireshark remotely.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="9" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(9, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-9"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(9)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="practice-q" id="q10">
-          <div class="practice-q-header">
-            <span class="q-badge">Q10</span>
-            <p class="q-body-text">Practice capturing to file sets using file name testset1.pcapng with new file every 30 seconds, ring buffer of 5, stopping after 10 files.</p>
-          </div>
-          <div class="practice-q-answer">
-            <span class="answer-label-sm">Your Answer</span>
-            <textarea class="answer-textarea" data-q="10" rows="2"
-              placeholder="Open the trace file in Wireshark and type your findings here…"
-              oninput="onAnswerInput(10, this.value)"></textarea>
-            <div class="answer-row">
-              <span class="saved-indicator" id="saved-10"></span>
-              <div style="display:flex;gap:8px;align-items:center;">
-                
-                <button class="btn-clear-ans" onclick="clearAnswer(10)">Clear</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-  </div>
-
-  <div class="section-block" id="sec-tools">
-    <div class="section-label">Study Tools</div>
-    <h2>Questions &amp; Notes</h2>
-    <div class="lesson-tools">
-      <div class="lesson-tools-grid">
-        <div>
-          <div class="tool-label">Ask a Question</div>
-          <textarea class="tool-textarea" id="q-general" placeholder="What are you unsure about in this chapter?" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('general')">Add Question</button></div>
-        </div>
-        <div>
-          <div class="tool-label">Add a Note</div>
-          <textarea class="tool-textarea" id="note-general" placeholder="Key insight, pattern, or tip to remember…" rows="3"></textarea>
-          <div class="tool-row"><button class="btn-add-q" onclick="addNote('general')">+ Add Note</button></div>
-        </div>
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q3.2</span>
+      <p class="q-body-text">What is the difference between monitor mode and promiscuous mode?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="r2" rows="3" placeholder="Type your answer here…" oninput="onAnswerInput('r2',this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;"><button class="btn-save-ans" onclick="saveAnswer('r2',document.querySelector('[data-q=\'r2\']').value)">✓ Save</button><button class="btn-clear-ans" onclick="clearAnswer('r2')">Clear</button></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="saved-indicator" id="saved-r2"></span><button class="btn-see-answer" id="reveal-r2" onclick="revealAnswer('r2')" disabled>🔒 See Model Answer</button></div>
+      </div>
+      <div class="model-answer-block" id="model-r2" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">In monitor mode, the driver doesn't make the adapter a member of any service set. In this mode, an adapter and driver pass <em>all</em> packets of <em>all</em> SSIDs from the currently selected channel up to Wireshark — including management and control frames. Promiscuous mode enables a network card and driver to capture traffic addressed to other devices on the network, not just the local hardware address, but the adapter remains a member of the network (and is still associated with one SSID in WLAN).</div>
       </div>
     </div>
   </div>
 
-</div>
+  <div class="practice-q">
+    <div class="practice-q-header">
+      <span class="q-badge">Q3.3</span>
+      <p class="q-body-text">What is the purpose of file sets?</p>
+    </div>
+    <div class="practice-q-answer">
+      <span class="answer-label-sm">Your Answer</span>
+      <textarea class="answer-textarea" data-q="r3" rows="3" placeholder="Type your answer here…" oninput="onAnswerInput('r3',this.value)"></textarea>
+      <div class="answer-row">
+        <div style="display:flex;gap:8px;"><button class="btn-save-ans" onclick="saveAnswer('r3',document.querySelector('[data-q=\'r3\']').value)">✓ Save</button><button class="btn-clear-ans" onclick="clearAnswer('r3')">Clear</button></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="saved-indicator" id="saved-r3"></span><button class="btn-see-answer" id="reveal-r3" onclick="revealAnswer('r3')" disabled>🔒 See Model Answer</button></div>
+      </div>
+      <div class="model-answer-block" id="model-r3" style="display:none;">
+        <div class="model-answer-label">Model Answer</div>
+        <div class="model-answer-text">File sets are used to create a contiguous set of trace files during a capture process. Instead of opening and navigating through one large trace file (which may be a slow process), you can create file sets and move faster among the smaller trace files. File sets also enable ring buffers, which limit the number of files saved to avoid filling up a hard drive during an unattended capture session.</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /sec-review -->
+
+</div><!-- /main-content -->
 
 <aside class="sidebar">
   <div class="sidebar-card">
     <h3>Navigation</h3>
     <div class="sidebar-nav-links">
-      <a class="sidebar-link" href="../index.html">🦈 All Chapters <span class="arrow">›</span></a>
-      <a class="sidebar-link" href="../chapter-02/index.html"><span>←</span> Ch 02: Introduction to Wireshark…<span class="arrow">›</span></a>
-      <a class="sidebar-link" href="../chapter-04/index.html"><span>→</span> Ch 04: Create and Apply Capture Filters…<span class="arrow">›</span></a>
+      <a class="sidebar-link" href="../../index.html"><span>&#127968;</span> Wireshark Hub<span class="arrow">&#8250;</span></a>
+      <a class="sidebar-link" href="study-guide.html"><span>&#128214;</span> Study Guide<span class="arrow">&#8250;</span></a>
     </div>
   </div>
-
   <div class="sidebar-card">
-    <h3>Progress — Ch 03</h3>
-    <div class="progress-summary">
-      <span id="prog-text">0 / 10 answered</span>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
-    </div>
-    <div class="progress-checklist">
-      <label class="check-item" data-qi="1"><input type="checkbox" onchange="updateProgress()"> Q1: Capture web browsing traffic on your local system—learn…</label><label class="check-item" data-qi="2"><input type="checkbox" onchange="updateProgress()"> Q2: Select Capture | Interfaces and wait a few moments to s…</label><label class="check-item" data-qi="3"><input type="checkbox" onchange="updateProgress()"> Q3: Launch your web browser and browse to www.wiresharkbook…</label><label class="check-item" data-qi="4"><input type="checkbox" onchange="updateProgress()"> Q4: After the page has loaded, select Capture | Stop or cli…</label><label class="check-item" data-qi="5"><input type="checkbox" onchange="updateProgress()"> Q5: Select File | Save and call your trace file wiresharkbo…</label><label class="check-item" data-qi="6"><input type="checkbox" onchange="updateProgress()"> Q6: If you have a wireless adapter, start a capture using t…</label><label class="check-item" data-qi="7"><input type="checkbox" onchange="updateProgress()"> Q7: If you have a switch, practice spanning a port connecte…</label><label class="check-item" data-qi="8"><input type="checkbox" onchange="updateProgress()"> Q8: If you have a tap, connect it between a switch and your…</label><label class="check-item" data-qi="9"><input type="checkbox" onchange="updateProgress()"> Q9: Perform a remote capture test by installing WinPcap on …</label><label class="check-item" data-qi="10"><input type="checkbox" onchange="updateProgress()"> Q10: Practice capturing to file sets using file name testset…</label>
+    <h3>Progress</h3>
+    <div class="progress-summary"><span id="prog-text">0 / 3 answered</span><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div></div>
+  </div>
+  <div class="sidebar-card">
+    <h3>Trace Files</h3>
+    <div class="quick-ref">
+      <h4>Chapter 03 Traces</h4>
+      <div class="qr-row"><span class="qr-term">vlan-general.pcapng</span><span class="qr-def">X11 on VLAN</span></div>
     </div>
   </div>
-
-  
-      <div class="quick-ref">
-        <h4>Trace Files</h4>
-        <div class="qr-row"><span class="qr-term">vlan-general.pcapng</span><span class="qr-def">Vlan General</span></div>
-      </div>
+  <div class="sidebar-card">
+    <h3>Key Concepts</h3>
+    <div class="quick-ref">
+      <h4>Capture Modes</h4>
+      <div class="qr-row"><span class="qr-term">Promiscuous</span><span class="qr-def">Sees others' traffic, stays on network</span></div>
+      <div class="qr-row"><span class="qr-term">Monitor mode</span><span class="qr-def">All SSIDs, all channels, no net membership</span></div>
+      <div class="qr-row"><span class="qr-term">Port spanning</span><span class="qr-def">Mirror switch port to see unicast</span></div>
+      <div class="qr-row"><span class="qr-term">File sets</span><span class="qr-def">Contiguous files, ring buffer support</span></div>
+      <div class="qr-row"><span class="qr-term">rpcapd</span><span class="qr-def">WinPcap remote capture daemon</span></div>
+    </div>
+  </div>
 </aside>
 </main>
 
@@ -538,85 +414,48 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <footer>
   <div>Chapter 03 · Capture Traffic</div>
-  <div>Wireshark Network Analysis 2nd Ed</div>
+  <div>Wireshark Network Analysis 2nd Ed · Laura Chappell</div>
 </footer>
 
 <script>
+const PAGE_KEY = 'ws-ch03';
+const TOTAL_Q = 3;
 
-const PAGE_KEY='ws-ch03';
-const TOTAL_Q=10;
-
-// ── Q-Panel ──
 function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');}
 function saveQArr(qs){localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));}
-function addQuestion(key){const ta=document.getElementById('q-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const qs=getQArr();qs.push({id:Date.now(),section:key,text});saveQArr(qs);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
 function toggleQPanel(){const body=document.getElementById('qpanel-body');const header=document.getElementById('qpanel-header');const chevron=document.getElementById('qpanel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',open);}
-function renderQPanel(){const qs=getQArr();const count=document.getElementById('qpanel-count');if(count){count.textContent=qs.length;count.style.display=qs.length?'inline':'none';}const hint=document.querySelector('.qpanel-hint');if(hint)hint.textContent=qs.length?`— ${qs.length} question${qs.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('qpanel-body');if(!body)return;if(!qs.length){body.innerHTML='<p class="no-questions">No questions yet.</p>';return;}let html='';qs.forEach((q,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;
-});body.innerHTML=html;}
+function renderQPanel(){const qs=getQArr();const count=document.getElementById('qpanel-count');if(count){count.textContent=qs.length;count.style.display=qs.length?'inline':'none';}const body=document.getElementById('qpanel-body');if(!body)return;if(!qs.length){body.innerHTML='<p class="no-questions">No questions yet.</p>';return;}let html='';qs.forEach((q,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">&#10005;</button></div>`;});body.innerHTML=html;}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
 
-// ── Notes Panel ──
 function getNotesArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
 function saveNotesArr(ns){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(ns));}
-function addNote(key){const ta=document.getElementById('note-'+key);const text=ta?ta.value.trim():'';if(!text){if(ta)ta.focus();return;}const ns=getNotesArr();ns.push({id:Date.now(),section:key,text});saveNotesArr(ns);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNotesArr(getNotesArr().filter(n=>n.id!==id));renderNotesPanel();}
 function toggleNotesPanel(){const body=document.getElementById('notes-panel-body');const header=document.getElementById('notes-panel-header');const chevron=document.getElementById('notes-panel-chevron');const open=body.classList.toggle('open');header.classList.toggle('open',open);chevron.textContent=open?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',open);}
-function renderNotesPanel(){const ns=getNotesArr();const count=document.getElementById('notes-panel-count');if(count){count.textContent=ns.length;count.style.display=ns.length?'inline':'none';}const hint=document.querySelector('.notes-panel-hint');if(hint)hint.textContent=ns.length?`— ${ns.length} note${ns.length>1?'s':''}, click to expand`:'— click to expand';const body=document.getElementById('notes-panel-body');if(!body)return;if(!ns.length){body.innerHTML='<p class="no-questions">No notes yet. Add one from any question below.</p>';return;}let html='';ns.forEach((n,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${n.id})">✕</button></div>`;
-});body.innerHTML=html;}
+function renderNotesPanel(){const ns=getNotesArr();const count=document.getElementById('notes-panel-count');if(count){count.textContent=ns.length;count.style.display=ns.length?'inline':'none';}const body=document.getElementById('notes-panel-body');if(!body)return;if(!ns.length){body.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let html='';ns.forEach((n,i)=>{html+=`<div class="q-item"><div class="q-num">${i+1}</div><div class="q-text">${n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${n.id})">&#10005;</button></div>`;});body.innerHTML=html;}
+function deleteNote(id){saveNotesArr(getNotesArr().filter(n=>n.id!==id));renderNotesPanel();}
 
-// ── Answer autosave ──
+function onAnswerInput(q,val){localStorage.setItem(PAGE_KEY+'-ans-'+q,val);const btn=document.getElementById('reveal-'+q);if(btn)btn.disabled=!val.trim();updateProgress();}
+function revealAnswer(q){const block=document.getElementById('model-'+q);const btn=document.getElementById('reveal-'+q);if(!block||!btn)return;const hidden=block.style.display==='none'||block.style.display==='';block.style.display=hidden?'block':'none';btn.textContent=hidden?'▲ Hide Model Answer':'🔒 See Model Answer';}
+function saveAnswer(q,val){localStorage.setItem(PAGE_KEY+'-ans-'+q,val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
+function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';const btn=document.getElementById('reveal-'+q);if(btn)btn.disabled=true;const block=document.getElementById('model-'+q);if(block)block.style.display='none';updateProgress();}
 
-function onAnswerInput(q, val) {
-  localStorage.setItem(PAGE_KEY + '-ans-' + q, val);
-  const saveEl = document.getElementById('saved-' + q);
-  if (saveEl) { saveEl.textContent = val.trim() ? '' : ''; }
-  const revealBtn = document.getElementById('reveal-' + q);
-  if (revealBtn) revealBtn.disabled = !val.trim();
-  updateProgress();
-}
-function revealAnswer(q) {
-  const block = document.getElementById('model-' + q);
-  const btn   = document.getElementById('reveal-' + q);
-  if (!block || !btn) return;
-  const hidden = block.style.display === 'none' || block.style.display === '';
-  block.style.display = hidden ? 'block' : 'none';
-  btn.textContent = hidden ? '▲ Hide Model Answer' : '💡 See Model Answer';
-}
+function updateProgress(){let done=0;['r1','r2','r3'].forEach(function(q){if((localStorage.getItem(PAGE_KEY+'-ans-'+q)||'').trim())done++;});const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
 
-function saveAnswer(q, val){localStorage.setItem(PAGE_KEY+'-ans-'+q, val);const el=document.getElementById('saved-'+q);if(el){el.textContent='✓ Saved';setTimeout(()=>el.textContent='',2000);}updateProgress();}
-function clearAnswer(q){localStorage.removeItem(PAGE_KEY+'-ans-'+q);const ta=document.querySelector('[data-q="'+q+'"]');if(ta)ta.value='';updateProgress();}
-
-// ── Progress ──
-function updateProgress(){let done=0;for(let i=1;i<=TOTAL_Q;i++){if((localStorage.getItem(PAGE_KEY+'-ans-'+i)||'').trim())done++;}const pct=TOTAL_Q?Math.round(done/TOTAL_Q*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+TOTAL_Q+' answered';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';document.querySelectorAll('.check-item').forEach(function(ci){const qi=ci.dataset.qi;if(!qi)return;const saved=(localStorage.getItem(PAGE_KEY+'-ans-'+qi)||'').trim();ci.classList.toggle('done',!!saved);ci.querySelector('input').checked=!!saved;});}
-
-// ── Section nav highlight ──
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
 function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 
-// ── Page transitions ──
 function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
 
-document.addEventListener('DOMContentLoaded', function(){
-  renderQPanel(); renderNotesPanel();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  // Restore saved answers
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')=='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')=='true')toggleNotesPanel();
   document.querySelectorAll('[data-q]').forEach(function(ta){
     const q=ta.dataset.q;
     const saved=localStorage.getItem(PAGE_KEY+'-ans-'+q);
-    if(saved)ta.value=saved;
+    if(saved){ta.value=saved;const btn=document.getElementById('reveal-'+q);if(btn&&saved.trim())btn.disabled=false;}
   });
   updateProgress();
   initSectionNav();
-  // Restore reveal button state for saved answers
-  document.querySelectorAll('[data-q]').forEach(function(ta) {
-    const q = ta.dataset.q;
-    const saved = localStorage.getItem(PAGE_KEY + '-ans-' + q);
-    if (saved && saved.trim()) {
-      const btn = document.getElementById('reveal-' + q);
-      if (btn) btn.disabled = false;
-    }
-  });
   initPT();
 });
 </script>
