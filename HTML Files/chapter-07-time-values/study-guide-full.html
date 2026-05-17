@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 07: Time Values and Summaries | Wireshark Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
+  --border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{color:var(--blue);text-decoration:none;}
+header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-right:1px solid var(--border);}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
+.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
+.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-green strong{color:var(--green);}
+.callout-red strong{color:var(--red);}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
+.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
+.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
+.step-block p:last-child{margin-bottom:0;}
+.step-block ul{padding-left:18px;margin:6px 0;}
+.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
+.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
+.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
+.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
+.insight-block:not(.ins-open) .ins-body{display:none;}
+.ins-icon{font-size:17px;flex-shrink:0;}
+.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
+.ins-body{padding:0 20px 18px;}
+.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
+.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.ins-ta:focus{border-color:var(--blue);}
+.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-save-ins:hover:not(:disabled){opacity:.85;}
+.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
+.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-hint-ins:hover{background:var(--amber-light);}
+.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
+.btn-model-ins:not(:disabled):hover{opacity:.85;}
+.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.ins-hint-box .hm-label{color:var(--amber);}
+.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.ins-model-box .hm-label{color:var(--blue);}
+.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
+.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
+.fig-ph-icon{font-size:36px;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-trace{color:var(--blue);font-style:italic;}
+.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
+.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
+.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
+.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.cs-body ul{padding-left:20px;margin:8px 0 14px;}
+.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
+.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
+.cs-ph-icon{font-size:40px;display:block;}
+.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
+.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
+.btn-cs-prompt:hover{color:var(--blue);}
+.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
+.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
+.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
+.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
+.tldr-block p+p{margin-top:10px;}
+.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
+.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
+.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
+.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
+.rq-ta:focus{border-color:var(--blue);}
+.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-save:hover:not(:disabled){opacity:.85;}
+.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
+.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-hint:hover{background:var(--amber-light);}
+.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
+.btn-rq-ans:not(:disabled):hover{opacity:.85;}
+.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.rq-hint-box .hm-label{color:var(--amber);}
+.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
+.rq-hint-box p:last-child{margin-bottom:0;}
+.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.rq-ans-box .hm-label{color:var(--blue);}
+.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.rq-ans-box p:last-child{margin-bottom:0;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
+.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
+.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
+.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+  .practice-cta{padding:36px 20px;}
+  .btn-practice-cta{font-size:15px;padding:16px 32px;}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="header-left">
+<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 07<span class="breadcrumb-sep">›</span>Full Study Guide</div>
+<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 7 · TIME VALUES</div>
+<h1>Time Values <em>and Summaries</em></h1>
+<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
+</div>
+</header>
+<div class="motivation-banner">
+<div class="motivation-text"> <em>Delay lives in the timestamps.</em></div>
+<p class="motivation-sub">Master time formats, time references, and delta times to pinpoint exactly where latency hides in any capture.</p>
+</div>
+<div class="top-panels">
+<div class="qpanel">
+<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+<span class="qpanel-title">MY QUESTIONS</span>
+<span class="qpanel-count" id="qpanel-count">0</span>
+<span class="qpanel-hint">— click to expand</span>
+<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+</button>
+<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+</div>
+<div class="notes-panel">
+<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+<span class="notes-panel-title">MY NOTES</span>
+<span class="notes-panel-count" id="notes-panel-count">0</span>
+<span class="notes-panel-hint">— click to expand</span>
+<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+</button>
+<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+</div>
+</div>
+<nav class="section-nav">
+<button class="nav-tab" data-target="sec-formats" onclick="navTo('sec-formats')">Time Formats</button><button class="nav-tab" data-target="sec-references" onclick="navTo('sec-references')">Time References</button><button class="nav-tab" data-target="sec-deltas" onclick="navTo('sec-deltas')">Delta Times</button><button class="nav-tab" data-target="sec-summary" onclick="navTo('sec-summary')">Capture Summary</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+</nav>
+<main>
+<div class="main-content">
+<div class="insight-block" id="ins-formats"><div class="insight-hdr" onclick="toggleInsight('ins-formats')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · TIME DISPLAY FORMATS</span></div><div class="ins-body"><p class="ins-q">Wireshark offers absolute, relative, and delta time formats. When is each most useful, and which is best for finding a 3-second delay in an HTTP transaction?</p><textarea class="ins-ta" data-key="ins-formats" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-formats" onclick="saveIns('ins-formats')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-formats')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-formats" onclick="toggleInsModel('ins-formats')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-formats" style="display:none"><div class="hm-label">HINT</div><p>What question does each format answer: 'when exactly?', 'how long after start?', or 'how long between these two?'</p></div><div class="ins-model-box" id="model-ins-formats" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Absolute: correlate with system logs ('the error was at 14:23:07'). Relative: measure how long after capture start ('12.4 seconds into the capture'). Delta displayed: find per-packet gaps in a filtered conversation. For the HTTP transaction delay: use 'Delta displayed' with a display filter for the HTTP stream — the 3-second gap appears as a large number in the time column for the HTTP 200 OK response packet.</p></div></div></div><div class="section-block" id="sec-formats"><h2>Time Display Formats</h2><p>Change the Time column format via <strong>View → Time Display Format</strong>:</p><ul><li><strong>Date and Time of Day (absolute)</strong> — <code>2024-03-15 14:23:07.123456</code> — wall clock. For log correlation.</li><li><strong>Time of Day (absolute, no date)</strong> — <code>14:23:07.123456</code></li><li><strong>Seconds Since First Captured Packet (relative)</strong> — time since capture start</li><li><strong>Seconds Since Previous Captured Packet</strong> — delta from preceding packet regardless of filter</li><li><strong>Seconds Since Previous Displayed Packet</strong> — delta from previous packet matching current display filter. <strong>Best for conversation analysis.</strong></li><li><strong>UTC Date and Time</strong> — absolute in UTC; useful when timezone is unknown</li></ul><div class="callout callout-callout-green"><strong>KEY FORMAT</strong>'Seconds Since Previous Displayed Packet' is most useful for troubleshooting. Apply a display filter to isolate one stream, set this time format — large values in the Time column immediately identify where delays occur.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Time formats: Absolute = wall clock (log correlation); Relative = since capture start; Delta = since previous packet; Delta displayed = since previous matching packet (best for filtered streams). 'Delta displayed' is the most useful for finding delays in a specific conversation.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-formats" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('formats','Time Display Formats')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-formats" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('formats')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-references"><div class="insight-hdr" onclick="toggleInsight('ins-references')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · TIME REFERENCES</span></div><div class="ins-body"><p class="ins-q">A time reference (Ctrl+T) sets a packet's timestamp to 0.000000. How is this more useful than switching to relative time format?</p><textarea class="ins-ta" data-key="ins-references" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-references" onclick="saveIns('ins-references')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-references')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-references" onclick="toggleInsModel('ins-references')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-references" style="display:none"><div class="hm-label">HINT</div><p>Suppose you're measuring the duration of a transaction that starts at packet 4532 in a large capture. What can a time reference do that time format changes can't?</p></div><div class="ins-model-box" id="model-ins-references" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Relative time format resets to zero at the first packet in the entire capture — not at the transaction start. A time reference sets zero at a specific packet you choose — the SYN that starts a connection, the first DNS query, the login packet. All subsequent times show 'time since that specific event'. You can set multiple references in one capture to measure multiple sub-transactions independently. This precision is impossible with format-only changes.</p></div></div></div><div class="section-block" id="sec-references"><h2>Setting Time References</h2><p>A <strong>time reference</strong> marks a packet as the new zero point. Set/clear: <strong>Edit → Set Time Reference</strong> (Ctrl+T). The reference packet shows <code>*REF*</code> in the Time column.</p><h3>Use Cases</h3><ul><li>Measure exact TCP handshake duration</li><li>Time a complete request-response cycle (from GET to 200 OK)</li><li>Compare timing of the same transaction across multiple captures</li></ul><h3>Multiple References</h3><p>Set multiple references — each creates a new local zero point. Wireshark shows time since the nearest preceding reference.</p><div class="callout callout-callout-amber"><strong>NOT SAVED</strong>Time references are session-only — not saved to the pcapng/pcap file. They disappear when you close and reopen the file. Use packet comments to permanently document timing findings.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Time reference (Ctrl+T) = local zero point at a specific packet. Multiple references allowed. NOT saved to file (session-only). Use on the first packet of a transaction to measure its duration. The reference packet shows *REF* in the time column.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-references" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('references','Time References')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-references" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('references')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-deltas"><div class="insight-hdr" onclick="toggleInsight('ins-deltas')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DELTA TIMES</span></div><div class="ins-body"><p class="ins-q">You see a 4-second delta before an HTTP 200 OK response. How do you determine whether the delay is network transit time or server processing time?</p><textarea class="ins-ta" data-key="ins-deltas" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-deltas" onclick="saveIns('ins-deltas')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-deltas')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-deltas" onclick="toggleInsModel('ins-deltas')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-deltas" style="display:none"><div class="hm-label">HINT</div><p>What information would a client-side capture give you? A server-side capture? What if you had both?</p></div><div class="ins-model-box" id="model-ins-deltas" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>With only a client-side capture, you see the time between sending the GET and receiving the 200 OK — that's round-trip including network transit and server processing combined. To isolate server processing: compare a client-side capture with a server-side capture. If the server-side capture shows the GET arriving then the 200 OK departing quickly (50ms), the delay is in the network. If the server takes 3.9 seconds to send the 200 OK after receiving the GET, the delay is server processing.</p></div></div></div><div class="section-block" id="sec-deltas"><h2>Delta Times and Finding Delays</h2><p>Set Time column to <strong>Seconds Since Previous Displayed Packet</strong> and apply a display filter to the relevant stream. Large delta values identify where delays occur.</p><h3>Delay Categories</h3><ul><li><strong>Client delay</strong> — large delta before client sends the next request (user think time, application processing)</li><li><strong>Network latency</strong> — consistent small delta between request and response (propagation delay)</li><li><strong>Server processing delay</strong> — large delta between server receiving a request and sending the response (database query, computation)</li><li><strong>Retransmission timeout</strong> — typically 200ms+ gap then a duplicate segment</li></ul><h3>TCP Delta Column</h3><p>Add <code>tcp.time_delta</code> as a custom column — it shows time since the previous segment in the same TCP stream, eliminating noise from other streams.</p><div class="callout callout-callout-green"><strong>TWO-POINT ANALYSIS</strong>Compare client-side and server-side captures to isolate delay location. Client sees 4s total delay. Server-side shows 100ms processing. Conclusion: 3.9s is network transit. Server-side shows 4s processing. Conclusion: server is the bottleneck.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Delta time workflow: (1) apply display filter to isolate conversation; (2) set time column to 'delta displayed'; (3) find large delta values. Add tcp.time_delta as custom column for stream-specific deltas. Large delta BEFORE server response = server processing time. Large delta BEFORE next client request = client/user think time.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-deltas" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('deltas','Delta Times')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-deltas" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('deltas')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-summary"><div class="insight-hdr" onclick="toggleInsight('ins-summary')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · CAPTURE SUMMARY</span></div><div class="ins-body"><p class="ins-q">You open Statistics → Capture File Properties. What three pieces of information tell you whether a capture is complete and suitable for analysis?</p><textarea class="ins-ta" data-key="ins-summary" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-summary" onclick="saveIns('ins-summary')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-summary')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-summary" onclick="toggleInsModel('ins-summary')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-summary" style="display:none"><div class="hm-label">HINT</div><p>Think about duration, dropped packets, and the interface captured on.</p></div><div class="ins-model-box" id="model-ins-summary" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>(1) Duration: does it cover the time window when the problem occurred? A 10-second capture misses a 15-second problem. (2) Dropped: any non-zero value means the trace is incomplete — you may be missing critical packets. (3) Interface: if the wrong interface was captured (e.g. loopback instead of eth0), the trace is useless regardless of size. Also check the start time matches the problem window and the file format supports metadata (pcapng).</p></div></div></div><div class="section-block" id="sec-summary"><h2>Interpreting Capture Summaries</h2><p>Access via <strong>Statistics → Capture File Properties</strong> (Ctrl+Shift+I):</p><ul><li><strong>Time range</strong> — first and last packet timestamps; total duration</li><li><strong>Packets</strong> — total captured and displayed (with current filter)</li><li><strong>Average packet rate</strong> — packets/sec</li><li><strong>Average data rate</strong> — bytes/sec</li><li><strong>Interface(s)</strong> — which interfaces were captured (pcapng)</li><li><strong>Capture comment</strong> — analyst notes added at capture time</li></ul><p>The start and end timestamps let you correlate the capture with logs, helpdesk tickets, and user-reported problem times.</p><div class="callout callout-callout-blue"><strong>MULTI-FILE MERGE</strong>Combine ring buffer files: <code>mergecap -w combined.pcapng file1.pcapng file2.pcapng</code>. The combined file preserves all timestamps. Open in Wireshark and check Capture File Properties for the full duration.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Capture File Properties: check duration (covers the problem window?), dropped count (0 = complete), and interface (correct one?). Cross-reference timestamps with system logs. Use mergecap to combine ring buffer files before analyzing a long session.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-summary" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('summary','Capture Summary')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-summary" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('summary')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 7</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Time formats: Absolute for log correlation, Delta displayed for finding conversation delays. Set time references (Ctrl+T) to create local zero points at transaction start — not saved to file. Add tcp.time_delta as a custom column for per-stream delta values. Capture File Properties (Ctrl+Shift+I) gives duration, rate, and interface for correlation with system logs.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q7.1</div><div class="rq-q">Explain the difference between 'Seconds Since Previous Captured Packet' and 'Seconds Since Previous Displayed Packet'.</div><textarea class="rq-ta" data-key="rq-7-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-7-1" onclick="saveRQ('7-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('7-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-7-1" onclick="toggleRQAns('7-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-7-1" style="display:none"><div class="hm-label">HINT</div><p>What effect does applying a display filter have on each format?</p></div><div class="rq-ans-box" id="rqans-7-1" style="display:none"><div class="hm-label">ANSWER</div><p>'Since Previous Captured Packet' shows delta from the immediately preceding packet in the file, regardless of any display filter — so it may show a 0.0001s delta from a filtered-out packet from a different stream. 'Since Previous Displayed Packet' shows delta from the previous packet that MATCHES the current display filter. When you filter to a specific conversation, the second format shows true per-conversation delays; the first format would be skewed by other streams' packets falling between the conversation packets.</p></div></div><div class="rq-card"><div class="rq-num">Q7.2</div><div class="rq-q">You set a time reference at packet 4532. What does Wireshark show for packet 4533? For packet 4531?</div><textarea class="rq-ta" data-key="rq-7-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-7-2" onclick="saveRQ('7-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('7-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-7-2" onclick="toggleRQAns('7-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-7-2" style="display:none"><div class="hm-label">HINT</div><p>References affect forward timing. What about earlier packets?</p></div><div class="rq-ans-box" id="rqans-7-2" style="display:none"><div class="hm-label">ANSWER</div><p>Packet 4533 (first after the reference): shows a small positive delta from the reference packet — the time elapsed between packets 4532 and 4533. Packet 4531 (before the reference): shows a negative time value — it preceded the zero reference point. The reference packet itself shows *REF* and 0.000000 in the time column.</p></div></div><div class="rq-card"><div class="rq-num">Q7.3</div><div class="rq-q">A 4-second gap appears before an HTTP 200 OK. How do you determine whether the delay is network transit or server processing?</div><textarea class="rq-ta" data-key="rq-7-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-7-3" onclick="saveRQ('7-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('7-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-7-3" onclick="toggleRQAns('7-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-7-3" style="display:none"><div class="hm-label">HINT</div><p>What would client-side vs. server-side captures each tell you?</p></div><div class="rq-ans-box" id="rqans-7-3" style="display:none"><div class="hm-label">ANSWER</div><p>Compare two captures: (1) Client-side: 4s gap between GET request and 200 OK — this is round-trip time including transit + server processing; (2) Server-side: if the GET arrives and the 200 OK departs 4 seconds later — the delay is server processing. If the GET arrives and the 200 OK departs in 50ms, but the client waits 4 seconds — the delay is network transit. Single-point capture alone cannot isolate server vs. network delay — you need two vantage points.</p></div></div></div>
+</div>
+<div class="sidebar">
+<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 07 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Time Shortcuts</h4><div class="qr-row"><span class="qr-term">Ctrl+T</span><span class="qr-def">Set/Unset Time Reference</span></div><div class="qr-row"><span class="qr-term">View → Time Display</span><span class="qr-def">Change format</span></div><div class="qr-row"><span class="qr-term">Ctrl+Shift+I</span><span class="qr-def">Capture File Properties</span></div><h4>Best Formats</h4><div class="qr-row"><span class="qr-term">Absolute</span><span class="qr-def">Correlate with logs</span></div><div class="qr-row"><span class="qr-term">Delta displayed</span><span class="qr-def">Find delays in stream</span></div><div class="qr-row"><span class="qr-term">tcp.time_delta</span><span class="qr-def">Per-stream delta column</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 7 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
+</div>
+</main>
+<div class="practice-cta">
+<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
+<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
+</div>
+<footer>
+<div>Wireshark Network Analysis — 2nd Edition</div>
+<div>Chapter 07: Time Values and Summaries</div>
+</footer>
+<script>
+
+const PAGE_KEY='ws-ch07-full';
+const SECTIONS={'formats':'Time Formats','references':'Time References','deltas':'Delta Times','summary':'Capture Summary','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-formats','ins-references','ins-deltas','ins-summary'];
+const RQ_IDS=['7-1','7-2','7-3'];
+const TOTAL=7;
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
+function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
+function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  INSIGHT_IDS.forEach(function(id){
+    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+  });
+  RQ_IDS.forEach(function(id){
+    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+  });
+});
+</script>
+</body>
+</html>

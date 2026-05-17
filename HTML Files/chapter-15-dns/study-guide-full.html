@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 15: Analyze DNS Traffic | Wireshark Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
+  --border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{color:var(--blue);text-decoration:none;}
+header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-right:1px solid var(--border);}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
+.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
+.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-green strong{color:var(--green);}
+.callout-red strong{color:var(--red);}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
+.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
+.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
+.step-block p:last-child{margin-bottom:0;}
+.step-block ul{padding-left:18px;margin:6px 0;}
+.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
+.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
+.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
+.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
+.insight-block:not(.ins-open) .ins-body{display:none;}
+.ins-icon{font-size:17px;flex-shrink:0;}
+.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
+.ins-body{padding:0 20px 18px;}
+.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
+.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.ins-ta:focus{border-color:var(--blue);}
+.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-save-ins:hover:not(:disabled){opacity:.85;}
+.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
+.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-hint-ins:hover{background:var(--amber-light);}
+.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
+.btn-model-ins:not(:disabled):hover{opacity:.85;}
+.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.ins-hint-box .hm-label{color:var(--amber);}
+.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.ins-model-box .hm-label{color:var(--blue);}
+.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
+.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
+.fig-ph-icon{font-size:36px;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-trace{color:var(--blue);font-style:italic;}
+.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
+.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
+.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
+.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.cs-body ul{padding-left:20px;margin:8px 0 14px;}
+.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
+.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
+.cs-ph-icon{font-size:40px;display:block;}
+.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
+.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
+.btn-cs-prompt:hover{color:var(--blue);}
+.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
+.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
+.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
+.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
+.tldr-block p+p{margin-top:10px;}
+.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
+.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
+.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
+.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
+.rq-ta:focus{border-color:var(--blue);}
+.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-save:hover:not(:disabled){opacity:.85;}
+.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
+.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-hint:hover{background:var(--amber-light);}
+.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
+.btn-rq-ans:not(:disabled):hover{opacity:.85;}
+.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.rq-hint-box .hm-label{color:var(--amber);}
+.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
+.rq-hint-box p:last-child{margin-bottom:0;}
+.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.rq-ans-box .hm-label{color:var(--blue);}
+.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.rq-ans-box p:last-child{margin-bottom:0;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
+.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
+.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
+.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+  .practice-cta{padding:36px 20px;}
+  .btn-practice-cta{font-size:15px;padding:16px 32px;}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="header-left">
+<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 15<span class="breadcrumb-sep">›</span>Full Study Guide</div>
+<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 15 · DNS</div>
+<h1>Analyze DNS <em>Traffic</em></h1>
+<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
+</div>
+</header>
+<div class="motivation-banner">
+<div class="motivation-text"> <em>DNS failures cascade — a quiet broken resolver kills everything.</em></div>
+<p class="motivation-sub">Understand normal DNS operation, common failure modes, packet structure, and Wireshark filters for isolating DNS problems.</p>
+</div>
+<div class="top-panels">
+<div class="qpanel">
+<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+<span class="qpanel-title">MY QUESTIONS</span>
+<span class="qpanel-count" id="qpanel-count">0</span>
+<span class="qpanel-hint">— click to expand</span>
+<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+</button>
+<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+</div>
+<div class="notes-panel">
+<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+<span class="notes-panel-title">MY NOTES</span>
+<span class="notes-panel-count" id="notes-panel-count">0</span>
+<span class="notes-panel-hint">— click to expand</span>
+<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+</button>
+<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+</div>
+</div>
+<nav class="section-nav">
+<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of DNS</button><button class="nav-tab" data-target="sec-normal" onclick="navTo('sec-normal')">Normal Operations</button><button class="nav-tab" data-target="sec-problems" onclick="navTo('sec-problems')">DNS Problems</button><button class="nav-tab" data-target="sec-structure" onclick="navTo('sec-structure')">Packet Structure</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Wireshark Filters</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+</nav>
+<main>
+<div class="main-content">
+<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF DNS</span></div><div class="ins-body"><p class="ins-q">DNS translates domain names to IP addresses. What is the typical sequence of events when a user browses to a website, and what happens if the DNS step fails?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about whether the TCP connection can be established before DNS completes. What does the OS use to initiate a TCP connection?</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The browser calls the OS resolver → OS sends a DNS query (UDP, port 53) to the configured DNS server → DNS server returns an A/AAAA record with the IP → the OS returns the IP to the browser → browser initiates a TCP SYN to that IP. If DNS fails: the OS cannot resolve the name → the browser never gets an IP → no TCP connection is possible. The user sees a 'name not resolved' or 'server not found' error. Even if the web server is perfectly healthy, a broken DNS resolver makes it inaccessible.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of DNS</h2><p>DNS (Domain Name System) translates human-readable domain names into IP addresses. Defined in RFC 1035, DNS uses <strong>UDP port 53</strong> for standard queries and <strong>TCP port 53</strong> for zone transfers and large responses (EDNS0 responses > 512 bytes).</p><h3>DNS Hierarchy</h3><ul><li><strong>Root servers</strong> — know the authoritative servers for all TLDs (.com, .org, .net)</li><li><strong>TLD servers</strong> — know the authoritative servers for each domain under the TLD</li><li><strong>Authoritative servers</strong> — hold the actual records for a domain</li><li><strong>Recursive resolver</strong> — the server clients contact; performs the full resolution chain and caches results</li></ul><h3>Recursive vs. Iterative Resolution</h3><p>Client queries its recursive resolver → resolver queries root → root returns TLD referral → resolver queries TLD → TLD returns authoritative server → resolver queries authoritative → authoritative returns answer → resolver caches and returns answer to client. Client only sees one query/response pair; resolver does all the work.</p><div class="callout callout-callout-amber"><strong>DNS IS UDP</strong>Standard DNS queries use UDP for speed (no handshake). The 'don't fragment' approach means responses > 512 bytes may be truncated (TC bit set). EDNS0 (RFC 2671) extends this limit to 4096 bytes. Zone transfers (AXFR) use TCP.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS uses UDP port 53 (queries), TCP port 53 (zone transfers and large responses). Recursive resolver does the work; client sees one query/response. Cache poisoning attack exploits: guess transaction ID + source port to inject false answers. mDNS (multicast DNS) uses UDP port 5353 and the 224.0.0.251 multicast address for local name resolution without a server.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of DNS')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-normal"><div class="insight-hdr" onclick="toggleInsight('ins-normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL DNS OPERATIONS</span></div><div class="ins-body"><p class="ins-q">A normal DNS query/response pair takes how long? What would you expect to see in a healthy network, and what does an unusually slow response look like in Wireshark?</p><textarea class="ins-ta" data-key="ins-normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-normal" onclick="saveIns('ins-normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-normal" onclick="toggleInsModel('ins-normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-normal" style="display:none"><div class="hm-label">HINT</div><p>DNS is a critical path dependency before any application can connect. Think about what 'slow DNS' looks like in the delta time column.</p></div><div class="ins-model-box" id="model-ins-normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>A healthy recursive DNS response should return in < 100ms for a cached record and < 500ms for a fresh lookup requiring full resolution. In Wireshark with a display filter of 'dns', set the time column to 'delta displayed' — each response shows time since the preceding query. Anything > 1-2 seconds indicates a slow resolver. The Wireshark field <code>dns.time</code> (auto-calculated from query/response timestamps) allows filtering: <code>dns.time > 1</code> to find slow responses directly.</p></div></div></div><div class="section-block" id="sec-normal"><h2>Normal DNS Queries and Responses</h2><h3>A Record Query (IPv4)</h3><p>Client → DNS server: <code>Standard query 0x1234 A www.example.com</code></p><p>DNS server → Client: <code>Standard query response 0x1234 A www.example.com A 93.184.216.34</code></p><p>The Transaction ID (0x1234) matches query to response. Both use the same UDP source/destination port.</p><h3>CNAME Resolution</h3><p>A CNAME record is an alias — the resolver follows the chain: query for <code>www.example.com</code> → CNAME → <code>example.com.edgekey.net</code> → A record → IP. A single query may return multiple records in the Answer section including the CNAME chain and the final A record.</p><h3>AAAA Record (IPv6)</h3><p>AAAA queries return 128-bit IPv6 addresses. Modern clients send parallel A and AAAA queries. The first response wins the race and is used for connection.</p><h3>PTR Record (Reverse DNS)</h3><p>Query: <code>PTR 34.216.184.93.in-addr.arpa</code> → Response: <code>www.example.com</code>. Used by Wireshark's name resolution and by some authentication systems.</p><div class="callout callout-callout-blue"><strong>TRANSACTION ID</strong>The 16-bit Transaction ID links query to response. In the display filter: <code>dns.id == 0x1234</code> to show a specific query/response pair. Wireshark auto-matches them using this ID + source port.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Normal DNS: UDP port 53, query then response with matching Transaction ID. A record = IPv4, AAAA = IPv6, CNAME = alias, PTR = reverse lookup, MX = mail. dns.time field = auto-calculated response time. Filter: dns.time > 1 to find slow responses. Healthy cache hit < 100ms, fresh lookup < 500ms.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal Operations')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-problems"><div class="insight-hdr" onclick="toggleInsight('ins-problems')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DNS PROBLEMS</span></div><div class="ins-body"><p class="ins-q">A user reports 'websites don't load but I can ping the server by IP'. What does this tell you, and what Wireshark filter would you apply to diagnose the DNS issue?</p><textarea class="ins-ta" data-key="ins-problems" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-problems" onclick="saveIns('ins-problems')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-problems')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-problems" onclick="toggleInsModel('ins-problems')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-problems" style="display:none"><div class="hm-label">HINT</div><p>If pinging by IP works but names fail, which component is broken? What are the possible failure modes?</p></div><div class="ins-model-box" id="model-ins-problems" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>DNS is the broken component — IP connectivity is fine (ping by IP succeeds). Possible failures: (1) DNS server unreachable — queries sent but no response (timeout, then retry); (2) DNS server returns NXDOMAIN — domain doesn't exist (typo, wrong domain, DNS poisoning); (3) DNS server returns SERVFAIL — server error (misconfigured, upstream failure). Wireshark filter: 'dns' — look for queries with no matching response, or responses with non-zero rcode. Also check 'dns.flags.rcode != 0' for error responses.</p></div></div></div><div class="section-block" id="sec-problems"><h2>DNS Problems and Error Codes</h2><h3>NXDOMAIN (rcode=3)</h3><p>Non-Existent Domain — the queried name does not exist in DNS. Causes: typo in domain name, domain expired, DNS record deleted, DNS spoofing with false NXDOMAIN. Filter: <code>dns.flags.rcode == 3</code></p><h3>SERVFAIL (rcode=2)</h3><p>Server Failure — the DNS server could not process the query. Causes: DNSSEC validation failure, misconfigured resolver, upstream server unreachable. Filter: <code>dns.flags.rcode == 2</code></p><h3>REFUSED (rcode=5)</h3><p>Query Refused — the server refuses to answer from this client. Causes: access control list on the DNS server, querying an authoritative server that doesn't allow recursion.</p><h3>No Response / Timeout</h3><p>No matching response packet for a query. Causes: DNS server unreachable (ICMP unreachable in trace), firewall blocking port 53, DNS server overloaded. Spot this by looking for a query with no corresponding response — or by filtering: <code>dns.flags.response == 0</code> (queries) and checking which queries have no matching response packet.</p><h3>Client Retry Behavior</h3><p>When a query times out, the OS retransmits after 1-2 seconds, often 3-4 times. In Wireshark this appears as multiple identical queries to the same server (or to an alternate server) with 1-2 second intervals. The user's application waits 5-15 seconds before receiving an error.</p><div class="callout callout-callout-red"><strong>ICMP UNREACHABLE</strong>If DNS server is down, client sends query → receives ICMP Port Unreachable (no UDP service on port 53). Look for ICMP Type 3 Code 3 from the DNS server IP immediately after the DNS query.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS error codes: NXDOMAIN (3) = doesn't exist, SERVFAIL (2) = server error, REFUSED (5) = access denied. No response = server down or firewalled. Client retries 3-4x at 1-2s intervals → 5-15s total user wait. Filter: dns.flags.rcode != 0 for all DNS errors. ICMP Unreachable after DNS query = DNS port blocked or service not running.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','DNS Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-structure"><h2>DNS Packet Structure</h2><h3>DNS Message Header (12 bytes)</h3><table style='width:100%;border-collapse:collapse;font-size:13px;'><tr style='background:#eef4ff;'><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Field</th><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Size</th><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Description</th></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Transaction ID</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Matches query to response</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Flags</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>QR, Opcode, AA, TC, RD, RA, Z, RCODE</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>QDCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of questions</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>ANCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of answers</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>NSCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of authority records</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>ARCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of additional records</td></tr></table><h3>Key Flags</h3><ul><li><strong>QR</strong> — 0=Query, 1=Response</li><li><strong>RD</strong> — Recursion Desired (client asks resolver to recurse)</li><li><strong>RA</strong> — Recursion Available (server supports recursion)</li><li><strong>TC</strong> — TrunCated (response truncated; retry over TCP)</li><li><strong>AA</strong> — Authoritative Answer (came directly from authoritative server)</li><li><strong>RCODE</strong> — 4-bit response code: 0=No Error, 2=SERVFAIL, 3=NXDOMAIN, 5=REFUSED</li></ul><h3>TTL (Time to Live)</h3><p>Each answer record has a TTL in seconds — how long the resolver may cache the record. Low TTL (60s) = frequent updates expected. High TTL (86400 = 24h) = stable record. DNS response time for a cached record = fast; for a record with expired TTL = requires fresh lookup.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS header: 12 bytes. Key flags: QR (query/response), TC (truncated → retry over TCP), RD (recursion desired), RA (recursion available), AA (authoritative), RCODE (error code). TTL = cache lifetime. Transaction ID = 16-bit random number linking query to response.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-structure" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('structure','Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-structure" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('structure')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-filters"><h2>Filtering DNS in Wireshark</h2><table style='width:100%;border-collapse:collapse;font-size:13px;'><tr style='background:#eef4ff;'><th style='padding:8px;border:1px solid #bfdbfe;'>Scenario</th><th style='padding:8px;border:1px solid #bfdbfe;'>Filter</th></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>All DNS</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Queries only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.response == 0</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Responses only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.response == 1</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>DNS errors (any)</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.rcode != 0</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>NXDOMAIN only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.rcode == 3</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>SERVFAIL only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.rcode == 2</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Query for specific domain</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.qry.name contains "example"</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Slow DNS responses</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.time > 1</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>mDNS (local DNS)</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>mdns</code> or <code>udp.port == 5353</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>DNS over TCP</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>tcp.port == 53</code></td></tr></table><div class="callout callout-callout-green"><strong>KEY FILTER</strong><code>dns.flags.rcode != 0</code> is the first DNS filter to apply when diagnosing 'websites won't load' problems. It immediately shows all DNS failures — NXDOMAIN, SERVFAIL, and REFUSED — in one view.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS Wireshark filters: dns (all), dns.flags.rcode!=0 (errors), dns.flags.response==0 (queries), dns.qry.name contains 'x' (specific domain), dns.time>1 (slow). dns.time is automatically calculated by Wireshark from query→response timestamp delta. mDNS uses UDP port 5353 and multicast address 224.0.0.251.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filters','Wireshark Filters')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filters')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 15</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">DNS uses UDP port 53 (queries) and TCP port 53 (zone transfers, large responses). Normal operation: client → recursive resolver → root → TLD → authoritative → answer returned and cached. Error codes: NXDOMAIN (3), SERVFAIL (2), REFUSED (5). Key filters: dns.flags.rcode!=0 (errors), dns.time>1 (slow). When users can ping by IP but names fail — DNS is broken. Start with 'dns.flags.rcode != 0' to see all failures.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q15.1</div><div class="rq-q">What DNS error code (rcode) represents NXDOMAIN, and what does it mean?</div><textarea class="rq-ta" data-key="rq-15-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-1" onclick="saveRQ('15-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-1" onclick="toggleRQAns('15-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-1" style="display:none"><div class="hm-label">HINT</div><p>NXDOMAIN = Non-Existent Domain. What are common causes?</p></div><div class="rq-ans-box" id="rqans-15-1" style="display:none"><div class="hm-label">ANSWER</div><p>RCODE 3 = NXDOMAIN (Non-Existent Domain). The queried name does not exist in DNS. Causes: typo in domain name, domain expired or deleted, DNS record removed but not propagated, DNS spoofing injecting false NXDOMAIN responses. Filter in Wireshark: <code>dns.flags.rcode == 3</code>. Symptom: browser shows 'This site can't be reached' or 'ERR_NAME_NOT_RESOLVED'.</p></div></div><div class="rq-card"><div class="rq-num">Q15.2</div><div class="rq-q">A user can ping a web server by IP but cannot browse to it by name. What is the likely cause and what Wireshark display filter confirms it?</div><textarea class="rq-ta" data-key="rq-15-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-2" onclick="saveRQ('15-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-2" onclick="toggleRQAns('15-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-2" style="display:none"><div class="hm-label">HINT</div><p>If IP connectivity works, which component must be failing?</p></div><div class="rq-ans-box" id="rqans-15-2" style="display:none"><div class="hm-label">ANSWER</div><p>DNS is failing — IP connectivity is fine (ping by IP succeeds), but name resolution is broken. The DNS server may be: (1) unreachable (queries time out, ICMP unreachable follows); (2) returning errors (NXDOMAIN or SERVFAIL); (3) blocked by firewall on port 53. Confirm with Wireshark: apply display filter <code>dns</code> — look for queries with no response (timeout), or <code>dns.flags.rcode != 0</code> for error responses.</p></div></div><div class="rq-card"><div class="rq-num">Q15.3</div><div class="rq-q">What is the Transaction ID in a DNS message, and how does Wireshark use it?</div><textarea class="rq-ta" data-key="rq-15-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-3" onclick="saveRQ('15-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-3" onclick="toggleRQAns('15-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-3" style="display:none"><div class="hm-label">HINT</div><p>How does a client match a DNS response to the correct query?</p></div><div class="rq-ans-box" id="rqans-15-3" style="display:none"><div class="hm-label">ANSWER</div><p>The Transaction ID is a 16-bit random number in the DNS header, set by the client when sending a query. The DNS server copies the same ID into the response. The client matches the response to its outstanding query by comparing Transaction IDs. Wireshark uses the Transaction ID (plus source port) to calculate dns.time — the elapsed time between the matching query and response packets. Filter: <code>dns.id == 0xABCD</code> to find a specific query/response pair.</p></div></div><div class="rq-card"><div class="rq-num">Q15.4</div><div class="rq-q">When does DNS use TCP instead of UDP?</div><textarea class="rq-ta" data-key="rq-15-4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-4" onclick="saveRQ('15-4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-4" onclick="toggleRQAns('15-4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-4" style="display:none"><div class="hm-label">HINT</div><p>Think about response size limitations and zone transfers.</p></div><div class="rq-ans-box" id="rqans-15-4" style="display:none"><div class="hm-label">ANSWER</div><p>DNS uses TCP for: (1) Zone transfers (AXFR) — copying all records from an authoritative server requires reliable transport; (2) Large responses — when a UDP response exceeds the negotiated EDNS0 buffer size (typically 4096 bytes or the standard 512-byte limit), the server sets the TC (TrunCated) flag; the client then retries the query over TCP. Filter for DNS over TCP: <code>tcp.port == 53</code>.</p></div></div><div class="rq-card"><div class="rq-num">Q15.5</div><div class="rq-q">What does a TTL value of 60 seconds on a DNS A record indicate, and how does this affect client behavior?</div><textarea class="rq-ta" data-key="rq-15-5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-5" onclick="saveRQ('15-5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-5" onclick="toggleRQAns('15-5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-5" style="display:none"><div class="hm-label">HINT</div><p>TTL controls how long a cached answer is valid.</p></div><div class="rq-ans-box" id="rqans-15-5" style="display:none"><div class="hm-label">ANSWER</div><p>A 60-second TTL means resolvers and clients must discard the cached A record after 60 seconds and re-query for a fresh answer. This is intentionally low — used when the administrator expects the IP address to change soon (e.g. during a migration, failover, or load balancer reconfiguration). High TTL (86400 = 24h) means the record rarely changes and caching is beneficial. Low TTL increases DNS query volume but enables faster IP changes to propagate.</p></div></div></div>
+</div>
+<div class="sidebar">
+<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 15 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>DNS Filters</h4><div class="qr-row"><span class="qr-term">dns</span><span class="qr-def">All DNS traffic</span></div><div class="qr-row"><span class="qr-term">dns.flags.response==0</span><span class="qr-def">Queries only</span></div><div class="qr-row"><span class="qr-term">dns.flags.rcode!=0</span><span class="qr-def">DNS errors</span></div><div class="qr-row"><span class="qr-term">dns.qry.name contains "x"</span><span class="qr-def">Query for domain</span></div><div class="qr-row"><span class="qr-term">dns.time > 1</span><span class="qr-def">Slow DNS (&gt;1 sec)</span></div><h4>DNS Record Types</h4><div class="qr-row"><span class="qr-term">A</span><span class="qr-def">IPv4 address</span></div><div class="qr-row"><span class="qr-term">AAAA</span><span class="qr-def">IPv6 address</span></div><div class="qr-row"><span class="qr-term">CNAME</span><span class="qr-def">Alias → canonical name</span></div><div class="qr-row"><span class="qr-term">MX</span><span class="qr-def">Mail exchanger</span></div><div class="qr-row"><span class="qr-term">PTR</span><span class="qr-def">Reverse DNS</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 9 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
+</div>
+</main>
+<div class="practice-cta">
+<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
+<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
+</div>
+<footer>
+<div>Wireshark Network Analysis — 2nd Edition</div>
+<div>Chapter 15: Analyze DNS Traffic</div>
+</footer>
+<script>
+
+const PAGE_KEY='ws-ch15-full';
+const SECTIONS={'purpose':'Purpose of DNS','normal':'Normal Operations','problems':'DNS Problems','structure':'Packet Structure','filters':'Wireshark Filters','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-purpose','ins-normal','ins-problems','ins-structure'];
+const RQ_IDS=['15-1','15-2','15-3','15-4','15-5'];
+const TOTAL=9;
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
+function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
+function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  INSIGHT_IDS.forEach(function(id){
+    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+  });
+  RQ_IDS.forEach(function(id){
+    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+  });
+});
+</script>
+</body>
+</html>

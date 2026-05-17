@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 26: Analyze WLAN Traffic | Wireshark Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
+  --border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{color:var(--blue);text-decoration:none;}
+header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-right:1px solid var(--border);}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
+.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
+.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-green strong{color:var(--green);}
+.callout-red strong{color:var(--red);}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
+.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
+.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
+.step-block p:last-child{margin-bottom:0;}
+.step-block ul{padding-left:18px;margin:6px 0;}
+.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
+.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
+.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
+.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
+.insight-block:not(.ins-open) .ins-body{display:none;}
+.ins-icon{font-size:17px;flex-shrink:0;}
+.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
+.ins-body{padding:0 20px 18px;}
+.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
+.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.ins-ta:focus{border-color:var(--blue);}
+.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-save-ins:hover:not(:disabled){opacity:.85;}
+.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
+.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-hint-ins:hover{background:var(--amber-light);}
+.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
+.btn-model-ins:not(:disabled):hover{opacity:.85;}
+.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.ins-hint-box .hm-label{color:var(--amber);}
+.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.ins-model-box .hm-label{color:var(--blue);}
+.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
+.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
+.fig-ph-icon{font-size:36px;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-trace{color:var(--blue);font-style:italic;}
+.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
+.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
+.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
+.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.cs-body ul{padding-left:20px;margin:8px 0 14px;}
+.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
+.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
+.cs-ph-icon{font-size:40px;display:block;}
+.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
+.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
+.btn-cs-prompt:hover{color:var(--blue);}
+.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
+.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
+.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
+.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
+.tldr-block p+p{margin-top:10px;}
+.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
+.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
+.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
+.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
+.rq-ta:focus{border-color:var(--blue);}
+.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-save:hover:not(:disabled){opacity:.85;}
+.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
+.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-hint:hover{background:var(--amber-light);}
+.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
+.btn-rq-ans:not(:disabled):hover{opacity:.85;}
+.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.rq-hint-box .hm-label{color:var(--amber);}
+.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
+.rq-hint-box p:last-child{margin-bottom:0;}
+.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.rq-ans-box .hm-label{color:var(--blue);}
+.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.rq-ans-box p:last-child{margin-bottom:0;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
+.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
+.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
+.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+  .practice-cta{padding:36px 20px;}
+  .btn-practice-cta{font-size:15px;padding:16px 32px;}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="header-left">
+<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 26<span class="breadcrumb-sep">›</span>Full Study Guide</div>
+<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 26</div>
+<h1>Analyze Wireless LAN <em>(802.11) Traffic</em></h1>
+<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
+</div>
+</header>
+<div class="motivation-banner">
+<div class="motivation-text"> <em>Wireless networks expose their management traffic to everyone — learn to read what's in the air.</em></div>
+<p class="motivation-sub">Monitor mode, frame types, and WPA2 handshakes are the foundation of WLAN analysis.</p>
+</div>
+<div class="top-panels">
+<div class="qpanel">
+<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+<span class="qpanel-title">MY QUESTIONS</span>
+<span class="qpanel-count" id="qpanel-count">0</span>
+<span class="qpanel-hint">— click to expand</span>
+<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+</button>
+<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+</div>
+<div class="notes-panel">
+<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+<span class="notes-panel-title">MY NOTES</span>
+<span class="notes-panel-count" id="notes-panel-count">0</span>
+<span class="notes-panel-hint">— click to expand</span>
+<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+</button>
+<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+</div>
+</div>
+<nav class="section-nav">
+<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of WLAN</button><button class="nav-tab" data-target="sec-capture" onclick="navTo('sec-capture')">Capturing WLAN</button><button class="nav-tab" data-target="sec-normal" onclick="navTo('sec-normal')">Normal WLAN Traffic</button><button class="nav-tab" data-target="sec-problems" onclick="navTo('sec-problems')">WLAN Problems</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Filters & Case Study</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+</nav>
+<main>
+<div class="main-content">
+<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF WLAN</span></div><div class="ins-body"><p class="ins-q">WLAN (802.11) adds a Layer 2 wireless medium between devices and the wired network. WLAN has three frame types: Management (control the connection), Control (help management and data frames), and Data (carry payload). When a wireless client wants to connect, what sequence of management frames does it exchange with the access point?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about how a wireless client finds and joins a network — scanning, authentication, association.</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Connection sequence: (1) Probe Request/Response — client scans for APs. (2) Authentication — open or shared key. (3) Association Request/Response — client joins the AP. (4) DHCP — client gets IP address. (5) Data transfer begins. Management frames: Beacon (AP announces itself), Probe Request/Response (client scans), Authentication, Association Request/Response, Reassociation, Deauthentication, Disassociation. All management frames are unencrypted — visible in Wireshark even on encrypted networks.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of WLAN</h2><p>IEEE 802.11 (Wi-Fi) operates at the Data Link layer. WLAN adds a wireless medium between devices and the wired infrastructure. The three types of 802.11 frames are:</p><ul><li><strong>Management Frames (Type 0)</strong>: Control the connection process. Include: Beacon, Probe Request/Response, Authentication, Deauthentication, Association Request/Response, Disassociation, Action frames</li><li><strong>Control Frames (Type 1)</strong>: Help with delivery of management and data frames. Include: ACK, RTS, CTS, Block ACK</li><li><strong>Data Frames (Type 2)</strong>: Carry the actual payload (IP packets, etc.)</li></ul><div class="callout callout-amber"><strong>WLAN REQUIRES SPECIAL CAPTURE SETUP</strong><p>Capturing WLAN traffic requires putting the wireless adapter into Monitor Mode (promiscuous mode captures only traffic addressed to your MAC address — not enough for WLAN analysis). Monitor mode captures all 802.11 frames on a channel. On Linux: use airmon-ng or iw. On macOS: hold Option when clicking AirPort menu → Open Wireless Diagnostics. On Windows: use a dedicated adapter that supports monitor mode (e.g., based on Atheros chipset).</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">WLAN frames: Management(Type 0)=connection control, Control(Type 1)=delivery helpers, Data(Type 2)=payload. Beacons=AP announces itself every 100ms. Monitor mode required to see all 802.11 frames. Management frames are UNENCRYPTED even on WPA2 networks.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of WLAN')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-capture"><div class="insight-hdr" onclick="toggleInsight('ins-capture')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · CAPTURING WLAN TRAFFIC</span></div><div class="ins-body"><p class="ins-q">You need to capture on a specific channel to see WLAN traffic. What happens to frames on other channels? And what is the difference between captured 802.11 frames and what you see when Wireshark is set to 'interpreted' mode vs raw mode?</p><textarea class="ins-ta" data-key="ins-capture" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-capture" onclick="saveIns('ins-capture')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-capture')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-capture" onclick="toggleInsModel('ins-capture')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-capture" style="display:none"><div class="hm-label">HINT</div><p>Think about the radio frequency nature of 802.11 — each channel is a different frequency band.</p></div><div class="ins-model-box" id="model-ins-capture" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Your adapter can only tune to ONE channel at a time — frames on other channels are not captured. To capture all clients, you'd need multiple adapters or channel hopping (but this misses frames during the hop). In Wireshark's interpreted mode, wireless frames look like normal Ethernet frames (the 802.11 header is hidden). In raw mode (with the RadioTap or PPI header), you see: signal strength (dBm), noise floor, channel, data rate, and the full 802.11 header including the Frame Control field.</p></div></div></div><div class="section-block" id="sec-capture"><h2>Capturing WLAN Traffic</h2><p>WLAN capture requirements:</p><ol><li>Wireless adapter that supports monitor mode</li><li>Set adapter to monitor mode (OS-specific process)</li><li>Select the correct channel in Wireshark</li><li>Configure Wireshark to show 802.11 frames (not interpreted as Ethernet)</li></ol><p>When capturing WLAN, Wireshark adds a RadioTap or Per Packet Information (PPI) header before each 802.11 frame containing: signal strength (dBm), noise, channel, data rate. This information helps diagnose signal quality issues.</p><p>To decrypt WPA/WPA2-PSK traffic, provide the passphrase in Edit → Preferences → Protocols → IEEE 802.11 → Decryption keys. Wireshark needs to capture the 4-way handshake to derive the Pairwise Transient Key (PTK) for decryption.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Monitor mode = capture all frames (not just your own). One channel at a time. RadioTap header shows signal strength, noise, rate. WPA2 decryption needs: passphrase + 4-way handshake in capture. SSID visible in Beacon frames (wlan_mgt.ssid) even on encrypted networks.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-capture" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('capture','Capturing WLAN')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-capture" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('capture')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-normal"><div class="insight-hdr" onclick="toggleInsight('ins-normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL WLAN TRAFFIC</span></div><div class="ins-body"><p class="ins-q">An access point broadcasts Beacon frames every 100ms (by default) to announce its presence. What information is in a Beacon frame? And when a client roams from one AP to another, what process does it use to maintain connectivity?</p><textarea class="ins-ta" data-key="ins-normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-normal" onclick="saveIns('ins-normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-normal" onclick="toggleInsModel('ins-normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-normal" style="display:none"><div class="hm-label">HINT</div><p>Think about what the client needs to know to join a network (SSID, supported rates, capabilities) and how roaming works.</p></div><div class="ins-model-box" id="model-ins-normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Beacon frames contain: SSID, BSSID (AP's MAC address), supported data rates, capabilities (WPA2, WMM, 802.11n/ac), beacon interval, TIM (Traffic Indication Map for power-saving clients). Roaming: client sends Probe Requests for known SSID, receives Probe Responses from multiple APs, selects the strongest signal AP, sends Reassociation Request to new AP, new AP deauthenticates client from old AP. Roaming is client-controlled in 802.11 — the AP can't force a client to roam to a better AP. This is why some clients stick to a weak signal when a better AP is available.</p></div></div></div><div class="section-block" id="sec-normal"><h2>Analyze Normal WLAN Traffic</h2><p>Normal WLAN traffic patterns to recognize:</p><ul><li><strong>Beacons</strong>: AP sends Beacon every 100ms (by default). Contains SSID, supported rates, WPA2 info. Filter: <code>wlan.fc.type_subtype==8</code></li><li><strong>Probe Request/Response</strong>: Client scans for APs. Filter: <code>wlan.fc.type_subtype==4</code> (Probe Request), <code>wlan.fc.type_subtype==5</code> (Probe Response)</li><li><strong>Authentication/Association</strong>: Two-step join process. Filter: <code>wlan.fc.type_subtype==11</code> (Authentication)</li><li><strong>4-way Handshake</strong>: WPA2 key exchange after association. Uses EAPOL frames. Filter: <code>eapol</code></li><li><strong>Deauthentication/Disassociation</strong>: Disconnect frames. Can be spoofed in attacks! Filter: <code>wlan.fc.type_subtype==12</code></li></ul><div class="callout callout-red"><strong>DEAUTHENTICATION ATTACKS</strong><p>In 802.11 (prior to 802.11w Management Frame Protection), Deauthentication and Disassociation frames are NOT authenticated — anyone can spoof them with any source address. An attacker can repeatedly send spoofed Deauth frames to force clients to disconnect (DoS attack) or force re-authentication to capture the 4-way handshake for offline password cracking.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Beacon: every 100ms, contains SSID. Probe Req/Resp: client scans. 4-way handshake: EAPOL frames, derive PTK. Deauth/Disassoc frames: unprotected (pre-802.11w), can be spoofed. Roaming: client-controlled in 802.11 standard. Filter: wlan.fc.type==0 for all management frames.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal WLAN Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-problems"><div class="insight-hdr" onclick="toggleInsight('ins-problems')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · WLAN PROBLEMS</span></div><div class="ins-body"><p class="ins-q">WLAN problems show up as retransmissions, association failures, and roaming issues. When you see a client repeatedly sending Probe Requests with an SSID but never receiving a Probe Response, what does this indicate? And what does excessive retransmission at the 802.11 layer indicate?</p><textarea class="ins-ta" data-key="ins-problems" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-problems" onclick="saveIns('ins-problems')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-problems')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-problems" onclick="toggleInsModel('ins-problems')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-problems" style="display:none"><div class="hm-label">HINT</div><p>Think about what prevents Probe Responses from being sent and what causes 802.11 retransmissions vs TCP retransmissions.</p></div><div class="ins-model-box" id="model-ins-problems" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>No Probe Response: (1) AP is out of range, (2) AP's SSID is hidden (AP won't respond to broadcast probes but will respond to directed probes with the correct SSID), (3) AP is full (max clients reached). 802.11 retransmissions (retry bit set in Frame Control) indicate RF interference, low signal strength, or multi-path interference — not the same as TCP retransmissions. High retry rates = RF problem. Monitor signal strength (dBm) in RadioTap header to correlate signal quality with retry rates. Negative dBm closer to 0 = stronger signal (-30 excellent, -70 marginal, -85 problematic).</p></div></div></div><div class="section-block" id="sec-problems"><h2>WLAN Problems & Filters</h2><p>Common WLAN problems and their Wireshark signatures:</p><ul><li><strong>High retry rate</strong>: 802.11 retry bit (wlan.fc.retry==1) set on many frames — RF interference or weak signal</li><li><strong>Association failure</strong>: AP sends Association Response with non-zero status code</li><li><strong>Authentication failure</strong>: AP sends Authentication Response with status code != 0</li><li><strong>WPA2 4-way handshake failure</strong>: Client and AP can't agree on key (wrong passphrase)</li><li><strong>Excessive deauth frames</strong>: Possible deauthentication attack or roaming problem</li><li><strong>IP address conflicts</strong>: Multiple devices with same IP (check ARP in traffic after association)</li></ul><div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:12px 0;font-family:'SF Mono',monospace;font-size:12px;line-height:2;"><b style="color:#1a6dcc">wlan.fc.retry==1</b> — 802.11 retry frames<br><b style="color:#1a6dcc">wlan.fc.type_subtype==8</b> — Beacon frames<br><b style="color:#1a6dcc">wlan.fc.type_subtype==4</b> — Probe Requests<br><b style="color:#1a6dcc">wlan.fc.type_subtype==12</b> — Deauthentication<br><b style="color:#1a6dcc">eapol</b> — WPA2 4-way handshake<br><b style="color:#1a6dcc">wlan_mgt.ssid == "MyNetwork"</b> — Specific SSID<br></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','WLAN Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 26</h3><p>WLAN (802.11) frames are divided into Management, Control, and Data types. Management frames control the connection process — all are unencrypted even on WPA2 networks. Capturing WLAN requires monitor mode on the wireless adapter and channel selection.</p><p>Normal WLAN traffic includes Beacons (every 100ms), Probe Requests/Responses, Authentication, Association, and the WPA2 4-way EAPOL handshake. The retry bit in the Frame Control field indicates retransmissions caused by RF issues. Wireshark can decrypt WPA2-PSK traffic if given the passphrase and the 4-way handshake is captured.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q26.1</div><div class="rq-q">What are the three types of 802.11 frames?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about the different roles frames play in WLAN communication.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>The three types of 802.11 frames are: (1) <strong>Management frames (Type 0)</strong> — control the connection process, including Beacons, Probe Requests/Responses, Authentication, Association, Deauthentication, and Disassociation. (2) <strong>Control frames (Type 1)</strong> — help with delivery of management and data frames, including ACK, RTS (Request to Send), CTS (Clear to Send), and Block ACK. (3) <strong>Data frames (Type 2)</strong> — carry the actual data payload (IP packets).</p></div></div><div class="rq-card"><div class="rq-num">Q26.2</div><div class="rq-q">What mode must a wireless adapter be in to capture all 802.11 frames?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Normal (promiscuous) mode only captures traffic addressed to your adapter.</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>The wireless adapter must be in <strong>Monitor Mode</strong> (also called rfmon mode) to capture all 802.11 frames on a channel, regardless of the destination address. In normal promiscuous mode, the adapter only captures frames addressed to its MAC address. Monitor mode enables capture of all frames on the tuned channel including Beacons, Probe Requests from other clients, and management frames.</p></div></div><div class="rq-card"><div class="rq-num">Q26.3</div><div class="rq-q">What information is contained in an 802.11 Beacon frame?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>Think about what information a client needs to decide whether to connect to an AP.</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>An 802.11 Beacon frame (sent every 100ms by default) contains: SSID (network name), BSSID (AP's MAC address), supported data rates, beacon interval, capability information (WPA/WPA2/WMM support), Traffic Indication Map (TIM, for power-saving clients), and 802.11n/ac high-throughput capabilities. The SSID is visible in plain text even on encrypted networks — filter: <code>wlan.fc.type_subtype==8</code>.</p></div></div><div class="rq-card"><div class="rq-num">Q26.4</div><div class="rq-q">What does a high 802.11 retry rate indicate?</div><textarea class="rq-ta" data-key="rq-rq4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq4" onclick="saveRQ('rq4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq4" onclick="toggleRQAns('rq4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq4" style="display:none"><div class="hm-label">HINT</div><p>Think about what causes frames to need retransmission at the radio level vs the TCP level.</p></div><div class="rq-ans-box" id="rqans-rq4" style="display:none"><div class="hm-label">ANSWER</div><p>A high 802.11 retry rate (indicated by the retry bit being set in the Frame Control field of many frames — filter: <code>wlan.fc.retry==1</code>) indicates <strong>RF (radio frequency) problems</strong> such as interference from other wireless networks, low signal strength (weak signal from the AP or client), multi-path interference (signal reflections), or adjacent channel interference. 802.11 retransmissions are at Layer 2 — different from TCP retransmissions. High retry rates cause throughput degradation and increased latency.</p></div></div><div class="rq-card"><div class="rq-num">Q26.5</div><div class="rq-q">What Wireshark filter would you use to see only WPA2 4-way handshake frames?</div><textarea class="rq-ta" data-key="rq-rq5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq5" onclick="saveRQ('rq5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq5" onclick="toggleRQAns('rq5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq5" style="display:none"><div class="hm-label">HINT</div><p>The 4-way handshake uses a specific protocol for key exchange.</p></div><div class="rq-ans-box" id="rqans-rq5" style="display:none"><div class="hm-label">ANSWER</div><p>Use the display filter <code>eapol</code> to see only WPA2 4-way handshake frames (EAPOL = Extensible Authentication Protocol over LAN). The 4-way handshake consists of 4 EAPOL-Key frames that establish the Pairwise Transient Key (PTK) for encrypting the data channel. To decrypt WPA2-PSK traffic in Wireshark, you must capture the 4-way handshake AND provide the pre-shared key (passphrase) in Edit → Preferences → Protocols → IEEE 802.11.</p></div></div>
+</div>
+<div class="sidebar">
+<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 26 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>WLAN Filters</h4><div class="qr-row"><span class="qr-term">wlan</span><span class="qr-def">All WLAN frames</span></div><div class="qr-row"><span class="qr-term">wlan.fc.type==0</span><span class="qr-def">Management frames</span></div><div class="qr-row"><span class="qr-term">wlan.fc.type==1</span><span class="qr-def">Control frames</span></div><div class="qr-row"><span class="qr-term">wlan.fc.type==2</span><span class="qr-def">Data frames</span></div><div class="qr-row"><span class="qr-term">wlan.fc.type_subtype==8</span><span class="qr-def">Beacon frames</span></div><div class="qr-row"><span class="qr-term">wlan.fc.type_subtype==4</span><span class="qr-def">Probe Request</span></div><div class="qr-row"><span class="qr-term">wlan_mgt.ssid</span><span class="qr-def">SSID field</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 9 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
+</div>
+</main>
+<div class="practice-cta">
+<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
+<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
+</div>
+<footer>
+<div>Wireshark Network Analysis — 2nd Edition</div>
+<div>Chapter 26: Analyze WLAN Traffic</div>
+</footer>
+<script>
+
+const PAGE_KEY='ws-ch26-full';
+const SECTIONS={'purpose':'Purpose of WLAN','capture':'Capturing WLAN','normal':'Normal WLAN Traffic','problems':'WLAN Problems','filters':'Filters & Case Study','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-purpose','ins-capture','ins-normal','ins-problems'];
+const RQ_IDS=['rq1','rq2','rq3','rq4','rq5'];
+const TOTAL=9;
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
+function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
+function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  INSIGHT_IDS.forEach(function(id){
+    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+  });
+  RQ_IDS.forEach(function(id){
+    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+  });
+});
+</script>
+</body>
+</html>

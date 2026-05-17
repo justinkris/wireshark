@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 13: Expert System | Wireshark Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
+  --border:#bfdbfe;--border-dim:#dbeafe;
+  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
+  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
+  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
+  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
+  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
+}
+html.pt-init body{opacity:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{color:var(--blue);text-decoration:none;}
+header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
+.header-left{flex:1;}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
+.breadcrumb a{color:#60a5fa;text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb-sep{color:rgba(255,255,255,0.2);}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
+.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
+h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
+header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
+.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
+.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
+.motivation-text em{font-style:italic;color:var(--blue);}
+.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.top-panels .qpanel{border-right:1px solid var(--border);}
+.qpanel,.notes-panel{background:var(--surface);}
+.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
+.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
+.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
+.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
+.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
+.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
+.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
+.qpanel-body.open,.notes-panel-body.open{display:block;}
+.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.q-item:last-child{border-bottom:none;}
+.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
+.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
+.q-del:hover{color:var(--red);}
+.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
+.main-content{min-width:0;}
+.section-block{margin-bottom:8px;}
+.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
+.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
+.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
+.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.section-block strong{color:var(--text);font-weight:600;}
+code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
+.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
+.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
+.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
+.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
+.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.callout-blue strong{color:var(--blue);}
+.callout-amber strong{color:var(--amber);}
+.callout-green strong{color:var(--green);}
+.callout-red strong{color:var(--red);}
+.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
+.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.mental-note-block-inner{flex:1;}
+.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
+.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
+.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
+.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
+.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
+.step-block p:last-child{margin-bottom:0;}
+.step-block ul{padding-left:18px;margin:6px 0;}
+.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
+.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
+.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
+.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
+.insight-block:not(.ins-open) .ins-body{display:none;}
+.ins-icon{font-size:17px;flex-shrink:0;}
+.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
+.ins-body{padding:0 20px 18px;}
+.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
+.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.ins-ta:focus{border-color:var(--blue);}
+.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-save-ins:hover:not(:disabled){opacity:.85;}
+.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
+.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-hint-ins:hover{background:var(--amber-light);}
+.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
+.btn-model-ins:not(:disabled):hover{opacity:.85;}
+.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.ins-hint-box .hm-label{color:var(--amber);}
+.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.ins-model-box .hm-label{color:var(--blue);}
+.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
+.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
+.fig-ph-icon{font-size:36px;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-trace{color:var(--blue);font-style:italic;}
+.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
+.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
+.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
+.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
+.cs-body ul{padding-left:20px;margin:8px 0 14px;}
+.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
+.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
+.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
+.cs-ph-icon{font-size:40px;display:block;}
+.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
+.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
+.btn-cs-prompt:hover{color:var(--blue);}
+.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
+.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
+.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
+.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
+.tldr-block p+p{margin-top:10px;}
+.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
+.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
+.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
+.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
+.rq-ta:focus{border-color:var(--blue);}
+.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
+.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-save:hover:not(:disabled){opacity:.85;}
+.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
+.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-hint:hover{background:var(--amber-light);}
+.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
+.btn-rq-ans:not(:disabled):hover{opacity:.85;}
+.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
+.rq-hint-box .hm-label{color:var(--amber);}
+.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
+.rq-hint-box p:last-child{margin-bottom:0;}
+.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.rq-ans-box .hm-label{color:var(--blue);}
+.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
+.rq-ans-box p:last-child{margin-bottom:0;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
+.sidebar{position:sticky;top:60px;}
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
+.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
+.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
+.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
+.progress-checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item.done{color:var(--text-muted);text-decoration:line-through;}
+.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
+.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
+.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
+.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
+.qr-def{color:rgba(255,255,255,.6);text-align:right;}
+.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
+.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
+.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
+.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
+footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
+@media(max-width:900px){
+  header{padding:24px 20px 20px;flex-direction:column;}
+  .motivation-banner{padding:16px 20px;}
+  .top-panels{grid-template-columns:1fr;}
+  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
+  .section-nav{padding:0 20px;}
+  main{grid-template-columns:1fr;padding:24px 20px 60px;}
+  .sidebar{position:static;}
+  h1{font-size:30px;}
+  .lesson-tools-grid{grid-template-columns:1fr;}
+  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
+  .practice-cta{padding:36px 20px;}
+  .btn-practice-cta{font-size:15px;padding:16px 32px;}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="header-left">
+<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 13<span class="breadcrumb-sep">›</span>Full Study Guide</div>
+<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 13 · EXPERT SYSTEM</div>
+<h1>Expert <em>Information System</em></h1>
+<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
+</div>
+</header>
+<div class="motivation-banner">
+<div class="motivation-text"> <em>Let Wireshark flag the anomalies before you read a packet.</em></div>
+<p class="motivation-sub">Severity levels, event groups, and filtering on Expert information — automated problem detection in any capture.</p>
+</div>
+<div class="top-panels">
+<div class="qpanel">
+<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
+<span class="qpanel-title">MY QUESTIONS</span>
+<span class="qpanel-count" id="qpanel-count">0</span>
+<span class="qpanel-hint">— click to expand</span>
+<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+</button>
+<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+</div>
+<div class="notes-panel">
+<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
+<span class="notes-panel-title">MY NOTES</span>
+<span class="notes-panel-count" id="notes-panel-count">0</span>
+<span class="notes-panel-hint">— click to expand</span>
+<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+</button>
+<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+</div>
+</div>
+<nav class="section-nav">
+<button class="nav-tab" data-target="sec-overview" onclick="navTo('sec-overview')">Expert Overview</button><button class="nav-tab" data-target="sec-severity" onclick="navTo('sec-severity')">Severity Levels</button><button class="nav-tab" data-target="sec-groups" onclick="navTo('sec-groups')">Event Groups</button><button class="nav-tab" data-target="sec-filtering" onclick="navTo('sec-filtering')">Filtering on Expert</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+</nav>
+<main>
+<div class="main-content">
+<div class="insight-block" id="ins-overview"><div class="insight-hdr" onclick="toggleInsight('ins-overview')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · EXPERT INFORMATION OVERVIEW</span></div><div class="ins-body"><p class="ins-q">The Expert Information System flags protocol anomalies automatically. Why is it more useful to open Expert Information BEFORE reading through the packet list?</p><textarea class="ins-ta" data-key="ins-overview" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-overview" onclick="saveIns('ins-overview')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-overview')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-overview" onclick="toggleInsModel('ins-overview')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-overview" style="display:none"><div class="hm-label">HINT</div><p>Think about the difference between reactive analysis (reading packets looking for problems) and proactive triage (seeing a summary of known anomalies first).</p></div><div class="ins-model-box" id="model-ins-overview" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Expert Information provides a prioritized list of anomalies — you immediately know if there are TCP errors, DNS failures, HTTP errors, checksum issues, or protocol violations in the capture. This guides where to spend your analysis time. Without Expert Info, you might spend an hour reading packets before discovering the key error. With Expert Info, you see '47 TCP retransmissions, 12 zero windows, 3 RSTs' in 10 seconds and can jump directly to those packets — reactive vs. systematic triage.</p></div></div></div><div class="section-block" id="sec-overview"><h2>Expert Information System Overview</h2><p>Open via <strong>Analyze → Expert Information</strong>. Also accessible by clicking the colored dot in the bottom-left status bar.</p><p>The Expert window groups detected anomalies by severity and event group, showing: group name, severity, description, protocol, and count. Double-click any entry to jump to the first occurrence in the packet list.</p><h3>Status Bar Indicator</h3><p>The dot in the bottom-left status bar shows the highest severity level currently in the capture:</p><ul><li>Green dot — only Chat events (lowest severity)</li><li>Cyan dot — Note level events</li><li>Yellow/Orange dot — Warning level events</li><li>Red dot — Error level events (highest severity)</li></ul><p>A red dot is your first visual signal to open Expert Information before anything else.</p><div class="callout callout-callout-green"><strong>FIRST STEP</strong>When opening an unfamiliar capture, look at the status bar dot. Red = open Expert Information immediately. Check what types of errors dominate — this directs your entire analysis.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Expert Information: Analyze → Expert Information. Status bar dot = highest severity color (red = errors). Double-click any entry to jump to that packet. Expert Information is the first thing to check in any problem capture — it summarizes known anomalies automatically.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-overview" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('overview','Expert Overview')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-overview" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('overview')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-severity"><div class="insight-hdr" onclick="toggleInsight('ins-severity')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · SEVERITY LEVELS</span></div><div class="ins-body"><p class="ins-q">Expert Information uses four severity levels: Error, Warning, Note, and Chat. Give a specific example of a protocol event at each level.</p><textarea class="ins-ta" data-key="ins-severity" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-severity" onclick="saveIns('ins-severity')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-severity')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-severity" onclick="toggleInsModel('ins-severity')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-severity" style="display:none"><div class="hm-label">HINT</div><p>Think about what constitutes a definite protocol error vs. something suspicious but possibly normal.</p></div><div class="ins-model-box" id="model-ins-severity" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Error: TCP checksum error (definite protocol violation; packet corrupted or checksum offload issue). Warning: TCP retransmission (a segment was not acknowledged in time — indicates packet loss or congestion). Note: TCP SYN/FIN (session boundary events; not errors but noteworthy). Chat: TCP connection establishment (the three-way handshake; lowest severity, just informational logging of normal operations). Higher severity = more likely to be an actual problem.</p></div></div></div><div class="section-block" id="sec-severity"><h2>Expert Information Severity Levels</h2><p>Four severity levels from highest to lowest:</p><table style='width:100%;border-collapse:collapse;font-size:13px;'><tr style='background:#eef4ff;'><th style='padding:8px;border:1px solid #bfdbfe;'>Level</th><th style='padding:8px;border:1px solid #bfdbfe;'>Color</th><th style='padding:8px;border:1px solid #bfdbfe;'>Meaning</th><th style='padding:8px;border:1px solid #bfdbfe;'>Examples</th></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'><strong>Error</strong></td><td style='padding:8px;border:1px solid #bfdbfe;background:#ffcccc;'>Red</td><td style='padding:8px;border:1px solid #bfdbfe;'>Definite protocol violations or serious problems</td><td style='padding:8px;border:1px solid #bfdbfe;'>Bad TCP checksum, malformed packet, illegal sequence number</td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'><strong>Warning</strong></td><td style='padding:8px;border:1px solid #bfdbfe;background:#ffd9a0;'>Orange</td><td style='padding:8px;border:1px solid #bfdbfe;'>Unusual conditions that indicate possible problems</td><td style='padding:8px;border:1px solid #bfdbfe;'>TCP retransmission, duplicate ACK, window full, zero window</td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'><strong>Note</strong></td><td style='padding:8px;border:1px solid #bfdbfe;background:#ccf5ff;'>Cyan</td><td style='padding:8px;border:1px solid #bfdbfe;'>Notable but potentially normal events</td><td style='padding:8px;border:1px solid #bfdbfe;'>TCP SYN/FIN/RST, HTTP redirect, ICMP unreachable</td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'><strong>Chat</strong></td><td style='padding:8px;border:1px solid #bfdbfe;background:#e8e8e8;'>Gray</td><td style='padding:8px;border:1px solid #bfdbfe;'>Informational; normal protocol operations</td><td style='padding:8px;border:1px solid #bfdbfe;'>TCP connection established, DNS query sent</td></tr></table><div class="callout callout-callout-amber"><strong>FALSE POSITIVES</strong>TCP 'Bad Checksum' errors at the Error level are often false positives due to NIC checksum offload — not actual corruption. See Chapter 5: disable 'Validate TCP checksum' in Protocol Preferences to suppress these. Always consider context when interpreting Expert events.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Severity: Error (red, protocol violation) > Warning (orange, possible problem: retransmission/zero-window) > Note (cyan, noteworthy normal: SYN/FIN) > Chat (gray, informational). 'Bad Checksum' at Error level = often checksum offload artifact, not real corruption. Warnings are most actionable for performance troubleshooting.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-severity" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('severity','Severity Levels')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-severity" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('severity')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-groups"><h2>Expert Event Groups</h2><p>Expert events are organized into groups by protocol and event type:</p><h3>TCP Groups (most common)</h3><ul><li><strong>Retransmission</strong> — segment sent again after timeout</li><li><strong>Fast Retransmission</strong> — sent after 3 duplicate ACKs</li><li><strong>Spurious Retransmission</strong> — retransmitted but original was received (ACK crossed in transit)</li><li><strong>Duplicate ACK</strong> — same ACK number sent multiple times (signals gap in received data)</li><li><strong>Zero Window</strong> — receiver's buffer full; sender must stop</li><li><strong>Window Full</strong> — sent data fills the receiver's window</li><li><strong>Keep-Alive</strong> — TCP keepalive probes</li><li><strong>Out-of-Order</strong> — segments arriving out of sequence</li></ul><h3>Other Protocol Groups</h3><ul><li><strong>DNS</strong> — query timeouts, error response codes (NXDOMAIN, SERVFAIL)</li><li><strong>HTTP</strong> — 4xx and 5xx response codes</li><li><strong>ICMP</strong> — destination unreachable, time exceeded messages</li><li><strong>Checksum</strong> — bad TCP/UDP/IP checksums</li></ul><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">TCP Expert groups: Retransmission (timeout-based), Fast Retransmission (3 dupacks), Spurious Retransmission (unnecessary), Duplicate ACK (gap signal), Zero Window (receiver buffer full), Window Full (sender-side). Spurious retransmissions indicate capture delay or ACK reordering, not actual loss.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-groups" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('groups','Event Groups')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-groups" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('groups')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-filtering"><div class="insight-hdr" onclick="toggleInsight('ins-filtering')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · FILTERING ON EXPERT INFORMATION</span></div><div class="ins-body"><p class="ins-q">You want to show only packets that Wireshark flagged as Expert events of Warning level or higher. How do you build this display filter?</p><textarea class="ins-ta" data-key="ins-filtering" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-filtering" onclick="saveIns('ins-filtering')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-filtering')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-filtering" onclick="toggleInsModel('ins-filtering')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-filtering" style="display:none"><div class="hm-label">HINT</div><p>Expert severity values are numeric. What filter field represents the severity?</p></div><div class="ins-model-box" id="model-ins-filtering" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Use <code>expert.severity</code> which is a numeric field. Values: Chat = 200000, Note = 500000, Warning = 1000000, Error = 2000000. To show Warning and above: <code>expert.severity >= 1000000</code>. More practically, use specific TCP expert flag filters: <code>tcp.analysis.retransmission or tcp.analysis.zero_window or tcp.analysis.duplicate_ack</code>. Or simply <code>tcp.analysis.flags</code> as an existence test to show any packet that triggered a TCP expert event.</p></div></div></div><div class="section-block" id="sec-filtering"><h2>Filtering on Expert Information</h2><p>Display filters to focus on expert events:</p><h3>General Expert Filters</h3><ul><li><code>expert</code> — all packets with any expert event</li><li><code>expert.severity >= 1000000</code> — Warning and above</li><li><code>expert.severity == 2000000</code> — Error level only</li></ul><h3>Specific TCP Expert Flags</h3><ul><li><code>tcp.analysis.flags</code> — any TCP expert event (existence test)</li><li><code>tcp.analysis.retransmission</code> — retransmissions</li><li><code>tcp.analysis.fast_retransmission</code> — fast retransmissions</li><li><code>tcp.analysis.duplicate_ack</code> — duplicate ACKs</li><li><code>tcp.analysis.zero_window</code> — zero window advertisements</li><li><code>tcp.analysis.window_full</code> — window full (sender-side)</li><li><code>tcp.analysis.lost_segment</code> — gap detected in sequence numbers</li><li><code>tcp.analysis.out_of_order</code> — out-of-order segments</li></ul><h3>From Expert Window</h3><p>In the Expert Information dialog, right-click any event group → <strong>Apply as Filter</strong> — automatically generates the correct display filter for that event type.</p><div class="callout callout-callout-blue"><strong>QUICK WORKFLOW</strong>(1) Open Expert Information; (2) Sort by count, highest first; (3) Double-click the most frequent error to jump to a sample packet; (4) Apply as filter to see all packets of that type; (5) Investigate root cause from the filtered view.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Expert filters: expert.severity >= 1000000 (Warning+), tcp.analysis.flags (any TCP expert event), specific flags: tcp.analysis.retransmission, .duplicate_ack, .zero_window, .lost_segment. Right-click in Expert window → Apply as Filter auto-generates the correct expression. Sort Expert window by count to find the most frequent issue.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filtering" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filtering','Filtering on Expert')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filtering" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filtering')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 13</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Expert Information System (Analyze → Expert Information) automatically flags protocol anomalies. Status bar dot shows highest severity: red = errors present. Four severity levels: Error (red), Warning (orange), Note (cyan), Chat (gray). Key TCP groups: retransmission, fast retransmission, duplicate ACK, zero window, out-of-order. Filter: tcp.analysis.flags (any TCP issue), expert.severity >= 1000000 (Warning+). Open Expert Information first on every problem capture.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q13.1</div><div class="rq-q">Describe the four Expert Information severity levels from highest to lowest and give one example of a TCP event at each level.</div><textarea class="rq-ta" data-key="rq-13-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-13-1" onclick="saveRQ('13-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('13-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-13-1" onclick="toggleRQAns('13-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-13-1" style="display:none"><div class="hm-label">HINT</div><p>Think about what constitutes a definite error vs. something notable but possibly normal.</p></div><div class="rq-ans-box" id="rqans-13-1" style="display:none"><div class="hm-label">ANSWER</div><p>Error (red): TCP bad checksum — a definite protocol violation (or checksum offload artifact). Warning (orange): TCP retransmission — a segment was resent after timeout, indicating packet loss. Note (cyan): TCP SYN or FIN — connection establishment/teardown events; noteworthy but normal. Chat (gray): TCP connection established — logging of the completed three-way handshake; purely informational.</p></div></div><div class="rq-card"><div class="rq-num">Q13.2</div><div class="rq-q">What display filter shows only packets that triggered TCP Expert events (any severity)?</div><textarea class="rq-ta" data-key="rq-13-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-13-2" onclick="saveRQ('13-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('13-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-13-2" onclick="toggleRQAns('13-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-13-2" style="display:none"><div class="hm-label">HINT</div><p>Look for a filter field that tests if ANY tcp.analysis flag was set.</p></div><div class="rq-ans-box" id="rqans-13-2" style="display:none"><div class="hm-label">ANSWER</div><p><code>tcp.analysis.flags</code> — this is an existence test that matches any packet where Wireshark set at least one TCP analysis flag (retransmission, duplicate ACK, zero window, out-of-order, etc.). It's the broadest TCP expert filter. For specific events: <code>tcp.analysis.retransmission</code>, <code>tcp.analysis.zero_window</code>, <code>tcp.analysis.duplicate_ack</code>, <code>tcp.analysis.out_of_order</code>.</p></div></div><div class="rq-card"><div class="rq-num">Q13.3</div><div class="rq-q">You open a capture and see a red dot in the Wireshark status bar, but the only Error-level events in Expert Information are 'TCP Bad Checksum'. Should you be concerned about network corruption?</div><textarea class="rq-ta" data-key="rq-13-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-13-3" onclick="saveRQ('13-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('13-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-13-3" onclick="toggleRQAns('13-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-13-3" style="display:none"><div class="hm-label">HINT</div><p>What commonly causes TCP checksum errors that are NOT real data corruption?</p></div><div class="rq-ans-box" id="rqans-13-3" style="display:none"><div class="hm-label">ANSWER</div><p>Not necessarily — 'TCP Bad Checksum' at the Error level is a very common false positive caused by NIC checksum offload. When capturing on the sending machine, the NIC fills in the TCP checksum in hardware after Wireshark copies the packet — Wireshark sees 0x0000 (unfilled) and flags it as a bad checksum. This is a Wireshark artifact, not actual network corruption. Fix: Edit → Preferences → Protocols → TCP → uncheck 'Validate the TCP checksum if possible'. If checksums are still bad after disabling validation, then investigate further for actual corruption.</p></div></div></div>
+</div>
+<div class="sidebar">
+<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 13 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Expert Access</h4><div class="qr-row"><span class="qr-term">Analyze → Expert Information</span><span class="qr-def">Open expert window</span></div><div class="qr-row"><span class="qr-term">Status bar dot</span><span class="qr-def">Highest severity color</span></div><h4>Severity Colors</h4><div class="qr-row"><span class="qr-term">Red</span><span class="qr-def">Error (highest)</span></div><div class="qr-row"><span class="qr-term">Orange/Yellow</span><span class="qr-def">Warning</span></div><div class="qr-row"><span class="qr-term">Cyan</span><span class="qr-def">Note</span></div><div class="qr-row"><span class="qr-term">Gray</span><span class="qr-def">Chat (lowest)</span></div><h4>Expert Filters</h4><div class="qr-row"><span class="qr-term">expert.severity &gt;= 2000000</span><span class="qr-def">Warnings+</span></div><div class="qr-row"><span class="qr-term">tcp.analysis.flags</span><span class="qr-def">All TCP expert flags</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 7 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
+</div>
+</main>
+<div class="practice-cta">
+<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
+<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
+</div>
+<footer>
+<div>Wireshark Network Analysis — 2nd Edition</div>
+<div>Chapter 13: Expert System</div>
+</footer>
+<script>
+
+const PAGE_KEY='ws-ch13-full';
+const SECTIONS={'overview':'Expert Overview','severity':'Severity Levels','groups':'Event Groups','filtering':'Filtering on Expert','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-overview','ins-severity','ins-groups','ins-filtering'];
+const RQ_IDS=['13-1','13-2','13-3'];
+const TOTAL=7;
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
+function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
+function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
+function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
+function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
+function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  INSIGHT_IDS.forEach(function(id){
+    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+  });
+  RQ_IDS.forEach(function(id){
+    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+  });
+});
+</script>
+</body>
+</html>
