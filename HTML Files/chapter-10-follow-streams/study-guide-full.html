@@ -4,20 +4,12 @@
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chapter 10: Follow Streams | Wireshark Study Guide</title>
+<title>Chapter 10: Follow Streams and Reassemble Data | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,400&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +63,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,16 +80,10 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
-.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
-.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
+.insight-hdr::after{content:'&#9656; Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
+.insight-block.ins-open .insight-hdr::after{content:'&#9662; Collapse';}
 .insight-block:not(.ins-open) .ins-body{display:none;}
 .ins-icon{font-size:17px;flex-shrink:0;}
 .ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
@@ -127,7 +114,11 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
 .fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
-.fig-trace{color:var(--blue);font-style:italic;}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -135,7 +126,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -145,11 +136,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -174,15 +169,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -190,132 +176,902 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
 </style>
 </head>
 <body>
+
 <header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 10<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 10 · FOLLOW STREAMS</div>
-<h1>Follow <em>Streams</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
+  <div class="header-left">
+    <div class="breadcrumb">
+      <a href="../index.html">Wireshark Study Guide</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Chapter 10</span>
+    </div>
+    <div class="header-eyebrow">
+      <span class="dot-live"></span>
+      CHAPTER 10 &middot; FOLLOW STREAMS
+    </div>
+    <h1>Follow Streams and <em>Reassemble Data</em></h1>
+    <p>Reconstruct conversations, extract transferred files, and decrypt SSL traffic by following UDP, TCP, and SSL streams in Wireshark.</p>
+  </div>
 </header>
+
 <div class="motivation-banner">
-<div class="motivation-text"> <em>The conversation reconstructed — read the application layer.</em></div>
-<p class="motivation-sub">Follow TCP, UDP, and TLS streams to reconstruct complete application exchanges and decode data exchanged between hosts.</p>
+  <div class="motivation-text"><em>"Every packet is a fragment of a conversation&mdash;</em>follow the stream to hear the whole story."</div>
+  <div class="motivation-sub">Master stream reassembly to turn raw packets into readable sessions, recoverable files, and decrypted communications.</div>
 </div>
+
 <div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  <div class="qpanel">
+    <button class="qpanel-header" id="qpanel-header" onclick="toggleQPanel()">
+      <span class="qpanel-title">MY QUESTIONS</span>
+      <span class="qpanel-count" id="qpanel-count">0</span>
+      <span class="qpanel-hint">&mdash; click to expand</span>
+      <span class="qpanel-chevron" id="qpanel-chevron">&#9660;</span>
+    </button>
+    <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  </div>
+  <div class="notes-panel">
+    <button class="notes-panel-header" id="notes-panel-header" onclick="toggleNotesPanel()">
+      <span class="notes-panel-title">MY NOTES</span>
+      <span class="notes-panel-count" id="notes-panel-count">0</span>
+      <span class="notes-panel-hint">&mdash; click to expand</span>
+      <span class="notes-panel-chevron" id="notes-panel-chevron">&#9660;</span>
+    </button>
+    <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+  </div>
 </div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
+
 <nav class="section-nav">
-<button class="nav-tab" data-target="sec-tcp" onclick="navTo('sec-tcp')">Follow TCP Stream</button><button class="nav-tab" data-target="sec-udp" onclick="navTo('sec-udp')">Follow UDP</button><button class="nav-tab" data-target="sec-tls" onclick="navTo('sec-tls')">TLS Decryption</button><button class="nav-tab" data-target="sec-application" onclick="navTo('sec-application')">Application Analysis</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+  <button class="nav-tab active" data-target="sec-basics" onclick="navTo('sec-basics')">Basics of Reassembly</button>
+  <button class="nav-tab" data-target="sec-udp" onclick="navTo('sec-udp')">Follow UDP</button>
+  <button class="nav-tab" data-target="sec-tcp" onclick="navTo('sec-tcp')">Follow TCP</button>
+  <button class="nav-tab" data-target="sec-filetypes" onclick="navTo('sec-filetypes')">File Type IDs</button>
+  <button class="nav-tab" data-target="sec-ftp" onclick="navTo('sec-ftp')">Reassemble FTP</button>
+  <button class="nav-tab" data-target="sec-ssl" onclick="navTo('sec-ssl')">Follow SSL</button>
+  <button class="nav-tab" data-target="sec-smb" onclick="navTo('sec-smb')">Reassemble SMB</button>
+  <button class="nav-tab" data-target="sec-casestudy" onclick="navTo('sec-casestudy')">Case Study</button>
+  <button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Qs</button>
 </nav>
+
 <main>
 <div class="main-content">
-<div class="insight-block" id="ins-tcp"><div class="insight-hdr" onclick="toggleInsight('ins-tcp')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · FOLLOW TCP STREAM</span></div><div class="ins-body"><p class="ins-q">Follow TCP Stream reassembles all TCP segments for a connection and shows the application-layer data. Why does this matter for protocols like HTTP and FTP that span multiple TCP segments?</p><textarea class="ins-ta" data-key="ins-tcp" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-tcp" onclick="saveIns('ins-tcp')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-tcp')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-tcp" onclick="toggleInsModel('ins-tcp')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-tcp" style="display:none"><div class="hm-label">HINT</div><p>A single HTTP response may be split across 20 TCP segments. How does the packet list show this, and what does Follow Stream show?</p></div><div class="ins-model-box" id="model-ins-tcp" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>In the packet list, a large HTTP response appears as 20+ individual TCP segments with Info column showing 'TCP segment of a reassembled PDU'. The actual HTTP headers and body are not visible without reassembly. Follow TCP Stream stitches all 20 segments together and shows the complete HTTP response as text — headers first (blue = client, red = server in default coloring), then the body. This is how you read credentials sent in HTTP forms, see the actual HTML returned, or identify what data was exfiltrated.</p></div></div></div><div class="section-block" id="sec-tcp"><h2>Follow TCP Stream</h2><p>Right-click any TCP packet → <strong>Follow → TCP Stream</strong> (or Analyze → Follow → TCP Stream). Wireshark reassembles the entire TCP connection and displays application-layer data.</p><h3>Stream Window Features</h3><ul><li><strong>Color coding</strong>: blue = client-to-server, red = server-to-client (default)</li><li><strong>Display format</strong>: ASCII (text), Hex Dump (hex+ASCII), C Arrays, Raw bytes, YAML</li><li><strong>Stream selector</strong>: arrow buttons to navigate to next/previous TCP stream</li><li><strong>Filter button</strong>: applies display filter <code>tcp.stream eq N</code> to the packet list</li><li><strong>Save As</strong>: export the stream content as a file</li></ul><h3>What You Can See</h3><ul><li>HTTP usernames and passwords (in plain HTTP)</li><li>FTP credentials and file content</li><li>SMTP email content and headers</li><li>POP3 email retrieval</li><li>Any clear-text application protocol</li></ul><div class="callout callout-callout-red"><strong>SECURITY NOTE</strong>In a clear-text HTTP or FTP session, Follow TCP Stream shows usernames, passwords, cookies, and email content in full. This demonstrates exactly why encryption is essential — any observer on the network path can read this data.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Follow TCP Stream: right-click → Follow → TCP Stream. Blue = client, Red = server. Stream index (tcp.stream) uniquely identifies each TCP connection in the capture. Use 'Save As' to export file content (images, documents) transferred in HTTP or FTP.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig153-following-streams-provides-a-clear-view-of-commands.png" alt="Figure 153: shows the result of following the TCP stream of an FTP command session. By default, Wireshark color codes the conversation in the streams window—red for traffic from the client (the host in" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 153 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 153.</strong> shows the result of following the TCP stream of an FTP command session. By default, Wireshark color codes the conversation in the streams window—red for traffic from the client (the host in</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig154-you-can-recreate-a-video-stream-using-follow.png" alt="Figure 154: shows a UDP stream in the background. Upon reassembling the UDP stream, a display filter was created for the UDP conversation -  (ip.addr eq 192.168.1.12 and ip.addr eq 239.255.0.1) and (ud" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 154 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 154.</strong> shows a UDP stream in the background. Upon reassembling the UDP stream, a display filter was created for the UDP conversation -  (ip.addr eq 192.168.1.12 and ip.addr eq 239.255.0.1) and (ud</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig156-reassembling-an-http-session-provides-details-on-the.png" alt="Figure 156: shows a reassembled web browsing session on World IPv6 Day (June 8, 2011). We can see what browser is used for the browsing session (Firefox), the target (scanmev6.nmap.org) and the OS" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 156 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 156.</strong> shows a reassembled web browsing session on World IPv6 Day (June 8, 2011). We can see what browser is used for the browsing session (Firefox), the target (scanmev6.nmap.org) and the OS</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig157-reassembling-an-http-post-session.png" alt="Figure 157: Reassembling an HTTP post session" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 157 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 157.</strong> Reassembling an HTTP post session</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig159-create-a-filter-for-the-port-command-or.png" alt="Figure 159: shows an FTP communication using a dynamic port number for the data transfer." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 159 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 159.</strong> shows an FTP communication using a dynamic port number for the data transfer.</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-tcp" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('tcp','Follow TCP Stream')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-tcp" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('tcp')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-udp"><div class="insight-hdr" onclick="toggleInsight('ins-udp')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · FOLLOW UDP STREAM</span></div><div class="ins-body"><p class="ins-q">UDP has no connection concept. How does Wireshark define a 'UDP stream' for the Follow UDP Stream feature?</p><textarea class="ins-ta" data-key="ins-udp" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-udp" onclick="saveIns('ins-udp')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-udp')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-udp" onclick="toggleInsModel('ins-udp')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-udp" style="display:none"><div class="hm-label">HINT</div><p>Without SYN/FIN handshake, how does Wireshark group UDP datagrams together?</p></div><div class="ins-model-box" id="model-ins-udp" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Wireshark groups UDP datagrams by the 5-tuple: source IP, destination IP, source port, destination port, and protocol. All datagrams with the same 5-tuple are considered one 'stream'. For protocols like DNS (each query is a new source port), each query-response pair is a separate stream. For TFTP and RTP, the stream groups all datagrams in the same flow. Unlike TCP stream, UDP datagrams are shown in capture order without reassembly (UDP has no ordering or sequencing).</p></div></div></div><div class="section-block" id="sec-udp"><h2>Follow UDP Stream</h2><p>Right-click any UDP packet → <strong>Follow → UDP Stream</strong>. Groups UDP datagrams by 5-tuple and displays them in order.</p><p>Unlike TCP stream, there's no reassembly — each UDP datagram is discrete. Useful for:</p><ul><li><strong>DNS analysis</strong> — see query and response text together</li><li><strong>TFTP</strong> — see file transfer blocks (TFTP runs over UDP)</li><li><strong>SNMP</strong> — see MIB values in OID queries and responses</li><li><strong>Custom UDP protocols</strong> — read raw payload as ASCII or hex</li></ul><div class="callout callout-callout-blue"><strong>UDP STREAM ID</strong>Wireshark assigns each UDP flow a stream index (udp.stream). Apply filter <code>udp.stream eq N</code> to isolate that flow in the packet list — same as TCP stream workflow.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Follow UDP Stream groups by 5-tuple (not connection-based). No reassembly — datagrams shown in order. Each DNS query-response pair is a separate stream (different source ports). Use for DNS, TFTP, SNMP, and custom UDP protocols to read payload content.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig155-the-stream-index-value-is-in-the-tcp.png" alt="Figure 155: The Stream Index value is in the TCP header" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 155 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 155.</strong> The Stream Index value is in the TCP header</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-udp" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('udp','Follow UDP')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-udp" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('udp')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-tls"><div class="insight-hdr" onclick="toggleInsight('ins-tls')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · TLS STREAM DECRYPTION</span></div><div class="ins-body"><p class="ins-q">Wireshark can decrypt TLS using either an RSA private key or a pre-master secret log file. What is the fundamental advantage of the SSLKEYLOGFILE approach over the RSA key approach?</p><textarea class="ins-ta" data-key="ins-tls" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-tls" onclick="saveIns('ins-tls')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-tls')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-tls" onclick="toggleInsModel('ins-tls')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-tls" style="display:none"><div class="hm-label">HINT</div><p>Think about Perfect Forward Secrecy and what happens to session keys if only the server's RSA private key is available.</p></div><div class="ins-model-box" id="model-ins-tls" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>RSA key exchange: the client encrypts the pre-master secret with the server's RSA public key. If you have the server's RSA private key, you can decrypt the pre-master secret and derive the session keys. However, if the cipher suite uses ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) — which all modern TLS 1.2+ sessions do for Perfect Forward Secrecy — the session keys are ephemeral and cannot be derived from the RSA private key alone. SSLKEYLOGFILE captures the actual session keys at the moment they're generated in the browser/application, working for ALL cipher suites including ECDHE.</p></div></div></div><div class="section-block" id="sec-tls"><h2>TLS/SSL Stream Decryption</h2><p>TLS-encrypted traffic appears as opaque ciphertext in the packet list. Wireshark can decrypt it with the right key material.</p><h3>Method 1: RSA Private Key</h3><p>Preferences → Protocols → TLS → RSA keys list → add server's private key (PEM format), IP, port, protocol. Works ONLY for RSA key exchange cipher suites (TLS_RSA_*). Fails for ECDHE/PFS ciphersuites.</p><h3>Method 2: Pre-Master Secret Log (SSLKEYLOGFILE)</h3><p>Set the environment variable before launching the browser:</p><p><code>export SSLKEYLOGFILE=/tmp/tls-keys.log</code></p><p>Browse normally. The browser writes session keys to the log file. In Wireshark: Preferences → Protocols → TLS → (Pre)-Master-Secret log filename → point to the file.</p><p>Works for <strong>all cipher suites</strong> including ECDHE (TLS 1.2 and 1.3).</p><h3>After Decryption</h3><p>Decrypted traffic appears in the packet list with the inner protocol name (HTTP, HTTP/2, etc.). Right-click → Follow → TLS Stream shows the decrypted application data.</p><div class="callout callout-callout-green"><strong>ECDHE + SSLKEYLOGFILE</strong>For modern HTTPS: always use SSLKEYLOGFILE. RSA key decryption is a legacy approach that fails for Perfect Forward Secrecy sessions, which is the default for all major browsers since ~2015.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">TLS decryption: RSA key works only for RSA cipher suites (legacy); SSLKEYLOGFILE works for everything including ECDHE (PFS). Set SSLKEYLOGFILE env var before launching Chrome/Firefox. Configure path in Preferences → TLS. Decrypted traffic shows inner protocol (HTTP/2) in packet list.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig160-the-rsasnakeoil2-pcap-trace-contains-ssl-traffic-until.png" alt="Figure 160: shows the rsasnakeoil2.pcap trace file. We have not configured the SSL protocol with a link to the RSA key so no data is available when we follow the SSL stream." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 160 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 160.</strong> shows the rsasnakeoil2.pcap trace file. We have not configured the SSL protocol with a link to the RSA key so no data is available when we follow the SSL stream.</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig161-adding-the-rsa-key-setting-in-the-ssl.png" alt="Figure 161: Adding the RSA key setting in the SSL preferences" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 161 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 161.</strong> Adding the RSA key setting in the SSL preferences</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig162-follow-the-ssl-stream-after-applying-the-rsa.png" alt="Figure 162: Follow the SSL stream after applying the RSA key to see the traffic clearly" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 162 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 162.</strong> Follow the SSL stream after applying the RSA key to see the traffic clearly</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-tls" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('tls','TLS Decryption')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-tls" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('tls')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-application"><h2>Using Streams for Application Analysis</h2><p>Stream analysis techniques for common scenarios:</p><h3>Identify Transferred Files</h3><p>Follow TCP Stream → Save As to extract transferred files from HTTP (images, documents) or FTP sessions. Look for headers identifying the content type (<code>Content-Type: application/pdf</code>).</p><h3>Credential Hunting</h3><p>In FTP: USER and PASS commands are in clear text. In HTTP Basic Auth: Authorization header contains base64-encoded credentials (easily decoded). In SMTP AUTH: base64 credentials in the AUTH command. Follow TCP Stream and search for these patterns.</p><h3>Application Errors</h3><p>When users report 'the application fails', Follow TCP Stream on the failing session often reveals specific error messages from the server that don't appear in Wireshark's summary columns — database errors, application stack traces, configuration messages.</p><div class="callout callout-callout-amber"><strong>EXPORT OBJECTS</strong>Beyond Follow Stream: File → Export Objects → HTTP extracts all HTTP-transferred objects (images, scripts, documents) from the entire capture at once. File → Export Objects → FTP-DATA extracts FTP file transfers.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Stream analysis use cases: (1) read credentials in clear-text protocols; (2) extract transferred files (Save As or Export Objects); (3) read server error messages not shown in packet list Info column; (4) reconstruct email content in SMTP/POP3/IMAP sessions.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig158-sometimes-you-need-to-extract-a-file-from.png" alt="Figure 158: Sometimes you need to extract a file from inside a stream  Identify Common File Types Files begin with file identifiers that indicate the application used to create" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 158 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 158.</strong> Sometimes you need to extract a file from inside a stream  Identify Common File Types Files begin with file identifiers that indicate the application used to create</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-application" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('application','Application Analysis')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-application" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('application')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 10</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Follow TCP Stream reassembles all segments for a connection and shows application-layer data in ASCII or hex — reads credentials, file content, and server errors. Follow UDP Stream groups by 5-tuple. TLS decryption: use SSLKEYLOGFILE (works for all cipher suites including ECDHE/PFS); RSA key only works for legacy RSA cipher suites. Export Objects extracts all HTTP/FTP-transferred files at once.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q10.1</div><div class="rq-q">What does Follow TCP Stream do with multiple TCP segments that carry a single large HTTP response?</div><textarea class="rq-ta" data-key="rq-10-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-10-1" onclick="saveRQ('10-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('10-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-10-1" onclick="toggleRQAns('10-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-10-1" style="display:none"><div class="hm-label">HINT</div><p>Think about how TCP segments relate to application-layer messages.</p></div><div class="rq-ans-box" id="rqans-10-1" style="display:none"><div class="hm-label">ANSWER</div><p>Follow TCP Stream reassembles all TCP segments for the connection in sequence, stitching together the fragmented application-layer data into a single view. A 50KB HTTP response split across 35 TCP segments appears as complete HTTP headers followed by the full response body. Client data is shown in blue; server data in red. This allows reading the complete application exchange without manually correlating 35 individual segment packets.</p></div></div><div class="rq-card"><div class="rq-num">Q10.2</div><div class="rq-q">Why does TLS decryption using the server's RSA private key fail for modern HTTPS sessions?</div><textarea class="rq-ta" data-key="rq-10-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-10-2" onclick="saveRQ('10-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('10-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-10-2" onclick="toggleRQAns('10-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-10-2" style="display:none"><div class="hm-label">HINT</div><p>What cipher suite property prevents RSA private key decryption?</p></div><div class="rq-ans-box" id="rqans-10-2" style="display:none"><div class="hm-label">ANSWER</div><p>Modern HTTPS uses ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) cipher suites for Perfect Forward Secrecy. In ECDHE, the session keys are generated from ephemeral key pairs negotiated fresh for each session — the server's RSA private key is only used to authenticate the server identity (sign the DH parameters), not to encrypt the session key. Therefore, even with the RSA private key, you cannot derive the session keys for ECDHE sessions. SSLKEYLOGFILE captures the actual ephemeral session keys at generation time, bypassing this limitation.</p></div></div><div class="rq-card"><div class="rq-num">Q10.3</div><div class="rq-q">How would you extract a PDF file transferred over an unencrypted HTTP connection from a Wireshark capture?</div><textarea class="rq-ta" data-key="rq-10-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-10-3" onclick="saveRQ('10-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('10-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-10-3" onclick="toggleRQAns('10-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-10-3" style="display:none"><div class="hm-label">HINT</div><p>There are two approaches — one manual, one automated.</p></div><div class="rq-ans-box" id="rqans-10-3" style="display:none"><div class="hm-label">ANSWER</div><p>(1) Automated: File → Export Objects → HTTP. Wireshark lists all HTTP objects transferred in the capture; find the PDF by name or Content-Type and click Save. (2) Manual: right-click a TCP packet from the HTTP session → Follow → TCP Stream. In the stream window, the PDF binary data is visible. Switch to 'Raw' mode, select server data only, Save As with a .pdf extension. Method 1 is faster for multiple files; method 2 works when the automated export misses a file.</p></div></div></div>
-</div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 10 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Follow Shortcuts</h4><div class="qr-row"><span class="qr-term">Right-click → Follow</span><span class="qr-def">Open stream dialog</span></div><div class="qr-row"><span class="qr-term">TCP Stream</span><span class="qr-def">Reassembled TCP</span></div><div class="qr-row"><span class="qr-term">UDP Stream</span><span class="qr-def">UDP datagrams</span></div><div class="qr-row"><span class="qr-term">TLS Stream</span><span class="qr-def">Decrypted TLS</span></div><h4>Display Options</h4><div class="qr-row"><span class="qr-term">ASCII</span><span class="qr-def">Human-readable text</span></div><div class="qr-row"><span class="qr-term">Hex Dump</span><span class="qr-def">Binary + ASCII side-by-side</span></div><div class="qr-row"><span class="qr-term">Raw</span><span class="qr-def">Raw bytes only</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 7 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 10: Follow Streams</div>
-</footer>
-<script>
 
+<!-- ============================================================ -->
+<!-- SECTION 1: BASICS OF TRAFFIC REASSEMBLY -->
+<!-- ============================================================ -->
+
+<div class="insight-block" id="ins-basics">
+  <div class="insight-hdr" onclick="toggleInsight('ins-basics')">
+    <span class="ins-icon">&#128161;</span>
+    <span class="ins-label">THINK FIRST &middot; BASICS OF REASSEMBLY</span>
+  </div>
+  <div class="ins-body">
+    <p class="ins-q">What does Wireshark strip away when it follows a stream, and why does removing those headers make the conversation more readable?</p>
+    <p class="ins-q">When you right-click a packet to follow a stream, what determines whether TCP, UDP, or SSL options appear in the menu?</p>
+    <textarea class="ins-ta" data-key="ins-basics" placeholder="Write your thoughts before reading the section..."></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" id="savebtn-ins-basics" onclick="saveIns('ins-basics')">Save Answer</button>
+      <button class="btn-model-ins" id="mibtn-ins-basics" onclick="toggleInsModel('ins-basics')" disabled>&#128274; Model Answer</button>
+    </div>
+    <div class="ins-model-box" id="model-ins-basics" style="display:none">
+      <div class="hm-label">MODEL ANSWER</div>
+      <p>Wireshark strips the MAC (data link), IP (network), and TCP or UDP (transport) headers, leaving only the application-layer payload. Without these framing headers, the raw commands, HTTP requests, or file bytes that make up the actual conversation become immediately visible and readable.</p>
+      <p>The right-click menu options depend on which protocol header the selected packet contains. If the packet has a TCP header, Follow TCP Stream is available; a UDP header reveals Follow UDP Stream; an SSL/TLS record triggers Follow SSL Stream. Selecting an ARP packet, for example, shows none of these options because ARP has no TCP, UDP, or SSL layer.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sec-basics">
+  <h2>The Basics of Traffic Reassembly</h2>
+
+  <p>Wireshark offers the ability to follow communication streams. The <strong>Follow Streams</strong> process reassembles the communications (minus the MAC header, network header, and transport headers).</p>
+
+  <p>Figure 153 shows the result of following the TCP stream of an FTP command session. By default, Wireshark color codes the conversation in the streams window&mdash;<strong>red for traffic from the client</strong> (the host initiating the conversation) and <strong>blue for traffic from the server</strong>. You can change the color coding using <strong>Edit | Preferences | Colors</strong>.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig153-following-streams-provides-a-clear-view-of-commands.png"
+           alt="Figure 153: Following streams provides a clear view of commands and data transferred"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 153 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 153.</strong> Following streams provides a clear view of commands and data transferred [ftp-clientside.pcapng]</div>
+  </div>
+
+  <p>Right click on a packet in the Packet List pane or Packet Bytes pane to select <strong>Follow UDP Stream</strong>, <strong>Follow TCP Stream</strong>, or <strong>Follow SSL Stream</strong>. The traffic type that you have selected defines which option is available in the list.</p>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">&#129504;</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Follow Streams strips MAC, IP, and transport headers to show only application-layer payload. Red = client traffic, Blue = server traffic (configurable under Edit | Preferences | Colors). The right-click menu option shown depends entirely on which transport-layer header the selected packet contains.</div>
+    </div>
+  </div>
+
+  <div class="lesson-tools">
+    <div class="lesson-tools-grid">
+      <div>
+        <div class="tool-label">Ask a Question</div>
+        <textarea class="tool-textarea" id="q-basics" placeholder="What are you unsure about?" rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('basics','Basics of Reassembly')">Add Question</button></div>
+      </div>
+      <div>
+        <div class="tool-label">Add a Note</div>
+        <textarea class="tool-textarea" id="note-basics" placeholder="Key insight to remember..." rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addNote('basics')">+ Add Note</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: FOLLOW AND REASSEMBLE UDP -->
+<!-- ============================================================ -->
+
+<div class="insight-block" id="ins-udp">
+  <div class="insight-hdr" onclick="toggleInsight('ins-udp')">
+    <span class="ins-icon">&#128161;</span>
+    <span class="ins-label">THINK FIRST &middot; FOLLOW UDP STREAMS</span>
+  </div>
+  <div class="ins-body">
+    <p class="ins-q">UDP is connectionless and has no built-in sequencing. How does Wireshark still manage to reassemble a coherent stream from UDP packets?</p>
+    <p class="ins-q">What is the key limitation on reassembling UDP data that would prevent you from recovering a video stream this way?</p>
+    <textarea class="ins-ta" data-key="ins-udp" placeholder="Write your thoughts before reading the section..."></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" id="savebtn-ins-udp" onclick="saveIns('ins-udp')">Save Answer</button>
+      <button class="btn-model-ins" id="mibtn-ins-udp" onclick="toggleInsModel('ins-udp')" disabled>&#128274; Model Answer</button>
+    </div>
+    <div class="ins-model-box" id="model-ins-udp" style="display:none">
+      <div class="hm-label">MODEL ANSWER</div>
+      <p>Wireshark uses the source and destination IP addresses and port numbers to group UDP datagrams into a single conversation. Because UDP carries no sequence numbers, Wireshark presents the payloads in the order they were captured rather than in any application-guaranteed order.</p>
+      <p>The critical limitation is encryption: if the UDP stream is encrypted (for example, SRTP for secured VoIP), the reassembled data is unreadable ciphertext. For VoIP RTP streams specifically, you should use Telephony | VoIP Calls | Player | Decode instead of Follow UDP Stream to play back an unencrypted call.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sec-udp">
+  <h2>Follow and Reassemble UDP Conversations</h2>
+
+  <p>As long as the traffic has a UDP header, the option to <strong>Follow UDP Stream</strong> is available. Right click on a UDP packet and select <strong>Follow UDP Stream</strong>.</p>
+
+  <p>One example of using UDP stream reassembly is the process of reassembling a <strong>multicast video stream</strong>. As long as the video data is not encrypted, you can reassemble the data, use <strong>Save As</strong> to save the video stream in a video file format, and open and replay it with a video player.</p>
+
+  <div class="callout callout-blue">
+    <strong>TIP &mdash; Consider VLC Player to Play Back Exported Video Files</strong>
+    We recommend VLC Player, an open source media player able to read numerous audio and video formats (MPEG-2, MPEG-4, H.264, DivX, MPEG-1, mp3, ogg, aac, and more) as well as various streaming protocols. For more information on VLC, visit www.videolan.org.
+  </div>
+
+  <p>Figure 154 shows a UDP stream in the background. Upon reassembling the UDP stream, a display filter was created for the UDP conversation: <code>(ip.addr eq 192.168.1.12 and ip.addr eq 239.255.0.1) and (udp.port eq 1024 and udp.port eq 8001)</code>. In the Stream Content window the data is displayed in raw format by default. Clicking <strong>Save As</strong>, the data was saved in a file called <em>videostream1</em>. VLC Player automatically detected the video type and could open and play the video.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig154-you-can-recreate-a-video-stream-using-follow.png"
+           alt="Figure 154: You can recreate a video stream using Follow UDP Stream"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 154 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 154.</strong> You can recreate a video stream using Follow UDP Stream [udp-mcaststream-queued2.pcapng]</div>
+  </div>
+
+  <div class="callout callout-amber">
+    <strong>NOTE &mdash; VoIP RTP Streams</strong>
+    If the UDP stream you are examining is a VoIP RTP stream, use <strong>Telephony | VoIP Calls | &lt;select call&gt; | Player | Decode</strong> to reassemble an unencrypted VoIP call. Try this with voip-extension2downata.pcapng. For more information, read Chapter 27: Introduction to Voice over IP (VoIP) Analysis.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">&#129504;</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Follow UDP Stream works on any traffic with a UDP header. It can reassemble multicast video streams which can then be saved and played by VLC Player. For VoIP RTP streams, use Telephony | VoIP Calls | Player | Decode instead. The key requirement: the UDP payload must not be encrypted.</div>
+    </div>
+  </div>
+
+  <div class="lesson-tools">
+    <div class="lesson-tools-grid">
+      <div>
+        <div class="tool-label">Ask a Question</div>
+        <textarea class="tool-textarea" id="q-udp" placeholder="What are you unsure about?" rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('udp','Follow UDP')">Add Question</button></div>
+      </div>
+      <div>
+        <div class="tool-label">Add a Note</div>
+        <textarea class="tool-textarea" id="note-udp" placeholder="Key insight to remember..." rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addNote('udp')">+ Add Note</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: FOLLOW AND REASSEMBLE TCP -->
+<!-- ============================================================ -->
+
+<div class="insight-block" id="ins-tcp">
+  <div class="insight-hdr" onclick="toggleInsight('ins-tcp')">
+    <span class="ins-icon">&#128161;</span>
+    <span class="ins-label">THINK FIRST &middot; FOLLOW TCP STREAMS</span>
+  </div>
+  <div class="ins-body">
+    <p class="ins-q">When you follow a TCP stream, Wireshark applies a display filter using a stream index number. What problem does this cause after you finish examining the stream, and how do you fix it?</p>
+    <p class="ins-q">How does the JFIF file identifier help you recover a JPEG image from within a raw TCP stream even if you do not know the filename?</p>
+    <textarea class="ins-ta" data-key="ins-tcp" placeholder="Write your thoughts before reading the section..."></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" id="savebtn-ins-tcp" onclick="saveIns('ins-tcp')">Save Answer</button>
+      <button class="btn-model-ins" id="mibtn-ins-tcp" onclick="toggleInsModel('ins-tcp')" disabled>&#128274; Model Answer</button>
+    </div>
+    <div class="ins-model-box" id="model-ins-tcp" style="display:none">
+      <div class="hm-label">MODEL ANSWER</div>
+      <p>When Wireshark follows a TCP stream it sets a display filter in the format <code>tcp.stream eq X</code>, which hides every packet not belonging to that conversation. If you save or continue analysis, you only see that one stream. You must clear the display filter to restore the full trace view.</p>
+      <p>Every file format begins with a unique sequence of bytes called a file identifier (or magic bytes). For JPEG, the identifier is <code>FF D8 FF</code> and the label JFIF appears near the start of the payload. Switching the stream view to hex dump and searching for these bytes pinpoints where the image data starts. You can then save the entire stream as a .jpg file and open it directly.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sec-tcp">
+  <h2>Follow and Reassemble TCP Conversations</h2>
+
+  <p>You can reassemble web browsing sessions, FTP command channel sessions, FTP data transfer channel sessions, or any other TCP-based communications. Right click on a TCP packet and select <strong>Follow TCP Stream</strong>.</p>
+
+  <p>In some cases, you will see commands and application headers prefacing the data being transferred. For example, when reassembling an HTTP web browsing session, you will see the GET requests from the clients and the HTTP response codes from the server as well as the data that is being transferred.</p>
+
+  <p>When you follow TCP streams, a display filter based on the <strong>TCP stream index number</strong> is used. The format of the filter is <code>tcp.stream eq x</code>. This filter syntax is also used when you follow SSL streams. The <em>tcp.stream</em> index value is shown in Figure 155. Use this field to filter on a conversation from the Packet Details pane.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig155-the-stream-index-value-is-in-the-tcp.png"
+           alt="Figure 155: The Stream Index value is in the TCP header"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 155 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 155.</strong> The Stream Index value is in the TCP header [ipv6-worldipv6day.pcapng]</div>
+  </div>
+
+  <p>Figure 156 shows a reassembled web browsing session on World IPv6 Day (June 8, 2011). We can see what browser is used for the browsing session (Firefox), the target (scanmev6.nmap.org), and the OS type of the target (Ubuntu).</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig156-reassembling-an-http-session-provides-details-on-the.png"
+           alt="Figure 156: Reassembling an HTTP session provides details on the HTTP requests and responses"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 156 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 156.</strong> Reassembling an HTTP session provides details on the HTTP requests and responses [ipv6-worldipv6day.pcapng]</div>
+  </div>
+
+  <p>When analyzing or troubleshooting HTTP communications, <strong>Follow TCP Stream</strong> can be very useful to examine commands and responses. In Figure 157 we reassembled an HTTP POST process where we can clearly see the data being sent from the client to the HTTP server. In this case, a user is filling out an online form on a web server.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig157-reassembling-an-http-post-session.png"
+           alt="Figure 157: Reassembling an HTTP post session"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 157 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 157.</strong> Reassembling an HTTP post session [http-fault-post.pcapng]</div>
+  </div>
+
+  <p>What if we want to reassemble data in an HTTP communication? One option is to choose <strong>File | Export | Objects | HTTP</strong> to extract the objects downloaded during the entire HTTP session.</p>
+
+  <p>In some cases, however, you need to look through the data stream to find an embedded file. You can use a file extension or a <strong>file identifier</strong> to determine the type of file transferred. The file identifier is contained in the leading bytes of a file and is used to define whether a file is a Word document, a trace file, an Excel spreadsheet, an Open Office document, etc.</p>
+
+  <p>In Figure 158, a TCP stream contains a graphics file. We can determine this by a file identifier&mdash;<strong>JFIF</strong> (JPEG File Interchange Format). In Wireshark, we can save the entire TCP stream as a .jpg file using <strong>Save As</strong>. We can then view the file clearly.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig158-sometimes-you-need-to-extract-a-file-from.png"
+           alt="Figure 158: Sometimes you need to extract a file from inside a stream"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 158 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 158.</strong> Sometimes you need to extract a file from inside a stream [ftp-clientside.pcapng]</div>
+  </div>
+
+  <div class="callout callout-amber">
+    <strong>IMPORTANT</strong>
+    When you follow a stream, Wireshark applies a display filter for the conversation based on the TCP stream index. You must <strong>clear this filter</strong> to see the entire contents of the saved or unsaved trace.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">&#129504;</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Follow TCP Stream filter format: <strong>tcp.stream eq X</strong> (same syntax applies for SSL streams). After following, always clear the filter to restore full trace view. HTTP objects can also be extracted via File | Export Objects | HTTP. Use hex dump view and file identifiers (magic bytes) to locate and extract embedded files from streams.</div>
+    </div>
+  </div>
+
+  <div class="lesson-tools">
+    <div class="lesson-tools-grid">
+      <div>
+        <div class="tool-label">Ask a Question</div>
+        <textarea class="tool-textarea" id="q-tcp" placeholder="What are you unsure about?" rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('tcp','Follow TCP')">Add Question</button></div>
+      </div>
+      <div>
+        <div class="tool-label">Add a Note</div>
+        <textarea class="tool-textarea" id="note-tcp" placeholder="Key insight to remember..." rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addNote('tcp')">+ Add Note</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: IDENTIFY COMMON FILE TYPES -->
+<!-- ============================================================ -->
+
+<div class="insight-block" id="ins-filetypes">
+  <div class="insight-hdr" onclick="toggleInsight('ins-filetypes')">
+    <span class="ins-icon">&#128161;</span>
+    <span class="ins-label">THINK FIRST &middot; FILE TYPE IDENTIFIERS</span>
+  </div>
+  <div class="ins-body">
+    <p class="ins-q">Why can you not always rely on a file extension to identify the type of data embedded in a TCP stream, and what is a more reliable method?</p>
+    <p class="ins-q">Several file types (Excel .xls, PowerPoint .ppt, Word .doc) share the same leading hex bytes. What does that tell you about the relationship between those legacy Office formats?</p>
+    <textarea class="ins-ta" data-key="ins-filetypes" placeholder="Write your thoughts before reading the section..."></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" id="savebtn-ins-filetypes" onclick="saveIns('ins-filetypes')">Save Answer</button>
+      <button class="btn-model-ins" id="mibtn-ins-filetypes" onclick="toggleInsModel('ins-filetypes')" disabled>&#128274; Model Answer</button>
+    </div>
+    <div class="ins-model-box" id="model-ins-filetypes" style="display:none">
+      <div class="hm-label">MODEL ANSWER</div>
+      <p>File extensions can be renamed, spoofed, or simply absent from raw stream data. The file identifier (magic bytes) embedded in the first bytes of the file is written by the creating application and cannot be as easily changed. Switching the stream to hex dump view and searching for known identifier patterns gives a reliable, application-independent way to identify the content.</p>
+      <p>Excel .xls, Word .doc, and PowerPoint .ppt all start with <code>D0 CF 11 E0 A1 B1 1A E1</code> because they all use the same Compound Document File Format (OLE2), Microsoft's legacy container format. The shared magic bytes reflect a shared underlying structure, not just a naming convention.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sec-filetypes">
+  <h2>Identify Common File Types</h2>
+
+  <p>Files begin with <strong>file identifiers</strong> that indicate the application used to create or open the file. The following list provides some basic file identifier values. View streams in <strong>hex dump format</strong> so you can use the Find feature to locate these hex values in a stream.</p>
+
+  <p>For more information on file types and file extensions, visit <strong>mark0.net/soft-trid-deflist.html</strong>.</p>
+
+  <table class="def-table">
+    <thead>
+      <tr><th>File Type</th><th>Extension</th><th>File Identifier (Hex)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Excel</td><td>.xls</td><td><code>D0 CF 11 E0 A1 B1 1A E1 00</code></td></tr>
+      <tr><td>JPEG Bitmap</td><td>.jpg</td><td><code>FF D8 FF</code></td></tr>
+      <tr><td>Open Office Document</td><td>.odp</td><td><code>50 4B 03 04</code></td></tr>
+      <tr><td>Portable Network Graphics</td><td>.png</td><td><code>89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52</code></td></tr>
+      <tr><td>PowerPoint Slide Deck</td><td>.ppt</td><td><code>D0 CF 11 E0 A1 B1 1A E1 00</code></td></tr>
+      <tr><td>PowerPoint XML</td><td>.pptx</td><td><code>50 4B 03 04</code></td></tr>
+      <tr><td>Word</td><td>.doc</td><td><code>D0 CF 11 E0 A1 B1 1A E1</code></td></tr>
+      <tr><td>Word 2007</td><td>.docx</td><td><code>50 4B 03 04</code></td></tr>
+      <tr><td>PK Zip File</td><td>.zip</td><td><code>50 4B 03 04</code></td></tr>
+      <tr><td>Packet Capture File</td><td>.pcap</td><td><code>D4 C3 B2 A1</code></td></tr>
+      <tr><td>Packet Capture File</td><td>.pcapng</td><td><code>0A 0D 0D 0A</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-blue">
+    <strong>TIP</strong>
+    Note that .docx, .pptx, .xlsx, .odp, and .zip all share the identifier <code>50 4B 03 04</code> because modern Office XML formats and Open Office files are actually ZIP containers. Use the filename in the FTP command channel or context clues to distinguish them when magic bytes are identical.
+  </div>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">&#129504;</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">Key file identifiers: JPEG = <strong>FF D8 FF</strong>; legacy Office (xls/doc/ppt) = <strong>D0 CF 11 E0</strong>; pcap = <strong>D4 C3 B2 A1</strong>; pcapng = <strong>0A 0D 0D 0A</strong>; ZIP/modern Office/ODP = <strong>50 4B 03 04</strong>. Switch stream to hex dump view and use Find to locate these bytes when extracting embedded files.</div>
+    </div>
+  </div>
+
+  <div class="lesson-tools">
+    <div class="lesson-tools-grid">
+      <div>
+        <div class="tool-label">Ask a Question</div>
+        <textarea class="tool-textarea" id="q-filetypes" placeholder="What are you unsure about?" rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filetypes','File Type IDs')">Add Question</button></div>
+      </div>
+      <div>
+        <div class="tool-label">Add a Note</div>
+        <textarea class="tool-textarea" id="note-filetypes" placeholder="Key insight to remember..." rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addNote('filetypes')">+ Add Note</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: REASSEMBLE AN FTP FILE TRANSFER -->
+<!-- ============================================================ -->
+
+<div class="insight-block" id="ins-ftp">
+  <div class="insight-hdr" onclick="toggleInsight('ins-ftp')">
+    <span class="ins-icon">&#128161;</span>
+    <span class="ins-label">THINK FIRST &middot; REASSEMBLE FTP TRANSFERS</span>
+  </div>
+  <div class="ins-body">
+    <p class="ins-q">FTP can transfer data on any port number dynamically negotiated at runtime. What are the two FTP command-channel indicators you filter on to discover which port the data channel is using?</p>
+    <p class="ins-q">What is the difference between an FTP passive (PASV) and active (PORT) data channel, and how does that affect which response or command you look for?</p>
+    <textarea class="ins-ta" data-key="ins-ftp" placeholder="Write your thoughts before reading the section..."></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" id="savebtn-ins-ftp" onclick="saveIns('ins-ftp')">Save Answer</button>
+      <button class="btn-model-ins" id="mibtn-ins-ftp" onclick="toggleInsModel('ins-ftp')" disabled>&#128274; Model Answer</button>
+    </div>
+    <div class="ins-model-box" id="model-ins-ftp" style="display:none">
+      <div class="hm-label">MODEL ANSWER</div>
+      <p>The filter <code>ftp.response.code==227 || ftp.request.command=="PORT"</code> targets the two FTP command-channel messages that reveal data-channel port information. Response code 227 is the server's reply to a PASV request, containing the IP and port the server will listen on. The PORT command is the client's declaration of its own IP and port for an active transfer.</p>
+      <p>In passive mode (PASV), the server opens a port and the client connects to it; the server's 227 response contains the data-channel address. In active mode (PORT), the client opens a port and the server connects back to it; the PORT command contains the client's data-channel address. Both messages appear on the FTP command channel, making them findable with a single filter.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sec-ftp">
+  <h2>Reassemble an FTP File Transfer</h2>
+
+  <p>It is an easy process to reassemble files transferred using FTP. The first step is to locate the <strong>FTP data channel</strong>. Refer to Chapter 24: Analyze File Transfer Protocol (FTP) Traffic for details on FTP command and data channels.</p>
+
+  <p>FTP data can run over any port number. Filter for <code>ftp.response.code==227 || ftp.request.command=="PORT"</code> to view the FTP command channel traffic that will indicate the port used for data transfer. The response code <strong>227</strong> indicates that a passive FTP data channel is being established. The FTP command <strong>PORT</strong> is used for an active command. Packets that match these two filters contain the IP address and port number of the data channel.</p>
+
+  <p>Figure 159 shows an FTP communication using a dynamic port number for the data transfer. Follow along&mdash;the trace file is called <em>ftp-download-good2.pcapng</em> (available at www.wiresharkbook.com).</p>
+
+  <p>In ftp-download-good2.pcapng, the client has requested that the server enter passive mode (PASV). In packet 8, the server indicates that it is entering passive mode and defines the port number it will use for the FTP communications&mdash;<strong>port 30189</strong>. Immediately following the response, the client completes the TCP handshake to port 30189. The client sends two more commands on the FTP command channel: <strong>SIZE</strong> and <strong>RETR</strong>. The RETR command is the request to transfer the file <em>OS Fingerprinting with ICMP.zip</em> (the name is truncated in the screenshot).</p>
+
+  <p>Once you know what port the FTP data transfer takes place on, right click on a packet in that data stream and select <strong>Follow TCP Stream</strong>.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig159-create-a-filter-for-the-port-command-or.png"
+           alt="Figure 159: Create a filter for the PORT command or a 227 response code to locate the port used for FTP data"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 159 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 159.</strong> Create a filter for the PORT command or a 227 response code to locate the port used for FTP data [ftp-download-good2.pcapng]</div>
+  </div>
+
+  <p>We can now right click on <strong>packet 9</strong>, the first packet of the data channel TCP handshake, and select <strong>Follow TCP Stream</strong>. We know this is a .zip file based on the file name. Selecting <strong>Save As</strong> and naming the file allows us to unzip and open the PDF file contained therein.</p>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">&#129504;</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">FTP reassembly workflow: (1) Filter <code>ftp.response.code==227 || ftp.request.command=="PORT"</code> to find data channel port. (2) Code 227 = passive mode server port; PORT command = active mode client port. (3) Right-click first packet of data channel TCP handshake &rarr; Follow TCP Stream &rarr; Save As. (4) Use filename or file identifier to confirm file type.</div>
+    </div>
+  </div>
+
+  <div class="lesson-tools">
+    <div class="lesson-tools-grid">
+      <div>
+        <div class="tool-label">Ask a Question</div>
+        <textarea class="tool-textarea" id="q-ftp" placeholder="What are you unsure about?" rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ftp','Reassemble FTP')">Add Question</button></div>
+      </div>
+      <div>
+        <div class="tool-label">Add a Note</div>
+        <textarea class="tool-textarea" id="note-ftp" placeholder="Key insight to remember..." rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addNote('ftp')">+ Add Note</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: FOLLOW AND REASSEMBLE SSL -->
+<!-- ============================================================ -->
+
+<div class="insight-block" id="ins-ssl">
+  <div class="insight-hdr" onclick="toggleInsight('ins-ssl')">
+    <span class="ins-icon">&#128161;</span>
+    <span class="ins-label">THINK FIRST &middot; FOLLOW SSL STREAMS</span>
+  </div>
+  <div class="ins-body">
+    <p class="ins-q">Why would the SSL Stream window appear completely blank even after you right-click and select Follow SSL Stream, and what single configuration step fixes it?</p>
+    <p class="ins-q">What four pieces of information must you supply when adding an RSA key to Wireshark's SSL protocol preferences?</p>
+    <textarea class="ins-ta" data-key="ins-ssl" placeholder="Write your thoughts before reading the section..."></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" id="savebtn-ins-ssl" onclick="saveIns('ins-ssl')">Save Answer</button>
+      <button class="btn-model-ins" id="mibtn-ins-ssl" onclick="toggleInsModel('ins-ssl')" disabled>&#128274; Model Answer</button>
+    </div>
+    <div class="ins-model-box" id="model-ins-ssl" style="display:none">
+      <div class="hm-label">MODEL ANSWER</div>
+      <p>The SSL Stream window is blank because the traffic is encrypted and Wireshark has not been given the private key needed to decrypt it. Until a valid RSA key is configured, all payload data remains ciphertext and the stream view shows nothing readable.</p>
+      <p>The four fields required in Edit | Preferences | Protocols | SSL are: (1) the IP address of the server in the trace, (2) the port number used for the SSL traffic, (3) the protocol type expected after decryption (e.g., http), and (4) the full filesystem path to the RSA private key file. Once configured, Wireshark re-decrypts the SSL session and the Follow SSL Stream view populates with cleartext application data.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sec-ssl">
+  <h2>Follow and Reassemble SSL Conversations</h2>
+
+  <p>Wireshark can decrypt SSL communications if you define RSA keys in <strong>Edit | Preferences | Protocols | SSL</strong>. For more information on SSL decryption and a sample SSL encrypted file, visit <em>Analyze TLS Encrypted Alerts</em> and wiki.wireshark.org/SSL.</p>
+
+  <p>In this example, the <em>rsasnakeoil2.pcap</em> file and the RSA decryption key were downloaded. A right-click on a decrypted SSL packet was performed and <strong>Follow SSL Streams</strong> was selected.</p>
+
+  <p>Figure 160 shows the rsasnakeoil2.pcap trace file. The SSL protocol has not yet been configured with a link to the RSA key, so no data is available when we follow the SSL stream.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig160-the-rsasnakeoil2-pcap-trace-contains-ssl-traffic-until.png"
+           alt="Figure 160: The rsasnakeoil2.pcap trace contains SSL traffic until we apply the RSA key"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 160 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 160.</strong> The rsasnakeoil2.pcap trace contains SSL traffic&mdash;until we apply the RSA key, the SSL stream is blank [rsasnakeoil2.pcap]</div>
+  </div>
+
+  <p>In Figure 161 we have entered the RSA key information in the SSL protocol section under preferences. The setting defines the IP address of a host in the trace file, the port number of the traffic to decrypt, the traffic type (after decryption), and the path and key file name.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig161-adding-the-rsa-key-setting-in-the-ssl.png"
+           alt="Figure 161: Adding the RSA key setting in the SSL preferences"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 161 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 161.</strong> Adding the RSA key setting in the SSL preferences</div>
+  </div>
+
+  <p>In Figure 162, we have applied the RSA key to the Wireshark SSL protocol configuration. When we follow the SSL stream in the rsasnakeoil2.pcap trace after setting up the RSA key, we can see the HTTP session contents and see the HTTP requests and responses clearly.</p>
+
+  <div class="figure-block">
+    <div class="fig-img-wrap">
+      <img src="figures/fig162-follow-the-ssl-stream-after-applying-the-rsa.png"
+           alt="Figure 162: Follow the SSL stream after applying the RSA key to see the traffic clearly"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">
+        <span class="fig-ph-icon">&#128247;</span>
+        <span>Figure 162 &mdash; open trace file to view</span>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Figure 162.</strong> Follow the SSL stream after applying the RSA key to see the traffic clearly [rsasnakeoil2.pcap]</div>
+  </div>
+
+  <p>For another example of decrypting and analyzing SSL streams, refer to <em>Analyze HTTPS Communications</em>.</p>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">&#129504;</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">SSL streams only show content after decryption. Configure RSA key under Edit | Preferences | Protocols | SSL with 4 fields: server IP, port, protocol-after-decrypt, and key file path. Follow SSL Stream uses the same <code>tcp.stream eq X</code> filter format as Follow TCP Stream. Practice trace: rsasnakeoil2.pcap + key from wiki.wireshark.org/SSL.</div>
+    </div>
+  </div>
+
+  <div class="lesson-tools">
+    <div class="lesson-tools-grid">
+      <div>
+        <div class="tool-label">Ask a Question</div>
+        <textarea class="tool-textarea" id="q-ssl" placeholder="What are you unsure about?" rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ssl','Follow SSL')">Add Question</button></div>
+      </div>
+      <div>
+        <div class="tool-label">Add a Note</div>
+        <textarea class="tool-textarea" id="note-ssl" placeholder="Key insight to remember..." rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addNote('ssl')">+ Add Note</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: REASSEMBLE AN SMB TRANSFER -->
+<!-- ============================================================ -->
+
+<div class="insight-block" id="ins-smb">
+  <div class="insight-hdr" onclick="toggleInsight('ins-smb')">
+    <span class="ins-icon">&#128161;</span>
+    <span class="ins-label">THINK FIRST &middot; REASSEMBLE SMB TRANSFERS</span>
+  </div>
+  <div class="ins-body">
+    <p class="ins-q">Why does Follow TCP Stream work poorly for SMB file transfers compared to using File | Export Objects | SMB?</p>
+    <p class="ins-q">What structural property of SMB makes it unsuitable for raw stream reassembly that simpler protocols like FTP do not have?</p>
+    <textarea class="ins-ta" data-key="ins-smb" placeholder="Write your thoughts before reading the section..."></textarea>
+    <div class="ins-btn-row">
+      <button class="btn-save-ins" id="savebtn-ins-smb" onclick="saveIns('ins-smb')">Save Answer</button>
+      <button class="btn-model-ins" id="mibtn-ins-smb" onclick="toggleInsModel('ins-smb')" disabled>&#128274; Model Answer</button>
+    </div>
+    <div class="ins-model-box" id="model-ins-smb" style="display:none">
+      <div class="hm-label">MODEL ANSWER</div>
+      <p>SMB is a highly conversational, request-response protocol. The client repeatedly requests chunks of data (e.g., the next 61,440 bytes) and the server replies. This back-and-forth means the raw TCP stream is cluttered with client requests and SMB response headers interspersed with the actual file data, making it nearly impossible to extract the clean file payload by hand.</p>
+      <p>File | Export Objects | SMB is Wireshark's built-in SMB-aware reassembler. It understands SMB semantics, strips all the protocol overhead, and presents the transferred objects directly. It is the correct tool precisely because it avoids the cleanup work that would be required when using the generic Follow TCP Stream approach.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-block" id="sec-smb">
+  <h2>Reassemble an SMB Transfer</h2>
+
+  <p>The fastest way to reassemble a file transferred through SMB: use <strong>File | Export Objects | SMB</strong>. Open <em>smb-filexfer.pcapng</em> and refer to packet 56 for the name of the file.</p>
+
+  <p><strong>Follow TCP Stream does not work well with SMB data transfers</strong> because of the back-and-forth nature of SMB. As you look through smb-filexfer.pcapng you will notice the client periodically asking for the next 61,440 bytes of the file. These periodic file requests fill the stream with client requests and SMB headers on the response packets. It is a waste of time trying to clean this up when we have the <strong>File | Export Objects | SMB</strong> capability. Refer to File | Export.</p>
+
+  <div class="mental-note-block">
+    <div class="mental-note-block-icon">&#129504;</div>
+    <div class="mental-note-block-inner">
+      <div class="mental-note-block-label">MENTAL NOTE</div>
+      <div class="mental-note-block-text">For SMB file transfers: <strong>always use File | Export Objects | SMB</strong>&mdash;never Follow TCP Stream. The request-response nature of SMB (client requesting 61,440 bytes at a time) fills the raw stream with SMB headers and request packets, making manual extraction impractical. Export Objects handles the protocol overhead automatically.</div>
+    </div>
+  </div>
+
+  <div class="lesson-tools">
+    <div class="lesson-tools-grid">
+      <div>
+        <div class="tool-label">Ask a Question</div>
+        <textarea class="tool-textarea" id="q-smb" placeholder="What are you unsure about?" rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('smb','Reassemble SMB')">Add Question</button></div>
+      </div>
+      <div>
+        <div class="tool-label">Add a Note</div>
+        <textarea class="tool-textarea" id="note-smb" placeholder="Key insight to remember..." rows="3"></textarea>
+        <div class="tool-row"><button class="btn-add-q" onclick="addNote('smb')">+ Add Note</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CASE STUDY -->
+<!-- ============================================================ -->
+
+<div class="section-block" id="sec-casestudy">
+  <h2>Case Study</h2>
+
+  <div class="case-study-block">
+    <div class="cs-eyebrow">Case Study 10</div>
+    <div class="cs-title">Unknown Hosts Identified</div>
+    <div class="cs-sub">A real-world hospital network analysis</div>
+    <div class="cs-body">
+      <p>The hospital IT staff stated they had 458 hosts and 7 servers at the location where we were working. The job was focused on training this staff to use Wireshark to quickly spot network problems and fix them fast.</p>
+      <p>During the analysis process, we captured all network traffic off a switch&mdash;we did not span the port&mdash;we were just examining the broadcast and multicast traffic on the network. As we talked about broadcast traffic rates it became evident that this network had more than 458 hosts and 7 servers. We saw ARP broadcasts from over 600 devices throughout the day.</p>
+      <p>The IT team said this just could not be possible. In addition, they did not believe they had such a flat network&mdash;they had routers in place and no single subnet should have more than about 210 devices on it.</p>
+      <p>It was time to start spanning various switch ports to capture more than just ARP broadcasts from these devices. We decided to capture traffic to file sets to deal with the high amount of traffic we were capturing.</p>
+      <p>It did not take long to see some undecoded traffic crossing the network from a host that the IT team did not recognize. We focused in on this traffic.</p>
+      <p>Since Wireshark did not have a dissector for this traffic, we could not tell right away what the mysterious device was saying. By <strong>reassembling the UDP streams</strong> we could see some interesting text strings that helped us identify these devices. They were various pieces of <strong>medical equipment that had embedded Windows XP</strong> running on them.</p>
+      <p>This raised serious concerns about the security of the network&mdash;were these systems patched and updated to protect them against known security issues? Who was responsible to keep these "closed devices" up-to-date?</p>
+      <p>This onsite analysis project led to the customer coordinating a vendor/customer initiative to examine the security of devices with embedded operating systems. In some cases they pulled the devices from the network completely.</p>
+    </div>
+    <div class="cs-img-inline">
+      <div class="cs-img-wrap">
+        <img src="../all-casestudy-pictures/C10-CS1.png" alt="Unknown Hosts Identified"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="cs-img-ph" style="display:none">
+          <span class="cs-ph-icon">&#128444;&#65039;</span>
+          <div><strong>C10-CS1.png</strong></div>
+          <div class="cs-ph-sub">Save to all-casestudy-pictures/C10-CS1.png</div>
+        </div>
+      </div>
+      <div class="cs-prompt-row">
+        <button class="btn-cs-prompt"
+          onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
+          &#9662; Show cartoon prompt
+        </button>
+        <div class="cs-prompt-text" hidden>
+          A hospital IT operations room with two analysts facing a large wall monitor running Wireshark. The screen displays an ARP broadcast list with a bubble callout reading "600+ devices detected." One analyst points at the screen with a shocked expression; the other holds a clipboard labeled "458 hosts, 7 servers." Through a glass partition in the background, networked medical devices are visible: an IV drip pump, an imaging scanner, and a patient monitor, each emitting a glowing blue wireless signal wave. A side panel in the foreground shows a Wireshark Follow UDP Stream window with readable ASCII text strings emerging from previously undecoded traffic. Screen labels visible: "ARP from 600+", "Unknown host", "Embedded Windows XP", "Medical device." Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: ARP from 600+, Unknown host, Embedded Windows XP, Medical device, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TL;DR -->
+<!-- ============================================================ -->
+
+<div class="section-block" id="sec-tldr">
+  <h2>TL;DR &mdash; Chapter Summary</h2>
+  <div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin-top:16px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.16em;color:#93c5fd;margin-bottom:14px;">BOOK SUMMARY &mdash; VERBATIM</div>
+    <p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,.85);margin-bottom:12px;">Following streams is a useful process to view the commands and data transferred in a conversation. Wireshark strips off the data link header, IP header and TCP or UDP header and color codes the traffic to differentiate between client and server traffic.</p>
+    <p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,.85);margin-bottom:12px;">You can reassemble UDP, TCP and SSL streams. SSL streams only show reassembled data after they are decrypted.</p>
+    <p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,.85);margin-bottom:12px;">On some communications, such as FTP data transfers, you can rebuild the original file transferred by saving the reassembled data. You can use the file identifier to determine what type of file was transferred.</p>
+    <p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,.85);margin-bottom:0;">To reassemble files transferred using SMB, do not waste your time with Follow TCP Stream. Instead, use <strong style="color:#93c5fd;">File | Export Objects | SMB</strong>.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- REVIEW QUESTIONS -->
+<!-- ============================================================ -->
+
+<div class="section-block" id="sec-rq">
+  <h2 class="rq-section-heading">Review Questions</h2>
+
+  <!-- Q10.1 -->
+  <div class="rq-card">
+    <div class="rq-num">Question 10.1</div>
+    <div class="rq-q">You have selected a packet in the Packet List pane, but Follow TCP Stream, Follow UDP Stream and Follow SSL Stream are not available. Why not?</div>
+    <textarea class="rq-ta" data-key="rq-10-1" placeholder="Write your answer..." rows="4"></textarea>
+    <div class="rq-btn-row">
+      <button class="btn-rq-save" id="rqsave-10-1" onclick="saveRQ('10-1')">Save Answer</button>
+      <button class="btn-rq-ans" id="ansbtn-10-1" onclick="toggleRQAns('10-1')" disabled>&#128274; See Answer</button>
+      <button class="btn-rq-reset" id="resetbtn-10-1" onclick="resetRQ('10-1')" style="display:none">Reset</button>
+    </div>
+    <div class="rq-ans-box" id="rqans-10-1" style="display:none">
+      <div class="hm-label">ANSWER</div>
+      <p>You must have selected a packet that does not have a TCP header, UDP header, or is not an SSL communication. For example, you cannot follow streams if you select an ARP packet in the Packet List pane.</p>
+    </div>
+  </div>
+
+  <!-- Q10.2 -->
+  <div class="rq-card">
+    <div class="rq-num">Question 10.2</div>
+    <div class="rq-q">What is the syntax of the display filter created when you choose Follow TCP Stream?</div>
+    <textarea class="rq-ta" data-key="rq-10-2" placeholder="Write your answer..." rows="4"></textarea>
+    <div class="rq-btn-row">
+      <button class="btn-rq-save" id="rqsave-10-2" onclick="saveRQ('10-2')">Save Answer</button>
+      <button class="btn-rq-ans" id="ansbtn-10-2" onclick="toggleRQAns('10-2')" disabled>&#128274; See Answer</button>
+      <button class="btn-rq-reset" id="resetbtn-10-2" onclick="resetRQ('10-2')" style="display:none">Reset</button>
+    </div>
+    <div class="rq-ans-box" id="rqans-10-2" style="display:none">
+      <div class="hm-label">ANSWER</div>
+      <p><code>tcp.stream eq x</code> where <em>x</em> is the TCP stream number. This same syntax is used when you Follow SSL Streams. When you follow a UDP stream the syntax defines the IP addresses and port numbers&mdash;for example, <code>(ip.addr eq 24.6.150.44 and ip.addr eq 68.87.76.178) and (udp.port eq 1427 and udp.port eq 53)</code>.</p>
+    </div>
+  </div>
+
+  <!-- Q10.3 -->
+  <div class="rq-card">
+    <div class="rq-num">Question 10.3</div>
+    <div class="rq-q">How can you determine the type of file transferred over an FTP connection when you use Follow TCP Stream?</div>
+    <textarea class="rq-ta" data-key="rq-10-3" placeholder="Write your answer..." rows="4"></textarea>
+    <div class="rq-btn-row">
+      <button class="btn-rq-save" id="rqsave-10-3" onclick="saveRQ('10-3')">Save Answer</button>
+      <button class="btn-rq-ans" id="ansbtn-10-3" onclick="toggleRQAns('10-3')" disabled>&#128274; See Answer</button>
+      <button class="btn-rq-reset" id="resetbtn-10-3" onclick="resetRQ('10-3')" style="display:none">Reset</button>
+    </div>
+    <div class="rq-ans-box" id="rqans-10-3" style="display:none">
+      <div class="hm-label">ANSWER</div>
+      <p>You can look at the file name in the command channel or look for a file identifier inside the file itself.</p>
+    </div>
+  </div>
+
+  <!-- Q10.4 -->
+  <div class="rq-card">
+    <div class="rq-num">Question 10.4</div>
+    <div class="rq-q">Why would the Stream window be empty when you select Follow SSL Streams?</div>
+    <textarea class="rq-ta" data-key="rq-10-4" placeholder="Write your answer..." rows="4"></textarea>
+    <div class="rq-btn-row">
+      <button class="btn-rq-save" id="rqsave-10-4" onclick="saveRQ('10-4')">Save Answer</button>
+      <button class="btn-rq-ans" id="ansbtn-10-4" onclick="toggleRQAns('10-4')" disabled>&#128274; See Answer</button>
+      <button class="btn-rq-reset" id="resetbtn-10-4" onclick="resetRQ('10-4')" style="display:none">Reset</button>
+    </div>
+    <div class="rq-ans-box" id="rqans-10-4" style="display:none">
+      <div class="hm-label">ANSWER</div>
+      <p>The Stream window will be empty until you successfully apply decryption keys to the SSL stream.</p>
+    </div>
+  </div>
+
+</div><!-- end sec-rq -->
+
+</div><!-- end main-content -->
+
+<!-- ============================================================ -->
+<!-- SIDEBAR -->
+<!-- ============================================================ -->
+
+<div class="sidebar">
+  <div class="sidebar-card">
+    <h3>Navigation</h3>
+    <div class="sidebar-nav-links">
+      <a href="../index.html" class="sidebar-link">&#127968; Chapter Hub <span class="arr">&#8594;</span></a>
+      <a href="index.html" class="sidebar-link">&#127919; Practice Lab <span class="arr">&#8594;</span></a>
+    </div>
+  </div>
+
+  <div class="sidebar-card">
+    <h3>Quick Reference</h3>
+    <div class="quick-ref">
+      <h4>Follow Stream Filters</h4>
+      <div class="qr-row"><span class="qr-term">tcp.stream eq X</span><span class="qr-def">TCP / SSL stream</span></div>
+      <div class="qr-row"><span class="qr-term">code 227</span><span class="qr-def">FTP passive mode</span></div>
+      <div class="qr-row"><span class="qr-term">PORT cmd</span><span class="qr-def">FTP active mode</span></div>
+    </div>
+    <div class="quick-ref" style="margin-top:8px;">
+      <h4>File Identifiers (Hex)</h4>
+      <div class="qr-row"><span class="qr-term">FF D8 FF</span><span class="qr-def">JPEG</span></div>
+      <div class="qr-row"><span class="qr-term">D4 C3 B2 A1</span><span class="qr-def">.pcap</span></div>
+      <div class="qr-row"><span class="qr-term">0A 0D 0D 0A</span><span class="qr-def">.pcapng</span></div>
+      <div class="qr-row"><span class="qr-term">50 4B 03 04</span><span class="qr-def">ZIP/docx/pptx</span></div>
+      <div class="qr-row"><span class="qr-term">D0 CF 11 E0</span><span class="qr-def">xls/doc/ppt</span></div>
+    </div>
+    <div class="quick-ref" style="margin-top:8px;">
+      <h4>Stream Colors</h4>
+      <div class="qr-row"><span class="qr-term" style="color:#f87171;">Red</span><span class="qr-def">Client traffic</span></div>
+      <div class="qr-row"><span class="qr-term" style="color:#60a5fa;">Blue</span><span class="qr-def">Server traffic</span></div>
+    </div>
+    <div class="quick-ref" style="margin-top:8px;">
+      <h4>SMB Rule</h4>
+      <div class="qr-row"><span class="qr-term">Export Objects</span><span class="qr-def">Not TCP Stream</span></div>
+    </div>
+  </div>
+
+  <div class="sidebar-card">
+    <h3>Progress</h3>
+    <div class="ins-prog-label" id="ins-prog-count">0 / 11 answered</div>
+    <div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div>
+  </div>
+</div>
+
+</main>
+
+<div class="practice-cta">
+  <a href="index.html" class="btn-practice-cta">&#127891; Open Practice Lab</a>
+  <div class="practice-cta-sub">Hands-on trace file exercises for Chapter 10</div>
+</div>
+
+<footer>
+  <span>Wireshark Network Analysis, 2nd Edition &mdash; Chapter 10</span>
+  <span>Follow Streams and Reassemble Data</span>
+</footer>
+
+<script>
 const PAGE_KEY='ws-ch10-full';
-const SECTIONS={'tcp':'Follow TCP Stream','udp':'Follow UDP','tls':'TLS Decryption','application':'Application Analysis','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-tcp','ins-udp','ins-tls','ins-application'];
-const RQ_IDS=['10-1','10-2','10-3'];
-const TOTAL=7;
+const SECTIONS={'basics':'Basics of Reassembly','udp':'Follow UDP','tcp':'Follow TCP','filetypes':'File Type IDs','ftp':'Reassemble FTP','ssl':'Follow SSL','smb':'Reassemble SMB','casestudy':'Case Study','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-basics','ins-udp','ins-tcp','ins-filetypes','ins-ftp','ins-ssl','ins-smb'];
+const RQ_IDS=['10-1','10-2','10-3','10-4'];
+const TOTAL=11;
 function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
 function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
 function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
 function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
 function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?'— '+a.length+' question'+(a.length>1?'s':'')+', click to expand':'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+='<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">'+(SECTIONS[k]||k)+'</div>';items.forEach(q=>{n++;h+='<div class="q-item"><div class="q-num">'+n+'</div><div class="q-text">'+q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><button class="q-del" onclick="deleteQuestion('+q.id+')">✕</button></div>';});});b.innerHTML=h;}
 function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
 function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
 function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
 function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
 function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?'— '+a.length+' note'+(a.length>1?'s':'')+', click to expand':'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+='<div class="q-item"><div class="q-num">'+n+'</div><div class="q-text">'+note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><button class="q-del" onclick="deleteNote('+note.id+')">✕</button></div>';});b.innerHTML=h;}
 function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
 function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
 function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='inline';updateInsProgress();}
+function resetRQ(id){localStorage.removeItem(PAGE_KEY+'-rq-'+id);const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(ta){ta.value='';ta.disabled=false;}const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='Save Answer';sb.disabled=false;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=true;ab.textContent='🔒 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='none';const ah=document.getElementById('rqans-'+id);if(ah)ah.style.display='none';updateInsProgress();}
 function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
 function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
 document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  renderQPanel();renderNotesPanel();initSectionNav();initPT();updateInsProgress();
   if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
   if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
   INSIGHT_IDS.forEach(function(id){
@@ -331,6 +1087,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(ta&&sv){ta.value=sv;ta.disabled=true;}
     const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
     const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+    const rb=document.getElementById('resetbtn-'+id);if(rb&&sv)rb.style.display='inline';
   });
 });
 </script>

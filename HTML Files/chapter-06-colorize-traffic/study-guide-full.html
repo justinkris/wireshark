@@ -9,15 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +63,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,12 +80,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
 .insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
@@ -127,7 +114,11 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
 .fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
-.fig-trace{color:var(--blue);font-style:italic;}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -135,7 +126,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -145,11 +136,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -174,15 +169,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -190,65 +176,47 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
 </style>
 </head>
+
 <body>
 <header>
 <div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 06<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 6 · COLORIZE TRAFFIC</div>
-<h1>Colorize <em>Traffic</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
+<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">&#x203A;</span>Chapter 06<span class="breadcrumb-sep">&#x203A;</span>Full Study Guide</div>
+<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 6 &middot; COLORIZE TRAFFIC</div>
+<h1>Colorize Traffic <em>to See the Story</em></h1>
+<p>Wireshark Network Analysis 2nd Ed &middot; Laura Chappell</p>
 </div>
 </header>
+
 <div class="motivation-banner">
-<div class="motivation-text"> <em>Color is the fastest path from packet list to problem.</em></div>
-<p class="motivation-sub">Default coloring rules, custom rules for your environment, and temporary conversation colors — visual triage at a glance.</p>
+<div class="motivation-text"><em>Color is not decoration &mdash; it is intelligence made visible.</em></div>
+<p class="motivation-sub">Master coloring rules, packet marking, conversation colorization, and stream reassembly colors to instantly spot problems without reading a single number.</p>
 </div>
+
 <div class="top-panels">
 <div class="qpanel">
 <button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
 <span class="qpanel-title">MY QUESTIONS</span>
 <span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
+<span class="qpanel-hint">&mdash; click to expand</span>
+<span class="qpanel-chevron" id="qpanel-chevron">&#9662;</span>
 </button>
 <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
 </div>
@@ -256,38 +224,439 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 <button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
 <span class="notes-panel-title">MY NOTES</span>
 <span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
+<span class="notes-panel-hint">&mdash; click to expand</span>
+<span class="notes-panel-chevron" id="notes-panel-chevron">&#9662;</span>
 </button>
 <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
 </div>
 </div>
+
 <nav class="section-nav">
-<button class="nav-tab" data-target="sec-overview" onclick="navTo('sec-overview')">Overview</button><button class="nav-tab" data-target="sec-defaults" onclick="navTo('sec-defaults')">Default Rules</button><button class="nav-tab" data-target="sec-custom" onclick="navTo('sec-custom')">Custom Rules</button><button class="nav-tab" data-target="sec-analysis" onclick="navTo('sec-analysis')">Color for Analysis</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+<button class="nav-tab" data-target="sec-colorize" onclick="navTo('sec-colorize')">Coloring Rules</button><button class="nav-tab" data-target="sec-manage" onclick="navTo('sec-manage')">Share &amp; Identify</button><button class="nav-tab" data-target="sec-create" onclick="navTo('sec-create')">Create Rules</button><button class="nav-tab" data-target="sec-conversations" onclick="navTo('sec-conversations')">Conversations &amp; Marking</button><button class="nav-tab" data-target="sec-streams" onclick="navTo('sec-streams')">Stream Colors</button><button class="nav-tab" data-target="sec-casestudy" onclick="navTo('sec-casestudy')">Case Study</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Qs</button>
 </nav>
+
 <main>
 <div class="main-content">
-<div class="insight-block" id="ins-overview"><div class="insight-hdr" onclick="toggleInsight('ins-overview')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · COLORIZING OVERVIEW</span></div><div class="ins-body"><p class="ins-q">Coloring rules are evaluated top-to-bottom and the first match wins. A TCP retransmission appears red even though a later 'TCP' rule would color it green. Why, and what does this mean for rule ordering?</p><textarea class="ins-ta" data-key="ins-overview" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-overview" onclick="saveIns('ins-overview')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-overview')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-overview" onclick="toggleInsModel('ins-overview')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-overview" style="display:none"><div class="hm-label">HINT</div><p>If a packet matches both the first and fifth rule, which color does it get?</p></div><div class="ins-model-box" id="model-ins-overview" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The first matching rule wins — the packet gets that rule's color and rule evaluation stops. So the 'Bad TCP' rule (which matches tcp.analysis.flags) must appear before the general 'TCP' rule — otherwise all TCP traffic (including retransmissions) would be colored green by the general TCP rule before 'Bad TCP' gets a chance to match. More specific rules must always appear above more general rules that would also match the same traffic.</p></div></div></div><div class="section-block" id="sec-overview"><h2>Colorizing Traffic Overview</h2><p>Wireshark applies background and foreground colors to packets based on <strong>coloring rules</strong> — display filter expressions paired with a color. Open via <strong>View → Coloring Rules</strong>.</p><p>Rules are evaluated top-to-bottom; <strong>first match wins</strong>. Each rule has: name, filter expression, foreground color, background color.</p><p>Toggle colorization globally: <strong>View → Colorize Packet List</strong>.</p><div class="callout callout-callout-blue"><strong>RULE FILE</strong>Coloring rules are stored in <code>colorfilters</code> in the active profile directory. Import/export via the buttons in the Coloring Rules dialog. Share the file with teammates or import specialized rule sets (VoIP, ICS, DNS analysis).</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">First match wins — evaluate rules top-to-bottom. Specific rules above general rules. Coloring is purely cosmetic — no effect on capture or analysis. 'colorfilters' file in profile directory — shareable. Toggle with View → Colorize Packet List.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig104-packets-are-processed-from-top-to-bottom-through.png" alt="Figure 104: Packets are processed from top to bottom through the coloring rules list" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 104 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 104.</strong> Packets are processed from top to bottom through the coloring rules list</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig105-frame-details-include-coloring-rule-information.png" alt="Figure 105: Frame details include coloring rule information" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 105 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 105.</strong> Frame details include coloring rule information</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig107-right-click-on-a-packet-to-select-it.png" alt="Figure 107: Right click on a packet to select it for colorization" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 107 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 107.</strong> Right click on a packet to select it for colorization</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig109-stream-coloring-is-defined-through-preferences.png" alt="Figure 109: Stream coloring is defined through preferences" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 109 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 109.</strong> Stream coloring is defined through preferences</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-overview" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('overview','Colorizing Overview')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-overview" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('overview')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-defaults"><div class="insight-hdr" onclick="toggleInsight('ins-defaults')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DEFAULT COLORING RULES</span></div><div class="ins-body"><p class="ins-q">What is the 'Bad TCP' default coloring rule's filter expression, and why does it come first in the list?</p><textarea class="ins-ta" data-key="ins-defaults" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-defaults" onclick="saveIns('ins-defaults')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-defaults')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-defaults" onclick="toggleInsModel('ins-defaults')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-defaults" style="display:none"><div class="hm-label">HINT</div><p>What does tcp.analysis.flags match? Why must it come before the general TCP rule?</p></div><div class="ins-model-box" id="model-ins-defaults" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>'Bad TCP' matches <code>tcp.analysis.flags && !tcp.analysis.window_update</code> — this catches retransmissions, out-of-order segments, duplicate ACKs, zero-window conditions, and RSTs. It must come first because a later 'TCP' rule matches all TCP traffic including these problem packets. If 'Bad TCP' were below 'TCP', every retransmission would be colored green (normal TCP) rather than red (problem), defeating the purpose of the alert coloring.</p></div></div></div><div class="section-block" id="sec-defaults"><h2>Default Coloring Rules</h2><p>Wireshark's default rules (top to bottom — first match wins):</p><table style='width:100%;border-collapse:collapse;font-size:12px;'><tr style='background:#eef4ff;'><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Rule</th><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Filter</th><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Color</th></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Bad TCP</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>tcp.analysis.flags</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#ffdfd9;'>Red/Salmon</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>ICMP errors</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>icmp.type eq 3|4|5|11</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#ff8c8c;'>Red</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>TCP RST</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>tcp.flags.reset == 1</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#ff8c8c;'>Red</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>TCP SYN/FIN</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>tcp.flags.syn || tcp.flags.fin</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#e7e6ff;'>Purple</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>ARP</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>arp</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#faf0d7;'>Tan/Gold</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>ICMP</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>icmp || icmpv6</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#fce5d7;'>Peach</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>UDP</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>udp</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#dae8fc;'>Light Blue</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>TCP</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>tcp</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#e8ffc4;'>Light Green</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Broadcast</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'><code>eth.dst == ff:ff:ff:ff:ff:ff</code></td><td style='padding:6px 8px;border:1px solid #bfdbfe;background:#e8e8e8;'>Gray</td></tr></table><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">'Bad TCP' is FIRST — catches retransmits, resets, dupack, zero-window before the general TCP rule. Order matters: Bad TCP (red) → ICMP errors (red) → TCP RST (red) → SYN/FIN (purple) → ARP (tan) → ICMP (peach) → UDP (blue) → TCP (green) → Broadcast (gray).</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig110-stream-coloring-is-seen-when-you-reassemble-udp.png" alt="Figure 110: Stream coloring is seen when you reassemble UDP, TCP or SSL streams" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 110 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 110.</strong> Stream coloring is seen when you reassemble UDP, TCP or SSL streams</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-defaults" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('defaults','Default Coloring Rules')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-defaults" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('defaults')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-custom"><div class="insight-hdr" onclick="toggleInsight('ins-custom')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · CUSTOM COLOR RULES</span></div><div class="ins-body"><p class="ins-q">You want to highlight all HTTP 4xx and 5xx error responses in bright orange. Write the filter and explain where to place it in the rule list.</p><textarea class="ins-ta" data-key="ins-custom" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-custom" onclick="saveIns('ins-custom')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-custom')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-custom" onclick="toggleInsModel('ins-custom')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-custom" style="display:none"><div class="hm-label">HINT</div><p>What filter field represents HTTP response codes? Where must this rule appear relative to the TCP and UDP rules?</p></div><div class="ins-model-box" id="model-ins-custom" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Filter: <code>http.response.code >= 400</code>. Place above the general TCP (green) rule — otherwise TCP would match HTTP error packets first and color them green. Placement: below the 'Bad TCP' rule (to not interfere with TCP retransmission coloring) and above the general TCP rule. In View → Coloring Rules, click '+', name it 'HTTP Errors', enter the filter, choose orange background, click OK, then drag the rule to the correct position.</p></div></div></div><div class="section-block" id="sec-custom"><h2>Creating Custom Color Rules</h2><p>In <strong>View → Coloring Rules → + button</strong>:</p><ol><li>Enter a descriptive <strong>Name</strong></li><li>Enter a valid <strong>display filter</strong></li><li>Pick <strong>foreground/background colors</strong></li><li><strong>Position</strong> the rule — drag above general rules that would match the same traffic first</li></ol><h3>Temporary Conversation Colors</h3><p>Right-click any packet → <strong>Colorize with Filter → Color 1–10</strong>. Applies a temporary color using the src/dst pair. Reset with <strong>View → Reset Coloring Rules</strong>. Use to visually separate multiple streams during analysis without editing permanent rules.</p><h3>Disable Without Deleting</h3><p>Uncheck the checkbox next to a rule — it's skipped but preserved. Toggle for different analysis phases.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Custom rules: specific before general. 'Colorize with Filter' (right-click) = temporary session color — cleared on close. Rules stored in 'colorfilters' profile file. Import/export to share. Uncheck to disable without deleting.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig106-the-steps-to-create-a-butt-ugly-coloring.png" alt="Figure 106: The steps to create a "butt ugly" coloring rule for HTTP error responses Color Conversations to Distinguish Them There are 10 temporary coloring options for conversations. Right click on a" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 106 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 106.</strong> The steps to create a "butt ugly" coloring rule for HTTP error responses Color Conversations to Distinguish Them There are 10 temporary coloring options for conversations. Right click on a</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig108-use-marked-packets-in-the-save-process-alter.png" alt="Figure 108: Use marked packets in the save process Alter Stream Reassembly Coloring When you right click on a packet and select  Follow UDP stream ,  Follow TCP stream  or  Follow SSL stream , the str" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 108 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 108.</strong> Use marked packets in the save process Alter Stream Reassembly Coloring When you right click on a packet and select  Follow UDP stream ,  Follow TCP stream  or  Follow SSL stream , the str</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-custom" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('custom','Custom Color Rules')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-custom" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('custom')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-analysis"><h2>Using Color for Rapid Analysis</h2><p>Strategic coloring accelerates triage:</p><ul><li><strong>Red packet list</strong> — retransmissions, resets, or ICMP errors dominating; network or server problem</li><li><strong>Purple clusters</strong> — SYN/FIN patterns; count connections being established/torn down</li><li><strong>All gray</strong> — broadcast storm; most traffic is broadcasts</li><li><strong>Blue dominant</strong> — UDP-heavy traffic; could be VoIP, DNS, NTP, or multicast</li></ul><h3>Analysis Workflow</h3><ol><li>Look for red (errors first)</li><li>Look for purple patterns (connection lifecycle)</li><li>Assess overall color mix (protocol distribution at a glance)</li><li>Use Colorize with Filter to isolate one conversation for focused analysis</li></ol><div class="callout callout-callout-green"><strong>ANALYST TIP</strong>Create custom 'Application Error' rules for your environment: <code>http.response.code >= 400</code> (HTTP errors), <code>dns.flags.rcode != 0</code> (DNS failures), <code>smtp.response.code >= 500</code> (SMTP delivery failures). Color them bright red or orange for instant triage.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Color triage workflow: (1) spot red clusters = errors; (2) spot purple = session boundaries; (3) color mix = protocol distribution; (4) Colorize with Filter = isolate one stream temporarily. Color narrows WHERE to look, not WHAT the problem is.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-analysis" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('analysis','Color for Analysis')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-analysis" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('analysis')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 6</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Coloring rules use display filter syntax; first match wins. Specific rules must appear above general rules. Default rules highlight Bad TCP (red/first), RST (red), SYN/FIN (purple), UDP (blue), TCP (green). Create custom rules and position them carefully. Use right-click → Colorize for temporary stream separation during analysis.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q6.1</div><div class="rq-q">A TCP retransmission appears red in Wireshark even though the general 'TCP' rule would color it green. Why?</div><textarea class="rq-ta" data-key="rq-6-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-6-1" onclick="saveRQ('6-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('6-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-6-1" onclick="toggleRQAns('6-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-6-1" style="display:none"><div class="hm-label">HINT</div><p>Consider rule ordering and the first-match principle.</p></div><div class="rq-ans-box" id="rqans-6-1" style="display:none"><div class="hm-label">ANSWER</div><p>The 'Bad TCP' coloring rule appears at the top of the default rule list and matches tcp.analysis.flags (which includes retransmissions). Since rules are evaluated top-to-bottom and the first match wins, the retransmission matches 'Bad TCP' first and is colored red. It never reaches the general 'TCP' (green) rule. This is by design — the rule list ordering is intentional, with error conditions taking priority over general protocol coloring.</p></div></div><div class="rq-card"><div class="rq-num">Q6.2</div><div class="rq-q">You want to add a coloring rule for DNS queries (not responses) in bright blue. Write the filter and explain where to place it.</div><textarea class="rq-ta" data-key="rq-6-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-6-2" onclick="saveRQ('6-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('6-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-6-2" onclick="toggleRQAns('6-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-6-2" style="display:none"><div class="hm-label">HINT</div><p>What field distinguishes a DNS query from a response? Where must this rule go relative to existing rules?</p></div><div class="rq-ans-box" id="rqans-6-2" style="display:none"><div class="hm-label">ANSWER</div><p>Filter: <code>dns.flags.response == 0</code> (matches queries; response == 1 for responses). Place above the general UDP rule — DNS is UDP-based, so the UDP rule would match DNS first and color it light blue. If there's already a general 'dns' rule, place the new query-specific rule above it so it fires first for query packets.</p></div></div><div class="rq-card"><div class="rq-num">Q6.3</div><div class="rq-q">What is the difference between a permanent coloring rule and a temporary conversation color?</div><textarea class="rq-ta" data-key="rq-6-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-6-3" onclick="saveRQ('6-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('6-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-6-3" onclick="toggleRQAns('6-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-6-3" style="display:none"><div class="hm-label">HINT</div><p>How long does each persist? Where is each stored?</p></div><div class="rq-ans-box" id="rqans-6-3" style="display:none"><div class="hm-label">ANSWER</div><p>Permanent coloring rules are stored in the profile's 'colorfilters' file and persist across Wireshark restarts — they apply to any capture file opened with that profile. Temporary conversation colors (right-click → Colorize with Filter → Color N) apply only to the current session and are cleared when Wireshark closes or View → Reset Coloring Rules is selected. Temporary colors are useful for separating streams during active analysis without permanently modifying the rule set.</p></div></div></div>
+
+<!-- THINK FIRST 1 -->
+<div class="insight-block" id="ins-colorize">
+<div class="insight-hdr" onclick="toggleInsight('ins-colorize')">
+<span class="ins-icon">&#x1F4A1;</span>
+<span class="ins-label">THINK FIRST &middot; COLORING RULES</span>
 </div>
+<div class="ins-body">
+<p class="ins-q">Wireshark ships with predefined coloring rules &mdash; one is &ldquo;Bad TCP&rdquo; and another is &ldquo;HTTP.&rdquo; If a packet is an HTTP response that also contains a TCP retransmission, which coloring rule will apply, and why? What underlying mechanism determines which rule wins?</p>
+<p class="ins-q">Checksum offloading causes your own outbound packets to appear with invalid checksums. If the Checksum Errors coloring rule is enabled, how does this mislead the analyst, and what is the correct fix?</p>
+<textarea class="ins-ta" data-key="ins-colorize" rows="4" placeholder="Write your answer here before reading the section&hellip;"></textarea>
+<div class="ins-btn-row">
+<button class="btn-save-ins" id="savebtn-ins-colorize" onclick="saveIns('ins-colorize')">Save Answer</button>
+<button class="btn-hint-ins" onclick="toggleInsHint('ins-colorize')">&#x1F4AD; Hint</button>
+<button class="btn-model-ins" id="mibtn-ins-colorize" onclick="toggleInsModel('ins-colorize')" disabled>&#x1F512; Model Answer</button>
+</div>
+<div class="ins-hint-box" id="hint-ins-colorize" style="display:none"><div class="hm-label">HINT</div><p>Coloring rules are processed in a specific direction through the list. The first rule that matches wins &mdash; order matters enormously.</p></div>
+<div class="ins-model-box" id="model-ins-colorize" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The Bad TCP coloring rule wins because coloring rules are processed in order from top to bottom and the first match wins. Bad TCP sits above the HTTP rule in the default list, so a retransmitted HTTP packet is colored as Bad TCP, not HTTP. To change this you would either move the HTTP rule above Bad TCP, or create a more specific rule above both. For checksum offloading: Wireshark captures packets before the NIC computes checksums, so all outbound packets appear to have invalid checksums &mdash; this is not a real error on the wire. The correct fix is to disable the Checksum Errors coloring rule, or to disable checksum validation in IP/TCP/UDP protocol preferences.</p></div>
+</div>
+</div>
+
+<!-- SECTION 1: COLORING RULES -->
+<div class="section-block" id="sec-colorize">
+<h2>Use Colors to Differentiate Traffic Types</h2>
+<p>Colorization can be a very effective tool to locate and highlight packets of interest. You can choose to colorize packets that indicate error conditions, contain evidence of a network scan or breached host, etc.</p>
+<p>Wireshark contains several predefined coloring rules in the default coloring rules file (<code>colorfilters</code>) that resides in the Global Configurations directory. When you edit the coloring rules file, the new <code>colorfilters</code> file is saved in your Personal Configurations directory. If you create and work in a new profile, another <code>colorfilters</code> file is saved in that profile&rsquo;s directory.</p>
+<p>The following lists some of the predefined coloring rule string values:</p>
+<table class="def-table">
+<thead><tr><th>Filter String</th><th>Rule Name / Description</th></tr></thead>
+<tbody>
+<tr><td><code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code></td><td>Bad TCP &mdash; retransmissions, out-of-order packets, Duplicate ACKs, etc.</td></tr>
+<tr><td><code>hsrp.state !=8 &amp;&amp; hsrp.state != 16</code></td><td>HSRP State Change (Hot Standby Router Protocol state changes)</td></tr>
+<tr><td><code>stp.type==0x80</code></td><td>Spanning Tree Topology Change</td></tr>
+<tr><td><code>ospf.msg !=1</code></td><td>OSPF State Change (routing state changes)</td></tr>
+<tr><td><code>icmp.type eq 3 || icmp.type eq 4 || icmp.type eq 5 || icmp.type eq 11 || icmpv6.type eq 1 || icmpv6.type eq 2 || icmpv6.type eq 3 || icmpv6.type eq 4</code></td><td>ICMP errors (destination unreachable, Source Quench, Redirect, Time Exceeded)</td></tr>
+<tr><td><code>arp</code></td><td>ARP (all ARP traffic)</td></tr>
+<tr><td><code>icmp || icmpv6</code></td><td>ICMP (all ICMP; ICMP errors rule takes precedence because it is higher in the list)</td></tr>
+<tr><td><code>tcp.flags.reset eq 1</code></td><td>TCP RST (connection refusal or termination packets)</td></tr>
+<tr><td><code>(!ip.dst==224.0.0.0/4 &amp;&amp; ip.ttl &lt; 5 &amp;&amp; !pim) || (ip.dst==224.0.0.0/24 &amp;&amp; ip.ttl != 1)</code></td><td>Low TTL (IP Time-to-Live value less than 5)</td></tr>
+</tbody>
+</table>
+<p>Coloring rules require a name, a string (based on the display filter format), a foreground color and a background color.</p>
+
+<h3>Disable One or More Coloring Rules</h3>
+<p>By default, Wireshark colorizes the traffic based on the default set of coloring rules. Turn off colorization using the <strong>Colorize Packet List</strong> button on the Main Toolbar or select <strong>View | Colorize Packet List</strong> to toggle this setting off.</p>
+<p>To disable a single coloring rule, click the <strong>Coloring Rules</strong> button on the Main Toolbar (between the Display Filter Window button and the Preferences button). Click on a coloring rule and click the <strong>Disable</strong> button. The coloring rule is not deleted&mdash;it is just disabled. If you want to delete a coloring rule, select the rule and click the <strong>Delete</strong> button.</p>
+
+<div class="figure-block">
+<div class="fig-img-wrap">
+<img src="figures/fig104-packets-are-processed-from-top-to-bottom-through.png" alt="Figure 104: Packets are processed from top to bottom through the coloring rules list" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 104 &mdash; open trace file to view</span></div>
+</div>
+<div class="fig-cap"><strong>Figure 104.</strong> Packets are processed from top to bottom through the coloring rules list.</div>
+</div>
+
+<h3>Checksum Errors and Coloring Rules</h3>
+<p>In the trace file <code>http-facebook.pcapng</code> our client, 24.6.173.220, uses IP, UDP and TCP checksum offloading which will trigger the Checksum Errors coloring rule if checksum validation is enabled in the IP, UDP and TCP protocol preferences.</p>
+<p>One coloring rule you may consider disabling is Checksum Errors as shown in Figure 104. If TCP, UDP and IP checksum validation is enabled and checksum offloading is used, packets sent from a system running Wireshark may trigger the Checksum Errors coloring rule. Checksum offloading is defined in Chapter 3: Capture Traffic.</p>
+
+<div class="callout callout-amber"><strong>WATCH OUT</strong>Checksum offloading causes outbound packets captured by Wireshark to have invalid checksums &mdash; they are computed by the NIC after Wireshark sees them. This is not a real error on the wire. Disable the Checksum Errors coloring rule or disable checksum validation in IP/TCP/UDP preferences to avoid this false alarm.</div>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">&#x1F9E0;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Coloring rules process top-to-bottom; first match wins. Bad TCP sits above HTTP in defaults &mdash; a retransmitted HTTP packet colors as Bad TCP. The <code>colorfilters</code> file lives in the Global Config directory; customizations save to Personal Config. Disable Checksum Errors rule if NIC checksum offloading is in use to avoid false alarms.</div></div></div>
+
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-colorize" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('colorize','Coloring Rules')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-colorize" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('colorize')">+ Add Note</button></div></div></div></div>
+</div>
+
+<!-- THINK FIRST 2 -->
+<div class="insight-block" id="ins-manage">
+<div class="insight-hdr" onclick="toggleInsight('ins-manage')">
+<span class="ins-icon">&#x1F4A1;</span>
+<span class="ins-label">THINK FIRST &middot; SHARE &amp; IDENTIFY COLORING RULES</span>
+</div>
+<div class="ins-body">
+<p class="ins-q">You&rsquo;ve built custom coloring rules for detecting suspicious traffic. A colleague on a different system needs them. What is the fastest way to transfer them, and what file name should you use by convention? Is the Export feature in the Coloring Rules window actually mandatory?</p>
+<p class="ins-q">When you look at a packet and wonder &ldquo;why is this packet orange?&rdquo; &mdash; where exactly in Wireshark do you find the answer, and what two fields tell you the complete story?</p>
+<textarea class="ins-ta" data-key="ins-manage" rows="4" placeholder="Write your answer here before reading the section&hellip;"></textarea>
+<div class="ins-btn-row">
+<button class="btn-save-ins" id="savebtn-ins-manage" onclick="saveIns('ins-manage')">Save Answer</button>
+<button class="btn-hint-ins" onclick="toggleInsHint('ins-manage')">&#x1F4AD; Hint</button>
+<button class="btn-model-ins" id="mibtn-ins-manage" onclick="toggleInsModel('ins-manage')" disabled>&#x1F512; Model Answer</button>
+</div>
+<div class="ins-hint-box" id="hint-ins-manage" style="display:none"><div class="hm-label">HINT</div><p>The coloring rules are stored in a plain text file. Wireshark reveals coloring information in a specific pane section visible on every packet.</p></div>
+<div class="ins-model-box" id="model-ins-manage" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The fastest way is to copy the <code>colorfilters</code> file directly &mdash; no Import/Export required since it is a plain text file. The conventional name is <code>colorfilters</code> which is what Wireshark uses by default when exporting. To identify why a packet is a certain color, expand the Frame section in the Packet Details pane: you will find <strong>[Coloring Rule Name]</strong> and <strong>[Coloring Rule String]</strong> fields that reveal the exact rule that matched. You can also right-click either field to build a display filter based on the rule name or string.</p></div>
+</div>
+</div>
+
+<!-- SECTION 2: SHARE & IDENTIFY -->
+<div class="section-block" id="sec-manage">
+<h2>Share and Manage Coloring Rules</h2>
+<p>You can easily share coloring rules using the Import or Export buttons in the Coloring Rules window. When you export a coloring rule, Wireshark prompts you for a file name. Wireshark uses the name <code>colorfilters</code> as the default name. If you want to share these rules with other users, consider using this name.</p>
+<p>Coloring rules are contained in a text file. You can copy the desired coloring rule to another system&mdash;just like any other file. You don&rsquo;t need to use the Import/Export feature in the Coloring Rules window.</p>
+
+<h3>Identify Why a Packet is a Certain Color</h3>
+<p>To determine why a packet is colored a certain way, examine its Frame section in the top of the Packet Details pane.</p>
+<p>In Figure 105 we have expanded the Frame section of the packet. This packet is colored based on a coloring rule named <em>TCP SYN/FIN</em> that uses the string <code>tcp.flags &amp; 0x02 || tcp.flags.fin==1</code> (only the SYN bit is set to 1 or the FIN bit is set to 1).</p>
+
+<div class="figure-block">
+<div class="fig-img-wrap">
+<img src="figures/fig105-frame-details-include-coloring-rule-information.png" alt="Figure 105: Frame details include coloring rule information [http-yahoo-viafirefox.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 105 &mdash; open trace file to view</span></div>
+</div>
+<div class="fig-cap"><strong>Figure 105.</strong> Frame details include coloring rule information [http-yahoo-viafirefox.pcapng].</div>
+</div>
+
+<p>Although coloring rules are not actual fields in a packet, you can still filter on them. Right click on either the coloring rule name or the coloring rule string to create a display filter based on these two elements.</p>
+
+<h3>Coloring Rules are Processed in Order Top to Bottom</h3>
+<p>Coloring rules are processed in order so you need to be careful when you create and rearrange coloring rules. For example, using the default coloring rules, an HTTP packet that contains a TCP retransmission will be processed by the Bad TCP coloring rule, not the HTTP rule because the Bad TCP coloring rule is listed above the HTTP coloring rule.</p>
+
+<div class="callout callout-blue"><strong>TIP</strong>Right-click on the [Coloring Rule Name] or [Coloring Rule String] field in the Frame section to create a display filter that matches the same rule. This lets you instantly filter to all packets colored by the same rule without having to remember the filter string.</div>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">&#x1F9E0;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">The <code>colorfilters</code> file is plain text &mdash; copy it directly to share rules (no Export needed). To find why a packet is colored, expand the Frame section in Packet Details and look for [Coloring Rule Name] and [Coloring Rule String]. Right-click either field to build an instant display filter.</div></div></div>
+
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-manage" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('manage','Share &amp; Identify')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-manage" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('manage')">+ Add Note</button></div></div></div></div>
+</div>
+
+<!-- THINK FIRST 3 -->
+<div class="insight-block" id="ins-create">
+<div class="insight-hdr" onclick="toggleInsight('ins-create')">
+<span class="ins-icon">&#x1F4A1;</span>
+<span class="ins-label">THINK FIRST &middot; CREATE CUSTOM COLORING RULES</span>
+</div>
+<div class="ins-body">
+<p class="ins-q">You want HTTP 4xx and 5xx responses to scream at you with an orange background. Walk through the steps mentally: what field do you right-click, what filter string do you enter, and critically &mdash; what must you do after clicking OK to ensure this rule actually fires for those packets?</p>
+<p class="ins-q">What is the single display filter expression that catches <em>all</em> HTTP error responses &mdash; both client errors (400&ndash;499) and server errors (500&ndash;599)?</p>
+<textarea class="ins-ta" data-key="ins-create" rows="4" placeholder="Write your answer here before reading the section&hellip;"></textarea>
+<div class="ins-btn-row">
+<button class="btn-save-ins" id="savebtn-ins-create" onclick="saveIns('ins-create')">Save Answer</button>
+<button class="btn-hint-ins" onclick="toggleInsHint('ins-create')">&#x1F4AD; Hint</button>
+<button class="btn-model-ins" id="mibtn-ins-create" onclick="toggleInsModel('ins-create')" disabled>&#x1F512; Model Answer</button>
+</div>
+<div class="ins-hint-box" id="hint-ins-create" style="display:none"><div class="hm-label">HINT</div><p>After creating the rule, it sits at the bottom of the list by default. What does that position imply, and what action must you take before closing the window?</p></div>
+<div class="ins-model-box" id="model-ins-create" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Right-click the Status Code field in the Packet Details pane and choose <strong>Colorize with Filter | New Coloring Rule</strong>. Enter the name (e.g., T-HTTP Errors) and the string <code>http.response.code &gt; 399</code> to catch all 4xx and 5xx responses. Set the background to orange. Critically: after clicking OK, your new rule will appear highlighted at the bottom of the list &mdash; you must use the <strong>Up</strong> button to move it to the top, otherwise pre-existing rules (like Bad TCP or the generic HTTP rule) will match those packets first and your orange rule will never fire. The filter <code>http.response.code &gt; 399</code> covers everything from 400 through 599 in one expression.</p></div>
+</div>
+</div>
+
+<!-- SECTION 3: CREATE RULES -->
+<div class="section-block" id="sec-create">
+<h2>Create a &ldquo;Butt Ugly&rdquo; Coloring Rule for HTTP Errors</h2>
+<p>Although Wireshark contains a number of default coloring rules, there are some packets that should be screaming at you to get your attention. HTTP errors would be a good example. Any HTTP response that contains a numerical code between 400 and 499 indicates a client error. HTTP responses between 500 and 599 indicates server errors.</p>
+<p>Let&rsquo;s go step-by-step to create a single coloring rule to call attention to HTTP error responses. Refer to Figure 106 to see the steps as you work through this process.</p>
+<ul>
+<li><strong>Step 1:</strong> Open <code>http-espn2011.pcapng</code> (available in the Download section of www.wiresharkbook.com)</li>
+<li><strong>Step 2:</strong> In the Packet List pane select Packet 9 (an HTTP response). In the Packet Details pane right click on the <strong>Hypertext Transfer Protocol</strong> line and choose <strong>Expand subtrees</strong> so you can see the &ldquo;Status Code: 301&rdquo; line.</li>
+<li><strong>Step 3 (A):</strong> Right click on &ldquo;Status Code: 301&rdquo; and select <strong>Colorize with Filter | New Coloring Rule</strong>. Wireshark opens the Coloring Rules window and Edit Color Filter window. Your coloring rule string is filled out based on the field you selected.</li>
+<li><strong>Step 4 (B):</strong> Enter <strong>T-HTTP Errors</strong> in the name field. Enter <code>http.response.code &gt; 399</code> in the string field.</li>
+<li><strong>Step 5 (C):</strong> Click the <strong>Background Color</strong> button. In the Color name field, type <code>orange</code> and click OK. Click OK to close the Edit Color Filter window and OK to close the Coloring Rules window.</li>
+<li><strong>Step 6 (D):</strong> Your coloring rule will be highlighted with a blue background. Click the <strong>Up</strong> or <strong>Down</strong> button to move your butt-ugly coloring rule to the top of the coloring rules list.</li>
+<li><strong>Step 7:</strong> Open <code>http-500error.pcapng</code>. If your &ldquo;butt ugly&rdquo; coloring rule is configured properly, packet 9 should match the rule.</li>
+</ul>
+
+<div class="figure-block">
+<div class="fig-img-wrap">
+<img src="figures/fig106-the-steps-to-create-a-butt-ugly-coloring.png" alt="Figure 106: The steps to create a butt ugly coloring rule for HTTP error responses" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 106 &mdash; open trace file to view</span></div>
+</div>
+<div class="fig-cap"><strong>Figure 106.</strong> The steps to create a &ldquo;butt ugly&rdquo; coloring rule for HTTP error responses.</div>
+</div>
+
+<div class="callout callout-green"><strong>BEST PRACTICE</strong>After creating any new coloring rule, always move it to the top of the list. A new rule appended at the bottom will never fire if any existing rule matches first. Name custom rules with a leading letter or symbol (e.g., &ldquo;T-HTTP Errors&rdquo;) to distinguish them from Wireshark defaults at a glance.</div>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">&#x1F9E0;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">To create a rule: right-click a field &rarr; Colorize with Filter &rarr; New Coloring Rule. Filter for all HTTP errors: <code>http.response.code &gt; 399</code>. 400&ndash;499 = client errors; 500&ndash;599 = server errors. Always move the new rule to the TOP &mdash; a bottom-of-list rule will never fire if any default rule matches first.</div></div></div>
+
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-create" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('create','Create Rules')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-create" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('create')">+ Add Note</button></div></div></div></div>
+</div>
+
+<!-- THINK FIRST 4 -->
+<div class="insight-block" id="ins-conversations">
+<div class="insight-hdr" onclick="toggleInsight('ins-conversations')">
+<span class="ins-icon">&#x1F4A1;</span>
+<span class="ins-label">THINK FIRST &middot; CONVERSATIONS &amp; PACKET MARKING</span>
+</div>
+<div class="ins-body">
+<p class="ins-q">There are 17 TCP connections in a busy trace file. You right-click and apply Color 1 to the first conversation, Color 2 to the second, and so on. You close the file and restart Wireshark. When you re-open the file, are the conversation colors still there? What about if you never restarted Wireshark but simply re-opened the file?</p>
+<p class="ins-q">You mark 57 packets matching a display filter and 4 extra packets manually, then export using &ldquo;Marked packets.&rdquo; How many packets are in the resulting file? What happens to all marks if you click Reload?</p>
+<textarea class="ins-ta" data-key="ins-conversations" rows="4" placeholder="Write your answer here before reading the section&hellip;"></textarea>
+<div class="ins-btn-row">
+<button class="btn-save-ins" id="savebtn-ins-conversations" onclick="saveIns('ins-conversations')">Save Answer</button>
+<button class="btn-hint-ins" onclick="toggleInsHint('ins-conversations')">&#x1F4AD; Hint</button>
+<button class="btn-model-ins" id="mibtn-ins-conversations" onclick="toggleInsModel('ins-conversations')" disabled>&#x1F512; Model Answer</button>
+</div>
+<div class="ins-hint-box" id="hint-ins-conversations" style="display:none"><div class="hm-label">HINT</div><p>Conversation colorization and packet marking have very different persistence rules. Think about what &ldquo;temporary&rdquo; means in each context, and which action clears each type.</p></div>
+<div class="ins-model-box" id="model-ins-conversations" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Conversation colors persist when you close and re-open the file (they survive between file opens in the same Wireshark session), but they are lost when you restart Wireshark or select View | Reset Coloring 1&ndash;10. Packet marks are cleared when you reload the trace file, open it again, or toggle marking off &mdash; they do not survive a file reload. The exported file contains 61 packets (57 from the filter + 4 manual marks). Clicking Reload clears all marks immediately. To save non-contiguous packets, mark them first and use File | Export Specified Packets | Marked packets.</p></div>
+</div>
+</div>
+
+<!-- SECTION 4: CONVERSATIONS & MARKING -->
+<div class="section-block" id="sec-conversations">
+<h2>Color Conversations to Distinguish Them</h2>
+<p>There are 10 temporary coloring options for conversations. Right click on a packet in the Packet List pane and select <strong>Colorize Conversation</strong>. Choose the conversation protocol to temporarily color a specific conversation as shown in Figure 107. The coloring rule remains in effect the next time you open the trace file, but it will not be in effect when you restart Wireshark.</p>
+
+<div class="figure-block">
+<div class="fig-img-wrap">
+<img src="figures/fig107-right-click-on-a-packet-to-select-it.png" alt="Figure 107: Right click on a packet to select it for colorization [voip-extension.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 107 &mdash; open trace file to view</span></div>
+</div>
+<div class="fig-cap"><strong>Figure 107.</strong> Right click on a packet to select it for colorization [voip-extension.pcapng].</div>
+</div>
+
+<p>To remove the conversation colorization, select <strong>View | Reset Coloring 1-10</strong>.</p>
+
+<h3>Temporarily Mark Packets of Interest</h3>
+<p>You can mark packets by right clicking on the packet and selecting <strong>Mark Packet (toggle)</strong>. Unmark the packet using the same step. Packet marking is useful to temporarily identify packets of interest.</p>
+<p>You can also use several accelerator keys (keyboard shortcuts) to mark packets and move between marked packets:</p>
+<table class="def-table">
+<thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><code>Ctrl+M</code></td><td>Mark Packet (toggle)</td></tr>
+<tr><td><code>Shift+Ctrl+N</code></td><td>Find Next Marked Packet</td></tr>
+<tr><td><code>Shift+Ctrl+B</code></td><td>Find Previous Marked Packet</td></tr>
+</tbody>
+</table>
+<p>By default, Wireshark colors marked packets with a black background and white foreground. You can change the default coloring in <strong>Edit | Preferences | Colors</strong> as shown in Figure 109.</p>
+
+<h3>Use Packet Marking to Save Non-Contiguous Packets</h3>
+<p>Marking packets also allows you to save specific non-contiguous packets or ranges of packets between marked packets. For example, if you want to save packets 1, 3, 7 and 9 of a trace file, simply mark those packets. When saving the trace file, select to save only the marked packets.</p>
+<p>To clear marking, select <strong>Edit | Unmark All Displayed Packets</strong> or click the <strong>Reload</strong> button on the Main Toolbar. To invert the marked and unmarked packets, select <strong>Edit | Toggle Marking of All Displayed Packets</strong>.</p>
+<p>The option for saving marked packets is shown in Figure 108. In this figure, Wireshark indicates that we have marked four packets. We have selected to save just those marked packets. To save just the marked packets into a separate trace file, select <strong>File | Export Specified Packets</strong> and check <strong>Marked packets</strong>. Enter the new file name and click <strong>Save</strong>.</p>
+
+<div class="figure-block">
+<div class="fig-img-wrap">
+<img src="figures/fig108-use-marked-packets-in-the-save-process-alter.png" alt="Figure 108: Use marked packets in the save process" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 108 &mdash; open trace file to view</span></div>
+</div>
+<div class="fig-cap"><strong>Figure 108.</strong> Use marked packets in the save process.</div>
+</div>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">&#x1F9E0;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">10 temporary conversation colors (Color 1&ndash;10): survive file close/reopen but reset on Wireshark restart or View | Reset Coloring 1-10. Packet marks: cleared on file reload or reopen. Mark shortcuts: Ctrl+M (toggle), Shift+Ctrl+N (next marked), Shift+Ctrl+B (previous marked). Export marked: File | Export Specified Packets | Marked packets. Marks are the ONLY colorization you can use to export a packet subset.</div></div></div>
+
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-conversations" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('conversations','Conversations &amp; Marking')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-conversations" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('conversations')">+ Add Note</button></div></div></div></div>
+</div>
+
+<!-- THINK FIRST 5 -->
+<div class="insight-block" id="ins-streams">
+<div class="insight-hdr" onclick="toggleInsight('ins-streams')">
+<span class="ins-icon">&#x1F4A1;</span>
+<span class="ins-label">THINK FIRST &middot; STREAM REASSEMBLY COLORS</span>
+</div>
+<div class="ins-body">
+<p class="ins-q">When you follow a TCP stream, Wireshark colors data red and blue. What does each color represent? Is the &ldquo;client&rdquo; always the host with the lower IP address or lower port number? How does Wireshark actually determine which side is the client?</p>
+<p class="ins-q">The stream color Preference setting is labeled &ldquo;Sample TCP stream client text&rdquo; and &ldquo;Sample TCP stream server text.&rdquo; If you follow a UDP or SSL stream, what colors will be used for each direction?</p>
+<textarea class="ins-ta" data-key="ins-streams" rows="4" placeholder="Write your answer here before reading the section&hellip;"></textarea>
+<div class="ins-btn-row">
+<button class="btn-save-ins" id="savebtn-ins-streams" onclick="saveIns('ins-streams')">Save Answer</button>
+<button class="btn-hint-ins" onclick="toggleInsHint('ins-streams')">&#x1F4AD; Hint</button>
+<button class="btn-model-ins" id="mibtn-ins-streams" onclick="toggleInsModel('ins-streams')" disabled>&#x1F512; Model Answer</button>
+</div>
+<div class="ins-hint-box" id="hint-ins-streams" style="display:none"><div class="hm-label">HINT</div><p>The Preference label says TCP but the book states these colors are reused for more protocol types. The &ldquo;client&rdquo; is defined by the first packet in the stream, not by port or IP address.</p></div>
+<div class="ins-model-box" id="model-ins-streams" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>By default, a light red background and red font identify traffic sent by the client and light blue background and blue font identify traffic sent by the server. The &ldquo;client&rdquo; is simply the host that sent the first packet in the stream &mdash; not necessarily the host with the lower port number or IP address. Although the Preference setting labels say &ldquo;TCP stream client/server text,&rdquo; these same colors are also used for UDP stream reassembly and SSL stream reassembly. To change colors: Edit | Preferences | (User Interface) Colors.</p></div>
+</div>
+</div>
+
+<!-- SECTION 5: STREAM COLORS -->
+<div class="section-block" id="sec-streams">
+<h2>Alter Stream Reassembly Coloring</h2>
+<p>When you right click on a packet and select <strong>Follow UDP stream</strong>, <strong>Follow TCP stream</strong> or <strong>Follow SSL stream</strong>, the streams are colorized to identify packets sent from a client (the device initiating the connection or conversation) and packets sent from a server. For more information on following UDP, TCP or SSL streams, refer to Chapter 10: Follow Streams and Reassemble Data.</p>
+<p>You can change the stream coloring using <strong>Edit | Preferences | (User Interface) Colors</strong> as shown in Figure 109. Although the stream coloring lists only <em>Sample TCP stream client text</em> and <em>Sample TCP stream server text</em>, these colors are also used for UDP stream reassembly and SSL stream reassembly&mdash;the setting can be interpreted simply as &ldquo;stream client text&rdquo; (the host that sent the first packet in the stream) and &ldquo;stream server text&rdquo; (the host that received the first packet in the stream).</p>
+
+<div class="figure-block">
+<div class="fig-img-wrap">
+<img src="figures/fig109-stream-coloring-is-defined-through-preferences.png" alt="Figure 109: Stream coloring is defined through preferences" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 109 &mdash; open trace file to view</span></div>
+</div>
+<div class="fig-cap"><strong>Figure 109.</strong> Stream coloring is defined through preferences.</div>
+</div>
+
+<p>By default, a light red background and red font identify traffic sent by the client and light blue background and blue font identify traffic sent by the server. The separate parts of a reassembled TCP stream are marked in Figure 110.</p>
+
+<div class="figure-block">
+<div class="fig-img-wrap">
+<img src="figures/fig110-stream-coloring-is-seen-when-you-reassemble-udp.png" alt="Figure 110: Stream coloring is seen when you reassemble UDP, TCP or SSL streams [http-espn2011.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 110 &mdash; open trace file to view</span></div>
+</div>
+<div class="fig-cap"><strong>Figure 110.</strong> Stream coloring is seen when you reassemble UDP, TCP or SSL streams [http-espn2011.pcapng].</div>
+</div>
+
+<div class="callout callout-blue"><strong>NOTE</strong>The stream coloring preference is labeled &ldquo;TCP stream client/server text&rdquo; but these same colors apply to UDP and SSL stream reassembly as well. Client = the host that sent the first packet in the stream (not necessarily the lower port or IP). Change colors via Edit | Preferences | (User Interface) Colors.</div>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">&#x1F9E0;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Stream colors default: client = light red background + red font; server = light blue background + blue font. &ldquo;Client&rdquo; = host that sent the first packet in the stream. The same color settings apply to TCP, UDP, and SSL stream reassembly. Change via Edit | Preferences | (User Interface) Colors.</div></div></div>
+
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-streams" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('streams','Stream Colors')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-streams" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('streams')">+ Add Note</button></div></div></div></div>
+</div>
+
+<!-- SECTION 6: CASE STUDY -->
+<div class="section-block" id="sec-casestudy">
+<h2>Case Studies</h2>
+
+<div class="case-study-block">
+<div class="cs-eyebrow">Case Study 1</div>
+<div class="cs-title">Colorizing SharePoint Connections During Login</div>
+<div class="cs-sub">Submitted by: Laura Chappell, Wireshark University</div>
+<div class="cs-body">
+<p>Colorization can help in the analysis of very complex communications. For example, SharePoint networks use numerous connections and numerous port numbers. Wading through the communications from a SharePoint client can be overwhelming and rekindle that &ldquo;needle in the haystack&rdquo; feeling.</p>
+<p>During a recent onsite analysis and training session we analyzed a login sequence from a host that was a SharePoint client. In order to distinguish between the various connections made from the client, we systematically colorized the various conversations to tell them apart.</p>
+<p>This colorization helped us quickly see which connections were established first and which connections had problems. We could slowly filter out conversations that didn&rsquo;t have problems&mdash;we were left with the conversations that we needed to focus on. Do a bit of &ldquo;googling&rdquo; to see how many ports are used in a typical SharePoint environment.</p>
+</div>
+<div class="cs-img-inline">
+<div class="cs-img-wrap">
+<img src="../all-casestudy-pictures/C6-CS1.png" alt="Colorizing SharePoint Connections During Login" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="cs-img-ph" style="display:none">
+<span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
+<div><strong>C6-CS1.png</strong></div>
+<div class="cs-ph-sub">Save to all-casestudy-pictures/C6-CS1.png</div>
+</div>
+</div>
+<div class="cs-prompt-row">
+<button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">&#9662; Show cartoon prompt</button>
+<div class="cs-prompt-text" hidden>A network analyst sits at a large monitor showing Wireshark Packet List pane filled with rows of traffic, each conversation colorized in a different bright color: red, blue, green, yellow, purple. The analyst holds a coffee mug and points at the screen with a stylus, looking relieved. A whiteboard shows a SharePoint logo connected to a tangle of lines labeled with port numbers (80, 443, 49152, 8080). One group of colored rows is circled in red labeled "Problems here!". Other conversation groups have green checkmarks labeled "OK - filtered out". Post-it notes on the monitor read "Color 1: Login auth", "Color 2: Document sync", "Color 3: Search". Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "SharePoint Login", "Colors 1-10", "Problems here!", "OK filtered out", minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- TL;DR -->
+<div class="section-block" id="sec-tldr">
+<div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;">
+<div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR &mdash; CHAPTER 6</div>
+<p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Colorization can be used to distinguish separate conversations, specific packet types and unusual traffic. A set of predefined coloring rules is included with Wireshark. Create custom coloring rules to improve your ability to identify unusual traffic in your analysis environment. The predefined coloring rules are maintained in the <code style="background:rgba(147,197,253,0.1);padding:1px 5px;border-radius:3px;color:#93c5fd;">colorfilters</code> file in the Wireshark Global Preferences directory. New or customized coloring rule settings are maintained in the <code style="background:rgba(147,197,253,0.1);padding:1px 5px;border-radius:3px;color:#93c5fd;">colorfilters</code> file in your Personal Configuration folder. You can import, export and clear (return to default) your coloring rules. Coloring rules are automatically applied to each packet as it is displayed (if packet coloring is enabled). Other colorization, such as conversation colorization and marked packets are applied on a temporary basis only. To identify the coloring rule applied to any packet, expand the Frame section in the Packet Details pane and examine the [Coloring Rule Name] and [Coloring Rule String] sections. You can mark packets of interest and save just the subset of marked packets, if desired. You do not have the option to save packets based on any other colorization. Reassembled UDP, TCP and SSL streams are colorized based on the Preferences settings. By default, data sent from clients is red and data from servers is blue. If desired, this can be changed.</p>
+</div>
+</div>
+
+<!-- REVIEW QUESTIONS -->
+<div class="section-block" id="sec-rq">
+<h2>Review Questions</h2>
+
+<div class="rq-card">
+<div class="rq-num">Q6-1</div>
+<div class="rq-q">What is the difference between marking packets and applying a coloring rule?</div>
+<textarea class="rq-ta" data-key="rq-6-1" rows="4" placeholder="Write your answer before revealing the model answer&hellip;"></textarea>
+<div class="rq-btn-row">
+<button class="btn-rq-save" id="rqsave-6-1" onclick="saveRQ('6-1')">Save Answer</button>
+<button class="btn-rq-hint" onclick="toggleRQHint('6-1')">&#x1F4AD; Hint</button>
+<button class="btn-rq-ans" id="ansbtn-6-1" onclick="toggleRQAns('6-1')" disabled>&#x1F512; See Answer</button>
+<button class="btn-rq-reset" id="resetbtn-6-1" onclick="resetRQ('6-1')" style="display:none">&#8635; Reset</button>
+</div>
+<div class="rq-hint-box" id="rqhint-6-1" style="display:none"><div class="hm-label">HINT</div><p>Think about persistence: which survives a file reload? Which fires automatically every time you open a trace?</p></div>
+<div class="rq-ans-box" id="rqans-6-1" style="display:none"><div class="hm-label">ANSWER</div><p>Packet marking is a temporary designation that is cleared when you reload the trace file, open the trace file again or toggle the packet marking off. Coloring rules are automatically applied to the traffic each time you open the trace file (if coloring is enabled). Marked packets use black background / white foreground by default; coloring rule colors are fully customizable. Only marked packets can be selectively exported using File | Export Specified Packets | Marked packets &mdash; there is no export option for coloring-rule-based packet sets.</p></div>
+</div>
+
+<div class="rq-card">
+<div class="rq-num">Q6-2</div>
+<div class="rq-q">How do you share coloring rules with other Wireshark users?</div>
+<textarea class="rq-ta" data-key="rq-6-2" rows="4" placeholder="Write your answer before revealing the model answer&hellip;"></textarea>
+<div class="rq-btn-row">
+<button class="btn-rq-save" id="rqsave-6-2" onclick="saveRQ('6-2')">Save Answer</button>
+<button class="btn-rq-hint" onclick="toggleRQHint('6-2')">&#x1F4AD; Hint</button>
+<button class="btn-rq-ans" id="ansbtn-6-2" onclick="toggleRQAns('6-2')" disabled>&#x1F512; See Answer</button>
+<button class="btn-rq-reset" id="resetbtn-6-2" onclick="resetRQ('6-2')" style="display:none">&#8635; Reset</button>
+</div>
+<div class="rq-hint-box" id="rqhint-6-2" style="display:none"><div class="hm-label">HINT</div><p>The coloring rules live in a specific file. There are two ways to transfer them: one requires Wireshark, one does not.</p></div>
+<div class="rq-ans-box" id="rqans-6-2" style="display:none"><div class="hm-label">ANSWER</div><p>By default, coloring rules are contained in the <code>colorfilters</code> file. This file can be copied directly to another Wireshark system &mdash; no Import/Export required since it is a plain text file. In addition, you can use the Export and Import feature in the Coloring Rules window to save the coloring rules file under another name and load it on another Wireshark system. When exporting, Wireshark defaults to the filename <code>colorfilters</code>; using this name makes distribution to teammates straightforward.</p></div>
+</div>
+
+<div class="rq-card">
+<div class="rq-num">Q6-3</div>
+<div class="rq-q">You have created a coloring rule for ICMP Type 3 traffic. How can you ensure that ICMP Type 3 packets are colored with this new rule rather than the default ICMP coloring rules?</div>
+<textarea class="rq-ta" data-key="rq-6-3" rows="4" placeholder="Write your answer before revealing the model answer&hellip;"></textarea>
+<div class="rq-btn-row">
+<button class="btn-rq-save" id="rqsave-6-3" onclick="saveRQ('6-3')">Save Answer</button>
+<button class="btn-rq-hint" onclick="toggleRQHint('6-3')">&#x1F4AD; Hint</button>
+<button class="btn-rq-ans" id="ansbtn-6-3" onclick="toggleRQAns('6-3')" disabled>&#x1F512; See Answer</button>
+<button class="btn-rq-reset" id="resetbtn-6-3" onclick="resetRQ('6-3')" style="display:none">&#8635; Reset</button>
+</div>
+<div class="rq-hint-box" id="rqhint-6-3" style="display:none"><div class="hm-label">HINT</div><p>Coloring rules process top-to-bottom. The default list already has ICMP rules. What determines which rule fires first, and where must your new rule sit relative to the existing ICMP rules?</p></div>
+<div class="rq-ans-box" id="rqans-6-3" style="display:none"><div class="hm-label">ANSWER</div><p>Coloring rules are processed in order from top to bottom, and the first matching rule wins. To have ICMP Type 3 packets colored as defined by your new rule, you must move that rule <strong>above</strong> the existing ICMP errors and ICMP coloring rules using the Up button in the Coloring Rules window. If your new rule sits below the default ICMP rules, those default rules will match Type 3 packets first and your custom rule will never fire.</p></div>
+</div>
+
+</div>
+
+</div>
+
 <div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 06 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Coloring Shortcuts</h4><div class="qr-row"><span class="qr-term">View → Coloring Rules</span><span class="qr-def">Edit rules</span></div><div class="qr-row"><span class="qr-term">Right-click → Colorize</span><span class="qr-def">Temp conversation color</span></div><div class="qr-row"><span class="qr-term">View → Reset Coloring</span><span class="qr-def">Clear temp colors</span></div><h4>Default Colors</h4><div class="qr-row"><span class="qr-term">Bad TCP</span><span class="qr-def">Red/salmon (1st rule)</span></div><div class="qr-row"><span class="qr-term">TCP RST</span><span class="qr-def">Red</span></div><div class="qr-row"><span class="qr-term">SYN/FIN</span><span class="qr-def">Purple</span></div><div class="qr-row"><span class="qr-term">TCP</span><span class="qr-def">Light green</span></div><div class="qr-row"><span class="qr-term">UDP</span><span class="qr-def">Light blue</span></div><div class="qr-row"><span class="qr-term">ARP</span><span class="qr-def">Tan/gold</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 7 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
+<div class="sidebar-card">
+<h3>Navigation</h3>
+<div class="sidebar-nav-links">
+<a class="sidebar-link" href="../../index.html">&#8592; Wireshark Hub <span class="arr">&#x2197;</span></a>
+<a class="sidebar-link" href="index.html">Chapter 06 Practice Lab <span class="arr">&#x2192;</span></a>
+</div>
+</div>
+<div class="sidebar-card">
+<h3>Quick Reference</h3>
+<div class="quick-ref">
+<h4>Keyboard Shortcuts</h4>
+<div class="qr-row"><span class="qr-term">Ctrl+M</span><span class="qr-def">Mark packet (toggle)</span></div>
+<div class="qr-row"><span class="qr-term">Shift+Ctrl+N</span><span class="qr-def">Next marked packet</span></div>
+<div class="qr-row"><span class="qr-term">Shift+Ctrl+B</span><span class="qr-def">Previous marked packet</span></div>
+</div>
+<div class="quick-ref" style="margin-top:10px">
+<h4>Coloring Rule Files</h4>
+<div class="qr-row"><span class="qr-term">Global</span><span class="qr-def">colorfilters (default)</span></div>
+<div class="qr-row"><span class="qr-term">Personal</span><span class="qr-def">overrides global</span></div>
+<div class="qr-row"><span class="qr-term">Profile</span><span class="qr-def">per-profile override</span></div>
+</div>
+<div class="quick-ref" style="margin-top:10px">
+<h4>Stream Colors (default)</h4>
+<div class="qr-row"><span class="qr-term">Client</span><span class="qr-def">light red / red font</span></div>
+<div class="qr-row"><span class="qr-term">Server</span><span class="qr-def">light blue / blue font</span></div>
+<div class="qr-row"><span class="qr-term">HTTP errors</span><span class="qr-def">response.code &gt; 399</span></div>
+</div>
+</div>
+<div class="sidebar-card">
+<div class="ins-prog-label">Think First + Review Qs answered</div>
+<div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 8 answered</div>
+<div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div>
+</div>
 </div>
 </main>
+
 <div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
+<a href="index.html" class="btn-practice-cta">&#x2753; Practice What You&apos;ve Learned &#x2192;</a>
 <p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
 </div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 06: Colorize Traffic</div>
-</footer>
+<footer><div>Wireshark Network Analysis &mdash; 2nd Edition</div><div>Chapter 06: Colorize Traffic</div></footer>
 <script>
-
 const PAGE_KEY='ws-ch06-full';
-const SECTIONS={'overview':'Overview','defaults':'Default Rules','custom':'Custom Rules','analysis':'Color for Analysis','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-overview','ins-defaults','ins-custom','ins-analysis'];
+const SECTIONS={'colorize':'Coloring Rules','manage':'Share & Identify','create':'Create Rules','conversations':'Conversations & Marking','streams':'Stream Colors','casestudy':'Case Study','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-colorize','ins-manage','ins-create','ins-conversations','ins-streams'];
 const RQ_IDS=['6-1','6-2','6-3'];
-const TOTAL=7;
+const TOTAL=8;
 function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
 function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
 function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
@@ -304,18 +673,16 @@ function toggleInsight(id){const block=document.getElementById(id);if(!block)ret
 function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
 function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='inline';updateInsProgress();}
+function resetRQ(id){localStorage.removeItem(PAGE_KEY+'-rq-'+id);const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(ta){ta.value='';ta.disabled=false;}const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='Save Answer';sb.disabled=false;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=true;ab.textContent='🔒 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='none';const ah=document.getElementById('rqans-'+id);if(ah)ah.style.display='none';updateInsProgress();}
 function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
 function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
 document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  renderQPanel();renderNotesPanel();initSectionNav();initPT();updateInsProgress();
   if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
   if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
   INSIGHT_IDS.forEach(function(id){
@@ -331,6 +698,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(ta&&sv){ta.value=sv;ta.disabled=true;}
     const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
     const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+    const rb=document.getElementById('resetbtn-'+id);if(rb&&sv)rb.style.display='inline';
   });
 });
 </script>

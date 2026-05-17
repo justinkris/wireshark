@@ -3,21 +3,14 @@
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chapter 12: Annotate and Export | Wireshark Study Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12: Annotate, Save, Export &amp; Print Packets | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +64,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,12 +81,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
 .insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
@@ -127,7 +115,11 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
 .fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
-.fig-trace{color:var(--blue);font-style:italic;}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -135,7 +127,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -145,11 +137,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -174,15 +170,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -190,148 +177,730 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
+
 </style>
 </head>
 <body>
-<header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 12<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 12 · ANNOTATE & EXPORT</div>
-<h1>Annotate <em>and Export</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
-</header>
-<div class="motivation-banner">
-<div class="motivation-text"> <em>A capture without annotations is just raw data.</em></div>
-<p class="motivation-sub">Add context with packet comments, save in the right format, and export specific packets or objects for sharing and further analysis.</p>
-</div>
-<div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
-</div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
-<nav class="section-nav">
-<button class="nav-tab" data-target="sec-comments" onclick="navTo('sec-comments')">Comments</button><button class="nav-tab" data-target="sec-saving" onclick="navTo('sec-saving')">Saving Captures</button><button class="nav-tab" data-target="sec-export" onclick="navTo('sec-export')">Export Packet Data</button><button class="nav-tab" data-target="sec-marking" onclick="navTo('sec-marking')">Mark & Print</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
-</nav>
-<main>
-<div class="main-content">
-<div class="insight-block" id="ins-comments"><div class="insight-hdr" onclick="toggleInsight('ins-comments')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PACKET AND CAPTURE COMMENTS</span></div><div class="ins-body"><p class="ins-q">pcapng format supports both packet-level and capture-level comments. Why is this valuable for forensics and incident response?</p><textarea class="ins-ta" data-key="ins-comments" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-comments" onclick="saveIns('ins-comments')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-comments')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-comments" onclick="toggleInsModel('ins-comments')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-comments" style="display:none"><div class="hm-label">HINT</div><p>Think about what happens when a capture file is shared weeks later with someone who wasn't on-site.</p></div><div class="ins-model-box" id="model-ins-comments" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Comments embedded in the pcapng file travel with the capture — they're not in a separate document that can become separated. A capture-level comment records: who captured it, when, which interface, why, and what was observed. Packet-level comments mark specific packets of interest: 'this is the exploit delivery', 'this is the exfiltrated file', 'TCP RST here caused the connection failure'. When the file is shared or re-examined months later, the context survives. In legal/forensic contexts, comments become part of the evidence chain and can document chain of custody.</p></div></div></div><div class="section-block" id="sec-comments"><h2>Packet and Capture Comments</h2><h3>Packet Comments</h3><p>Add a comment to any specific packet: right-click the packet → <strong>Packet Comment</strong> (Ctrl+Alt+C). Packets with comments show a speech bubble icon in the packet list.</p><p>Filter to commented packets: <code>frame.comment</code> (existence test) or <code>frame.comment contains "error"</code></p><h3>Capture (File-Level) Comments</h3><p>Add a comment to the entire capture file: <strong>Statistics → Capture File Properties</strong> → click <strong>Add Comment</strong>. This adds a global capture comment visible when anyone opens the file.</p><h3>Requirements</h3><ul><li>Only <strong>pcapng format</strong> supports comments — pcap does not</li><li>Comments are preserved when saving as pcapng</li><li>Comments are lost if you save as pcap format</li></ul><div class="callout callout-callout-amber"><strong>PCAPNG ONLY</strong>Comments require pcapng format. If you save as .pcap, all comments are permanently lost. Always use .pcapng for captures you intend to annotate or share with context.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Packet comments: right-click → Packet Comment. Capture comment: Statistics → Capture File Properties → Add Comment. Filter: frame.comment. ONLY pcapng supports comments — saving as pcap loses all annotations. Speech bubble icon in packet list = packet has a comment.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig166-packet-comments-are-saved-in-the-trace-file.png" alt="Figure 166: shows individual packet annotations, the Packet Comments column and the Expert Info Packet Comments tab. Note that you can doubleclick on a comment in the Expert Info tab to open and edit a" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 166 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 166.</strong> shows individual packet annotations, the Packet Comments column and the Expert Info Packet Comments tab. Note that you can doubleclick on a comment in the Expert Info tab to open and edit a</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig167-comments-about-the-entire-trace-file-can-be.png" alt="Figure 167: Comments about the entire trace file can be seen when you select Statistics | Summary or click the Packet Comments icon on the Status Bar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 167 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 167.</strong> Comments about the entire trace file can be seen when you select Statistics | Summary or click the Packet Comments icon on the Status Bar</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig173-plotting-the-delta-time-between-beacons.png" alt="Figure 173: Plotting the delta time between beacons" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 173 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 173.</strong> Plotting the delta time between beacons</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-comments" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('comments','Comments')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-comments" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('comments')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-saving"><div class="insight-hdr" onclick="toggleInsight('ins-saving')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · SAVING CAPTURE FILES</span></div><div class="ins-body"><p class="ins-q">What is the difference between Ctrl+S and File → Export Specified Packets, and when would you use the export function rather than save?</p><textarea class="ins-ta" data-key="ins-saving" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-saving" onclick="saveIns('ins-saving')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-saving')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-saving" onclick="toggleInsModel('ins-saving')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-saving" style="display:none"><div class="hm-label">HINT</div><p>Think about sharing a subset of a large capture with a vendor or colleague.</p></div><div class="ins-model-box" id="model-ins-saving" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Ctrl+S saves the entire capture to the current file. 'Export Specified Packets' creates a new file containing only a subset: the displayed packets (matching the current display filter), marked packets, or a packet range. Use this when: sharing only the relevant portion with a vendor (don't send 500MB when the relevant exchange is 50 packets); when the capture contains sensitive data from other conversations; when you want to isolate a specific TCP stream as its own file for sharing.</p></div></div></div><div class="section-block" id="sec-saving"><h2>Saving Capture Files</h2><h3>Save Options</h3><ul><li><strong>Ctrl+S</strong> — save to current file (overwrites)</li><li><strong>Ctrl+Shift+S</strong> — Save As (new filename, format choice)</li><li><strong>File → Export Specified Packets</strong> — save a subset of packets to a new file</li></ul><h3>Export Specified Packets Options</h3><ul><li><strong>All packets</strong> — saves everything (same as Save As)</li><li><strong>Displayed packets</strong> — saves only packets matching the current display filter</li><li><strong>Marked packets</strong> — saves only packets marked with Ctrl+M</li><li><strong>First/Last N packets</strong> — range by packet number</li></ul><h3>Format Considerations</h3><ul><li>pcapng — preserves comments, multiple interfaces, metadata. Default choice.</li><li>pcap — maximum compatibility with older tools. No comments or metadata.</li><li>CSV/JSON — for importing into other analysis tools</li></ul><div class="callout callout-callout-blue"><strong>COMMON WORKFLOW</strong>Filter to the relevant conversation → File → Export Specified Packets → Displayed packets → save as a small pcapng file → share with vendor or colleague. Strips all irrelevant and potentially sensitive traffic.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Export Specified Packets: save only displayed (filter-matched) or marked packets to a new file. Key for sharing relevant subsets without exposing full captures. Always choose pcapng unless tool compatibility requires pcap. Ctrl+S = overwrite current; Ctrl+Shift+S = Save As.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig168-you-can-save-all-packets-displayed-packets-marked.png" alt="Figure 168: shows the  Save As  window. We can choose whether to save the displayed packets only, the selected packet, marked packets, first to last marked packets or a range of packets. In our trace f" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 168 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 168.</strong> shows the  Save As  window. We can choose whether to save the displayed packets only, the selected packet, marked packets, first to last marked packets or a range of packets. In our trace f</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig170-printed-packets-retain-formats-for-readability-export-packet.png" alt="Figure 170: Printed packets retain formats for readability Export Packet Content for Use in Other Programs Use  File | Export Packet Dissections  to create additional graphs, search for specific conte" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 170 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 170.</strong> Printed packets retain formats for readability Export Packet Content for Use in Other Programs Use  File | Export Packet Dissections  to create additional graphs, search for specific conte</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig171-we-have-chosen-to-export-displayed-packets-to.png" alt="Figure 171: We have chosen to export displayed packets to CSV format" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 171 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 171.</strong> We have chosen to export displayed packets to CSV format</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-saving" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('saving','Saving Captures')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-saving" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('saving')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-export"><div class="insight-hdr" onclick="toggleInsight('ins-export')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · EXPORT PACKET DATA</span></div><div class="ins-body"><p class="ins-q">File → Export Objects → HTTP extracts all transferred objects from a capture. Beyond finding files, what security-relevant information can you extract this way?</p><textarea class="ins-ta" data-key="ins-export" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-export" onclick="saveIns('ins-export')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-export')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-export" onclick="toggleInsModel('ins-export')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-export" style="display:none"><div class="hm-label">HINT</div><p>Think about what an attacker might deliver over HTTP that isn't a benign document.</p></div><div class="ins-model-box" id="model-ins-export" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Export Objects → HTTP can extract: malware executables (.exe, .dll) delivered via drive-by downloads; exploit payloads; JavaScript files that contain obfuscated code; configuration files downloaded by malware; C2 callback data. Each extracted file can be submitted to VirusTotal or a sandbox for analysis. The filename column shows the URI path (which may reveal the malware family or C2 infrastructure). Content-Type mismatches (e.g. text/html containing an executable) are red flags.</p></div></div></div><div class="section-block" id="sec-export"><h2>Export Packet Data</h2><h3>Export Objects</h3><p>File → Export Objects → select protocol:</p><ul><li><strong>HTTP</strong> — all objects transferred over HTTP (images, scripts, executables, documents)</li><li><strong>FTP-DATA</strong> — files transferred via FTP</li><li><strong>SMB</strong> — files accessed over SMB/CIFS</li><li><strong>DICOM</strong> — medical imaging files</li><li><strong>TFTP</strong> — TFTP file transfers</li></ul><p>In the dialog: see filename, packet number, size, hostname for each object. Click <strong>Save</strong> or <strong>Save All</strong> to export to disk.</p><h3>Export as CSV / JSON / XML</h3><p>File → Export Packet Dissections → As CSV / JSON / Plain Text. Exports the packet list (with columns) in text format for import into spreadsheets, SIEM, or custom analysis tools.</p><h3>Export as Hex Dump</h3><p>File → Export Packet Dissections → As Plain Text. Shows each packet's hex dump and dissection — useful for documentation.</p><div class="callout callout-callout-green"><strong>MALWARE ANALYSIS</strong>Extract malware delivered over HTTP with Export Objects → HTTP. Save to a sandbox environment and analyze with VirusTotal or a dynamic malware sandbox. Never run extracted files on a production machine.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Export Objects: extracts transferred files from HTTP, FTP, SMB, TFTP in one step. Find malware deliveries, exfiltrated documents, configuration downloads. File → Export Packet Dissections → CSV/JSON for SIEM import. Each extracted file = one transferred object from the capture.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig169-you-can-print-to-a-text-or-postscript.png" alt="Figure 169: You can print to a text or PostScript file" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 169 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 169.</strong> You can print to a text or PostScript file</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig174-click-the-copy-button-to-save-the-data.png" alt="Figure 174: Click the Copy button to save the data from the Conversation or Endpoint windows in CSV format" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 174 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 174.</strong> Click the Copy button to save the data from the Conversation or Endpoint windows in CSV format</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-export" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('export','Export Packet Data')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-export" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('export')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-marking"><h2>Marking and Printing Packets</h2><h3>Marking Packets</h3><p>Mark a packet with <strong>Ctrl+M</strong> (or right-click → Mark/Unmark Packet). Marked packets appear with a black background in the packet list. Navigate between marks: <strong>Ctrl+Shift+N</strong> (next) / <strong>Ctrl+Shift+B</strong> (previous).</p><p>Use marking to tag packets of interest during analysis, then export only the marked packets with File → Export Specified Packets → Marked packets.</p><h3>Ignoring Packets</h3><p>Right-click → Ignore Packet — the packet is grayed out and excluded from statistics and displays. Useful for ignoring known-good background traffic without a display filter.</p><h3>Printing</h3><p>File → Print. Options to print all, displayed, marked, or a range. Prints the packet list view with configured columns. For documentation, include both the packet list and selected packet details.</p><div class="callout callout-callout-amber"><strong>PRINT LEGIBILITY</strong>Wireshark's default dark coloring rules don't print well in black and white. Before printing, consider disabling colorization (View → Colorize Packet List) or choosing colors with good contrast for monochrome output.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Mark packets: Ctrl+M. Navigate marks: Ctrl+Shift+N / Ctrl+Shift+B. Export only marked: File → Export Specified Packets → Marked. Ignore packets: right-click → Ignore (grays out without deleting). Print: File → Print (all, displayed, or marked).</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig172-we-will-graph-the-contents-of-the-delta.png" alt="Figure 172: We will graph the contents of the Delta column" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 172 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 172.</strong> We will graph the contents of the Delta column</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-marking" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('marking','Mark & Print')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-marking" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('marking')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 12</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Packet comments (right-click → Packet Comment) and capture comments (Statistics → Capture File Properties) embed context that travels with the pcapng file — lost if saved as pcap. Export Specified Packets saves a filtered subset for sharing. Export Objects extracts HTTP/FTP/SMB transferred files — including malware. Mark packets (Ctrl+M) to tag findings and export them separately.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q12.1</div><div class="rq-q">Why do packet and capture comments require pcapng format, and what happens if you save a commented capture as pcap?</div><textarea class="rq-ta" data-key="rq-12-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-12-1" onclick="saveRQ('12-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('12-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-12-1" onclick="toggleRQAns('12-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-12-1" style="display:none"><div class="hm-label">HINT</div><p>What feature does pcap lack that pcapng supports?</p></div><div class="rq-ans-box" id="rqans-12-1" style="display:none"><div class="hm-label">ANSWER</div><p>The pcap (libpcap) format was designed for simple packet storage — it has no metadata fields for comments, interface information, or per-packet annotations. pcapng (PCAP Next Generation) was specifically designed to support multiple interfaces, comments, statistics, and extensible metadata blocks. If you save a pcapng capture with comments as a .pcap file, Wireshark warns you that comments will be lost, and all packet and capture comments are permanently discarded in the resulting file.</p></div></div><div class="rq-card"><div class="rq-num">Q12.2</div><div class="rq-q">You have a 500 MB capture file containing an HTTP session of interest in a 5-second window. How do you share only the relevant packets with a vendor?</div><textarea class="rq-ta" data-key="rq-12-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-12-2" onclick="saveRQ('12-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('12-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-12-2" onclick="toggleRQAns('12-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-12-2" style="display:none"><div class="hm-label">HINT</div><p>What tool and settings accomplish this?</p></div><div class="rq-ans-box" id="rqans-12-2" style="display:none"><div class="hm-label">ANSWER</div><p>(1) Apply a display filter to isolate the HTTP session: e.g. 'tcp.stream eq 12 or tcp.stream eq 13' (the streams identified by following them). Alternatively, use 'ip.addr == server_ip and http'. (2) File → Export Specified Packets → select 'Displayed packets' → choose a new filename → save as pcapng. The resulting file contains only the filtered packets. Optional: add a packet comment documenting the analysis context before exporting.</p></div></div><div class="rq-card"><div class="rq-num">Q12.3</div><div class="rq-q">How do you extract all files downloaded over HTTP in a capture for malware analysis?</div><textarea class="rq-ta" data-key="rq-12-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-12-3" onclick="saveRQ('12-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('12-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-12-3" onclick="toggleRQAns('12-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-12-3" style="display:none"><div class="hm-label">HINT</div><p>What Wireshark feature automates this?</p></div><div class="rq-ans-box" id="rqans-12-3" style="display:none"><div class="hm-label">ANSWER</div><p>File → Export Objects → HTTP. Wireshark presents a dialog listing all HTTP objects transferred in the capture with filename, packet number, size, and hostname. Select the files of interest (or Save All) and choose a destination directory. Submit extracted executables (.exe, .dll, .js) to VirusTotal or a sandbox. Check for Content-Type mismatches (e.g. text/html delivering an executable) — these indicate potential drive-by downloads or C2 communications. Always handle extracted files in an isolated environment.</p></div></div></div>
-</div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 12 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Save/Export</h4><div class="qr-row"><span class="qr-term">Ctrl+S</span><span class="qr-def">Save (overwrite)</span></div><div class="qr-row"><span class="qr-term">Ctrl+Shift+S</span><span class="qr-def">Save As (new name)</span></div><div class="qr-row"><span class="qr-term">File → Export Specified Packets</span><span class="qr-def">Save subset</span></div><div class="qr-row"><span class="qr-term">File → Export Objects</span><span class="qr-def">Extract HTTP/FTP files</span></div><h4>Annotations</h4><div class="qr-row"><span class="qr-term">Ctrl+Alt+C</span><span class="qr-def">Add packet comment</span></div><div class="qr-row"><span class="qr-term">Statistics → Capture File Properties</span><span class="qr-def">Capture comment</span></div><div class="qr-row"><span class="qr-term">frame.comment</span><span class="qr-def">Filter on comments</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 7 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 12: Annotate and Export</div>
-</footer>
-<script>
 
-const PAGE_KEY='ws-ch12-full';
-const SECTIONS={'comments':'Comments','saving':'Saving Captures','export':'Export Packet Data','marking':'Mark & Print','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-comments','ins-saving','ins-export','ins-marking'];
-const RQ_IDS=['12-1','12-2','12-3'];
-const TOTAL=7;
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
-function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
-function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
-function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+<header>
+  <div class="header-inner">
+    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> &rsaquo; <a href="../hub.html">Study Guides</a> &rsaquo; Chapter 12</div>
+    <div class="eyebrow-row">
+      <span class="eyebrow-chip">CHAPTER 12</span>
+      <span class="animated-dot"></span>
+    </div>
+    <h1>Annotate, Save, Export <em>&amp; Print</em></h1>
+    <div class="header-sub">Annotating trace files and extracting data for deeper analysis</div>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text"><em>"A well-annotated trace file is a self-documenting network story — others can read exactly what you found and why it matters."</em></div>
+  <div class="motivation-sub">Learn to annotate, subset, and export Wireshark data</div>
+</div>
+
+<div class="top-panels">
+  <div class="q-panel" id="q-panel">
+    <div class="q-panel-header" onclick="toggleQPanel()">
+      <span>&#x1F4AD; My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">&#9662;</span>
+    </div>
+    <div class="q-panel-body" id="q-panel-body">
+      <div id="q-list"></div>
+      <div class="q-empty" id="q-empty">No questions yet &mdash; add one from any section below.</div>
+    </div>
+  </div>
+  <div class="note-panel" id="note-panel">
+    <div class="note-panel-header">&#x1F4DD; My Notes</div>
+    <div class="note-panel-body">
+      <textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights, things to remember..."></textarea>
+    </div>
+  </div>
+</div>
+
+<nav class="section-nav" id="section-nav">
+  <button class="nav-tab active" onclick="navTo('sec-annotate')">Annotate</button>
+  <button class="nav-tab" onclick="navTo('sec-save')">Save &amp; Export</button>
+  <button class="nav-tab" onclick="navTo('sec-export')">Export Bytes</button>
+  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
+</nav>
+
+<main>
+  <div class="main-content">
+
+    <!-- THINK FIRST: Annotate -->
+    <div class="insight-block" id="ins-annotate">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; ANNOTATING TRACE FILES</span>
+      </div>
+      <p class="insight-insight">Wireshark lets you embed comments directly into trace files in pcap-ng format &mdash; both per-packet comments and trace-level comments. These comments survive the file being opened on any Wireshark 1.7+ system, turning a raw capture into a documented record.</p>
+      <ul class="insight-questions">
+        <li>Why must a trace file be saved in pcap-ng format to retain annotations? What is it about the older pcap format that prevents this?</li>
+        <li>Where can you quickly see a list of ALL packet comments in a large trace file without scrolling through every packet?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-annotate">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> The legacy pcap format has a fixed header structure with no extension mechanism for arbitrary metadata like comments. The pcap-ng (Next Generation) format was designed with extensible block types, including an Interface Description Block and Enhanced Packet Block that support option fields &mdash; comments are stored in these option fields. Without that structure, the data has nowhere to go.</p>
+          <p><strong>Model Answer 2:</strong> Click the <strong>Expert Infos</strong> button on the Status Bar and select the <strong>Packet Comments</strong> tab. All packet comments are listed there, and double-clicking an entry takes you directly to that packet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Annotate -->
+    <div class="section-block" id="sec-annotate">
+      <h2>Annotate a Packet or an Entire Trace File</h2>
+      <p>This long-awaited feature changes the way we explain what's going on in a trace file. Finally we can add our comments about an entire trace file or individual packets right inside the trace file. Your trace file must be saved in pcap-ng format in order to retain packet or trace file annotations. These comments are saved inside the trace file itself. When someone opens the pcap-ng file on another Wireshark system (version 1.7 or later), they will be able to read all your notes embedded in the trace file.</p>
+
+      <p>There are two quick ways to add a comment to a packet:</p>
+      <ul>
+        <li>Select a packet in the Packet List pane and choose <strong>Edit | Edit or Add Packet Comment</strong> from the Main Menu.</li>
+        <li>Right click on the packet in the Packet List pane and select <strong>Edit or Add Packet Comment</strong> from the drop-down menu.</li>
+      </ul>
+
+      <p>Packet comments are shown above the Frame section in the Packet Detail pane in a field called <code>pkt_comment</code>. You can easily right click and add this column to the Packet List pane to see which packets have comments. In addition, all your packet comments are listed under the Packet Comments tab in the Expert Infos window.</p>
+
+      <p>Figure 166 shows individual packet annotations, the Packet Comments column and the Expert Info Packet Comments tab. Note that you can double-click on a comment in the Expert Info tab to open and edit a comment.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig166-packet-comments-are-saved-in-the-trace-file.png"
+               alt="Figure 166: Packet comments saved in trace file"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 166 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 166.</strong> Packet comments are saved in the trace file and visible in the Packet Details pane as well as the Expert Info Packet Comments tab [http-download-bad.pcapng].</div>
+      </div>
+
+      <p>To add, edit or cancel a comment linked to the entire trace file, simply click on the Comment icon in the lower left corner of the Status Bar (next to the Expert Info button). This trace file comment is displayed in the trace file Summary window as shown in Figure 167.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig167-comments-about-the-entire-trace-file-can-be.png"
+               alt="Figure 167: Trace file comments in Statistics Summary"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 167 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 167.</strong> Comments about the entire trace file can be seen when you select Statistics | Summary or click the Packet Comments icon on the Status Bar [http-download-bad.pcapng].</div>
+      </div>
+
+      <div class="callout callout-blue"><strong>TIP</strong> Almost all trace files listed in Appendix A contain comments. Select <strong>Statistics | Summary</strong> or click the Annotation button on the Status Bar to view trace file comments. Click the Expert Infos button and select the Packet Comments tab for a list of all individual packet comments.</div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Annotations require <strong>pcap-ng format</strong> &mdash; the older pcap format cannot store them. Packet comments appear in the <code>pkt_comment</code> field in the Packet Details pane. The fastest way to see all packet comments is Expert Infos &rarr; Packet Comments tab. Trace-level comments appear in Statistics &rarr; Summary. Both types survive the file being shared to any Wireshark 1.7+ system.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-annotate" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-annotate','Annotate')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-annotate" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-annotate')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK FIRST: Save & Export -->
+    <div class="insight-block" id="ins-save">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; SAVE &amp; EXPORT</span>
+      </div>
+      <p class="insight-insight">Wireshark can save subsets of a trace file &mdash; just filtered packets, just marked packets, or a packet range. It can also export the Packet List contents to CSV for use in a spreadsheet, or export SSL keys for post-capture decryption.</p>
+      <ul class="insight-questions">
+        <li>You capture a 500MB trace file but only need to share the 12 packets that show a connection failure with a vendor. What is the most efficient Wireshark workflow to do this?</li>
+        <li>When would you export packet content to CSV instead of just using Wireshark's own IO Graph or Statistics windows?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-save">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> Apply a display filter for that specific conversation (e.g., filter on both IP addresses and port numbers). Mark those 12 packets with Ctrl+M. Then use File | Export Specified Packets and choose "Marked packets" to save only those to a new, small trace file. This gives the vendor only the relevant data and avoids sharing potentially sensitive surrounding traffic.</p>
+          <p><strong>Model Answer 2:</strong> When you need to combine Wireshark data with data from other tools (e.g., server logs, application metrics), apply formulas the built-in graphs don't support, or share the raw plot point data with a colleague who doesn't have Wireshark. For example, exporting the Delta Time column to CSV lets you graph beacon intervals in Excel with full axis labeling that Wireshark's IO Graph omits.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Save & Export -->
+    <div class="section-block" id="sec-save">
+      <h2>Save Filtered, Marked and Ranges of Packets</h2>
+      <p>You can save a subset of packets based on the filters and marked packets. In addition, you can choose to save a range of packets regardless of the filter.</p>
+
+      <div class="callout callout-blue"><strong>TIP: Avoid the Needle in the Haystack Issue</strong> Consider saving subsets when you are baselining network communications. If you capture a trace of a workstation starting up, user logging in, user opening an application and user shutting down, save each function in a separate trace file for separate review.</div>
+
+      <p>Figure 168 shows the Save As window. We can choose whether to save the displayed packets only, the selected packet, marked packets, first to last marked packets or a range of packets. In our trace file, we have 4 marked packets and 102 packets that match the display filter set. We are saving in pcap-ng format in order to retain any trace file or packet comments we created.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig168-you-can-save-all-packets-displayed-packets-marked.png"
+               alt="Figure 168: Save As window with packet save options"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 168 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 168.</strong> You can save all packets, displayed packets, marked packets or a range of packets.</div>
+      </div>
+
+      <p>You can save trace files in numerous formats as well. Click on the drop down arrow to the right of the Save as type field to select a format other than Wireshark/tcpdump or pcap-ng formats. Alternately you can choose to print packets to a file (either a text file or a PostScript file). Select <strong>File | Print</strong> to open the Print window as shown in Figure 169.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig169-you-can-print-to-a-text-or-postscript.png"
+               alt="Figure 169: Print to text or PostScript file"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 169 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 169.</strong> You can print to a text or PostScript file.</div>
+      </div>
+
+      <p>When printing, you can choose to print just the Packet List pane summary line, the Packet Details (collapsed, as displayed, expanded) or the packet bytes. You can print each packet on a separate line. You have the same options to print displayed packets, selected packets, marked packets or a range of packets as you have when saving.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig170-printed-packets-retain-formats-for-readability-export-packet.png"
+               alt="Figure 170: Printed packets retain formats for readability"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 170 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 170.</strong> Printed packets retain formats for readability.</div>
+      </div>
+
+      <div class="callout callout-blue"><strong>TIP</strong> When printing the packet summary line, print in landscape format to see as much information as possible. Consider printing to a file (print.txt) to reformat the data for best printing results.</div>
+
+      <h3>Export Packet Content for Use in Other Programs</h3>
+      <p>Use <strong>File | Export Packet Dissections</strong> to create additional graphs, search for specific contents, or perform other advanced procedures on data captured. Packets can be exported in several formats:</p>
+      <table class="def-table">
+        <thead><tr><th>Format</th><th>Extension</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>Plain text</td><td>*.txt</td><td>Human-readable output for reports</td></tr>
+          <tr><td>PostScript</td><td>*.ps</td><td>Professional printing</td></tr>
+          <tr><td>CSV (Packet Summary)</td><td>*.csv</td><td>Import into Excel for graphing</td></tr>
+          <tr><td>C Arrays (Packet Bytes)</td><td>*.c</td><td>Embed packets in C code</td></tr>
+          <tr><td>PSML (XML Packet Summary)</td><td>*.psml</td><td>XML-based packet summary</td></tr>
+          <tr><td>PDML (XML Packet Details)</td><td>*.pdml</td><td>Full XML packet details</td></tr>
+        </tbody>
+      </table>
+
+      <p>In the following example, we exported the contents of a filtered trace file to plot the beacons rate of WLAN packets. We exported to CSV format so we could graph and manipulate the information in a different format. We worked with a profile that contained a column for the delta time value &mdash; we wanted to graph the frequency of beacons in the trace file.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig171-we-have-chosen-to-export-displayed-packets-to.png"
+               alt="Figure 171: Export displayed packets to CSV format"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 171 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 171.</strong> We have chosen to export displayed packets to CSV format [wlan-beacon-problem.pcapng].</div>
+      </div>
+
+      <p>As shown in Figure 171, we named our exported file beacons.csv. Figure 172 shows the file opened in Excel. The Delta Time column is circled &mdash; that is the column we want to graph.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig172-we-will-graph-the-contents-of-the-delta-old.png"
+               alt="Figure 172: Graph the Delta column in Excel"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 172 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 172.</strong> We will graph the contents of the Delta column.</div>
+      </div>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig173-plotting-the-delta-time-between-beacons-old.png"
+               alt="Figure 173: Plotting the delta time between beacons"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 173 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 173.</strong> Plotting the delta time between beacons [wlan-beacon-problem.pcapng].</div>
+      </div>
+
+      <h3>Export SSL Keys</h3>
+      <p>You can easily export SSL keys using <strong>File | Export SSL Keys</strong>. The exported key is saved with a .key extension and contains values that can be used to decrypt SSL traffic captured in the trace file. Try exporting the SSL key in client_init_renego.pcap.</p>
+
+      <h3>Save Conversations, Endpoints, IO Graphs and Flow Graph Information</h3>
+      <p>Conversations, endpoints, IO Graph and other information may be saved as CSV format files, or in some cases, as graphic files (in the case of IO Graphs). Flow graphs are saved in ASCII text format only. Click the <strong>Save As</strong> button to save Flow Graph information. In Conversations, Endpoints or IO Graph windows, click the <strong>Copy</strong> button to save the data in CSV format as shown in Figure 174.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="figures/fig174-click-the-copy-button-to-save-the-data-old.png"
+               alt="Figure 174: Copy button saves CSV from Conversation and Endpoint windows"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 174 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 174.</strong> Click the Copy button to save the data from the Conversation or Endpoint windows in CSV format [http-riverbed-one.pcapng].</div>
+      </div>
+
+      <p>IO Graphs also have a Save button that allows you to save a graphic file in BMP, ICO, JPEG, PNG or TIFF format. Note that the saved graphic does not include the X- or Y-axis information.</p>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Five packet save options: all, displayed, selected, marked, range. Export formats: Plain text, PostScript, CSV, C Arrays, PSML, PDML. <strong>CSV is the format for spreadsheet import</strong>. Conversations/Endpoints use the <strong>Copy button</strong> to export CSV. IO Graphs save as image files (BMP/JPEG/PNG) but exclude axis labels. Flow Graphs export as ASCII text only. Always save in pcap-ng to preserve annotations.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-save" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-save','Save &amp; Export')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-save" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-save')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK FIRST: Export Bytes -->
+    <div class="insight-block" id="ins-export">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; EXPORT PACKET BYTES</span>
+      </div>
+      <p class="insight-insight">Wireshark can export the raw bytes of any selected field or byte range from the Packet Details or Packet Bytes pane. This is different from exporting the dissected display &mdash; it gives you the binary payload of the selected field with no formatting overhead.</p>
+      <ul class="insight-questions">
+        <li>Why would you export the raw bytes of an IP header rather than just printing the Packet Details view?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-export">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> Raw bytes let you feed the data directly into other tools (hex editors, custom parsers, Python scripts) that consume binary input. The Packet Details view adds human-readable labels and field breakdowns but is not machine-parsable. For example, if you want to replay or re-inject a specific header, you need the raw hex &mdash; not the formatted text representation.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Export Bytes -->
+    <div class="section-block" id="sec-export">
+      <h2>Export Packet Bytes</h2>
+      <p>To export packet bytes, you must select a field or byte(s) in the <strong>Packet Details pane</strong> or <strong>Packet Bytes pane</strong>. Right click and select <strong>Export Selected Packet Bytes</strong> or press <strong>Ctrl+H</strong>.</p>
+      <p>Using this function, packets can only be exported in raw data format. This format is a hex format of the field(s) selected with no formatting data. For example, right click on the <strong>IP header</strong> in the Packet Details pane and choose <strong>Export Selected Packet Bytes</strong> to export the IP header of a packet into raw format.</p>
+
+      <div class="callout callout-blue"><strong>TIP</strong> Since many Wireshark screens do not support printing or export, consider using a third-party screen capture and print utility such as SnagIt by TechSmith Corporation (www.techsmith.com).</div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Export Packet Bytes (Ctrl+H) exports a selected field in raw hex with no formatting. The selection must be made in the Packet Details or Packet Bytes pane first. This is distinct from File | Export Packet Dissections which exports the human-readable display. Use Export Packet Bytes when you need binary data for external tools or re-injection.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-export" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-export','Export Bytes')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-export" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-export')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASE STUDY -->
+    <div class="section-block" id="sec-casestudy">
+      <h2>Case Studies</h2>
+
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 1</div>
+        <div class="cs-title">Saving Subsets of Traffic to Isolate Problems</div>
+        <div class="cs-sub">Submitted by: Laura Chappell</div>
+        <div class="cs-body">
+          <p>The customer was having problems with connections to one of their database servers used by their personnel department. Sometimes the connections seemed to work fine &mdash; other times users couldn't get a connection. It was the dreaded "intermittent problem."</p>
+          <p>Because we didn't know when the problem would surface, we set up Wireshark off of a tap between one of the staff members and the switch. We configured Wireshark to capture traffic to a file set with each file set at a maximum of 30 MB. To reduce the traffic captured, we also used a capture filter set for all traffic to the database server (<code>host 10.3.3.4</code>).</p>
+          <p>We asked the users to work on their database as they usually did. To help us spot the problems in the trace files we employed a little trick on the users' workstations. We gave the users a nice little icon named "Ouch" on their desktop to launch a ping to the database server. We told the users to double-click on the icon when they experienced a serious problem in the communications to the database server. This helped us spot the problem points in the trace files.</p>
+          <p>After being informed that the problems were occurring again and that the four personnel department users had clicked "Ouch" at least three times each, we were ready to start looking at the traces. We simply filtered on ICMP ping packets (<code>icmp.type==8</code>) and marked these packets. Marking the packets made it easier to skip from one problem point to the next using Ctrl+Shift+N.</p>
+          <p>In each instance we saw the users were trying to access the same file and the server simply did not respond. The server sent the TCP ACK indicating that it received the request for the file, but it did not send the requested file. Repeated requests for that particular file went unanswered. The Time column indicated a delay averaging <strong>23 seconds</strong>!</p>
+          <p>We began to carve out the sections in the trace file that demonstrated the problem. We selected <strong>File | Save As</strong> (Export Specified Packets as of Wireshark 1.8) and chose to save each range as separate trace files. We didn't need to give the vendor the entire trace file &mdash; we wanted to solve this one issue.</p>
+          <p>After about three days the vendor responded stating that they were aware of an "anomaly" in their program that limited the number of times the file in question could be accessed by the program. If more than a certain number of users tried to access the file in a short period of time, the program would just discard the request.</p>
+          <p>Wireshark showed exactly where the problem was. It didn't tell us why the problem was occurring, but it saved the IT staff days of troubleshooting time through guesswork, indicated that the network was not at fault, validated the user's claims of performance problems and helped management avoid spending money on equipment that would not have solved the problem.</p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C12-CS1.png" alt="Saving Subsets of Traffic"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none">
+              <span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
+              <div><strong>C12-CS1.png</strong></div>
+              <div class="cs-ph-sub">Save to all-casestudy-pictures/C12-CS1.png</div>
+            </div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt"
+              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
+              &#9662; Show cartoon prompt
+            </button>
+            <div class="cs-prompt-text" hidden>
+              A busy open-plan office. Four personnel department workers sit at desks with a cartoon "OUCH!" icon visible on each of their computer screens. One user is frantically double-clicking the icon. A large database server labeled "10.3.3.4" sits in the background with an intermittent warning light. In the foreground, a network analyst at a separate laptop is running Wireshark, with green highlighted rows (ICMP ping markers) scattered among rows of TCP traffic. A callout bubble shows "23 second delay!" pointing at the trace file. On a notepad next to the analyst: "Save subset &rarr; vendor." Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "10.3.3.4", "OUCH!", "23s delay", "icmp.type==8 filter", minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TL;DR -->
+    <div class="section-block" id="sec-tldr">
+      <div class="tldr-block">
+        <div class="tldr-label">TL;DR &mdash; Chapter Summary</div>
+        <div class="tldr-text">
+          <p>Trace files and individual packets can be annotated in newer versions of Wireshark. File annotations are visible in the Summary window while individual packet comments can be located quickly through the Expert Infos window's Packet Comments tab. Trace files must be saved in pcap-ng format to retain annotations.</p>
+          <p>Wireshark offers numerous methods for saving packets, conversations, graphs and even bytes from a single packet. To separate a trace file into smaller parts, you can save just the filtered packets, just the marked packets or even a range of packets.</p>
+          <p>You can also export packet or file contents for manipulation in other programs. For example, you can add a column for the TCP Window Size field, export the file information to CSV format and build charts and graphs in another application. Many of the statistics windows also offer the Save feature.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW QUESTIONS -->
+    <div class="section-block" id="sec-rq">
+      <h2>Review Questions</h2>
+
+      <div class="rq-card" id="rq-12-1">
+        <div class="rq-question">Q12.1 How can you quickly view all the packet comments in a trace file?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A12.1</strong> Open the Expert Infos window and select the Packet Comments tab.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-12-2">
+        <div class="rq-question">Q12.2 What save options are available when you only want to save a subset of packets contained in a trace file?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A12.2</strong> When you select File | Export Specified Packets, you can choose to save displayed packets, selected packets, marked packets, first to last marked packet, or a packet range.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-12-3">
+        <div class="rq-question">Q12.3 What export format could you use if you are going to import information from the Packet List pane into a spreadsheet program?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A12.3</strong> Comma Separated Values (CSV) format imports easily into spreadsheet programs.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-12-4">
+        <div class="rq-question">Q12.4 Which Wireshark feature should you use if you want to save a TCP header as a text file?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A12.4</strong> Expand the TCP header in a packet and choose <strong>File | Export Packet Dissections</strong> and choose "as Plain Text" file. Select <strong>Packet Details: As displayed</strong> in the Packet Format section.
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- end main-content -->
+
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Navigation</div>
+      <a class="sidebar-link" href="../hub.html">&larr; Study Guide Hub</a>
+      <a class="sidebar-link" href="index.html">Practice Lab</a>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Quick Reference</div>
+      <div class="quick-ref">
+        <div class="qr-term">Add Packet Comment</div>
+        <div class="qr-def">Right-click packet &rarr; Edit or Add Packet Comment (requires pcap-ng format)</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">View All Comments</div>
+        <div class="qr-def">Expert Infos &rarr; Packet Comments tab</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Save Subset</div>
+        <div class="qr-def">File | Export Specified Packets: displayed / selected / marked / range</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Export for Excel</div>
+        <div class="qr-def">File | Export Packet Dissections &rarr; CSV format</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Export Raw Bytes</div>
+        <div class="qr-def">Select field in Detail pane &rarr; Right-click &rarr; Export Selected Packet Bytes (Ctrl+H)</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Export SSL Key</div>
+        <div class="qr-def">File | Export SSL Keys &rarr; saves as .key file</div>
+      </div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Progress</div>
+      <div class="ins-prog-count" id="ins-prog-count">0 / 7 complete</div>
+      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
+      <div style="margin-top:12px">
+        <label class="check-item"><input type="checkbox" id="chk-annotate" onchange="toggleDone('annotate')"> Annotate</label>
+        <label class="check-item"><input type="checkbox" id="chk-save" onchange="toggleDone('save')"> Save &amp; Export</label>
+        <label class="check-item"><input type="checkbox" id="chk-export" onchange="toggleDone('export')"> Export Bytes</label>
+        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Study</label>
+        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="practice-cta">
+  <div class="cta-inner">
+    <div class="cta-text">Ready to practice with real traffic?</div>
+    <a href="index.html" class="cta-btn">Open Practice Lab &rarr;</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span>Wireshark Network Analysis &mdash; Chapter 12</span>
+    <span>Annotate, Save, Export &amp; Print Packets</span>
+  </div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch12-full';
+const SECTIONS = {
+  'sec-annotate': 'Annotate',
+  'sec-save': 'Save & Export',
+  'sec-export': 'Export Bytes',
+  'sec-casestudy': 'Case Study',
+  'sec-tldr': 'TL;DR',
+  'sec-rq': 'Review Questions'
+};
+const INSIGHT_IDS = ['ins-annotate', 'ins-save', 'ins-export'];
+const RQ_IDS = ['12-1', '12-2', '12-3', '12-4'];
+const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+
+document.querySelectorAll('.insight-header').forEach(h => {
+  h.addEventListener('click', () => h.closest('.insight-block').classList.toggle('ins-open'));
+});
+
+function saveSocAnswer(btn) {
+  const area = btn.closest('.answer-area');
+  const ta = area.querySelector('.answer-textarea');
+  if (!ta.value.trim()) return;
+  const key = PAGE_KEY + '-soc-' + area.dataset.section;
+  localStorage.setItem(key, ta.value);
+  area.querySelector('.btn-see-answer').disabled = false;
+  btn.textContent = '✓ Saved';
+  updateProgress();
+}
+
+function revealSocAnswer(btn) {
+  const area = btn.closest('.answer-area');
+  const ma = area.querySelector('.model-answers');
+  ma.style.display = ma.style.display === 'none' ? 'block' : 'none';
+  btn.textContent = ma.style.display === 'none' ? '🔒 See Model Answer' : '▴ Hide Answer';
+}
+
+function toggleQPanel() {
+  const body = document.getElementById('q-panel-body');
+  const tog = document.getElementById('q-panel-toggle');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  tog.textContent = open ? '▾' : '▴';
+}
+
+function renderQPanel() {
+  const raw = localStorage.getItem(PAGE_KEY + '-questions') || '[]';
+  const qs = JSON.parse(raw);
+  const list = document.getElementById('q-list');
+  const empty = document.getElementById('q-empty');
+  list.innerHTML = '';
+  if (qs.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  qs.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    div.innerHTML = '<span class="q-section-tag">' + q.section + '</span><span class="q-text">' + q.text + '</span><button class="q-del" onclick="deleteQuestion(' + i + ')">×</button>';
+    list.appendChild(div);
   });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+}
+
+function addQuestion(secId, secName) {
+  const ta = document.getElementById('q-' + secId);
+  if (!ta || !ta.value.trim()) return;
+  const key = PAGE_KEY + '-questions';
+  const qs = JSON.parse(localStorage.getItem(key) || '[]');
+  qs.push({ section: secName, text: ta.value.trim() });
+  localStorage.setItem(key, JSON.stringify(qs));
+  ta.value = '';
+  renderQPanel();
+}
+
+function deleteQuestion(i) {
+  const key = PAGE_KEY + '-questions';
+  const qs = JSON.parse(localStorage.getItem(key) || '[]');
+  qs.splice(i, 1);
+  localStorage.setItem(key, JSON.stringify(qs));
+  renderQPanel();
+}
+
+function addNote(secId) {
+  const ta = document.getElementById('note-' + secId);
+  if (!ta || !ta.value.trim()) return;
+  localStorage.setItem(PAGE_KEY + '-note-' + secId, ta.value);
+  ta.style.borderColor = '#22c55e';
+  setTimeout(() => ta.style.borderColor = '', 1200);
+}
+
+function navTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const keys = Object.keys(SECTIONS);
+  const idx = keys.indexOf(id);
+  const tabs = document.querySelectorAll('.nav-tab');
+  if (tabs[idx]) tabs[idx].classList.add('active');
+}
+
+function toggleDone(id) {
+  localStorage.setItem(PAGE_KEY + '-chk-' + id, document.getElementById('chk-' + id).checked ? '1' : '');
+}
+
+function updateProgress() {
+  let done = 0;
+  INSIGHT_IDS.forEach(id => {
+    if (localStorage.getItem(PAGE_KEY + '-soc-' + id)) done++;
   });
+  RQ_IDS.forEach(id => {
+    if (localStorage.getItem(PAGE_KEY + '-rq-' + id)) done++;
+  });
+  document.getElementById('ins-prog-count').textContent = done + ' / ' + TOTAL + ' complete';
+  document.getElementById('ins-prog-fill').style.width = Math.round(done / TOTAL * 100) + '%';
+}
+
+function revealRQ(btn) {
+  const card = btn.closest('.rq-card');
+  const ans = card.querySelector('.rq-answer');
+  const ta = card.querySelector('.rq-textarea');
+  const id = card.id.replace('rq-', '');
+  ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
+  btn.textContent = ans.style.display === 'none' ? 'Reveal Answer' : 'Hide Answer';
+  if (ta.value.trim()) {
+    localStorage.setItem(PAGE_KEY + '-rq-' + id, ta.value);
+    updateProgress();
+  }
+}
+
+function initNotes() {
+  const gn = document.getElementById('global-notes');
+  gn.value = localStorage.getItem(PAGE_KEY + '-global-notes') || '';
+  gn.addEventListener('input', () => localStorage.setItem(PAGE_KEY + '-global-notes', gn.value));
+  Object.keys(SECTIONS).forEach(secId => {
+    const saved = localStorage.getItem(PAGE_KEY + '-note-' + secId);
+    const ta = document.getElementById('note-' + secId);
+    if (ta && saved) ta.value = saved;
+  });
+  INSIGHT_IDS.forEach(id => {
+    const saved = localStorage.getItem(PAGE_KEY + '-soc-' + id);
+    if (saved) {
+      const block = document.getElementById(id);
+      if (!block) return;
+      const ta = block.querySelector('.answer-textarea');
+      const btn = block.querySelector('.btn-see-answer');
+      if (ta) ta.value = saved;
+      if (btn) btn.disabled = false;
+    }
+  });
+}
+
+function initChecks() {
+  ['annotate','save','export','casestudy','rq'].forEach(id => {
+    const el = document.getElementById('chk-' + id);
+    if (el) el.checked = !!localStorage.getItem(PAGE_KEY + '-chk-' + id);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initNotes();
+  initChecks();
+  renderQPanel();
+  updateProgress();
+  document.body.style.opacity = '1';
+  sessionStorage.setItem('pt', '1');
 });
 </script>
 </body>
