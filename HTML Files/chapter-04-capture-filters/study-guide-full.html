@@ -9,15 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +63,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,12 +80,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
 .insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
@@ -127,7 +114,11 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
 .fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
-.fig-trace{color:var(--blue);font-style:italic;}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -135,7 +126,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -145,11 +136,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -174,15 +169,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -190,43 +176,22 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
 </style>
 </head>
 <body>
@@ -234,58 +199,316 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 <div class="header-left">
 <div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 04<span class="breadcrumb-sep">›</span>Full Study Guide</div>
 <div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 4 · CAPTURE FILTERS</div>
-<h1>Capture Filters <em>BPF Syntax</em></h1>
+<h1>Create and Apply <em>Capture Filters</em></h1>
 <p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
 </div>
 </header>
 <div class="motivation-banner">
-<div class="motivation-text"> <em>Capture less, analyze more.</em></div>
-<p class="motivation-sub">Berkeley Packet Filter expressions applied in the kernel before packets reach the buffer — the only way to truly reduce capture volume.</p>
+<div class="motivation-text"><em>Capture filters reduce noise before it reaches the engine — use them surgically.</em></div>
+<p class="motivation-sub">Master BPF syntax, address and port filters, byte-level filters, and the cfilters file — the difference between a useful trace and a haystack.</p>
 </div>
 <div class="top-panels">
 <div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
+<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header"><span class="qpanel-title">MY QUESTIONS</span><span class="qpanel-count" id="qpanel-count">0</span><span class="qpanel-hint">— click to expand</span><span class="qpanel-chevron" id="qpanel-chevron">▾</span></button>
 <div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
 </div>
 <div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
+<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header"><span class="notes-panel-title">MY NOTES</span><span class="notes-panel-count" id="notes-panel-count">0</span><span class="notes-panel-hint">— click to expand</span><span class="notes-panel-chevron" id="notes-panel-chevron">▾</span></button>
 <div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
 </div>
 </div>
 <nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose</button><button class="nav-tab" data-target="sec-syntax" onclick="navTo('sec-syntax')">BPF Syntax</button><button class="nav-tab" data-target="sec-combining" onclick="navTo('sec-combining')">Combining</button><button class="nav-tab" data-target="sec-examples" onclick="navTo('sec-examples')">Common Examples</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose &amp; Overview</button><button class="nav-tab" data-target="sec-syntax" onclick="navTo('sec-syntax')">BPF Syntax</button><button class="nav-tab" data-target="sec-address" onclick="navTo('sec-address')">Address &amp; Port Filters</button><button class="nav-tab" data-target="sec-advanced" onclick="navTo('sec-advanced')">Byte Filters &amp; cfilters</button><button class="nav-tab" data-target="sec-casestudy" onclick="navTo('sec-casestudy')">Case Study</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Qs</button>
 </nav>
 <main>
 <div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF CAPTURE FILTERS</span></div><div class="ins-body"><p class="ins-q">Capture filters run in the OS kernel before Wireshark sees a packet. Why does this fundamentally differ from display filters, and what is the major tradeoff?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Once a packet is captured, can you 'uncapture' it? What happens to a packet that doesn't match each type of filter?</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Capture filters use BPF evaluated in the kernel at wire speed — unmatched packets are discarded immediately, never written to disk. This dramatically reduces CPU, memory, and storage overhead. The tradeoff: captured traffic is permanent. Packets excluded by a capture filter are gone forever — you can't go back and see them. Display filters, by contrast, only hide packets in the UI; all captured packets remain on disk and can be revealed again.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>What Capture Filters Do</h2><p>Capture filters are BPF (Berkeley Packet Filter) expressions evaluated by the OS kernel. Only packets matching the filter reach Wireshark. Unmatched packets are discarded at wire speed.</p><p>Unlike display filters (which are post-capture), capture filters are <strong>permanent</strong> — you cannot change them mid-capture and cannot recover filtered-out packets.</p><div class="callout callout-callout-amber"><strong>KEY LIMITATION</strong>Capture filters <strong>cannot be changed mid-capture</strong>. You must stop, clear, and restart with a new filter. Plan before starting. If unsure what to filter, capture everything and use display filters later.</div><div class="callout callout-callout-blue"><strong>WHEN TO USE</strong>Use capture filters when: (1) the link is fast and dropping packets without filtering; (2) you only need a specific protocol or host; (3) disk space is limited. Use display filters when you need the full picture for flexible post-capture analysis.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Capture filters = BPF in kernel = permanent exclusion. Display filters = UI-only = all packets still on disk. Cannot change capture filter mid-capture. Capture filters improve performance; display filters provide flexibility.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig81-capture-filters-are-only-applied-to-packets-arriving.png" alt="Figure 81: Capture Filters are only applied to packets arriving from the network" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 81 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 81.</strong> Capture Filters are only applied to packets arriving from the network</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig82-the-capture-area-appears-in-the-capture-options.png" alt="Figure 82: The capture area appears in the Capture Options window in earlier versions of Wireshark" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 82 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 82.</strong> The capture area appears in the Capture Options window in earlier versions of Wireshark</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig83-as-of-wireshark-1-8-each-interface-can.png" alt="Figure 83: As of Wireshark 1.8, each interface can support a different capture filter" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 83 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 83.</strong> As of Wireshark 1.8, each interface can support a different capture filter</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig84-create-and-save-your-favorite-capture-filters-build.png" alt="Figure 84: Create and save your favorite capture filters Build Your Own Set of Capture Filters You can easily create your own capture filters and change the default capture filters. You can create and" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 84 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 84.</strong> Create and save your favorite capture filters Build Your Own Set of Capture Filters You can easily create your own capture filters and change the default capture filters. You can create and</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','What Capture Filters Do')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-syntax"><div class="insight-hdr" onclick="toggleInsight('ins-syntax')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · BPF SYNTAX BASICS</span></div><div class="ins-body"><p class="ins-q">BPF primitives have three qualifier types. Given the expression 'dst port 443', identify each qualifier and what happens if you omit the direction qualifier.</p><textarea class="ins-ta" data-key="ins-syntax" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-syntax" onclick="saveIns('ins-syntax')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-syntax')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-syntax" onclick="toggleInsModel('ins-syntax')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-syntax" style="display:none"><div class="hm-label">HINT</div><p>Consider: 'port 443' without 'dst' — does it match traffic going to port 443, from port 443, or both?</p></div><div class="ins-model-box" id="model-ins-syntax" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>'dst' is the direction qualifier, 'port' is the type qualifier, '443' is the ID. Without the direction qualifier, BPF matches both source AND destination — 'port 443' matches packets going to port 443 AND packets coming from port 443 (i.e., server responses). Without a protocol qualifier, BPF applies to all protocols that use ports (TCP and UDP). So 'port 443' matches both TCP and UDP port 443 in both directions.</p></div></div></div><div class="section-block" id="sec-syntax"><h2>BPF Syntax Basics</h2><p>BPF primitives follow the pattern: <code>[proto] [direction] type id</code></p><h3>Type Qualifiers</h3><ul><li><code>host</code> — single IP/hostname: <code>host 192.168.1.10</code></li><li><code>net</code> — subnet: <code>net 10.0.0.0/8</code></li><li><code>port</code> — single port: <code>port 443</code></li><li><code>portrange</code> — port range: <code>portrange 1024-65535</code></li></ul><h3>Direction Qualifiers</h3><ul><li><code>src</code> — source only</li><li><code>dst</code> — destination only</li><li>(omitted) — match src OR dst</li></ul><h3>Protocol Qualifiers</h3><ul><li><code>ether</code> — Ethernet (MAC addresses)</li><li><code>ip</code> / <code>ip6</code> — IPv4 or IPv6</li><li><code>tcp</code> / <code>udp</code> / <code>icmp</code> / <code>arp</code></li></ul><h3>Special Keywords</h3><ul><li><code>broadcast</code> / <code>multicast</code></li><li><code>less N</code> / <code>greater N</code> — packet size comparison</li></ul><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">BPF primitive: [proto] [direction] type id. Omit direction = both src and dst. Omit proto = all protocols using that type. 'port 80' matches TCP and UDP port 80 in both directions. 'tcp port 80' matches only TCP. 'dst port 80' matches only traffic going to port 80.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig85-consider-filtering-out-traffic-to-or-from-your.png" alt="Figure 85: Consider filtering out traffic to or from your MAC address Capture One Application’s Traffic Only Application filtering is performed using primitives for the port number the application use" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 85 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 85.</strong> Consider filtering out traffic to or from your MAC address Capture One Application’s Traffic Only Application filtering is performed using primitives for the port number the application use</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig86-the-tcp-header-decode.png" alt="Figure 86: The TCP header decode" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 86 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 86.</strong> The TCP header decode</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-syntax" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('syntax','BPF Syntax Basics')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-syntax" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('syntax')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-combining"><div class="insight-hdr" onclick="toggleInsight('ins-combining')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · COMBINING FILTERS</span></div><div class="ins-body"><p class="ins-q">BPF operator precedence: not > and > or. What does 'host 10.1.1.1 and port 80 or port 443' actually match? How do you fix it?</p><textarea class="ins-ta" data-key="ins-combining" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-combining" onclick="saveIns('ins-combining')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-combining')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-combining" onclick="toggleInsModel('ins-combining')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-combining" style="display:none"><div class="hm-label">HINT</div><p>Apply the precedence rules step by step: which operators bind first?</p></div><div class="ins-model-box" id="model-ins-combining" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Precedence evaluation: 'and' binds before 'or', so the expression parses as '(host 10.1.1.1 and port 80) or (port 443)'. This captures: all traffic to/from 10.1.1.1 on port 80, PLUS all traffic on port 443 from any host. That's almost certainly not the intent. Fix: parenthesize — 'host 10.1.1.1 and (port 80 or port 443)' — now both ports are restricted to the specified host.</p></div></div></div><div class="section-block" id="sec-combining"><h2>Combining Capture Filters</h2><p>Combine primitives with boolean operators:</p><ul><li><code>and</code> (<code>&&</code>) — both must match</li><li><code>or</code> (<code>||</code>) — either matches</li><li><code>not</code> (<code>!</code>) — negate</li></ul><h3>Operator Precedence (highest first)</h3><ol><li><code>not</code></li><li><code>and</code></li><li><code>or</code></li></ol><p>Always use parentheses when mixing <code>and</code> and <code>or</code>.</p><h3>Examples</h3><ul><li><code>tcp and dst port 80</code> — TCP to port 80</li><li><code>host 10.1.1.1 and not port 22</code> — all traffic to/from host except SSH</li><li><code>src net 192.168.0.0/16 and (dst port 80 or dst port 443)</code> — web from private net</li><li><code>not broadcast and not multicast</code> — unicast only</li></ul><div class="callout callout-callout-red"><strong>PRECEDENCE TRAP</strong><code>host X and port 80 or port 443</code> captures port 443 from ANY host, not just X. Always write: <code>host X and (port 80 or port 443)</code></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">BPF precedence: not > and > or. Common bug: 'host X and port A or port B' — the 'or port B' matches all hosts. Fix: always parenthesize 'or' groups. Use parentheses liberally — they are free and prevent subtle mistakes.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig87-manually-edited-cfilters-file.png" alt="Figure 87: Manually edited cfilters file" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 87 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 87.</strong> Manually edited cfilters file</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-combining" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('combining','Combining Filters')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-combining" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('combining')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-examples"><h2>Common Capture Filter Examples</h2><table style='width:100%;border-collapse:collapse;font-size:13px;'><tr style='background:#eef4ff;'><th style='padding:8px;border:1px solid #bfdbfe;text-align:left;'>Scenario</th><th style='padding:8px;border:1px solid #bfdbfe;text-align:left;'>Filter</th></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Traffic to/from one host</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>host 192.168.1.10</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>HTTP and HTTPS only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>port 80 or port 443</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Exclude SSH</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>not port 22</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>DNS only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>port 53</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Two-host conversation</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>host 10.1.1.1 and host 10.1.1.2</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Subnet only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>net 10.10.10.0/24</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Broadcasts only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>broadcast</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Large packets only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>greater 1400</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>ICMP only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>icmp</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Non-IP traffic</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>not ip and not ip6</code></td></tr></table><div class="callout callout-callout-blue"><strong>SAVING FILTERS</strong>Type a filter in the capture filter bar, then click the bookmark icon to save it with a name. Saved filters appear in the dropdown. These are stored in the Wireshark profile — share the profile to share filter libraries.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Key ready-to-use filters: 'host X', 'net X/Y', 'port N', 'not port 22', 'broadcast or multicast', 'greater N'. Combine with 'and'/'or'/'not' — always parenthesize 'or' groups. Save frequently used filters as named bookmarks.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-examples" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('examples','Common Examples')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-examples" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('examples')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 4</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Capture filters use BPF evaluated in the kernel — unmatched packets are permanently discarded. They cannot be changed mid-capture. Primitives: [proto] [direction] type id. Precedence: not > and > or — always parenthesize when mixing. Use capture filters to reduce load on fast links; use display filters for flexible post-capture analysis.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q4.1</div><div class="rq-q">What is the fundamental difference between a capture filter and a display filter?</div><textarea class="rq-ta" data-key="rq-4-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-1" onclick="saveRQ('4-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-1" onclick="toggleRQAns('4-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-4-1" style="display:none"><div class="hm-label">HINT</div><p>Think about when each runs and what happens to packets that don't match.</p></div><div class="rq-ans-box" id="rqans-4-1" style="display:none"><div class="hm-label">ANSWER</div><p>A capture filter runs in the OS kernel before packets are stored — unmatched packets are permanently discarded and never appear in the trace file. A display filter runs in the Wireshark UI after capture — unmatched packets are hidden but remain in the capture file and can be revealed by changing or clearing the filter. Capture filters reduce file size and CPU load; display filters provide flexible post-capture analysis without data loss.</p></div></div><div class="rq-card"><div class="rq-num">Q4.2</div><div class="rq-q">Write a BPF filter that captures TCP traffic to/from host 10.1.2.3 on ports 80 or 443, excluding SSH.</div><textarea class="rq-ta" data-key="rq-4-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-2" onclick="saveRQ('4-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-2" onclick="toggleRQAns('4-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-4-2" style="display:none"><div class="hm-label">HINT</div><p>Use parentheses. What is the precedence trap here?</p></div><div class="rq-ans-box" id="rqans-4-2" style="display:none"><div class="hm-label">ANSWER</div><p><code>host 10.1.2.3 and tcp and (port 80 or port 443) and not port 22</code>. Without parentheses around 'port 80 or port 443', the expression would be parsed as '(host 10.1.2.3 and tcp and port 80) or (port 443) and (not port 22)' — capturing port 443 from all hosts, not just 10.1.2.3.</p></div></div><div class="rq-card"><div class="rq-num">Q4.3</div><div class="rq-q">What does 'not broadcast and not multicast' capture?</div><textarea class="rq-ta" data-key="rq-4-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-3" onclick="saveRQ('4-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-3" onclick="toggleRQAns('4-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-4-3" style="display:none"><div class="hm-label">HINT</div><p>What traffic types are excluded by broadcast and multicast?</p></div><div class="rq-ans-box" id="rqans-4-3" style="display:none"><div class="hm-label">ANSWER</div><p>Only unicast traffic — one-to-one communication. Excluded: Ethernet broadcast (ff:ff:ff:ff:ff:ff), IP broadcast (255.255.255.255 or subnet broadcast), Ethernet multicast (01:xx:xx:xx:xx:xx OUI), IP multicast (224.0.0.0/4). Useful for reducing noise dominated by ARP broadcasts, DHCP, and routing protocol multicast.</p></div></div><div class="rq-card"><div class="rq-num">Q4.4</div><div class="rq-q">You start a capture with 'port 80' but realize you also need UDP port 5353. What must you do?</div><textarea class="rq-ta" data-key="rq-4-4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-4" onclick="saveRQ('4-4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-4" onclick="toggleRQAns('4-4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-4-4" style="display:none"><div class="hm-label">HINT</div><p>Can you modify a capture filter mid-capture?</p></div><div class="rq-ans-box" id="rqans-4-4" style="display:none"><div class="hm-label">ANSWER</div><p>No — capture filters cannot be modified while running. Stop the capture (saving it if needed), update the filter to 'port 80 or (udp port 5353)', and start a new capture. mDNS traffic that occurred during the first capture is permanently lost if it wasn't matched. This is why it's often better to start with no capture filter and use display filters post-capture unless performance requires filtering.</p></div></div></div>
+
+<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF CAPTURE FILTERS</span></div><div class="ins-body"><p class="ins-q">Capture filters use BPF syntax and run before packets reach Wireshark's engine — discarded packets are gone permanently. If that's the case, why would you ever prefer a capture filter over just capturing everything and using a display filter? When is each the right choice?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about a 10Gbps link with millions of packets per second — what happens to Wireshark if you try to capture everything?</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>On a very busy link (10Gbps, millions of pps), capturing everything causes dropped packets — you get an incomplete trace. Capture filters run in the OS kernel before Wireshark's buffer, so they reduce volume before drops can occur. Use capture filters when: (1) the link is so busy that unfiltered capture causes drops, (2) you know exactly what you need and have zero interest in surrounding traffic. Use display filters when: (1) the link is manageable (you won't drop), (2) you're not certain what you need and want the full context available. The cost of a capture filter mistake is permanent — those packets are gone.</p></div></div></div>
+
+<div class="section-block" id="sec-purpose">
+<h2>The Purpose of Capture Filters</h2>
+<p>Capture filters limit the packets saved during live capture. They run in the OS kernel — packets that don't match are dropped before reaching the Wireshark capture engine. <strong>Capture filters cannot be applied to existing trace files</strong> — only during live capture.</p>
+<p>Capture filters are very useful for limiting captured packets on a busy network or when focusing on a specific traffic type. Packets that pass the filter are handed up to the Wireshark capture engine as shown in Figure 81.</p>
+
+<div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig81-capture-filters-are-only-applied-to-packets-arriving.png" alt="Figure 81: Capture Filters are only applied to packets arriving from the network" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 81 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 81.</strong> Capture Filters are only applied to packets arriving from the network — discarded packets are permanently lost.</div></div>
+
+<p>Capture filters use the <strong>Berkeley Packet Filtering (BPF)</strong> syntax — the same filter syntax used by tcpdump. Capture filters are not as flexible or granular as display filters.</p>
+<p>To view saved capture filters: <strong>Capture | Capture Filters</strong> or click the Capture Filters icon on the Main Toolbar.</p>
+
+<div class="callout callout-amber"><strong>GOLDEN RULE</strong>Use capture filters sparingly and display filters generously. When you filter out traffic with a capture filter, you cannot get the discarded packets back. Capture all packets and apply/remove display filters to focus on traffic of interest — you can easily save subsets based on display filters.</div>
+
+<h3>Default Capture Filters</h3>
+<p>Wireshark ships with a default set of capture filters stored in the <code>cfilters</code> file in the Global Configuration directory:</p>
+<table class="def-table">
+<thead><tr><th>Filter Name</th><th>BPF Syntax</th></tr></thead>
+<tbody>
+<tr><td>Ethernet address 00:08:15:00:08:15</td><td><code>ether host 00:08:15:00:08:15</code></td></tr>
+<tr><td>Ethernet type 0x0806 (ARP)</td><td><code>ether proto 0x0806</code></td></tr>
+<tr><td>No Broadcast and no Multicast</td><td><code>not broadcast and not multicast</code></td></tr>
+<tr><td>No ARP</td><td><code>not arp</code></td></tr>
+<tr><td>IP only</td><td><code>ip</code></td></tr>
+<tr><td>IP address 192.168.0.1</td><td><code>host 192.168.0.1</code></td></tr>
+<tr><td>TCP only</td><td><code>tcp</code></td></tr>
+<tr><td>UDP only</td><td><code>udp</code></td></tr>
+<tr><td>TCP or UDP port 80 (HTTP)</td><td><code>port 80</code></td></tr>
+<tr><td>HTTP TCP port (80)</td><td><code>tcp port http</code></td></tr>
+<tr><td>No ARP and no DNS</td><td><code>not arp and port not 53</code></td></tr>
+<tr><td>Non-HTTP and non-SMTP to/from wireshark.org</td><td><code>not port 80 and not port 25 and host www.wireshark.org</code></td></tr>
+</tbody>
+</table>
+
+<h3>Profile-Specific cfilters Files</h3>
+<p>When you create a Wireshark profile (Chapter 11) and add capture filters within that profile, a new <code>cfilters</code> file is created in the profile directory. For example, a WLAN profile might have WLAN-specific filters (802.11 traffic to/from an AP's MAC, beacon frames only).</p>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Capture filters = BPF syntax, run in kernel, applied live only, permanent loss on discard. Display filters = Wireshark syntax, applied to existing trace, non-destructive. cfilters file stores capture filters — one per Global Config dir, plus one per profile directory.</div></div></div>
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose &amp; Overview')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div>
 </div>
+
+<div class="insight-block" id="ins-syntax"><div class="insight-hdr" onclick="toggleInsight('ins-syntax')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · BPF SYNTAX &amp; QUALIFIERS</span></div><div class="ins-body"><p class="ins-q">BPF capture filters use three types of qualifiers: Type (host, net, port), Direction (src, dst), and Protocol (tcp, udp). Given the filter <code>udp net 10.2</code> — identify each qualifier. What does removing the Protocol qualifier change about what gets captured?</p><textarea class="ins-ta" data-key="ins-syntax" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-syntax" onclick="saveIns('ins-syntax')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-syntax')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-syntax" onclick="toggleInsModel('ins-syntax')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-syntax" style="display:none"><div class="hm-label">HINT</div><p>Parse the filter left to right and identify which word is the protocol, which is the type, and which is the identifier.</p></div><div class="ins-model-box" id="model-ins-syntax" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>In <code>udp net 10.2</code>: "udp" = Protocol qualifier; "net" = Type qualifier; "10.2" = Identifier. If you remove the Protocol qualifier to get <code>net 10.2</code>, all protocols (not just UDP) to or from IP addresses beginning with 10.2 are captured — including TCP, ICMP, ARP to that network. The Protocol qualifier narrows the match; the Type qualifier defines the meaning of the identifier; the Identifier is the value being matched.</p></div></div></div>
+
+<div class="section-block" id="sec-syntax">
+<h2>BPF Syntax: Qualifiers and Primitives</h2>
+
+<h3>Apply a Capture Filter to an Interface</h3>
+<p>In Wireshark 1.6 and earlier, a capture filter was typed directly into the Capture Options window:</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig82-the-capture-area-appears-in-the-capture-options.png" alt="Figure 82: The capture area appears in the Capture Options window in earlier versions of Wireshark" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 82 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 82.</strong> The capture filter area in the Capture Options window (Wireshark 1.6 and earlier).</div></div>
+
+<p>Beginning with Wireshark 1.8, simultaneous capture on multiple interfaces required a different approach: double-click the <strong>Capture Filter column</strong> to open the Interface Settings window, where each interface gets its own capture filter:</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig83-as-of-wireshark-1-8-each-interface-can.png" alt="Figure 83: As of Wireshark 1.8, each interface can support a different capture filter" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 83 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 83.</strong> As of Wireshark 1.8, each interface can support a different capture filter — set via the Capture Filter column in Capture Options.</div></div>
+
+<p>In any Wireshark version, click the <strong>Capture Filter button</strong> to select or create a saved capture filter. Wireshark applies error detection when you type a filter directly into the capture area:</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig84-create-and-save-your-favorite-capture-filters-build.png" alt="Figure 84: Create and save your favorite capture filters" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 84 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 84.</strong> Create and save favorite capture filters — here a filter for traffic to/from a specific Ethernet address is being saved.</div></div>
+
+<h3>Identifiers</h3>
+<p>The identifier is the element being filtered. In a capture filter for traffic to/from port 53, <strong>"53" is the identifier</strong> — it can be a decimal number, hexadecimal number, or ASCII string.</p>
+
+<h3>Three Qualifier Types</h3>
+<table class="def-table">
+<thead><tr><th>Qualifier</th><th>Purpose</th><th>Examples</th></tr></thead>
+<tbody>
+<tr><td><strong>Type</strong></td><td>Defines the type of identifier</td><td><code>host</code>, <code>net</code>, <code>port</code></td></tr>
+<tr><td><strong>Dir (Direction)</strong></td><td>Specifies traffic direction</td><td><code>src</code>, <code>dst</code> (if omitted: both src and dst)</td></tr>
+<tr><td><strong>Proto (Protocol)</strong></td><td>Limits to a specific protocol</td><td><code>tcp</code>, <code>udp</code>, <code>ether</code></td></tr>
+</tbody>
+</table>
+<p>Example: <code>udp net 10.2</code> — Proto=<code>udp</code>, Type=<code>net</code>, Identifier=<code>10.2</code>. Removing <code>udp</code> captures all protocols to/from 10.2.x.x networks.</p>
+
+<h3>Common Primitives</h3>
+<p>Primitives are keywords used directly in capture filters. Key ones to know:</p>
+<table class="def-table">
+<thead><tr><th>Primitive</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>host &lt;host&gt;</code></td><td>Traffic to or from a host (IP or name)</td></tr>
+<tr><td><code>dst host / src host</code></td><td>Traffic to / from a host</td></tr>
+<tr><td><code>ether host &lt;ehost&gt;</code></td><td>Traffic to or from an Ethernet (MAC) address</td></tr>
+<tr><td><code>net &lt;net&gt;</code></td><td>Traffic to or from a network address</td></tr>
+<tr><td><code>port &lt;port&gt;</code></td><td>Traffic to or from a port (TCP or UDP)</td></tr>
+<tr><td><code>portrange x-y</code></td><td>Traffic to or from a range of ports</td></tr>
+<tr><td><code>gateway &lt;host&gt;</code></td><td>Traffic through a specific gateway (router)</td></tr>
+<tr><td><code>broadcast</code></td><td>Ethernet broadcast traffic</td></tr>
+<tr><td><code>multicast</code></td><td>Ethernet multicast traffic</td></tr>
+<tr><td><code>ip, ip6, arp, tcp, udp, icmp</code></td><td>Protocol-specific filters</td></tr>
+<tr><td><code>proto[expr:size]</code></td><td>Byte-offset filter within a protocol header</td></tr>
+</tbody>
+</table>
+
+<h3>Filter by Protocol</h3>
+<p>Protocol filtering uses primitives — to filter all ICMP traffic: simply <code>icmp</code>. Wireshark interprets this as "look for Protocol field value 0x01 in the IP header." Common protocol primitives: <code>tcp</code>, <code>udp</code>, <code>ip</code>, <code>arp</code>, <code>icmp</code>, <code>ip6</code>. If a protocol has no primitive, build a filter on a distinct field value or use byte-offset syntax.</p>
+
+<h3>Filter TCP Connection Attempts (Flags)</h3>
+<p>Extend protocol filters by referencing TCP flag settings. To capture all TCP connection attempts (SYN flag set):</p>
+<pre>tcp[tcpflags] &amp; (tcp-syn) != 0</pre>
+<p>To capture the start and end packets (SYN and FIN) of conversations involving non-local hosts:</p>
+<pre>tcp[tcpflags] &amp; (tcp-syn|tcp-fin) != 0 and not src and dst net localnet</pre>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Three qualifiers: Type (host/net/port) + Direction (src/dst) + Protocol (tcp/udp/ether). Omit direction = both. Omit protocol = all protocols. Primitives like tcp, icmp, arp stand alone. tcp[tcpflags] lets you filter on flag bits. BPF syntax ≠ Wireshark display filter syntax.</div></div></div>
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-syntax" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('syntax','BPF Syntax')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-syntax" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('syntax')">+ Add Note</button></div></div></div></div>
+</div>
+
+<div class="insight-block" id="ins-address"><div class="insight-hdr" onclick="toggleInsight('ins-address')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · ADDRESS &amp; PORT FILTERS</span></div><div class="ins-body"><p class="ins-q">Why should you use a MAC address capture filter instead of an IP address filter when analyzing an application on your own machine? And why does using <code>host www.espn.com</code> as a capture filter create a problem when analyzing web browsing?</p><textarea class="ins-ta" data-key="ins-address" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-address" onclick="saveIns('ins-address')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-address')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-address" onclick="toggleInsModel('ins-address')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-address" style="display:none"><div class="hm-label">HINT</div><p>Think about what ARP packets look like (no IP header) and what happens when a website redirects you to a CDN.</p></div><div class="ins-model-box" id="model-ins-address" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>MAC address filter: IP addresses can change (DHCP, roaming between networks, dual-stack IPv4/IPv6). A MAC-based filter captures ALL traffic from/to your hardware address including ARP (which has no IP header) — an IP filter would miss ARP entirely. Also: MAC filters only work on the local segment (routers strip and replace MAC addresses). For web browsing: <code>host www.espn.com</code> resolves the hostname to one IP address at filter creation time — if the browser is redirected to a CDN or another server, those packets have a different IP and are discarded. Use <code>port 80</code> or <code>port 443</code> instead for web analysis.</p></div></div></div>
+
+<div class="section-block" id="sec-address">
+<h2>Address, Port, and Application Filters</h2>
+
+<h3>MAC and IP Address Capture Filters</h3>
+<table class="def-table">
+<thead><tr><th>Filter</th><th>Example</th><th>Captures</th></tr></thead>
+<tbody>
+<tr><td><code>dst host host</code></td><td><code>dst host www.wireshark.org</code></td><td>Traffic <em>to</em> the IP of www.wireshark.org</td></tr>
+<tr><td><code>dst host host</code></td><td><code>dst host 67.228.110.120</code></td><td>Traffic <em>to</em> 67.228.110.120</td></tr>
+<tr><td><code>src host host</code></td><td><code>src host www.google.cn</code></td><td>Traffic <em>from</em> the IP of www.google.cn</td></tr>
+<tr><td><code>host host</code></td><td><code>host www.espn.com</code></td><td>Traffic <em>to or from</em> the IP of www.espn.com</td></tr>
+<tr><td><code>ether dst ehost</code></td><td><code>ether dst 08:3f:3d:03:32:03</code></td><td>Traffic <em>to</em> Ethernet address</td></tr>
+<tr><td><code>ether src ehost</code></td><td><code>ether src 08:3f:3d:03:32:03</code></td><td>Traffic <em>from</em> Ethernet address</td></tr>
+<tr><td><code>ether host ehost</code></td><td><code>ether host 08:3f:3d:03:32:03</code></td><td>Traffic <em>to or from</em> Ethernet address</td></tr>
+<tr><td><code>gateway host</code></td><td><code>gateway rtrmain01</code></td><td>Traffic through the router's MAC (not to its IP)</td></tr>
+<tr><td><code>dst net net</code></td><td><code>dst net 192.168</code></td><td>Traffic <em>to</em> any 192.168.*.* address</td></tr>
+<tr><td><code>src net net</code></td><td><code>src net 10.2.2</code></td><td>Traffic <em>from</em> any 10.2.2.* address</td></tr>
+<tr><td><code>net net/len</code></td><td><code>net 172.16/12</code></td><td>Traffic to/from 172.16.0.0–172.31.255.255</td></tr>
+<tr><td><code>wlan host ehost</code></td><td><code>wlan host 00:22:5f:58:2b:0d</code></td><td>WLAN traffic from the specified source address</td></tr>
+</tbody>
+</table>
+
+<h3>The "My MAC" Filter (Application Analysis)</h3>
+<p>When analyzing an application on your own system, use a MAC-based filter — not IP — because:</p>
+<ul>
+<li>IP addresses can change (DHCP, roaming, dual-stack)</li>
+<li>ARP packets have no IP header — an IP filter would miss them entirely</li>
+<li>MAC captures all traffic from your hardware address regardless of protocol</li>
+</ul>
+<p>Example: <code>ether host 00:21:97:40:74:D2</code></p>
+
+<div class="callout callout-amber"><strong>MAC FILTERS ONLY WORK LOCALLY</strong>MAC address information is stripped and reapplied by routers. A MAC capture filter works only if you are on the same network segment as the device in the filter. Use IP filters when capturing across routed boundaries.</div>
+
+<h3>Exclusion Filters ("Not My MAC")</h3>
+<p>To capture background traffic while excluding your own traffic (so you can browse/work without your traffic appearing in the trace):</p>
+<pre>not ether host 00:21:97:40:74:D2</pre>
+<p>This is called an <strong>exclusion filter</strong> — it captures everything <em>except</em> traffic to/from your hardware address.</p>
+
+<div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig85-consider-filtering-out-traffic-to-or-from-your.png" alt="Figure 85: Consider filtering out traffic to or from your MAC address" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 85 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 85.</strong> An exclusion filter removes your own traffic — enabling background capture while you work without your traffic appearing in the trace.</div></div>
+
+<h3>Application / Port Filters</h3>
+<p>Application filtering uses port number primitives. DNS example:</p>
+<table class="def-table">
+<thead><tr><th>Goal</th><th>Capture Filter</th></tr></thead>
+<tbody>
+<tr><td>All DNS (UDP and TCP)</td><td><code>port 53</code></td></tr>
+<tr><td>DNS zone transfers only (TCP)</td><td><code>tcp port 53</code></td></tr>
+<tr><td>DNS queries/responses only (UDP)</td><td><code>udp port 53</code></td></tr>
+<tr><td>DNS responses only</td><td><code>src port 53</code></td></tr>
+<tr><td>BitTorrent tracker (TCP, port range)</td><td><code>tcp portrange 6881-6999</code></td></tr>
+</tbody>
+</table>
+<div class="callout callout-blue"><strong>DISPLAY VS CAPTURE FOR DNS</strong>For display filters you can simply type <code>dns</code>. For capture filters you must specify <code>port 53</code> — Wireshark does not understand <code>dns</code> as a BPF primitive. This is a key difference between the two filter languages.</div>
+
+<h3>Combine Filters with Operators</h3>
+<p>Three operators available:</p>
+<ul>
+<li><strong>Negation</strong>: <code>not</code> or <code>!</code></li>
+<li><strong>Concatenation</strong>: <code>and</code> or <code>&amp;&amp;</code></li>
+<li><strong>Alternation</strong>: <code>or</code> or <code>||</code></li>
+</ul>
+<table class="def-table">
+<thead><tr><th>Filter</th><th>What it captures</th></tr></thead>
+<tbody>
+<tr><td><code>host 192.168.1.103 and tcp dst 53</code></td><td>Only traffic to port 53 from/to 192.168.1.103 (DNS queries from that host)</td></tr>
+<tr><td><code>host 192.168.1.103 or tcp dst 53</code></td><td>ALL traffic to/from 192.168.1.103 PLUS any traffic to port 53 (regardless of IP)</td></tr>
+<tr><td><code>not net 10.2.0.0/16</code></td><td>Traffic to/from any IP address that does NOT start with 10.2</td></tr>
+<tr><td><code>host www.wireshark.org and not port 80 and not port 25</code></td><td>Traffic to/from wireshark.org, excluding HTTP and SMTP</td></tr>
+</tbody>
+</table>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Use MAC (ether host) not IP for application analysis — catches ARP, works across IP changes. Avoid "host www.example.com" for web analysis — use "port 80" instead (redirects go to different IPs). Exclusion filter = "not ether host &lt;your MAC&gt;". and = both must match; or = either can match; not = exclude.</div></div></div>
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-address" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('address','Address &amp; Port Filters')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-address" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('address')">+ Add Note</button></div></div></div></div>
+</div>
+
+<div class="insight-block" id="ins-advanced"><div class="insight-hdr" onclick="toggleInsight('ins-advanced')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · BYTE-LEVEL FILTERS &amp; CFILTERS FILE</span></div><div class="ins-body"><p class="ins-q">The <code>proto[expr:size]</code> syntax lets you filter on any byte or field within a protocol header. To filter for TCP packets with window size 65,535 (0xffff), the filter is <code>tcp[14:2]=0xffff</code>. Why does the offset start at 14, and what does the ":2" mean? How would you know where to find this offset?</p><textarea class="ins-ta" data-key="ins-advanced" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-advanced" onclick="saveIns('ins-advanced')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-advanced')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-advanced" onclick="toggleInsModel('ins-advanced')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-advanced" style="display:none"><div class="hm-label">HINT</div><p>Count bytes from the start of the TCP header (byte 0) to the window size field. The TCP header layout: src port (2B), dst port (2B), seq (4B), ack (4B), data offset+flags (2B) = 14 bytes before window.</p></div><div class="ins-model-box" id="model-ins-advanced" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Offset 14: counting from 0 at the start of the TCP header — source port (0-1), dest port (2-3), sequence number (4-7), ack number (8-11), data offset+flags (12-13), window size starts at byte 14. The ":2" means read 2 bytes (the window size field is 16 bits = 2 bytes). You find offsets by examining the protocol header diagram in RFC documentation or by expanding a packet in Wireshark's Packet Details pane and noting the byte offset shown at the bottom of the screen when you click a field.</p></div></div></div>
+
+<div class="section-block" id="sec-advanced">
+<h2>Byte-Level Filters, Operators, and the cfilters File</h2>
+
+<h3>Create Capture Filters to Look for Byte Values</h3>
+<p>When no primitive covers the field you need, use byte-offset filtering. Syntax: <code>proto[expr:size]</code></p>
+<ul>
+<li><strong>proto</strong>: one of <code>ether, fddi, tr, ip, arp, rarp, tcp, udp, icmp, ip6</code></li>
+<li><strong>expr</strong>: byte offset from the start of the protocol header (counting from 0)</li>
+<li><strong>size</strong>: optional — number of bytes to read (1, 2, or 4)</li>
+</ul>
+
+<p><strong>Example — TCP window size of 65,535:</strong> The window size field is at offset 14 from the start of the TCP header (2B src port + 2B dst port + 4B seq + 4B ack + 2B data offset/flags = 14 bytes). Window size is 2 bytes wide. Value 65,535 = 0xffff:</p>
+<pre>tcp[14:2]=0xffff</pre>
+
+<div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig86-the-tcp-header-decode.png" alt="Figure 86: The TCP header decode" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 86 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 86.</strong> The TCP header decode [http-espn2012.pcapng] — used to identify byte offsets for filter construction.</div></div>
+
+<p><strong>Example — Capture traffic to destination ports 100–150:</strong></p>
+<pre>(tcp[2:2] &gt; 100 and tcp[2:2] &lt; 150)</pre>
+<p>The destination port field is at offset 2 from the TCP header start, 2 bytes wide. Alternatively, the shorthand <code>portrange 100-150</code> achieves the same result.</p>
+<p><strong>Example — WLAN Probe Response frames:</strong></p>
+<pre>wlan[0] = 0x50</pre>
+<p>The 802.11 Type/Subtype field is at offset 0 in the WLAN header. 0x50 identifies probe response packets.</p>
+
+<h3>Manually Edit the cfilters File</h3>
+<p>The capture filters window has limitations — you cannot sort or categorize filters. Manually editing the <code>cfilters</code> file allows full organization. Syntax: <code>"name" filter</code></p>
+<pre>"My MAC"  ether host 00:21:97:40:74:D2
+"Not My MAC"  not ether host 00:21:97:40:74:D2
+"DNS only"  port 53</pre>
+<p>Always add a line feed after the last filter or Wireshark will not display it. Figure 87 shows a manually organized cfilters file:</p>
+
+<div class="figure-block"><div class="fig-img-wrap"><img src="figures/fig87-manually-edited-cfilters-file.png" alt="Figure 87: Manually edited cfilters file" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 87 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 87.</strong> Manually edited cfilters file — organized into sections with descriptive names for each filter.</div></div>
+
+<h3>Laura's Recommended cfilters Set</h3>
+<pre>"My MAC (replace w/your MAC)"      ether host 00:08:15:00:08:15
+"Not My MAC (replace w/your MAC)"  not ether host 00:08:15:00:08:15
+"ARP or DHCP (Passive Discovery)"  arp or port 67 or port 68
+"Broadcasts/Multicasts Only"       broadcast or multicast
+"ICMP Only"                        icmp
+"IPv6 Only"                        ip6
+"TCP SYN Only"                     tcp[tcpflags] &amp; (tcp-syn) = 1</pre>
+
+<h3>Share Capture Filters</h3>
+<p>There is no export/import feature in the Capture Filters dialog. To share filters, copy the <code>cfilters</code> file from one Wireshark system to another. To avoid overwriting defaults, copy to a new profile directory rather than the Global Configuration directory.</p>
+
+<div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">proto[offset:size]=value — offset counts from 0 at the start of the named protocol header. tcp[14:2]=0xffff = window size 65535. wlan[0]=0x50 = probe response. cfilters file syntax: "name" filter — one per line, line feed required after last entry. Share by copying the cfilters file directly.</div></div></div>
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-advanced" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('advanced','Byte Filters &amp; cfilters')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-advanced" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('advanced')">+ Add Note</button></div></div></div></div>
+</div>
+
+<div class="section-block" id="sec-casestudy">
+<h2>Case Study</h2>
+<div class="case-study-block">
+<div class="cs-eyebrow">Case Study 1</div>
+<div class="cs-title">Kerberos UDP to TCP Issue</div>
+<div class="cs-sub">Submitted by: Thanassis Diogos</div>
+<div class="cs-body">
+<p>Arriving onsite I was given a brief description of a strange problem. The customer was in the middle of a domain migration from Windows NT 4 to Windows 2003 Active Directory using ADMT (Active Directory Migration Tool). Some migrated users could not log in to a Terminal Server in a perimeter firewall zone — the error message was "The RPC Server is unavailable."</p>
+<p>As a workaround, deleting and recreating the faulty accounts let users log in normally — but this was not an acceptable long-term solution. Event viewer logs gave no useful information. I installed Wireshark locally on the Terminal Server and started monitoring with the capture filter <code>not port 3389</code> to exclude RDP traffic (not relevant to logon) and focus on authentication traffic.</p>
+<p>In the captured trace:</p>
+<ul>
+<li><strong>Frame 3:</strong> AS-REQ (normal Kerberos UDP initial authentication request)</li>
+<li><strong>Frame 4:</strong> Server responds with <em>"KRB Error: KRB5KRB_ERR_RESPONSE_TOO_BIG"</em> — the Kerberos answer cannot fit in UDP's 512-byte payload limit. The server asks the client to switch to TCP.</li>
+<li><strong>Frames 5–7:</strong> Client sends TCP SYN (retransmitted twice) — but no SYN-ACK arrives.</li>
+</ul>
+<p>The answer was quick: the <strong>firewall between host and server was configured to allow only UDP port 88, not TCP port 88</strong>. The issue only affected some users because the Kerberos responses containing group membership information were exceeding the 512-byte UDP limit. Users with more group memberships triggered the UDP→TCP switch, which the firewall silently blocked.</p>
+<p><em>This problem could not have been solved without packet-level tracing — event logs were too general. It's also a reminder that the solution is not always just "delete, recreate or reboot."</em></p>
+</div>
+<div class="cs-img-inline">
+<div class="cs-img-wrap"><img src="../all-casestudy-pictures/C4-CS1.png" alt="Kerberos UDP to TCP Issue" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C4-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C4-CS1.png</div></div></div>
+<div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network analyst sits at a Terminal Server in a corporate server room. The Wireshark screen shows a packet list with three highlighted rows: Frame 3 in blue labeled 'AS-REQ (UDP port 88)', Frame 4 in red labeled 'KRB Error: Response Too Big — switch to TCP!' with an arrow pointing right, and Frames 5-7 in orange labeled 'TCP SYN (retransmit x3) — no response'. Between the Terminal Server and an Active Directory domain controller, a brick firewall icon blocks a red TCP arrow with a sign reading 'UDP 88: ALLOWED — TCP 88: BLOCKED'. To the right, a scale shows small user (few groups) passes through and a large user (many groups) is blocked, illustrating that only users with large group memberships are affected. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: 'AS-REQ UDP', 'KRB Error: Too Big', 'TCP SYN blocked', 'Firewall: TCP 88 denied', minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div></div>
+</div>
+</div>
+</div>
+
+<div class="section-block" id="sec-tldr">
+<div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;">
+<div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 4</div>
+<p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">Capture filters use BPF syntax (same as tcpdump), run in the kernel, apply during live capture only, and permanently discard non-matching packets. Use them sparingly on busy links to prevent drops — use display filters generously for everything else. Three qualifiers: Type (host/net/port), Direction (src/dst), Protocol (tcp/udp/ether). MAC filters are more reliable than IP for local application analysis. For byte-level access, use proto[offset:size]=value. The cfilters file stores named filters — share by copying the file. Operators: and (both must match), or (either matches), not (exclude).</p>
+</div>
+</div>
+
+<div class="section-block" id="sec-rq">
+<h2>Review Questions</h2>
+<div class="rq-card"><div class="rq-num">Q4.1</div><div class="rq-q">What is the key difference between capture filters and display filters in Wireshark?</div><textarea class="rq-ta" data-key="rq-4-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-1" onclick="saveRQ('4-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-1" onclick="toggleRQAns('4-1')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-1" onclick="resetRQ('4-1')" style="display:none">↺ Reset</button><button class="btn-rq-reset" id="resetbtn-<button class="btn-rq-ans" id="ansbtn-4-1" onclick="toggleRQAns('4-1')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-1" onclick="resetRQ('4-1')" style="display:none">↺ Reset</button>" onclick="resetRQ('<button class="btn-rq-ans" id="ansbtn-4-1" onclick="toggleRQAns('4-1')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-1" onclick="resetRQ('4-1')" style="display:none">↺ Reset</button>')" style="display:none">↺ Reset</button></div><div class="rq-hint-box" id="rqhint-4-1" style="display:none"><div class="hm-label">HINT</div><p>Think about when each type runs, what syntax each uses, and what happens to packets that don't match.</p></div><div class="rq-ans-box" id="rqans-4-1" style="display:none"><div class="hm-label">ANSWER</div><p>Capture filters run in the OS kernel during live capture only — packets that don't match are permanently discarded before reaching Wireshark. They use BPF (Berkeley Packet Filter) syntax identical to tcpdump. Display filters are applied to already-captured traffic (live or from a trace file) — non-matching packets are hidden but not deleted and can be recalled by clearing the filter. Display filters use Wireshark's own filter language (e.g., <code>dns</code>, <code>tcp.flags.syn==1</code>) which is more powerful and protocol-aware than BPF.</p></div></div></div>
+<div class="rq-card"><div class="rq-num">Q4.2</div><div class="rq-q">Write a BPF capture filter that captures all TCP traffic from subnet 10.1.0.0/16 destined to port 443, and explain each component.</div><textarea class="rq-ta" data-key="rq-4-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-2" onclick="saveRQ('4-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-2" onclick="toggleRQAns('4-2')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-2" onclick="resetRQ('4-2')" style="display:none">↺ Reset</button><button class="btn-rq-reset" id="resetbtn-<button class="btn-rq-ans" id="ansbtn-4-2" onclick="toggleRQAns('4-2')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-2" onclick="resetRQ('4-2')" style="display:none">↺ Reset</button>" onclick="resetRQ('<button class="btn-rq-ans" id="ansbtn-4-2" onclick="toggleRQAns('4-2')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-2" onclick="resetRQ('4-2')" style="display:none">↺ Reset</button>')" style="display:none">↺ Reset</button></div><div class="rq-hint-box" id="rqhint-4-2" style="display:none"><div class="hm-label">HINT</div><p>You need a source network qualifier and a destination port qualifier combined with an operator.</p></div><div class="rq-ans-box" id="rqans-4-2" style="display:none"><div class="hm-label">ANSWER</div><p><code>tcp and src net 10.1.0.0/16 and dst port 443</code>. Components: <code>tcp</code> = Protocol qualifier (TCP only); <code>src net 10.1.0.0/16</code> = Direction qualifier (src) + Type qualifier (net) + Identifier (10.1.0.0/16); <code>dst port 443</code> = Direction qualifier (dst) + Type qualifier (port) + Identifier (443); <code>and</code> = Concatenation operator requiring all conditions to match. This captures only TCP packets originating from the 10.1 subnet going to port 443 (HTTPS).</p></div></div></div>
+<div class="rq-card"><div class="rq-num">Q4.3</div><div class="rq-q">What is the purpose of each of these capture filters: (a) <code>ether dst 08:3f:3d:03:32:03</code>, (b) <code>gateway rtrmain01</code>, (c) <code>host www.espn.com</code>?</div><textarea class="rq-ta" data-key="rq-4-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-3" onclick="saveRQ('4-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-3" onclick="toggleRQAns('4-3')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-3" onclick="resetRQ('4-3')" style="display:none">↺ Reset</button><button class="btn-rq-reset" id="resetbtn-<button class="btn-rq-ans" id="ansbtn-4-3" onclick="toggleRQAns('4-3')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-3" onclick="resetRQ('4-3')" style="display:none">↺ Reset</button>" onclick="resetRQ('<button class="btn-rq-ans" id="ansbtn-4-3" onclick="toggleRQAns('4-3')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-3" onclick="resetRQ('4-3')" style="display:none">↺ Reset</button>')" style="display:none">↺ Reset</button></div><div class="rq-hint-box" id="rqhint-4-3" style="display:none"><div class="hm-label">HINT</div><p>For (b) think about how "gateway" differs from "host" in terms of what traffic it captures.</p></div><div class="rq-ans-box" id="rqans-4-3" style="display:none"><div class="hm-label">ANSWER</div><p>(a) <code>ether dst 08:3f:3d:03:32:03</code> — captures all traffic whose Ethernet destination MAC address is 08:3f:3d:03:32:03 (only packets sent TO that hardware address). (b) <code>gateway rtrmain01</code> — captures traffic flowing THROUGH the router named rtrmain01 (matches packets whose Ethernet address matches rtrmain01's MAC, but whose IP address is NOT rtrmain01's IP — i.e., traffic being routed through it, not addressed to it). Requires the host name to resolve locally. (c) <code>host www.espn.com</code> — resolves www.espn.com to an IP at filter creation time and captures all traffic to or from that IP. Limitation: if the website uses redirects or CDN, redirected traffic goes to different IPs and is not captured.</p></div></div></div>
+<div class="rq-card"><div class="rq-num">Q4.4</div><div class="rq-q">What does <code>tcp[tcpflags] &amp; (tcp-syn) != 0</code> capture, and why is the <code>&amp;</code> operator used instead of <code>=</code>?</div><textarea class="rq-ta" data-key="rq-4-4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-4-4" onclick="saveRQ('4-4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('4-4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-4-4" onclick="toggleRQAns('4-4')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-4" onclick="resetRQ('4-4')" style="display:none">↺ Reset</button><button class="btn-rq-reset" id="resetbtn-<button class="btn-rq-ans" id="ansbtn-4-4" onclick="toggleRQAns('4-4')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-4" onclick="resetRQ('4-4')" style="display:none">↺ Reset</button>" onclick="resetRQ('<button class="btn-rq-ans" id="ansbtn-4-4" onclick="toggleRQAns('4-4')" disabled>🔒 See Answer</button><button class="btn-rq-reset" id="resetbtn-4-4" onclick="resetRQ('4-4')" style="display:none">↺ Reset</button>')" style="display:none">↺ Reset</button></div><div class="rq-hint-box" id="rqhint-4-4" style="display:none"><div class="hm-label">HINT</div><p>Think about what happens when multiple flags are set simultaneously (like SYN+ACK). A bitwise AND test is different from equality.</p></div><div class="rq-ans-box" id="rqans-4-4" style="display:none"><div class="hm-label">ANSWER</div><p>This filter captures all TCP packets that have the SYN flag set — including both SYN-only packets (initial connection attempts) and SYN+ACK packets (server responses). The bitwise AND (<code>&amp;</code>) is used instead of equality (<code>=</code>) because the TCP flags byte can have multiple bits set simultaneously (e.g., SYN+ACK = 0x12). Using <code>=</code> would only match packets where the flags byte exactly equals the SYN value, missing SYN+ACK packets. The bitwise AND tests whether the SYN bit is set regardless of what other bits are set. <code>!= 0</code> means "the result of the AND is not zero" — i.e., the SYN bit is present.</p></div></div></div>
+</div>
+</div>
+
 <div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 04 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>BPF Primitives</h4><div class="qr-row"><span class="qr-term">host X</span><span class="qr-def">src or dst IP</span></div><div class="qr-row"><span class="qr-term">src host X</span><span class="qr-def">source IP only</span></div><div class="qr-row"><span class="qr-term">dst host X</span><span class="qr-def">destination IP</span></div><div class="qr-row"><span class="qr-term">net 10.0.0.0/8</span><span class="qr-def">subnet</span></div><div class="qr-row"><span class="qr-term">port 80</span><span class="qr-def">TCP or UDP port</span></div><div class="qr-row"><span class="qr-term">tcp</span><span class="qr-def">TCP traffic only</span></div><div class="qr-row"><span class="qr-term">not port 22</span><span class="qr-def">exclude SSH</span></div><div class="qr-row"><span class="qr-term">broadcast</span><span class="qr-def">all broadcasts</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 8 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
+<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 04 Practice Lab <span class="arr">→</span></a></div></div>
+<div class="sidebar-card"><h3>Quick Reference</h3>
+<div class="quick-ref"><h4>Common Capture Filters</h4><div class="qr-row"><span class="qr-term">tcp</span><span class="qr-def">TCP only</span></div><div class="qr-row"><span class="qr-term">udp</span><span class="qr-def">UDP only</span></div><div class="qr-row"><span class="qr-term">port 53</span><span class="qr-def">DNS (UDP+TCP)</span></div><div class="qr-row"><span class="qr-term">not arp</span><span class="qr-def">Exclude ARP</span></div></div>
+<div class="quick-ref" style="margin-top:10px"><h4>Qualifiers</h4><div class="qr-row"><span class="qr-term">Type</span><span class="qr-def">host / net / port</span></div><div class="qr-row"><span class="qr-term">Dir</span><span class="qr-def">src / dst</span></div><div class="qr-row"><span class="qr-term">Proto</span><span class="qr-def">tcp / udp / ether</span></div></div>
+<div class="quick-ref" style="margin-top:10px"><h4>Operators</h4><div class="qr-row"><span class="qr-term">and / &amp;&amp;</span><span class="qr-def">Both must match</span></div><div class="qr-row"><span class="qr-term">or / ||</span><span class="qr-def">Either matches</span></div><div class="qr-row"><span class="qr-term">not / !</span><span class="qr-def">Exclude</span></div></div>
+</div>
+<div class="sidebar-card"><div class="ins-prog-label">Think First + Review Qs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 8 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
 </div>
 </main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 04: Capture Filters</div>
-</footer>
+<div class="practice-cta"><a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a><p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p></div>
+<footer><div>Wireshark Network Analysis — 2nd Edition</div><div>Chapter 04: Create and Apply Capture Filters</div></footer>
 <script>
-
 const PAGE_KEY='ws-ch04-full';
-const SECTIONS={'purpose':'Purpose','syntax':'BPF Syntax','combining':'Combining','examples':'Common Examples','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-syntax','ins-combining','ins-examples'];
+const SECTIONS={'purpose':'Purpose & Overview','syntax':'BPF Syntax','address':'Address & Port Filters','advanced':'Byte Filters & cfilters','casestudy':'Case Study','tldr':'TL;DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-purpose','ins-syntax','ins-address','ins-advanced'];
 const RQ_IDS=['4-1','4-2','4-3','4-4'];
 const TOTAL=8;
 function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
@@ -304,35 +527,20 @@ function toggleInsight(id){const block=document.getElementById(id);if(!block)ret
 function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
 function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='inline';updateInsProgress();}
+function resetRQ(id){localStorage.removeItem(PAGE_KEY+'-rq-'+id);const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(ta){ta.value='';ta.disabled=false;}const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='Save Answer';sb.disabled=false;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=true;ab.textContent='🔒 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='none';const ah=document.getElementById('rqans-'+id);if(ah)ah.style.display='none';updateInsProgress();}
 function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
 function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
 document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initPT();updateInsProgress();
+  renderQPanel();renderNotesPanel();initSectionNav();initPT();updateInsProgress();
   if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
   if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
-  });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
-  });
+  INSIGHT_IDS.forEach(function(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');const sv=localStorage.getItem(PAGE_KEY+'-'+id);if(ta&&sv){ta.value=sv;ta.disabled=true;}const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}});
+  RQ_IDS.forEach(function(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);if(ta&&sv){ta.value=sv;ta.disabled=true;}const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb&&sv)rb.style.display='inline';});
 });
 </script>
 </body>
-</html>
