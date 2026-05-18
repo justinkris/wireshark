@@ -109,12 +109,15 @@ pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-si
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
-.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
+.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
+.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
+.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
+.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
+.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
 .def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
 .def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
 .def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
@@ -286,7 +289,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig166-packet-comments-are-saved-in-the-trace-file.png"
+          <img src="../all-chapter-figures/fig166-packet-comments-are-saved-in-the-trace-file.png"
                alt="Figure 166: Packet comments saved in trace file"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -301,7 +304,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig167-comments-about-the-entire-trace-file-can-be.png"
+          <img src="../all-chapter-figures/fig167-comments-about-the-entire-trace-file-can-be.png"
                alt="Figure 167: Trace file comments in Statistics Summary"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -373,7 +376,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig168-you-can-save-all-packets-displayed-packets-marked.png"
+          <img src="../all-chapter-figures/fig168-you-can-save-all-packets-displayed-packets-marked.png"
                alt="Figure 168: Save As window with packet save options"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -388,7 +391,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig169-you-can-print-to-a-text-or-postscript.png"
+          <img src="../all-chapter-figures/fig169-you-can-print-to-a-text-or-postscript.png"
                alt="Figure 169: Print to text or PostScript file"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -403,7 +406,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig170-printed-packets-retain-formats-for-readability-export-packet.png"
+          <img src="../all-chapter-figures/fig170-printed-packets-retain-formats-for-readability-export-packet.png"
                alt="Figure 170: Printed packets retain formats for readability"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -434,7 +437,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig171-we-have-chosen-to-export-displayed-packets-to.png"
+          <img src="../all-chapter-figures/fig171-we-have-chosen-to-export-displayed-packets-to.png"
                alt="Figure 171: Export displayed packets to CSV format"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -449,7 +452,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig172-we-will-graph-the-contents-of-the-delta-old.png"
+          <img src="../all-chapter-figures/fig172-we-will-graph-the-contents-of-the-delta-old.png"
                alt="Figure 172: Graph the Delta column in Excel"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -462,7 +465,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig173-plotting-the-delta-time-between-beacons-old.png"
+          <img src="../all-chapter-figures/fig173-plotting-the-delta-time-between-beacons-old.png"
                alt="Figure 173: Plotting the delta time between beacons"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -481,7 +484,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig174-click-the-copy-button-to-save-the-data-old.png"
+          <img src="../all-chapter-figures/fig174-click-the-copy-button-to-save-the-data-old.png"
                alt="Figure 174: Copy button saves CSV from Conversation and Endpoint windows"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -887,6 +890,9 @@ function initNotes() {
   });
 }
 
+function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
+function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
+
 function initChecks() {
   ['annotate','save','export','casestudy','rq'].forEach(id => {
     const el = document.getElementById('chk-' + id);
@@ -897,6 +903,7 @@ function initChecks() {
 document.addEventListener('DOMContentLoaded', () => {
   initNotes();
   initChecks();
+  initFigures();
   renderQPanel();
   updateProgress();
   document.body.style.opacity = '1';

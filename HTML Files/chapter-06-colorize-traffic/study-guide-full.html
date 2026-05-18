@@ -108,12 +108,15 @@ pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-si
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
-.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
+.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
+.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
+.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
+.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
+.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
 .def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
 .def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
 .def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
@@ -286,7 +289,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <div class="figure-block">
 <div class="fig-img-wrap">
-<img src="figures/fig104-packets-are-processed-from-top-to-bottom-through.png" alt="Figure 104: Packets are processed from top to bottom through the coloring rules list" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<img src="../all-chapter-figures/fig104-packets-are-processed-from-top-to-bottom-through.png" alt="Figure 104: Packets are processed from top to bottom through the coloring rules list" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 104 &mdash; open trace file to view</span></div>
 </div>
 <div class="fig-cap"><strong>Figure 104.</strong> Packets are processed from top to bottom through the coloring rules list.</div>
@@ -335,7 +338,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <div class="figure-block">
 <div class="fig-img-wrap">
-<img src="figures/fig105-frame-details-include-coloring-rule-information.png" alt="Figure 105: Frame details include coloring rule information [http-yahoo-viafirefox.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<img src="../all-chapter-figures/fig105-frame-details-include-coloring-rule-information.png" alt="Figure 105: Frame details include coloring rule information [http-yahoo-viafirefox.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 105 &mdash; open trace file to view</span></div>
 </div>
 <div class="fig-cap"><strong>Figure 105.</strong> Frame details include coloring rule information [http-yahoo-viafirefox.pcapng].</div>
@@ -390,7 +393,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <div class="figure-block">
 <div class="fig-img-wrap">
-<img src="figures/fig106-the-steps-to-create-a-butt-ugly-coloring.png" alt="Figure 106: The steps to create a butt ugly coloring rule for HTTP error responses" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<img src="../all-chapter-figures/fig106-the-steps-to-create-a-butt-ugly-coloring.png" alt="Figure 106: The steps to create a butt ugly coloring rule for HTTP error responses" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 106 &mdash; open trace file to view</span></div>
 </div>
 <div class="fig-cap"><strong>Figure 106.</strong> The steps to create a &ldquo;butt ugly&rdquo; coloring rule for HTTP error responses.</div>
@@ -430,7 +433,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <div class="figure-block">
 <div class="fig-img-wrap">
-<img src="figures/fig107-right-click-on-a-packet-to-select-it.png" alt="Figure 107: Right click on a packet to select it for colorization [voip-extension.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<img src="../all-chapter-figures/fig107-right-click-on-a-packet-to-select-it.png" alt="Figure 107: Right click on a packet to select it for colorization [voip-extension.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 107 &mdash; open trace file to view</span></div>
 </div>
 <div class="fig-cap"><strong>Figure 107.</strong> Right click on a packet to select it for colorization [voip-extension.pcapng].</div>
@@ -458,7 +461,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <div class="figure-block">
 <div class="fig-img-wrap">
-<img src="figures/fig108-use-marked-packets-in-the-save-process-alter.png" alt="Figure 108: Use marked packets in the save process" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<img src="../all-chapter-figures/fig108-use-marked-packets-in-the-save-process-alter.png" alt="Figure 108: Use marked packets in the save process" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 108 &mdash; open trace file to view</span></div>
 </div>
 <div class="fig-cap"><strong>Figure 108.</strong> Use marked packets in the save process.</div>
@@ -497,7 +500,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <div class="figure-block">
 <div class="fig-img-wrap">
-<img src="figures/fig109-stream-coloring-is-defined-through-preferences.png" alt="Figure 109: Stream coloring is defined through preferences" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<img src="../all-chapter-figures/fig109-stream-coloring-is-defined-through-preferences.png" alt="Figure 109: Stream coloring is defined through preferences" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 109 &mdash; open trace file to view</span></div>
 </div>
 <div class="fig-cap"><strong>Figure 109.</strong> Stream coloring is defined through preferences.</div>
@@ -507,7 +510,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
 <div class="figure-block">
 <div class="fig-img-wrap">
-<img src="figures/fig110-stream-coloring-is-seen-when-you-reassemble-udp.png" alt="Figure 110: Stream coloring is seen when you reassemble UDP, TCP or SSL streams [http-espn2011.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<img src="../all-chapter-figures/fig110-stream-coloring-is-seen-when-you-reassemble-udp.png" alt="Figure 110: Stream coloring is seen when you reassemble UDP, TCP or SSL streams [http-espn2011.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 110 &mdash; open trace file to view</span></div>
 </div>
 <div class="fig-cap"><strong>Figure 110.</strong> Stream coloring is seen when you reassemble UDP, TCP or SSL streams [http-espn2011.pcapng].</div>
@@ -680,9 +683,11 @@ function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&a
 function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
 function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
+function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
 function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
 document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initSectionNav();initPT();updateInsProgress();
+  renderQPanel();renderNotesPanel();initSectionNav();initFigures();initPT();updateInsProgress();
   if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
   if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
   INSIGHT_IDS.forEach(function(id){

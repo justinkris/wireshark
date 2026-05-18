@@ -109,12 +109,15 @@ pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-si
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
-.fig-img-wrap img{max-width:100%;height:auto;display:block;}
+.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
+.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
+.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
+.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
+.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
+.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
 .def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
 .def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
 .def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
@@ -295,7 +298,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig175-the-button-on-the-lower-left-corner-of.png"
+          <img src="../all-chapter-figures/fig175-the-button-on-the-lower-left-corner-of.png"
                alt="Figure 175: Expert Info button on Status Bar"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -312,7 +315,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig176-the-expert-infos-window-indicates-packet-loss-problems.png"
+          <img src="../all-chapter-figures/fig176-the-expert-infos-window-indicates-packet-loss-problems.png"
                alt="Figure 176: Expert Infos window showing packet loss"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -332,7 +335,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig177-expand-the-frame-section-to-identify-the-coloring.png"
+          <img src="../all-chapter-figures/fig177-expand-the-frame-section-to-identify-the-coloring.png"
                alt="Figure 177: Frame section showing coloring rule"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -348,7 +351,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 
       <div class="figure-block">
         <div class="fig-img-wrap">
-          <img src="figures/fig178-a-display-filter-shows-tcp-problems-understand-tcp.png"
+          <img src="../all-chapter-figures/fig178-a-display-filter-shows-tcp-problems-understand-tcp.png"
                alt="Figure 178: tcp.analysis.flags display filter"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="fig-placeholder" style="display:none">
@@ -811,6 +814,9 @@ function initNotes() {
   });
 }
 
+function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
+function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
+
 function initChecks() {
   ['expert','tcp','casestudy','rq'].forEach(id => {
     const el = document.getElementById('chk-' + id);
@@ -821,6 +827,7 @@ function initChecks() {
 document.addEventListener('DOMContentLoaded', () => {
   initNotes();
   initChecks();
+  initFigures();
   renderQPanel();
   updateProgress();
   document.body.style.opacity = '1';
