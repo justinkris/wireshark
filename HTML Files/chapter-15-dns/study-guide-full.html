@@ -3,21 +3,14 @@
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 15: Analyze DNS Traffic | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +64,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,12 +81,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
 .insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
@@ -121,16 +109,17 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
-.fig-trace{color:var(--blue);font-style:italic;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -138,7 +127,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -148,11 +137,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -177,15 +170,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -193,150 +177,817 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
+
 </style>
 </head>
 <body>
-<header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 15<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 15 · DNS</div>
-<h1>Analyze DNS <em>Traffic</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
-</header>
-<div class="motivation-banner">
-<div class="motivation-text"> <em>DNS failures cascade — a quiet broken resolver kills everything.</em></div>
-<p class="motivation-sub">Understand normal DNS operation, common failure modes, packet structure, and Wireshark filters for isolating DNS problems.</p>
-</div>
-<div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
-</div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
-<nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of DNS</button><button class="nav-tab" data-target="sec-normal" onclick="navTo('sec-normal')">Normal Operations</button><button class="nav-tab" data-target="sec-problems" onclick="navTo('sec-problems')">DNS Problems</button><button class="nav-tab" data-target="sec-structure" onclick="navTo('sec-structure')">Packet Structure</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Wireshark Filters</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
-</nav>
-<main>
-<div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF DNS</span></div><div class="ins-body"><p class="ins-q">DNS translates domain names to IP addresses. What is the typical sequence of events when a user browses to a website, and what happens if the DNS step fails?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about whether the TCP connection can be established before DNS completes. What does the OS use to initiate a TCP connection?</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The browser calls the OS resolver → OS sends a DNS query (UDP, port 53) to the configured DNS server → DNS server returns an A/AAAA record with the IP → the OS returns the IP to the browser → browser initiates a TCP SYN to that IP. If DNS fails: the OS cannot resolve the name → the browser never gets an IP → no TCP connection is possible. The user sees a 'name not resolved' or 'server not found' error. Even if the web server is perfectly healthy, a broken DNS resolver makes it inaccessible.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of DNS</h2><p>DNS (Domain Name System) translates human-readable domain names into IP addresses. Defined in RFC 1035, DNS uses <strong>UDP port 53</strong> for standard queries and <strong>TCP port 53</strong> for zone transfers and large responses (EDNS0 responses > 512 bytes).</p><h3>DNS Hierarchy</h3><ul><li><strong>Root servers</strong> — know the authoritative servers for all TLDs (.com, .org, .net)</li><li><strong>TLD servers</strong> — know the authoritative servers for each domain under the TLD</li><li><strong>Authoritative servers</strong> — hold the actual records for a domain</li><li><strong>Recursive resolver</strong> — the server clients contact; performs the full resolution chain and caches results</li></ul><h3>Recursive vs. Iterative Resolution</h3><p>Client queries its recursive resolver → resolver queries root → root returns TLD referral → resolver queries TLD → TLD returns authoritative server → resolver queries authoritative → authoritative returns answer → resolver caches and returns answer to client. Client only sees one query/response pair; resolver does all the work.</p><div class="callout callout-callout-amber"><strong>DNS IS UDP</strong>Standard DNS queries use UDP for speed (no handshake). The 'don't fragment' approach means responses > 512 bytes may be truncated (TC bit set). EDNS0 (RFC 2671) extends this limit to 4096 bytes. Zone transfers (AXFR) use TCP.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS uses UDP port 53 (queries), TCP port 53 (zone transfers and large responses). Recursive resolver does the work; client sees one query/response. Cache poisoning attack exploits: guess transaction ID + source port to inject false answers. mDNS (multicast DNS) uses UDP port 5353 and the 224.0.0.251 multicast address for local name resolution without a server.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig184-dns-queries-responses-most-often-use-udp-and.png" alt="Figure 184: DNS queries/responses most often use UDP and zone transfers use TCP" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 184 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 184.</strong> DNS queries/responses most often use UDP and zone transfers use TCP</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig189-dns-server-failures-prevent-name-resolution.png" alt="Figure 189: shows a server failure response when trying to get to www.nmap.org. We know this is a valid address, but DNS cannot resolve it. We cannot get to the site because of a DNS problem. As you lo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 189 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 189.</strong> shows a server failure response when trying to get to www.nmap.org. We know this is a valid address, but DNS cannot resolve it. We cannot get to the site because of a DNS problem. As you lo</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig191-a-dns-name-request-for-www-winpcap-com.png" alt="Figure 191: A DNS name request for www.winpcap.com" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 191 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 191.</strong> A DNS name request for www.winpcap.com</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of DNS')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-normal"><div class="insight-hdr" onclick="toggleInsight('ins-normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL DNS OPERATIONS</span></div><div class="ins-body"><p class="ins-q">A normal DNS query/response pair takes how long? What would you expect to see in a healthy network, and what does an unusually slow response look like in Wireshark?</p><textarea class="ins-ta" data-key="ins-normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-normal" onclick="saveIns('ins-normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-normal" onclick="toggleInsModel('ins-normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-normal" style="display:none"><div class="hm-label">HINT</div><p>DNS is a critical path dependency before any application can connect. Think about what 'slow DNS' looks like in the delta time column.</p></div><div class="ins-model-box" id="model-ins-normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>A healthy recursive DNS response should return in < 100ms for a cached record and < 500ms for a fresh lookup requiring full resolution. In Wireshark with a display filter of 'dns', set the time column to 'delta displayed' — each response shows time since the preceding query. Anything > 1-2 seconds indicates a slow resolver. The Wireshark field <code>dns.time</code> (auto-calculated from query/response timestamps) allows filtering: <code>dns.time > 1</code> to find slow responses directly.</p></div></div></div><div class="section-block" id="sec-normal"><h2>Normal DNS Queries and Responses</h2><h3>A Record Query (IPv4)</h3><p>Client → DNS server: <code>Standard query 0x1234 A www.example.com</code></p><p>DNS server → Client: <code>Standard query response 0x1234 A www.example.com A 93.184.216.34</code></p><p>The Transaction ID (0x1234) matches query to response. Both use the same UDP source/destination port.</p><h3>CNAME Resolution</h3><p>A CNAME record is an alias — the resolver follows the chain: query for <code>www.example.com</code> → CNAME → <code>example.com.edgekey.net</code> → A record → IP. A single query may return multiple records in the Answer section including the CNAME chain and the final A record.</p><h3>AAAA Record (IPv6)</h3><p>AAAA queries return 128-bit IPv6 addresses. Modern clients send parallel A and AAAA queries. The first response wins the race and is used for connection.</p><h3>PTR Record (Reverse DNS)</h3><p>Query: <code>PTR 34.216.184.93.in-addr.arpa</code> → Response: <code>www.example.com</code>. Used by Wireshark's name resolution and by some authentication systems.</p><div class="callout callout-callout-blue"><strong>TRANSACTION ID</strong>The 16-bit Transaction ID links query to response. In the display filter: <code>dns.id == 0x1234</code> to show a specific query/response pair. Wireshark auto-matches them using this ID + source port.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Normal DNS: UDP port 53, query then response with matching Transaction ID. A record = IPv4, AAAA = IPv6, CNAME = alias, PTR = reverse lookup, MX = mail. dns.time field = auto-calculated response time. Filter: dns.time > 1 to find slow responses. Healthy cache hit < 100ms, fresh lookup < 500ms.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig185-a-standard-dns-query-for-an-a-record.png" alt="Figure 185: shows a standard DNS request for the A record (host address) for www.msnbc.com. This DNS query was generated automatically when the user entered this host name in the browser URL window and" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 185 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 185.</strong> shows a standard DNS request for the A record (host address) for www.msnbc.com. This DNS query was generated automatically when the user entered this host name in the browser URL window and</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig186-a-standard-dns-query-response.png" alt="Figure 186: shows the DNS response for the A record request for www.msnbc.com." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 186 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 186.</strong> shows the DNS response for the A record request for www.msnbc.com.</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig187-a-host-can-use-ipv4-to-discover-an.png" alt="Figure 187: shows a DNS response to an AAAA record query for scanmev6.nmap.org. This query was generated on World IPv6 Day (8 June 2011). You can learn more about this event at www.worldipv6day.org." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 187 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 187.</strong> shows a DNS response to an AAAA record query for scanmev6.nmap.org. This query was generated on World IPv6 Day (8 June 2011). You can learn more about this event at www.worldipv6day.org.</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig190-icmp-responses-indicate-port-53-is-not-open.png" alt="Figure 190: ICMP responses indicate port 53 is not open on the target  Dissect the DNS Packet Structure Unlike other applications that utilize a single transport mechanism (eith" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 190 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 190.</strong> ICMP responses indicate port 53 is not open on the target  Dissect the DNS Packet Structure Unlike other applications that utilize a single transport mechanism (eith</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal Operations')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-problems"><div class="insight-hdr" onclick="toggleInsight('ins-problems')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DNS PROBLEMS</span></div><div class="ins-body"><p class="ins-q">A user reports 'websites don't load but I can ping the server by IP'. What does this tell you, and what Wireshark filter would you apply to diagnose the DNS issue?</p><textarea class="ins-ta" data-key="ins-problems" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-problems" onclick="saveIns('ins-problems')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-problems')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-problems" onclick="toggleInsModel('ins-problems')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-problems" style="display:none"><div class="hm-label">HINT</div><p>If pinging by IP works but names fail, which component is broken? What are the possible failure modes?</p></div><div class="ins-model-box" id="model-ins-problems" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>DNS is the broken component — IP connectivity is fine (ping by IP succeeds). Possible failures: (1) DNS server unreachable — queries sent but no response (timeout, then retry); (2) DNS server returns NXDOMAIN — domain doesn't exist (typo, wrong domain, DNS poisoning); (3) DNS server returns SERVFAIL — server error (misconfigured, upstream failure). Wireshark filter: 'dns' — look for queries with no matching response, or responses with non-zero rcode. Also check 'dns.flags.rcode != 0' for error responses.</p></div></div></div><div class="section-block" id="sec-problems"><h2>DNS Problems and Error Codes</h2><h3>NXDOMAIN (rcode=3)</h3><p>Non-Existent Domain — the queried name does not exist in DNS. Causes: typo in domain name, domain expired, DNS record deleted, DNS spoofing with false NXDOMAIN. Filter: <code>dns.flags.rcode == 3</code></p><h3>SERVFAIL (rcode=2)</h3><p>Server Failure — the DNS server could not process the query. Causes: DNSSEC validation failure, misconfigured resolver, upstream server unreachable. Filter: <code>dns.flags.rcode == 2</code></p><h3>REFUSED (rcode=5)</h3><p>Query Refused — the server refuses to answer from this client. Causes: access control list on the DNS server, querying an authoritative server that doesn't allow recursion.</p><h3>No Response / Timeout</h3><p>No matching response packet for a query. Causes: DNS server unreachable (ICMP unreachable in trace), firewall blocking port 53, DNS server overloaded. Spot this by looking for a query with no corresponding response — or by filtering: <code>dns.flags.response == 0</code> (queries) and checking which queries have no matching response packet.</p><h3>Client Retry Behavior</h3><p>When a query times out, the OS retransmits after 1-2 seconds, often 3-4 times. In Wireshark this appears as multiple identical queries to the same server (or to an alternate server) with 1-2 second intervals. The user's application waits 5-15 seconds before receiving an error.</p><div class="callout callout-callout-red"><strong>ICMP UNREACHABLE</strong>If DNS server is down, client sends query → receives ICMP Port Unreachable (no UDP service on port 53). Look for ICMP Type 3 Code 3 from the DNS server IP immediately after the DNS query.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS error codes: NXDOMAIN (3) = doesn't exist, SERVFAIL (2) = server error, REFUSED (5) = access denied. No response = server down or firewalled. Client retries 3-4x at 1-2s intervals → 5-15s total user wait. Filter: dns.flags.rcode != 0 for all DNS errors. ICMP Unreachable after DNS query = DNS port blocked or service not running.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig188-a-dns-response-indicates-that-no-such-name.png" alt="Figure 188: A DNS response indicates that no such name exists" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 188 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 188.</strong> A DNS response indicates that no such name exists</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','DNS Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-structure"><h2>DNS Packet Structure</h2><h3>DNS Message Header (12 bytes)</h3><table style='width:100%;border-collapse:collapse;font-size:13px;'><tr style='background:#eef4ff;'><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Field</th><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Size</th><th style='padding:6px 8px;border:1px solid #bfdbfe;'>Description</th></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Transaction ID</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Matches query to response</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Flags</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>QR, Opcode, AA, TC, RD, RA, Z, RCODE</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>QDCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of questions</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>ANCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of answers</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>NSCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of authority records</td></tr><tr><td style='padding:6px 8px;border:1px solid #bfdbfe;'>ARCOUNT</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>16 bits</td><td style='padding:6px 8px;border:1px solid #bfdbfe;'>Number of additional records</td></tr></table><h3>Key Flags</h3><ul><li><strong>QR</strong> — 0=Query, 1=Response</li><li><strong>RD</strong> — Recursion Desired (client asks resolver to recurse)</li><li><strong>RA</strong> — Recursion Available (server supports recursion)</li><li><strong>TC</strong> — TrunCated (response truncated; retry over TCP)</li><li><strong>AA</strong> — Authoritative Answer (came directly from authoritative server)</li><li><strong>RCODE</strong> — 4-bit response code: 0=No Error, 2=SERVFAIL, 3=NXDOMAIN, 5=REFUSED</li></ul><h3>TTL (Time to Live)</h3><p>Each answer record has a TTL in seconds — how long the resolver may cache the record. Low TTL (60s) = frequent updates expected. High TTL (86400 = 24h) = stable record. DNS response time for a cached record = fast; for a record with expired TTL = requires fresh lookup.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS header: 12 bytes. Key flags: QR (query/response), TC (truncated → retry over TCP), RD (recursion desired), RA (recursion available), AA (authoritative), RCODE (error code). TTL = cache lifetime. Transaction ID = 16-bit random number linking query to response.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-structure" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('structure','Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-structure" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('structure')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-filters"><h2>Filtering DNS in Wireshark</h2><table style='width:100%;border-collapse:collapse;font-size:13px;'><tr style='background:#eef4ff;'><th style='padding:8px;border:1px solid #bfdbfe;'>Scenario</th><th style='padding:8px;border:1px solid #bfdbfe;'>Filter</th></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>All DNS</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Queries only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.response == 0</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Responses only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.response == 1</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>DNS errors (any)</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.rcode != 0</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>NXDOMAIN only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.rcode == 3</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>SERVFAIL only</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.flags.rcode == 2</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Query for specific domain</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.qry.name contains "example"</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>Slow DNS responses</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>dns.time > 1</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>mDNS (local DNS)</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>mdns</code> or <code>udp.port == 5353</code></td></tr><tr><td style='padding:8px;border:1px solid #bfdbfe;'>DNS over TCP</td><td style='padding:8px;border:1px solid #bfdbfe;'><code>tcp.port == 53</code></td></tr></table><div class="callout callout-callout-green"><strong>KEY FILTER</strong><code>dns.flags.rcode != 0</code> is the first DNS filter to apply when diagnosing 'websites won't load' problems. It immediately shows all DNS failures — NXDOMAIN, SERVFAIL, and REFUSED — in one view.</div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DNS Wireshark filters: dns (all), dns.flags.rcode!=0 (errors), dns.flags.response==0 (queries), dns.qry.name contains 'x' (specific domain), dns.time>1 (slow). dns.time is automatically calculated by Wireshark from query→response timestamp delta. mDNS uses UDP port 5353 and multicast address 224.0.0.251.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig192-it-is-easier-to-match-queries-responses-starting.png" alt="Figure 192: It is easier to match queries/responses starting with Wireshark 1.8 because the Transaction ID is included in the Info column  Flags The Flags byte consists of numerous f" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 192 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 192.</strong> It is easier to match queries/responses starting with Wireshark 1.8 because the Transaction ID is included in the Info column  Flags The Flags byte consists of numerous f</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filters','Wireshark Filters')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filters')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-tldr"><div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;margin:8px 0;"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:#93c5fd;margin-bottom:12px;">TL;DR — CHAPTER 15</div><p style="font-size:14px;line-height:1.75;color:rgba(255,255,255,0.75);">DNS uses UDP port 53 (queries) and TCP port 53 (zone transfers, large responses). Normal operation: client → recursive resolver → root → TLD → authoritative → answer returned and cached. Error codes: NXDOMAIN (3), SERVFAIL (2), REFUSED (5). Key filters: dns.flags.rcode!=0 (errors), dns.time>1 (slow). When users can ping by IP but names fail — DNS is broken. Start with 'dns.flags.rcode != 0' to see all failures.</p></div></div><div class="section-block" id="sec-rq"><h2>Review Questions</h2><div class="rq-card"><div class="rq-num">Q15.1</div><div class="rq-q">What DNS error code (rcode) represents NXDOMAIN, and what does it mean?</div><textarea class="rq-ta" data-key="rq-15-1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-1" onclick="saveRQ('15-1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-1" onclick="toggleRQAns('15-1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-1" style="display:none"><div class="hm-label">HINT</div><p>NXDOMAIN = Non-Existent Domain. What are common causes?</p></div><div class="rq-ans-box" id="rqans-15-1" style="display:none"><div class="hm-label">ANSWER</div><p>RCODE 3 = NXDOMAIN (Non-Existent Domain). The queried name does not exist in DNS. Causes: typo in domain name, domain expired or deleted, DNS record removed but not propagated, DNS spoofing injecting false NXDOMAIN responses. Filter in Wireshark: <code>dns.flags.rcode == 3</code>. Symptom: browser shows 'This site can't be reached' or 'ERR_NAME_NOT_RESOLVED'.</p></div></div><div class="rq-card"><div class="rq-num">Q15.2</div><div class="rq-q">A user can ping a web server by IP but cannot browse to it by name. What is the likely cause and what Wireshark display filter confirms it?</div><textarea class="rq-ta" data-key="rq-15-2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-2" onclick="saveRQ('15-2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-2" onclick="toggleRQAns('15-2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-2" style="display:none"><div class="hm-label">HINT</div><p>If IP connectivity works, which component must be failing?</p></div><div class="rq-ans-box" id="rqans-15-2" style="display:none"><div class="hm-label">ANSWER</div><p>DNS is failing — IP connectivity is fine (ping by IP succeeds), but name resolution is broken. The DNS server may be: (1) unreachable (queries time out, ICMP unreachable follows); (2) returning errors (NXDOMAIN or SERVFAIL); (3) blocked by firewall on port 53. Confirm with Wireshark: apply display filter <code>dns</code> — look for queries with no response (timeout), or <code>dns.flags.rcode != 0</code> for error responses.</p></div></div><div class="rq-card"><div class="rq-num">Q15.3</div><div class="rq-q">What is the Transaction ID in a DNS message, and how does Wireshark use it?</div><textarea class="rq-ta" data-key="rq-15-3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-3" onclick="saveRQ('15-3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-3" onclick="toggleRQAns('15-3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-3" style="display:none"><div class="hm-label">HINT</div><p>How does a client match a DNS response to the correct query?</p></div><div class="rq-ans-box" id="rqans-15-3" style="display:none"><div class="hm-label">ANSWER</div><p>The Transaction ID is a 16-bit random number in the DNS header, set by the client when sending a query. The DNS server copies the same ID into the response. The client matches the response to its outstanding query by comparing Transaction IDs. Wireshark uses the Transaction ID (plus source port) to calculate dns.time — the elapsed time between the matching query and response packets. Filter: <code>dns.id == 0xABCD</code> to find a specific query/response pair.</p></div></div><div class="rq-card"><div class="rq-num">Q15.4</div><div class="rq-q">When does DNS use TCP instead of UDP?</div><textarea class="rq-ta" data-key="rq-15-4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-4" onclick="saveRQ('15-4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-4" onclick="toggleRQAns('15-4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-4" style="display:none"><div class="hm-label">HINT</div><p>Think about response size limitations and zone transfers.</p></div><div class="rq-ans-box" id="rqans-15-4" style="display:none"><div class="hm-label">ANSWER</div><p>DNS uses TCP for: (1) Zone transfers (AXFR) — copying all records from an authoritative server requires reliable transport; (2) Large responses — when a UDP response exceeds the negotiated EDNS0 buffer size (typically 4096 bytes or the standard 512-byte limit), the server sets the TC (TrunCated) flag; the client then retries the query over TCP. Filter for DNS over TCP: <code>tcp.port == 53</code>.</p></div></div><div class="rq-card"><div class="rq-num">Q15.5</div><div class="rq-q">What does a TTL value of 60 seconds on a DNS A record indicate, and how does this affect client behavior?</div><textarea class="rq-ta" data-key="rq-15-5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-15-5" onclick="saveRQ('15-5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('15-5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-15-5" onclick="toggleRQAns('15-5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-15-5" style="display:none"><div class="hm-label">HINT</div><p>TTL controls how long a cached answer is valid.</p></div><div class="rq-ans-box" id="rqans-15-5" style="display:none"><div class="hm-label">ANSWER</div><p>A 60-second TTL means resolvers and clients must discard the cached A record after 60 seconds and re-query for a fresh answer. This is intentionally low — used when the administrator expects the IP address to change soon (e.g. during a migration, failover, or load balancer reconfiguration). High TTL (86400 = 24h) means the record rarely changes and caching is beneficial. Low TTL increases DNS query volume but enables faster IP changes to propagate.</p></div></div></div>
-</div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 15 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>DNS Filters</h4><div class="qr-row"><span class="qr-term">dns</span><span class="qr-def">All DNS traffic</span></div><div class="qr-row"><span class="qr-term">dns.flags.response==0</span><span class="qr-def">Queries only</span></div><div class="qr-row"><span class="qr-term">dns.flags.rcode!=0</span><span class="qr-def">DNS errors</span></div><div class="qr-row"><span class="qr-term">dns.qry.name contains "x"</span><span class="qr-def">Query for domain</span></div><div class="qr-row"><span class="qr-term">dns.time > 1</span><span class="qr-def">Slow DNS (&gt;1 sec)</span></div><h4>DNS Record Types</h4><div class="qr-row"><span class="qr-term">A</span><span class="qr-def">IPv4 address</span></div><div class="qr-row"><span class="qr-term">AAAA</span><span class="qr-def">IPv6 address</span></div><div class="qr-row"><span class="qr-term">CNAME</span><span class="qr-def">Alias → canonical name</span></div><div class="qr-row"><span class="qr-term">MX</span><span class="qr-def">Mail exchanger</span></div><div class="qr-row"><span class="qr-term">PTR</span><span class="qr-def">Reverse DNS</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 9 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 15: Analyze DNS Traffic</div>
-</footer>
-<script>
 
-const PAGE_KEY='ws-ch15-full';
-const SECTIONS={'purpose':'Purpose of DNS','normal':'Normal Operations','problems':'DNS Problems','structure':'Packet Structure','filters':'Wireshark Filters','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-normal','ins-problems','ins-structure'];
-const RQ_IDS=['15-1','15-2','15-3','15-4','15-5'];
-const TOTAL=9;
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
-function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
-function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
-function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
-function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initFigures();initPT();updateInsProgress();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+<header>
+  <div class="header-inner">
+    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> &rsaquo; <a href="../hub.html">Study Guides</a> &rsaquo; Chapter 15</div>
+    <div class="eyebrow-row">
+      <span class="eyebrow-chip">CHAPTER 15</span>
+      <span class="animated-dot"></span>
+    </div>
+    <h1>Analyze DNS <em>Traffic</em></h1>
+    <div class="header-sub">Dissecting DNS queries, responses, errors, and packet structure</div>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text"><em>"DNS is the phone book of the Internet &mdash; when it fails, nobody can find anything, no matter how healthy the rest of the network is."</em></div>
+  <div class="motivation-sub">Spot DNS failures before users start calling the helpdesk</div>
+</div>
+
+<div class="top-panels">
+  <div class="q-panel" id="q-panel">
+    <div class="q-panel-header" onclick="toggleQPanel()">
+      <span>&#x1F4AD; My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">&#9662;</span>
+    </div>
+    <div class="q-panel-body" id="q-panel-body">
+      <div id="q-list"></div>
+      <div class="q-empty" id="q-empty">No questions yet &mdash; add one from any section below.</div>
+    </div>
+  </div>
+  <div class="note-panel" id="note-panel">
+    <div class="note-panel-header">&#x1F4DD; My Notes</div>
+    <div class="note-panel-body">
+      <textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights, things to remember..."></textarea>
+    </div>
+  </div>
+</div>
+
+<nav class="section-nav" id="section-nav">
+  <button class="nav-tab active" onclick="navTo('sec-purpose')">DNS Purpose</button>
+  <button class="nav-tab" onclick="navTo('sec-problems')">DNS Problems</button>
+  <button class="nav-tab" onclick="navTo('sec-structure')">Packet Structure</button>
+  <button class="nav-tab" onclick="navTo('sec-filters')">Filters</button>
+  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
+</nav>
+
+<main>
+  <div class="main-content">
+
+    <!-- THINK FIRST: DNS Purpose -->
+    <div class="insight-block" id="ins-purpose">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; DNS PURPOSE &amp; TRANSPORT</span>
+      </div>
+      <p class="insight-insight">DNS converts symbolic host names to IP addresses &mdash; but it can do much more: inverse lookups (IP to name), MX record lookups, zone transfers between servers. It runs over UDP port 53 for most queries but switches to TCP when responses exceed 512 bytes.</p>
+      <ul class="insight-questions">
+        <li>Why does DNS use UDP by default instead of TCP? Under what specific condition does it fall back to TCP, and what happens in the packet flow when it does?</li>
+        <li>What is Multicast DNS (mDNS) and why would a small network use it instead of a traditional DNS server?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-purpose">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> DNS uses UDP because most queries and responses are small and speed matters more than guaranteed delivery &mdash; a failed DNS lookup just results in a retry, not a broken stream. UDP avoids the TCP handshake overhead. When a response exceeds 512 bytes (the RFC 1035 payload limit), the DNS server sets the <em>truncation</em> flag bit in the response. The client's resolver sees the truncated flag and immediately retransmits the exact same query over TCP, which allows for larger payloads. You'd see the UDP query, a truncated UDP response, then a TCP connection and the full response.</p>
+          <p><strong>Model Answer 2:</strong> mDNS (Multicast DNS) provides name resolution without a central DNS server by using multicast group 224.0.0.251 (or FF02::FB for IPv6). Any host can respond to a query for its own name. This is ideal for small home or office networks where setting up and maintaining a DNS server would be overkill. mDNS names end with .local &mdash; those queries are never forwarded to a regular DNS server.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: DNS Purpose -->
+    <div class="section-block" id="sec-purpose">
+      <h2>The Purpose of DNS</h2>
+      <p>DNS is used to convert symbolic host names, such as www.wiresharktraining.com, to IP addresses. DNS can also be used to transfer name information between DNS servers, identify the host name associated with an IP address (an inverse or pointer query) and look up other name elements such as the MX (mail exchange) record.</p>
+      <p>DNS is one of the most important applications on the network. A DNS failure will prevent hosts from locating each other when using host names.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig184-dns-queries-responses-most-often-use-udp-and.png"
+               alt="Figure 184: DNS queries use UDP; zone transfers use TCP"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 184 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 184.</strong> DNS queries/responses most often use UDP and zone transfers use TCP.</div>
+      </div>
+
+      <p>DNS can run over UDP or TCP. Most commonly you will see DNS queries and replies using UDP. Zone transfers will run over TCP. The default port for DNS is <strong>port 53</strong>.</p>
+
+      <p>RFC 1035 limits DNS over UDP packet payload to <strong>512 bytes</strong>. When a response requires more than 512 bytes, a truncation flag bit is sent in the response. This triggers the resolver to send the DNS query again using TCP which allows for a larger packet size.</p>
+
+      <div class="callout callout-amber"><strong>CAUTION</strong> RFC 2671 (EDNS0) allows for greater than 512 bytes over UDP. This caused problems when the Microsoft DNS server added EDNS0 support, but Cisco PIX Firewall versions prior to 6.3(2) dropped DNS packets greater than the default maximum configured length of 512 bytes.</div>
+
+      <p><strong>Multicast DNS (mDNS)</strong> offers name resolution for smaller networks without a DNS server. Top-level mDNS names end with <code>.local</code>. Any mDNS query for a name ending with <code>.local</code> must be sent to the mDNS multicast address (<code>224.0.0.251</code> or its IPv6 equivalent <code>FF02::FB</code>).</p>
+
+      <h3>Analyze Normal DNS Queries/Responses</h3>
+      <p>A client sends a DNS query to a DNS server typically asking for an IP address in exchange for a host name. The DNS server either responds directly with information it possesses or it asks other DNS servers on behalf of the client (recursive queries).</p>
+      <p>Figure 185 shows a standard DNS request for the A record (host address) for www.msnbc.com.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig185-a-standard-dns-query-for-an-a-record.png"
+               alt="Figure 185: Standard DNS query for an A record"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 185 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 185.</strong> A standard DNS query for an A record [http-msnbc.pcapng].</div>
+      </div>
+
+      <p>Figure 186 shows the DNS response for the A record request for www.msnbc.com. The name a client requests may not be the actual name of a target. In this case, a canonical name (CNAME), or true name, has been returned for www.msnbc.com. The CNAME is msnbc.com and the address for that host is 207.46.245.32.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig186-a-standard-dns-query-response.png"
+               alt="Figure 186: Standard DNS query response with CNAME"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 186 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 186.</strong> A standard DNS query response [http-msnbc.pcapng].</div>
+      </div>
+
+      <p>Figure 187 shows a DNS response to an AAAA record query for scanmev6.nmap.org. Notice that the IPv6 address was located using an IPv4 packet because the client did not know of a DNS server on its IPv6 network.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig187-a-host-can-use-ipv4-to-discover-an.png"
+               alt="Figure 187: A host can use IPv4 to discover an IPv6 address (AAAA record)"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 187 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 187.</strong> A host can use IPv4 to discover an IPv6 address (AAAA record) [ipv6-worldipv6day.pcapng].</div>
+      </div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">DNS defaults to <strong>UDP port 53</strong>; switches to TCP when response &gt; 512 bytes (truncation flag set). Zone transfers always use TCP. mDNS uses port 5353 and multicast address 224.0.0.251, names end with .local. A CNAME response means the requested name is an alias &mdash; the Answer section will contain both the CNAME and the A record, so Answer RR Count &ge; 2. A client can look up an IPv6 address (AAAA record) via an IPv4 DNS query.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-purpose" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-purpose','DNS Purpose')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-purpose" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-purpose')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK FIRST: DNS Problems -->
+    <div class="insight-block" id="ins-problems">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; DNS PROBLEMS</span>
+      </div>
+      <p class="insight-insight">Three major DNS failure modes are visible in Wireshark: Name Error (no such name exists), Server Failure (the DNS server couldn't complete the lookup), and Port Unreachable (no DNS daemon listening on port 53). Each appears as a specific Rcode value or ICMP response.</p>
+      <ul class="insight-questions">
+        <li>You see a DNS query go out and immediately receive an ICMP Destination Unreachable / Port Unreachable reply. Is the DNS server misconfigured, or could the client be misconfigured? How would you determine which is at fault?</li>
+        <li>A client makes 4 DNS queries for the same name with increasing gaps between them (1s, 1s, 2s...). What does this tell you about the client's DNS retry behavior?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-problems">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> The ICMP Port Unreachable means the target host is reachable at the IP layer but is not listening on UDP port 53. This could mean: (a) the client has the wrong DNS server IP configured (correct host, wrong service) or (b) the DNS daemon on the correct server has crashed. To determine which: try to connect to the same IP on another known-open port. If that succeeds, the IP is correct but the DNS service is down. Check whether the IP matches the intended DNS server's actual address in DHCP/network configuration.</p>
+          <p><strong>Model Answer 2:</strong> The client is using an exponential backoff retry strategy: wait 1s, retry; wait 1s, retry; wait 2s, retry &mdash; roughly doubling the wait time. This is the standard resolver behavior when a DNS server doesn't respond. It reveals that the client has only one DNS server configured (otherwise it would try the second server sooner) and that the DNS server is either unreachable or unresponsive rather than actively refusing the query.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: DNS Problems -->
+    <div class="section-block" id="sec-problems">
+      <h2>Analyze DNS Problems</h2>
+      <p>The most common DNS problem is a Name Error because a name does not exist in the name server database &mdash; caused by entering an incorrect name or entering a new name that has not yet propagated through the Internet name servers.</p>
+
+      <p>In Figure 188, a user is trying to browse to www.us.gov. The name server responds indicating there is no such name. The client appends the parent suffix (local domain information) to the query &mdash; this is an optional DNS configuration set at the client &mdash; but the new name is also not found.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig188-a-dns-response-indicates-that-no-such-name.png"
+               alt="Figure 188: DNS response indicating no such name exists"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 188 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 188.</strong> A DNS response indicates that no such name exists.</div>
+      </div>
+
+      <p><strong>Server failure responses</strong> indicate that the name server could not resolve the information for the client due to some error &mdash; perhaps the name server sent a query to another name server and timed out waiting for a response. Figure 189 shows a server failure response when trying to get to www.nmap.org. Note the Time column &mdash; the client sent a DNS query then waited 1 second before resending, waited another 1 second before the third query, then doubled the wait time to approximately 2 seconds before the fourth DNS query.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig189-dns-server-failures-prevent-name-resolution.png"
+               alt="Figure 189: DNS server failures prevent name resolution"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 189 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 189.</strong> DNS server failures prevent name resolution [dns-errors-partial.pcapng].</div>
+      </div>
+
+      <div class="callout callout-blue"><strong>TIP</strong> Set the Time column to <strong>Seconds Since Previous Displayed Packet</strong> to easily evaluate client DNS resend timer values. This makes the exponential backoff pattern immediately visible.</div>
+
+      <p>In Figure 190, the client's DNS queries are met with ICMP Destination Unreachable / Port Unreachable responses. This means port 53 is not open on the target host. The client only has one DNS server configured, so it retries the same broken server.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig190-icmp-responses-indicate-port-53-is-not-open.png"
+               alt="Figure 190: ICMP Port Unreachable responses for DNS queries"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 190 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 190.</strong> ICMP responses indicate port 53 is not open on the target [dns-icmp-fault.pcapng].</div>
+      </div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Three DNS failure modes in Wireshark: (1) <strong>Name Error</strong> &mdash; Rcode 3, "No such name," DNS response. (2) <strong>Server Failure</strong> &mdash; Rcode 2, DNS server couldn't resolve; client retries with doubling wait times (1s, 1s, 2s&hellip;). (3) <strong>Port Unreachable</strong> &mdash; ICMP response, port 53 not open; client or server misconfigured. Finding cause may require moving Wireshark <em>upstream</em> of the DNS server to watch its recursive lookup process.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-problems" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-problems','DNS Problems')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-problems" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-problems')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK FIRST: Packet Structure -->
+    <div class="insight-block" id="ins-structure">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; DNS PACKET STRUCTURE</span>
+      </div>
+      <p class="insight-insight">Every DNS packet &mdash; query or response &mdash; has the same four-section structure: Questions, Answer Resource Records, Authority Resource Records, and Additional Resource Records. Understanding each field helps you filter precisely and correlate queries with responses.</p>
+      <ul class="insight-questions">
+        <li>What is the purpose of the Transaction ID field, and why did Wireshark 1.8 start including it in the Info column?</li>
+        <li>What is the difference between a recursive and an iterative DNS query, and which one does a typical client use?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-structure">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> The Transaction ID is a 16-bit random identifier that associates a specific query with its corresponding response &mdash; since DNS uses connectionless UDP, there's no other mechanism to match them. Multiple queries can be outstanding simultaneously, and without the Transaction ID there'd be no way to know which response answers which query. Wireshark 1.8 started displaying it in the Info column so you can visually match query/response pairs without expanding every packet's detail pane.</p>
+          <p><strong>Model Answer 2:</strong> In a <em>recursive</em> query, the DNS server takes full responsibility for finding the answer &mdash; it will query other servers on the client's behalf and return a complete answer. In an <em>iterative</em> query, the server returns the best answer it has locally; if it doesn't know, it returns the address of another DNS server to ask. Typical clients use recursive queries (Recursion Desired flag = 1) because they want the DNS server to do all the work.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Packet Structure -->
+    <div class="section-block" id="sec-structure">
+      <h2>Dissect the DNS Packet Structure</h2>
+      <p>DNS utilizes both UDP and TCP. All DNS packets use a single basic structure consisting of four primary parts:</p>
+      <ol>
+        <li>Questions</li>
+        <li>Answer Resource Records (RRs)</li>
+        <li>Authority Resource Records</li>
+        <li>Additional Resource Records</li>
+      </ol>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig191-a-dns-name-request-for-www-winpcap-com.png"
+               alt="Figure 191: DNS name request for www.winpcap.com showing packet structure"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 191 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 191.</strong> A DNS name request for www.winpcap.com [dns-misc.pcapng].</div>
+      </div>
+
+      <h3>Key DNS Header Fields</h3>
+      <table class="def-table">
+        <thead><tr><th>Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Transaction ID</strong></td><td>Associates queries with responses. Filter: <code>dns.id==0x05b5</code>. Shown in Info column since Wireshark 1.8.</td></tr>
+          <tr><td><strong>Query/Response</strong></td><td>0 = query, 1 = response. Filter: <code>dns.flags.response==0/1</code></td></tr>
+          <tr><td><strong>Opcode</strong></td><td>Type of query. Standard queries use 0000.</td></tr>
+          <tr><td><strong>Authoritative Answer</strong></td><td>Response is from the authoritative server for the domain.</td></tr>
+          <tr><td><strong>Truncation</strong></td><td>Response was truncated due to length. Client should retry over TCP.</td></tr>
+          <tr><td><strong>Recursion Desired</strong></td><td>Client requests the server to perform recursive lookups on its behalf.</td></tr>
+          <tr><td><strong>Recursion Available</strong></td><td>Server indicates recursion is available (in responses).</td></tr>
+          <tr><td><strong>Rcode</strong></td><td>Error condition in responses. 0=No error, 1=Format error, 2=Server failure, 3=Name error, 4=Not implemented, 5=Refused.</td></tr>
+          <tr><td><strong>Question Count</strong></td><td>Number of questions in the Question section. Typically 1 per query.</td></tr>
+          <tr><td><strong>Answer RR Count</strong></td><td>Number of answers. CNAME responses typically have count of 2 (CNAME + A record).</td></tr>
+          <tr><td><strong>Authority RRs Count</strong></td><td>Answers from servers closer to the target name in the naming hierarchy.</td></tr>
+          <tr><td><strong>Additional RRs Count</strong></td><td>May contain A records for servers listed in the Authority section.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Query Name Format</h3>
+      <p>The Name field uses a variable-length format with a numerical delimiter indicating the number of alphanumeric bytes in each label:</p>
+      <pre>3www9wireshark3org0    (www.wireshark.org)
+3www4iana3org0         (www.iana.org)</pre>
+
+      <h3>DNS Record Types</h3>
+      <table class="def-table">
+        <thead><tr><th>Type</th><th>Name</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>Host address</td><td>IPv4 address for a hostname</td></tr>
+          <tr><td>AAAA</td><td>IPv6 address</td><td>IPv6 address for a hostname</td></tr>
+          <tr><td>NS</td><td>Name Server</td><td>Authoritative name server for the domain</td></tr>
+          <tr><td>CNAME</td><td>Canonical Name</td><td>Alias &mdash; the true name for a hostname</td></tr>
+          <tr><td>SOA</td><td>Start of Authority</td><td>Zone authority information</td></tr>
+          <tr><td>PTR</td><td>Pointer</td><td>Reverse lookup &mdash; IP to hostname</td></tr>
+          <tr><td>MX</td><td>Mail Exchange</td><td>Mail server for the domain</td></tr>
+          <tr><td>HINFO</td><td>Host Information</td><td>Host hardware and OS info</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Resource Record Time to Live (TTL)</h3>
+      <p>The TTL field is contained in the Answer section of DNS responses and indicates how long the receiver can maintain the DNS information in cache. DNS servers continually count down the remaining TTL &mdash; making the same DNS query ten seconds apart will show a ten second difference in the TTL value offered.</p>
+
+      <p>As of Wireshark 1.8, the Transaction ID field is displayed in the Info column to help match DNS queries with their corresponding responses, as shown in Figure 192.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig192-it-is-easier-to-match-queries-responses-starting.png"
+               alt="Figure 192: Transaction ID in Info column makes matching queries to responses easier"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none">
+            <span class="fig-ph-icon">&#x1F4F7;</span>
+            <span>Figure 192 &mdash; open trace file to view</span>
+          </div>
+        </div>
+        <div class="fig-cap"><strong>Figure 192.</strong> It is easier to match queries/responses starting with Wireshark 1.8 because the Transaction ID is included in the Info column [dns-misc.pcapng].</div>
+      </div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">DNS Rcodes: 0=OK, 1=Format error, 2=Server failure, 3=Name error, 4=Not implemented, 5=Refused. CNAME responses have Answer RR Count &ge; 2. Transaction ID matches queries to responses (visible in Info column since 1.8). Class field = 1 for Internet/TCP-IP. Recursion Desired = client wants server to look up on its behalf; Recursion Available = server confirms it can. TTL counts down at the responder &mdash; 10s between identical queries = 10s difference in TTL.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-structure" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-structure','Packet Structure')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-structure" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-structure')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK FIRST: Filters -->
+    <div class="insight-block" id="ins-filters">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; DNS FILTERS</span>
+      </div>
+      <p class="insight-insight">Wireshark's display filter <code>dns</code> shows both standard DNS and mDNS traffic. The capture filter uses port numbers since tcpdump format doesn't understand the string "dns." Knowing the right filter for each scenario saves significant analysis time.</p>
+      <ul class="insight-questions">
+        <li>Why can't you use "dns" as a capture filter syntax the way you can as a display filter? What do you use instead?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-filters">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> Capture filters use libpcap/WinPcap syntax (tcpdump-style BPF filters), which only understands layer 2-4 information available at capture time &mdash; MAC addresses, IP addresses, and port numbers. Application-layer protocol recognition (like "dns") requires deep packet inspection that happens during dissection, which is a post-capture step. So for capture, you must use <code>port 53</code> for standard DNS or <code>port 5353</code> for mDNS. Display filters run on already-captured and dissected packets, so <code>dns</code> works there.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Filters -->
+    <div class="section-block" id="sec-filters">
+      <h2>Filter on DNS/mDNS Traffic</h2>
+      <p>The capture filter syntax for DNS traffic is based on port number because the tcpdump filter format does not understand the string "dns":</p>
+      <table class="def-table">
+        <thead><tr><th>Scope</th><th>Filter</th><th>Captures</th></tr></thead>
+        <tbody>
+          <tr><td>Capture (standard DNS)</td><td><code>port 53</code></td><td>UDP and TCP DNS</td></tr>
+          <tr><td>Capture (mDNS)</td><td><code>port 5353</code></td><td>Multicast DNS</td></tr>
+          <tr><td>Display</td><td><code>dns</code></td><td>Both DNS and mDNS</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-amber"><strong>CAUTION</strong> Wireshark does not automatically colorize DNS errors the way it does TCP errors. Consider creating a Filter Expression button and coloring rule for DNS errors: <code>dns.flags.rcode != 0</code>. You will see a yellow background when you make this display filter, but this is expected because <code>!=</code> triggered the yellow; in this case the filter is valid since <code>dns.flags.rcode</code> can only apply to one field.</div>
+
+      <h3>Useful DNS Display Filters</h3>
+      <table class="def-table">
+        <thead><tr><th>Filter</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>dns.flags.response==0</code></td><td>DNS queries only</td></tr>
+          <tr><td><code>dns.flags.response==1</code></td><td>DNS responses only</td></tr>
+          <tr><td><code>dns.flags.rcode != 0</code></td><td>DNS responses containing an error</td></tr>
+          <tr><td><code>dns.flags.rcode==2</code></td><td>DNS server failure responses</td></tr>
+          <tr><td><code>dns.flags.rcode==3</code></td><td>DNS name error (no such name)</td></tr>
+          <tr><td><code>dns.count.answers &gt; 5</code></td><td>DNS response contains more than 5 answers</td></tr>
+          <tr><td><code>dns.qry.name=="www.abc.com"</code></td><td>DNS query for a specific name</td></tr>
+          <tr><td><code>dns contains "abc"</code></td><td>DNS packet containing the string "abc"</td></tr>
+          <tr><td><code>dns.qry.type==0x0001</code></td><td>A record query (host name)</td></tr>
+          <tr><td><code>dns.qry.type==0x000c</code></td><td>PTR query (inverse/pointer lookup)</td></tr>
+          <tr><td><code>dns.resp.type==0x0005</code></td><td>Response contains CNAME (canonical name)</td></tr>
+          <tr><td><code>dns.resp.type==0x0006</code></td><td>Response contains SOA (Start of Authority)</td></tr>
+          <tr><td><code>dns.flags.recdesired==1</code></td><td>DNS query with recursion desired</td></tr>
+          <tr><td><code>dns.flags.recavail==1</code></td><td>DNS response stating recursion available</td></tr>
+        </tbody>
+      </table>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Capture filter: <code>port 53</code> (DNS), <code>port 5353</code> (mDNS). Display filter: <code>dns</code> (catches both). Key error filter: <code>dns.flags.rcode != 0</code> (all errors) or <code>dns.flags.rcode==2</code> (server failure) / <code>rcode==3</code> (no such name). Build an IO graph comparing <code>dns.flags.response==0</code> vs <code>dns.flags.response==1</code> to spot cases where more queries than responses flow &mdash; classic sign of a failing DNS server.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-filters" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-filters','DNS Filters')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-filters" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-filters')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASE STUDY -->
+    <div class="section-block" id="sec-casestudy">
+      <h2>Case Studies</h2>
+
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 1</div>
+        <div class="cs-title">DNS Killed Web Browsing Performance</div>
+        <div class="cs-sub">Submitted by: Laura Chappell</div>
+        <div class="cs-body">
+          <p>One customer complained about slow web browsing. They said that sometimes it would take 10 or 15 seconds to load a website &mdash; other times sites just wouldn't load at all. The problem seemed to have started overnight.</p>
+          <p>We placed a full-duplex tap on the network between one of the more "outspoken" users and the local switch. We watched traffic as the user hit a number of web sites. Initial visits were fast because the user had already visited these sites &mdash; no DNS queries and HTTP GET requests all contained "IfModified-Since" modifiers.</p>
+          <p>We asked the user to visit a number of new sites &mdash; www.mensa.org, www.apa.org and www.angermgmt.com. Invariably, if you ask a user to browse to new sites they can't think of a single one. We had the user browse to about 20 sites while we captured the traffic.</p>
+          <p>Sitting next to the complainer allowed us to experience their pain. Some web sites were excruciatingly slow. Others loaded just fine.</p>
+          <p>Watching the web browsing traffic revealed the problem. We saw three DNS queries go out to one DNS server and then a DNS query go out to a <em>second</em> DNS server. For every page that needed to be loaded there were way too many DNS queries.</p>
+          <p>The IT staff recognized the issue right away &mdash; the <strong>primary DNS server was located at a branch office</strong>. The user's DNS queries were traveling across the Internet all the way to a remote office, and there were obviously some communication problems because many queries got no response. After unsuccessfully trying to resolve the name to the remote DNS server, the system would then make a DNS query to the local DNS server.</p>
+          <p>We built a simple IO Graph comparing the number of DNS requests and responses:</p>
+          <ul>
+            <li>DNS Requests: <code>dns.flags.response==0</code></li>
+            <li>DNS Responses: <code>dns.flags.response==1</code></li>
+          </ul>
+          <p>The graph showed a higher number of requests than responses &mdash; confirming that many queries were going unanswered.</p>
+          <p>Why was this station talking to the remote DNS server first? The client received its DNS configuration through DHCP. A review of the DHCP server showed that all local hosts were pointed to the remote DNS server first. Someone had configured the local DHCP server incorrectly.</p>
+          <p>The problem wasn't a web browsing problem &mdash; it was a name resolution problem. We could prove it by revisiting a website after clearing the web cache (but not the DNS cache). The second and successive times it loaded fast because there were no DNS delays.</p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C15-CS1.png" alt="DNS Killed Web Browsing Performance"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none">
+              <span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
+              <div><strong>C15-CS1.png</strong></div>
+              <div class="cs-ph-sub">Save to all-casestudy-pictures/C15-CS1.png</div>
+            </div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt"
+              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
+              &#9662; Show cartoon prompt
+            </button>
+            <div class="cs-prompt-text" hidden>
+              A two-panel cartoon. Left panel: a frustrated user at a desk staring at a browser with a spinning loading indicator and "15s..." visible on screen. Above the user's computer, a DNS query arrow travels a very long distance across a globe illustration to reach a "Branch Office DNS Server" on the other side with a red X (no response). A second shorter arrow then goes to a "Local DNS Server" which responds with a green checkmark. Right panel: a DHCP server console showing the DNS settings with a highlighted wrong entry: "Primary DNS: [remote branch IP]" instead of the local server's IP. An analyst points at the screen with "DHCP misconfigured!" in a speech bubble. A bar chart shows DNS Requests >> DNS Responses. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "Branch DNS (remote)," "Local DNS," "DHCP config error," "Requests > Responses," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TL;DR -->
+    <div class="section-block" id="sec-tldr">
+      <div class="tldr-block">
+        <div class="tldr-label">TL;DR &mdash; Chapter Summary</div>
+        <div class="tldr-text">
+          <p>DNS is used to resolve name information. Most commonly, DNS requests and replies provide hosts with the IP address(es) associated with the name used by an application. DNS can also resolve PTR (pointer) records, MX (mail exchange) records, and more.</p>
+          <p>When the name resolver process is launched, a host must first look in local cache to see if the information is already known. If no entry exists in cache, the client checks for an entry in a local hosts file. If no entry is found, the host can generate a DNS request to a predefined DNS server. DNS requests can be recursive or iterative, as defined in the DNS flags field.</p>
+          <p>DNS servers respond with a numerical code (Rcode) indicating if the lookup was successful. A reply code 0 indicates success. Codes 2 and 3 indicate server failure and name error respectively. Port Unreachable ICMP responses indicate no DNS daemon is listening on the target host.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW QUESTIONS -->
+    <div class="section-block" id="sec-rq">
+      <h2>Review Questions</h2>
+
+      <div class="rq-card" id="rq-15-1">
+        <div class="rq-question">Q15.1 What is the purpose of DNS?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A15.1</strong> DNS offers a name resolution service. Most commonly, DNS is used to obtain the IP address associated with a host name, but it can also be used to discover the host name associated with an IP address (a PTR query), mail exchange server names and IP addresses, and more.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-15-2">
+        <div class="rq-question">Q15.2 When does DNS traffic use TCP as the transport?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A15.2</strong> DNS uses TCP as the transport for zone transfers and large DNS packets. If a DNS response is too large to fit into the default 512 byte DNS payload size limitation, the DNS server sets the truncation flag bit in the response. The resolver process generates a new DNS query over TCP.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-15-3">
+        <div class="rq-question">Q15.3 What is the difference between recursive and iterative DNS queries?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A15.3</strong> In a recursive query (Recursion Desired = 1), the DNS server takes full responsibility for resolving the name &mdash; it will query other servers on behalf of the client and return a complete answer. In an iterative query, the DNS server returns the best answer it has locally; if it doesn't have the answer, it returns the address of another DNS server to ask instead of looking it up itself. Most client DNS queries use recursion.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-15-4">
+        <div class="rq-question">Q15.4 What are the four sections of DNS queries and answers?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A15.4</strong> The four sections of DNS packets are: (1) Questions, (2) Answer Resource Records, (3) Authority Resource Records, and (4) Additional Resource Records.
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- end main-content -->
+
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Navigation</div>
+      <a class="sidebar-link" href="../hub.html">&larr; Study Guide Hub</a>
+      <a class="sidebar-link" href="index.html">Practice Lab</a>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Quick Reference</div>
+      <div class="quick-ref">
+        <div class="qr-term">DNS Transport</div>
+        <div class="qr-def">UDP port 53 (default); TCP port 53 for zone transfers and truncated responses</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Truncation Trigger</div>
+        <div class="qr-def">Response &gt; 512 bytes &rarr; truncation flag set &rarr; client retries over TCP</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">mDNS</div>
+        <div class="qr-def">Port 5353, multicast 224.0.0.251, names end with .local</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">DNS Rcodes</div>
+        <div class="qr-def">0=OK, 2=Server failure, 3=Name error (no such name)</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Error Filter</div>
+        <div class="qr-def"><code>dns.flags.rcode != 0</code></div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Query/Response</div>
+        <div class="qr-def"><code>dns.flags.response==0</code> (queries) / <code>==1</code> (responses)</div>
+      </div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Progress</div>
+      <div class="ins-prog-count" id="ins-prog-count">0 / 8 complete</div>
+      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
+      <div style="margin-top:12px">
+        <label class="check-item"><input type="checkbox" id="chk-purpose" onchange="toggleDone('purpose')"> DNS Purpose</label>
+        <label class="check-item"><input type="checkbox" id="chk-problems" onchange="toggleDone('problems')"> DNS Problems</label>
+        <label class="check-item"><input type="checkbox" id="chk-structure" onchange="toggleDone('structure')"> Packet Structure</label>
+        <label class="check-item"><input type="checkbox" id="chk-filters" onchange="toggleDone('filters')"> Filters</label>
+        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Study</label>
+        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="practice-cta">
+  <div class="cta-inner">
+    <div class="cta-text">Ready to practice with real traffic?</div>
+    <a href="index.html" class="cta-btn">Open Practice Lab &rarr;</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span>Wireshark Network Analysis &mdash; Chapter 15</span>
+    <span>Analyze Domain Name System (DNS) Traffic</span>
+  </div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch15-full';
+const SECTIONS = {
+  'sec-purpose': 'DNS Purpose',
+  'sec-problems': 'DNS Problems',
+  'sec-structure': 'Packet Structure',
+  'sec-filters': 'DNS Filters',
+  'sec-casestudy': 'Case Study',
+  'sec-tldr': 'TL;DR',
+  'sec-rq': 'Review Questions'
+};
+const INSIGHT_IDS = ['ins-purpose', 'ins-problems', 'ins-structure', 'ins-filters'];
+const RQ_IDS = ['15-1', '15-2', '15-3', '15-4'];
+const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+
+document.querySelectorAll('.insight-header').forEach(h => {
+  h.addEventListener('click', () => h.closest('.insight-block').classList.toggle('ins-open'));
+});
+
+function saveSocAnswer(btn) {
+  const area = btn.closest('.answer-area');
+  const ta = area.querySelector('.answer-textarea');
+  if (!ta.value.trim()) return;
+  localStorage.setItem(PAGE_KEY + '-soc-' + area.dataset.section, ta.value);
+  area.querySelector('.btn-see-answer').disabled = false;
+  btn.textContent = '✓ Saved';
+  updateProgress();
+}
+function revealSocAnswer(btn) {
+  const area = btn.closest('.answer-area');
+  const ma = area.querySelector('.model-answers');
+  ma.style.display = ma.style.display === 'none' ? 'block' : 'none';
+  btn.textContent = ma.style.display === 'none' ? '🔒 See Model Answer' : '▴ Hide Answer';
+}
+function toggleQPanel() {
+  const body = document.getElementById('q-panel-body');
+  const tog = document.getElementById('q-panel-toggle');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  tog.textContent = open ? '▾' : '▴';
+}
+function renderQPanel() {
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  const list = document.getElementById('q-list');
+  const empty = document.getElementById('q-empty');
+  list.innerHTML = '';
+  if (qs.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  qs.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    div.innerHTML = '<span class="q-section-tag">' + q.section + '</span><span class="q-text">' + q.text + '</span><button class="q-del" onclick="deleteQuestion(' + i + ')">×</button>';
+    list.appendChild(div);
   });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+}
+function addQuestion(secId, secName) {
+  const ta = document.getElementById('q-' + secId);
+  if (!ta || !ta.value.trim()) return;
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  qs.push({ section: secName, text: ta.value.trim() });
+  localStorage.setItem(PAGE_KEY + '-questions', JSON.stringify(qs));
+  ta.value = '';
+  renderQPanel();
+}
+function deleteQuestion(i) {
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  qs.splice(i, 1);
+  localStorage.setItem(PAGE_KEY + '-questions', JSON.stringify(qs));
+  renderQPanel();
+}
+function addNote(secId) {
+  const ta = document.getElementById('note-' + secId);
+  if (!ta || !ta.value.trim()) return;
+  localStorage.setItem(PAGE_KEY + '-note-' + secId, ta.value);
+  ta.style.borderColor = '#22c55e';
+  setTimeout(() => ta.style.borderColor = '', 1200);
+}
+function navTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const idx = Object.keys(SECTIONS).indexOf(id);
+  const tabs = document.querySelectorAll('.nav-tab');
+  if (tabs[idx]) tabs[idx].classList.add('active');
+}
+function toggleDone(id) {
+  localStorage.setItem(PAGE_KEY + '-chk-' + id, document.getElementById('chk-' + id).checked ? '1' : '');
+}
+function updateProgress() {
+  let done = 0;
+  INSIGHT_IDS.forEach(id => { if (localStorage.getItem(PAGE_KEY + '-soc-' + id)) done++; });
+  RQ_IDS.forEach(id => { if (localStorage.getItem(PAGE_KEY + '-rq-' + id)) done++; });
+  document.getElementById('ins-prog-count').textContent = done + ' / ' + TOTAL + ' complete';
+  document.getElementById('ins-prog-fill').style.width = Math.round(done / TOTAL * 100) + '%';
+}
+function revealRQ(btn) {
+  const card = btn.closest('.rq-card');
+  const ans = card.querySelector('.rq-answer');
+  const ta = card.querySelector('.rq-textarea');
+  const id = card.id.replace('rq-', '');
+  ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
+  btn.textContent = ans.style.display === 'none' ? 'Reveal Answer' : 'Hide Answer';
+  if (ta.value.trim()) { localStorage.setItem(PAGE_KEY + '-rq-' + id, ta.value); updateProgress(); }
+}
+function initNotes() {
+  const gn = document.getElementById('global-notes');
+  gn.value = localStorage.getItem(PAGE_KEY + '-global-notes') || '';
+  gn.addEventListener('input', () => localStorage.setItem(PAGE_KEY + '-global-notes', gn.value));
+  Object.keys(SECTIONS).forEach(secId => {
+    const saved = localStorage.getItem(PAGE_KEY + '-note-' + secId);
+    const ta = document.getElementById('note-' + secId);
+    if (ta && saved) ta.value = saved;
   });
+  INSIGHT_IDS.forEach(id => {
+    const saved = localStorage.getItem(PAGE_KEY + '-soc-' + id);
+    if (saved) {
+      const block = document.getElementById(id);
+      if (!block) return;
+      const ta = block.querySelector('.answer-textarea');
+      const btn = block.querySelector('.btn-see-answer');
+      if (ta) ta.value = saved;
+      if (btn) btn.disabled = false;
+    }
+  });
+}
+function initChecks() {
+  ['purpose','problems','structure','filters','casestudy','rq'].forEach(id => {
+    const el = document.getElementById('chk-' + id);
+    if (el) el.checked = !!localStorage.getItem(PAGE_KEY + '-chk-' + id);
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  initNotes(); initChecks(); renderQPanel(); updateProgress();
+  document.body.style.opacity = '1';
+  sessionStorage.setItem('pt', '1');
 });
 </script>
 </body>

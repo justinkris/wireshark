@@ -2,14 +2,12 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chapter 11: Customize Wireshark Profiles | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
 :root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -109,15 +107,12 @@ pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-si
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
 .def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
 .def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
 .def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
@@ -196,627 +191,191 @@ pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-si
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
 @media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
 .btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
-
 </style>
 </head>
 <body>
-
-<header>
-  <div class="header-inner">
-    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> › <a href="../hub.html">Study Guides</a> › Chapter 11</div>
-    <div class="eyebrow-row">
-      <span class="eyebrow-chip">CHAPTER 11</span>
-      <span class="animated-dot"></span>
-    </div>
-    <h1>Customize Wireshark <em>Profiles</em></h1>
-    <div class="header-sub">Tailoring Wireshark for specific analysis environments</div>
-  </div>
-</header>
-
-<div class="motivation-banner">
-  <div class="motivation-text"><em>"A profile is your personal toolkit — preconfigured to see exactly what matters on the network you're analyzing."</em></div>
-  <div class="motivation-sub">Master profiles to switch analysis contexts instantly</div>
-</div>
-
+<header><div class="header-inner">
+  <div class="breadcrumb"><a href="../index.html">Wireshark Study Guide</a> <span>&#8250;</span> <span>Chapter 11</span></div>
+  <div class="eyebrow-row"><span class="eyebrow-chip">Chapter 11</span><span class="header-dot"></span></div>
+  <h1>Customize Wireshark <em>Profiles</em></h1>
+  <div class="header-sub">Configure Wireshark once for each environment — WLAN, VoIP, security, troubleshooting — and switch instantly.</div>
+</div></header>
+<div class="motivation-banner"><div class="motivation-quote">"<em>A profile is a lens — switch the lens to see the network exactly as you need to.</em>"</div><div class="motivation-sub">Build targeted profiles with the right columns, filters and coloring rules for each analysis environment.</div></div>
 <div class="top-panels">
-  <div class="q-panel" id="q-panel">
-    <div class="q-panel-header" onclick="toggleQPanel()">
-      <span>💭 My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">▾</span>
-    </div>
-    <div class="q-panel-body" id="q-panel-body">
-      <div id="q-list"></div>
-      <div class="q-empty" id="q-empty">No questions yet — add one from any section below.</div>
-    </div>
-  </div>
-  <div class="note-panel" id="note-panel">
-    <div class="note-panel-header">📝 My Notes</div>
-    <div class="note-panel-body">
-      <textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights, things to remember..."></textarea>
-    </div>
-  </div>
+  <div class="panel-card" id="q-panel"><div class="panel-header" onclick="toggleQPanel()"><span class="panel-title">&#128172; MY QUESTIONS</span><span class="panel-toggle">&#9662;</span></div><div class="panel-body" id="q-panel-body"><div id="q-list"></div><div class="panel-empty" id="q-empty">No questions yet.</div></div></div>
+  <div class="panel-card" id="notes-panel"><div class="panel-header" onclick="toggleNotesPanel()"><span class="panel-title">&#128221; MY NOTES</span><span class="panel-toggle">&#9662;</span></div><div class="panel-body" id="notes-panel-body"><div id="notes-list"></div><div class="panel-empty" id="notes-empty">No notes yet.</div></div></div>
 </div>
-
-<nav class="section-nav" id="section-nav">
-  <button class="nav-tab active" onclick="navTo('sec-profiles')">Profiles Overview</button>
-  <button class="nav-tab" onclick="navTo('sec-types')">Profile Types</button>
-  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
-  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
-  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
+<nav class="section-nav">
+  <button class="nav-tab" onclick="navTo('profiles')">Profiles</button>
+  <button class="nav-tab" onclick="navTo('ptypes')">Profile Types</button>
+  <button class="nav-tab" onclick="navTo('casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('rq')">Review Qs</button>
 </nav>
-
 <main>
-  <div class="main-content">
-
-    <!-- THINK FIRST: Profiles Overview -->
-    <div class="insight-block" id="ins-profiles">
-      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
-        <span class="insight-icon">💭</span>
-        <span class="insight-label">THINK FIRST &middot; WIRESHARK PROFILES</span>
-      </div>
-      <p class="insight-insight">Wireshark profiles let you save completely different configurations — coloring rules, columns, filters, preferences — and switch between them instantly. Each profile lives in its own directory under your Personal Configurations folder.</p>
-      <ul class="insight-questions">
-        <li>Why would a WLAN analyst need different coloring rules than a VoIP analyst, even if they're looking at the same trace file?</li>
-        <li>If a profile stores its settings in files on disk, what's the risk when you copy a profile to another machine with a different directory structure?</li>
-      </ul>
-      <div class="answer-area" data-section="ins-profiles">
-        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
-        <div class="answer-buttons">
-          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
-        </div>
-        <div class="model-answers" style="display:none;">
-          <p><strong>Model Answer 1:</strong> A WLAN analyst needs to spot beacon anomalies, retries, and weak signal strength — so their coloring rules highlight those. A VoIP analyst cares about DSCP markings, SIP errors, and jitter. The same traffic looks completely different through each lens. Profiles make this context-switch effortless without modifying the trace.</p>
-          <p><strong>Model Answer 2:</strong> The <code>preferences</code> file can contain absolute paths (like <code>gui.fileopen.dir: C:\Users\Laura\traces</code>) and device names (like <code>capture.device: AirPcap nr. 00</code>) that are machine-specific. Copying this file to another machine with different paths or no AirPcap adapter will cause those settings to fail silently or error out.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION: Profiles Overview -->
-    <div class="section-block" id="sec-profiles">
-      <h2>Customize Wireshark with Profiles</h2>
-      <p>Profiles can be used to work more efficiently with display filters, capture filters, coloring rules, columns and layouts specifically configured for the environment in which you are working. For example, if you work on a network segment at a branch office that consists of routing traffic, web browsing traffic, VoIP traffic and DNS traffic, you might want to create a profile called "Branch 01". This profile might contain coloring rules that help make the interpretation process faster. You might also include a column to show the Window Size field values for TCP communications and an IP DSCP column to note any asynchronous routing of your VoIP traffic.</p>
-      <p>Figure 163 shows the Wireshark Status Bar. The current profile in use is listed in the right column. In this case we are working with the default profile, but we can quickly choose another profile in the list.</p>
-
-      <div class="figure-block">
-        <div class="fig-img-wrap">
-          <img src="../all-chapter-figures/fig163-click-on-the-profile-column-on-the-status.png"
-               alt="Figure 163: Click on the Profile column on the Status Bar"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="fig-placeholder" style="display:none">
-            <span class="fig-ph-icon">📷</span>
-            <span>Figure 163 — open trace file to view</span>
-          </div>
-        </div>
-        <div class="fig-cap"><strong>Figure 163.</strong> Click on the Profile column on the Status Bar to quickly change your profile selection.</div>
-      </div>
-
-      <p>When you create a new profile, Wireshark builds a directory with the same name. The number of files contained in the profile's directory depends on what you have added to your profile. The Default profile uses the configuration files located directly inside the Personal Configuration directory.</p>
-
-      <h3>Create a New Profile</h3>
-      <p>Right click on the <strong>Profile area</strong> in the Status bar or select <strong>Edit | Configuration Profiles | New</strong> to create a new profile. Wireshark will create a new directory using the profile name you specify. This new directory is placed in a \profiles directory under your Personal Configurations directory. You can also rename, copy or delete profiles in this area.</p>
-      <p>When you shut down Wireshark or change to another profile, the profile in use is saved and automatically loaded again when you restart Wireshark.</p>
-
-      <div class="figure-block">
-        <div class="fig-img-wrap">
-          <img src="../all-chapter-figures/fig164-make-new-profiles-based-on-existing-ones-in.png"
-               alt="Figure 164: Make new profiles based on existing ones"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="fig-placeholder" style="display:none">
-            <span class="fig-ph-icon">📷</span>
-            <span>Figure 164 — open trace file to view</span>
-          </div>
-        </div>
-        <div class="fig-cap"><strong>Figure 164.</strong> Make new profiles based on existing ones in more recent versions of Wireshark.</div>
-      </div>
-
-      <div class="figure-block">
-        <div class="fig-img-wrap">
-          <img src="../all-chapter-figures/fig165-our-personal-configurations-directory-contains-a-profiles-folder.png"
-               alt="Figure 165: Personal Configurations directory with profiles folder"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="fig-placeholder" style="display:none">
-            <span class="fig-ph-icon">📷</span>
-            <span>Figure 165 — open trace file to view</span>
-          </div>
-        </div>
-        <div class="fig-cap"><strong>Figure 165.</strong> Our Personal Configurations directory contains a profiles folder.</div>
-      </div>
-
-      <p>Figure 165 shows the contents of a Personal Configuration directory. When we defined our first profile, Wireshark created \profiles in our Personal Configurations directory. Inside the \profiles directory, we have individual profile directories for our various profiles.</p>
-      <p>There are several files that may be inside the profiles directory — which files exist depend on the settings established when working within a profile. The files may include:</p>
-      <ul>
-        <li><code>cfilters</code> — capture filter definitions</li>
-        <li><code>dfilters</code> — display filter definitions</li>
-        <li><code>colorfilters</code> — coloring rules</li>
-        <li><code>preferences</code> — protocol and UI preferences</li>
-        <li><code>disabled_protos</code> — disabled protocol list</li>
-        <li><code>decode_as_entries</code> — decode-as entries</li>
-        <li><code>recent</code> — recently used settings</li>
-      </ul>
-
-      <h3>Create from a Master Profile First</h3>
-      <p>As of Wireshark 1.8, you are prompted to create your new profile based on an existing profile. This is a fast way to populate a new profile with common settings you use in each profile. Consider making a Master profile that includes basic capture filters, display filters, coloring rules and protocol settings. When you build any new profile, use <strong>Create from</strong> to define the Master profile as the source. This is a great addition to Wireshark.</p>
-
-      <h3>Share Profiles</h3>
-      <p>Profiles consist of a number of configuration files in a directory named after the profile itself. For example, if you make a profile called "Corporate HQ," Wireshark creates a "Corporate HQ" directory under the Wireshark \profiles directory. To share the profile, copy the entire "Corporate HQ" directory to another Wireshark system's profile directory.</p>
-
-      <div class="callout callout-amber"><strong>CAUTION</strong> Be careful when copying the <code>preferences</code> file from one computer to another. Some settings may not be compatible with the new computer's directory structure or configuration. Two potential conflicts are the default file open directory path and the default capture device name.</div>
-
-      <div class="mental-note-block">
-        <div class="mental-note-block-icon">🧠</div>
-        <div class="mental-note-block-inner">
-          <div class="mental-note-block-label">MENTAL NOTE</div>
-          <div class="mental-note-block-text">A profile is a named directory under \profiles containing up to 7 config files (cfilters, dfilters, colorfilters, preferences, disabled_protos, decode_as_entries, recent). The Default profile uses files directly in Personal Configuration. Wireshark auto-saves and restores the active profile on restart. When sharing profiles, avoid copying the preferences file if directory paths or capture devices differ between machines.</div>
-        </div>
-      </div>
-
-      <div class="lesson-tools">
-        <div class="lesson-tools-grid">
-          <div>
-            <div class="tool-label">Ask a Question</div>
-            <textarea class="tool-textarea" id="q-sec-profiles" placeholder="What are you unsure about?" rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-profiles','Profiles Overview')">Add Question</button></div>
-          </div>
-          <div>
-            <div class="tool-label">Add a Note</div>
-            <textarea class="tool-textarea" id="note-sec-profiles" placeholder="Key insight to remember..." rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-profiles')">+ Add Note</button></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- THINK FIRST: Profile Types -->
-    <div class="insight-block" id="ins-types">
-      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
-        <span class="insight-icon">💭</span>
-        <span class="insight-label">THINK FIRST &middot; PROFILE TYPES</span>
-      </div>
-      <p class="insight-insight">Wireshark ships with a Default profile, but the real power is creating specialized profiles for different network environments — troubleshooting, corporate, WLAN, VoIP, and security each benefit from distinct coloring rules, columns, and filters.</p>
-      <ul class="insight-questions">
-        <li>Before reading the profile examples, what specific coloring rules and columns would you add to a VoIP profile that you would NOT add to a general troubleshooting profile?</li>
-        <li>Why is the Security profile's colorfilters particularly important for detecting compromised hosts?</li>
-      </ul>
-      <div class="answer-area" data-section="ins-types">
-        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
-        <div class="answer-buttons">
-          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button>
-        </div>
-        <div class="model-answers" style="display:none;">
-          <p><strong>Model Answer 1:</strong> A VoIP profile specifically needs a DSCP column (ip.dsfield.dscp) to verify QoS markings, SIP error coloring rules (sip.Status-Code==401), RTP retransmission highlighting, and the <em>Try to Decode RTP outside of conversations</em> preference enabled. General troubleshooting profiles focus on TCP window size and delta time — less relevant to VoIP jitter analysis.</p>
-          <p><strong>Model Answer 2:</strong> The Security profile's colorfilters flag traffic that blends in during normal operations — client-to-client traffic (suspicious because clients rarely talk directly), unusual ICMP types used for OS fingerprinting (type 13, 15, 17), and IRC JOIN commands that indicate potential C2 activity. Without these rules, malicious traffic looks identical to normal traffic in the packet list.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION: Profile Types -->
-    <div class="section-block" id="sec-types">
-      <h2>Profile Types</h2>
-
-      <h3>Create a Troubleshooting Profile</h3>
-      <p>A general troubleshooting profile can help spot issues in your traffic. Such a profile might contain the following customized configurations:</p>
-      <p><strong>cfilters</strong> — The cfilters file contains the capture filters for the local host MAC address and traffic ports:</p>
-      <pre>My MAC:         ether host D4:85:64:A7:BF:A3
-Not My MAC:     not ether host D4:85:64:A7:BF:A3
-DHCP:           port 67
-Inbound SYNs:   tcp[tcpflags] &amp; (tcp-syn) != 0 and tcp[tcpflags] &amp; (tcp-ack) = 0 and not src net 10.16</pre>
-
-      <p><strong>dfilters</strong> — The dfilters file contains filters for key types of traffic and triggers on the troubleshooting coloring rules:</p>
-      <pre>TCP Issues:     tcp.analysis.flags
-SYN Packets:    tcp.flags==0x0002
-HTTP GETs:      http.request.method=="GET"
-Info Packets:   frame.coloring_rule.name matches "^I-"
+<div class="main-content">
+<div class="insight-block" id="ins-profiles"><div class="insight-header" onclick="toggleInsight('ins-profiles')"><span class="insight-icon">&#128173;</span><span class="insight-label">THINK FIRST · CUSTOMIZE WITH PROFILES</span><span class="insight-toggle">&#9662;</span></div><div class="insight-body"><p class="insight-q">A profile stores its own cfilters, dfilters, colorfilters, preferences, and columns. When you switch profiles, Wireshark immediately applies all those settings. How does this differ from just editing your default configuration?</p><p class="insight-q">Creating a profile based on a "Master profile" (available since Wireshark 1.8) is described as a "great addition." What problem does it solve, and what settings should a Master profile contain?</p></div></div>
+<div class="section-block" id="profiles">
+  <h2>Customize Wireshark with Profiles</h2>
+  <p>Profiles can be used to work more efficiently with display filters, capture filters, coloring rules, columns and layouts specifically configured for the environment in which you are working. For example, if you work on a network segment at a branch office with routing, web browsing, VoIP and DNS traffic, you might create a profile called "Branch 01" with coloring rules, a TCP Window Size column, and an IP DSCP column.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig163-click-on-the-profile-column-on-the-status.png" alt="Figure 163: Click on the Profile column on the Status Bar to quickly change profile selection" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 163 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 163.</strong> Click on the Profile column on the Status Bar to quickly change profile selection</div></div>
+  <p>The current profile is listed in the right column of the Wireshark Status Bar. When you create a new profile, Wireshark builds a directory with the same name. The Default profile uses configuration files directly inside the Personal Configuration directory. When you shut down Wireshark or change to another profile, the profile in use is saved and automatically loaded again when you restart Wireshark.</p>
+  <h3>Create a New Profile</h3>
+  <p>Right-click the Profile area in the Status Bar or select <strong>Edit | Configuration Profiles | New</strong> to create a new profile. Wireshark creates a new directory using the profile name you specify, placed in a <strong>\profiles</strong> directory under your Personal Configurations directory. You can also rename, copy or delete profiles in this area.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig164-make-new-profiles-based-on-existing-ones-in.png" alt="Figure 164: Make new profiles based on existing ones (Wireshark 1.8+)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 164 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 164.</strong> Make new profiles based on existing ones (Wireshark 1.8+)</div></div>
+  <div class="callout callout-green"><strong>BEST PRACTICE</strong> As of Wireshark 1.8, you are prompted to create your new profile based on an existing profile. Consider making a Master profile with basic capture filters, display filters, coloring rules and protocol settings. When building any new profile, use Create from to define the Master profile as the source.</div>
+  <h3>Profile Files and Sharing</h3>
+  <p>Files inside a profile directory (as shown in Figure 165) may include: <strong>cfilters, dfilters, colorfilters, preferences, disabled_protos, decode_as_entries, recent</strong>. New profiles start with global configuration defaults; as you alter settings, new profile configuration files are placed in the profile's directory.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig165-our-personal-configurations-directory-contains-a-profiles-folder.png" alt="Figure 165: Personal Configurations directory containing a profiles folder with individual profile subdirectories" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 165 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 165.</strong> Personal Configurations directory containing a profiles folder with individual profile subdirectories</div></div>
+  <p>To share a profile, copy the entire profile directory to the other Wireshark system's profiles directory. Be careful sharing the <strong>preferences</strong> file — it contains settings specific to the original system such as the default file open directory and default capture device that may not match the target system.</p>
+<div class="mental-note-block"><div class="mental-note-block-icon">&#129504;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Profiles store: cfilters, dfilters, colorfilters, preferences, disabled_protos, decode_as_entries, recent. Creating from a Master profile (v1.8+) lets you pre-populate common settings in every new profile. Sharing a profile = copy the entire profile directory. Avoid sharing the preferences file without checking for machine-specific directory paths.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-profiles" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('profiles','Customize with Profiles')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-profiles" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('profiles')">+ Add Note</button></div></div></div></div>
+</div>
+<div class="insight-block" id="ins-ptypes"><div class="insight-header" onclick="toggleInsight('ins-ptypes')"><span class="insight-icon">&#128173;</span><span class="insight-label">THINK FIRST · PROFILE TYPES & EXAMPLES</span><span class="insight-toggle">&#9662;</span></div><div class="insight-body"><p class="insight-q">A Troubleshooting profile adds tcp.window_size and tcp.time_delta columns plus coloring rules for T-SmallWin and T-TCP Delay. Why are these specific metrics important for troubleshooting, and what do the I- and T- prefixes signify in the colorfilters naming convention?</p><p class="insight-q">A Security profile contains coloring rules for traffic flowing "between clients" (excluding server IPs from source/destination) and filters for unusual ICMP. Why is client-to-client traffic suspicious on a corporate network?</p></div></div>
+<div class="section-block" id="ptypes">
+  <h2>Profile Types</h2>
+  <h3>Troubleshooting Profile</h3>
+  <p>A general troubleshooting profile contains these customized configurations:</p>
+  <p><strong>cfilters:</strong> Capture filters for local MAC address and key ports.</p>
+  <pre>My MAC:      ether host D4:85:64:A7:BF:A3
+Not My MAC:  not ether host D4:85:64:A7:BF:A3
+DHCP:        port 67
+Inbound SYNs: tcp[tcpflags] & (tcp-syn) != 0 and tcp[tcpflags] & (tcp-ack) = 0</pre>
+  <p><strong>dfilters:</strong> Display filters for key traffic types and coloring rule triggers.</p>
+  <pre>TCP Issues:   tcp.analysis.flags
+SYN Packets:  tcp.flags==0x0002
+HTTP GETs:    http.request.method=="GET"
+Info Packets:  frame.coloring_rule.name matches "^I-"
 Trouble Packets: frame.coloring_rule.name matches "^T-"</pre>
-
-      <p><strong>colorfilters</strong> — Contains colorization overriding false positives and highlighting unusual traffic. G = green background; O = orange; R = red:</p>
-      <pre>I-WinUpdates/G:  expert.message=="Window update"
+  <p><strong>colorfilters:</strong> (I = Green, T = Orange/Red)</p>
+  <pre>I-WinUpdates/G:  expert.message=="Window update"
 I-TCP SYN/R:     tcp.flags.syn==1
-I-TCP Win/O:     tcp.options.wscale.shift==0
-T-HTTP-err/O:    http.response.code &gt; 399
-T-DNS-err/O:     !dns.flags.rcode==0 &amp;&amp; dns.flags.response==1
-T-TCP Delay/O:   tcp.time_delta &gt; 2
-T-SmallWin/O:    tcp.window_size &lt; 1320 &amp;&amp; tcp.window_size &gt; 0 &amp;&amp; tcp.flags.fin==0 &amp;&amp; tcp.flags.reset==0</pre>
+T-HTTP-err/O:    http.response.code > 399
+T-DNS-err/O:     !dns.flags.rcode==0 && dns.flags.response==1
+T-TCP Delay/O:   tcp.time_delta > 2
+T-SmallWin/O:    tcp.window_size < 1320 && tcp.window_size > 0</pre>
+  <p><strong>preferences:</strong> Enable Calculate conversation timestamps (TCP), disable IP checksum validation, set Time column to Seconds Since Previous Displayed Packet, add columns for tcp.window_size, tcp.seq, tcp.nxtseq, tcp.ack, tcp.time_delta.</p>
+  <h3>Corporate Profile</h3>
+  <p>A corporate profile captures/filters on key host MAC or static IP addresses, key protocols and ports, and key web server host names. All display filters should also be defined as coloring rules for easy identification in trace files. Columns include Time Since Previous Displayed Packet and TCP window size.</p>
+  <h3>WLAN Profile</h3>
+  <p>Adds WLAN-specific display filters: <code>wlan</code>, <code>wlan.fc.type_subtype==0x08</code> (beacons), <code>wlan_mgt.ssid=="Corp WLAN1"</code>, <code>wlan.fc.retry==1</code> (retries). Colorizes disassociation frames (<code>wlan.fc.type_subtype==0x0a</code>), retries, and weak signal (<code>radiotap.dbm_antsignal &lt; -80</code>). Adds columns for WLAN channel, signal strength (radiotap.dbm_antsignal), IEEE 802.11 RSSI and TX rate.</p>
+  <h3>VoIP Profile</h3>
+  <p>Filters for SIP (<code>sip</code>), RTP (<code>rtp</code>), SIP error responses (<code>sip.Status-Code==401</code>). Colorizes SIP error responses and retransmissions (<code>sip.resend==1</code>). Enables "Try to Decode RTP outside of conversations" in RTP preferences. Adds DSCP column (<code>ip.dsfield.dscp</code>).</p>
+  <h3>Security Profile</h3>
+  <p>Focuses on unusual traffic patterns. Display filters and coloring rules for IRC traffic (<code>tcp matches "(?i)join"</code>), unusual ICMP types, ICMP OS fingerprinting. Adds columns for <code>http.host</code> and <code>tcp.stream</code>.</p>
+<div class="mental-note-block"><div class="mental-note-block-icon">&#129504;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Profile naming convention: I- = Informational (green) coloring rules; T- = Trouble/warning (orange/red) coloring rules. The Troubleshooting profile's key columns are tcp.window_size and tcp.time_delta — these catch window freeze conditions and large inter-packet delays respectively. WLAN profiles need beacon filters (wlan.fc.type_subtype==0x08) and signal strength columns. VoIP profiles need RTP "decode outside conversations" enabled.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ptypes" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ptypes','Profile Types')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ptypes" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ptypes')">+ Add Note</button></div></div></div></div>
+</div>
 
-      <p><strong>preferences</strong> — The preferences file contains the column settings that work well for troubleshooting:</p>
+<div class="section-block" id="casestudy">
+  <h2>Case Study</h2>
+  <div class="case-study-block">
+    <div class="cs-eyebrow">Case Study 1</div>
+    <div class="cs-title">Customizing Wireshark for the Customer</div>
+    <div class="cs-sub">Chapter 11 — Wireshark Profiles</div>
+    <div class="cs-body">
+      <p>A customer had thousands of hosts and literally hundreds of applications. Capturing traffic from a client inevitably yielded a huge amount of traffic to sort through. By creating a new profile for each of the three offices visited, analysis could proceed much faster. The client was primarily interested in slow performance between clients and one database server in particular — "DB912."</p>
+      <p>The custom profile for this client included:</p>
       <ul>
-        <li>TCP: Enable Calculate conversation timestamps</li>
-        <li>IP: Disable checksum validation</li>
-        <li>Time Column: Set to Seconds Since Previous Displayed Packet</li>
-        <li>Add Columns: tcp.window_size, tcp.seq, tcp.nxtseq, tcp.ack, tcp.time_delta</li>
+        <li>Coloring rule for large delays from DB912 (<code>ip.src==10.6.2.2 &amp;&amp; tcp.time_delta &gt; 0.200</code>) — red background, white foreground</li>
+        <li>Coloring rule for small TCP Window Size field values (Windows XP hosts without Window Scaling) — red background, white foreground</li>
+        <li>Two additional ports in HTTP preferences (internal servers used non-standard web ports)</li>
+        <li>Special coloring rule for the first TCP handshake packet (<code>tcp.flags==0x02</code>) — dark green background, white foreground</li>
+        <li>An ethers file mapping hardware addresses of all network routers at each office</li>
+        <li>tcp.window_size and ip.dsfield.dscp columns in the Packet List pane</li>
+        <li>GeoIP configured and enabled in IP preferences for global target identification</li>
       </ul>
-      <div class="callout callout-blue"><strong>TIP</strong> Rather than create the troubleshooting profile from scratch, download it from the wiresharkbook.com website. Evaluate the various settings and alter it to work best with your network.</div>
-
-      <h3>Create a Corporate Profile</h3>
-      <p>A sample corporate profile might contain the following customized configurations:</p>
-      <ul>
-        <li><strong>cfilters</strong>: Capture filters for a key host based on MAC or static IP address, key protocols and ports.</li>
-        <li><strong>dfilters</strong>: Filters for key hosts, key protocols and web server host names. All display filters should be defined as coloring rules as well so the traffic is easy to find.</li>
-        <li><strong>colorfilters</strong>: Colorization for unusual traffic — low TCP window size values, client-to-client traffic, and application error responses.</li>
-        <li><strong>preferences</strong>: Columns including Time Since Previous Displayed Packet, TCP window size, and WLAN frequency/channel.</li>
-      </ul>
-
-      <h3>Create a WLAN Profile</h3>
-      <p>A sample WLAN profile might contain the following customized configurations:</p>
-      <ul>
-        <li><strong>cfilters</strong>: Capture filters for WLAN hosts by MAC address or IP, key protocols and ports. Also includes filters for beacon frames <code>(wlan[0] != 0x80)</code> and other WLAN traffic types.</li>
-        <li><strong>dfilters</strong>: Filters for all WLAN traffic (<code>wlan</code>), key hosts, and WLAN-specific types: beacons (<code>wlan.fc.type_subtype==0x08</code>), management frames for a specific SSID (<code>wlan_mgt.ssid=="Corp WLAN1"</code>), and WLAN retries (<code>wlan.fc.retry==1</code>).</li>
-        <li><strong>colorfilters</strong>: Colorization for unusual WLAN traffic — disassociation frames (<code>wlan.fc.type_subtype==0x0a</code>), retries (<code>wlan.fc.retry==1</code>), and weak signal strength in Radiotap headers (<code>radiotap.dbm_antsignal &lt; -80</code>).</li>
-        <li><strong>preferences</strong>: Columns including Time Since Previous Displayed Packet, TCP window size, WLAN Channel, Radiotap Signal Strength (<code>radiotap.dbm_antsignal</code>), 802.11 RSSI, and transmission rate.</li>
-      </ul>
-
-      <h3>Create a VoIP Profile</h3>
-      <p>A sample VoIP profile might contain the following customized configurations:</p>
-      <ul>
-        <li><strong>cfilters</strong>: Capture filters for key hosts. Since SIP and RTP traffic is typically UDP, the UDP capture filter (<code>udp</code>) is used more often than usual.</li>
-        <li><strong>dfilters</strong>: Filters for SIP (<code>sip</code>) and RTP (<code>rtp</code>) traffic, and various SIP error responses (such as <code>sip.Status-Code==401</code>). All display filters should also be defined as coloring rules.</li>
-        <li><strong>colorfilters</strong>: Colorization for SIP error responses and retransmissions (<code>sip.resend==1</code>).</li>
-        <li><strong>preferences</strong>: Columns for Time since Previous Displayed Packet, TCP window size, and DSCP value (<code>ip.dsfield.dscp</code>). Enable the RTP protocol preference <em>Try to Decode RTP outside of conversations</em>.</li>
-      </ul>
-
-      <h3>Create a Security Profile</h3>
-      <p>A sample security profile might contain the following customized configurations:</p>
-      <ul>
-        <li><strong>dfilters</strong>: Filters for unusual traffic patterns — IRC traffic with the JOIN command (<code>tcp matches "(?i)join"</code>), unusual ICMP traffic (<code>(icmp.type==3) &amp;&amp; (icmp.code==1 || icmp.code==2 || icmp.code==3 || icmp.code==9 || icmp.code==10 || icmp.code==13)</code>), and ICMP OS fingerprinting (<code>(icmp.type==13 || icmp.type==15 || icmp.type==17)</code>).</li>
-        <li><strong>colorfilters</strong>: Colorization for low TCP window size values, client-to-client traffic, application error responses, and unusual ICMP or suspicious traffic patterns.</li>
-        <li><strong>preferences</strong>: Columns for web server names (<code>http.host</code>) and TCP stream Index values (<code>tcp.stream</code>).</li>
-      </ul>
-
-      <div class="mental-note-block">
-        <div class="mental-note-block-icon">🧠</div>
-        <div class="mental-note-block-inner">
-          <div class="mental-note-block-label">MENTAL NOTE</div>
-          <div class="mental-note-block-text">Five canonical profile types: Troubleshooting (tcp.analysis.flags + window coloring), Corporate (key hosts + error responses), WLAN (beacon/retry/RSSI columns), VoIP (DSCP column + SIP error coloring + RTP outside conversations), Security (client-to-client traffic + IRC + ICMP fingerprinting). Each adds specific columns and coloring rules not needed in other profiles. The preferences file is the most machine-specific — share with caution.</div>
-        </div>
+      <p>Using all these customized settings, the team could understand and troubleshoot network problems much faster and more accurately.</p>
+    </div>
+    <div class="cs-img-inline">
+      <div class="cs-img-wrap">
+        <img src="../all-casestudy-pictures/C11-CS1.png" alt="Customizing Wireshark for Customer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">&#128444;</span><div><strong>C11-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C11-CS1.png</div></div>
       </div>
-
-      <div class="lesson-tools">
-        <div class="lesson-tools-grid">
-          <div>
-            <div class="tool-label">Ask a Question</div>
-            <textarea class="tool-textarea" id="q-sec-types" placeholder="What are you unsure about?" rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-types','Profile Types')">Add Question</button></div>
-          </div>
-          <div>
-            <div class="tool-label">Add a Note</div>
-            <textarea class="tool-textarea" id="note-sec-types" placeholder="Key insight to remember..." rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-types')">+ Add Note</button></div>
-          </div>
-        </div>
+      <div class="cs-prompt-row">
+        <button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">&#9662; Show cartoon prompt</button>
+        <div class="cs-prompt-text" hidden>A cartoon network analyst at a large enterprise, visiting three different office buildings (labeled Office A, Office B, Office C in the background). They carry a USB drive labeled "DB912 Profile." Wireshark on the laptop screen shows the Packet List pane with rows highlighted in red (slow DB912 responses, small window sizes) and green (TCP SYN packets). The coloring rules panel is visible in the corner showing the custom rules. A split-screen shows "Before Profile: 47 min to find problem" vs "After Profile: 8 min." Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: Wireshark, DB912 Profile, 47min vs 8min, Red=Problem, Green=SYN, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
       </div>
     </div>
-
-    <!-- CASE STUDY -->
-    <div class="section-block" id="sec-casestudy">
-      <h2>Case Studies</h2>
-
-      <div class="case-study-block">
-        <div class="cs-eyebrow">Case Study 1</div>
-        <div class="cs-title">Customizing Wireshark for the Customer</div>
-        <div class="cs-sub">Submitted by: Laura Chappell</div>
-        <div class="cs-body">
-          <p>One of my customers had thousands of hosts and literally hundreds of applications. Capturing traffic from a client on the network inevitably ended up with a huge amount of traffic to sort through — we wanted to make the trace files easier to manage and analyze.</p>
-          <p>By creating a new profile for each of the three offices that we visited, we could analyze the traffic faster. The client was primarily interested in slow performance between the clients and one database server in particular — "DB912."</p>
-          <p>Here are the Wireshark areas we customized in a profile for this client:</p>
-          <ul>
-            <li>We created a coloring rule for large delays in the traffic from the DB912 server (<code>ip.src==10.6.2.2 &amp;&amp; tcp.time_delta &gt; 0.200</code>). These packets were displayed with a red background and white foreground.</li>
-            <li>We created a coloring rule for small Window Size field values because this client had Windows XP hosts that had not been configured to use Window Scaling — this coloring rule used a red background and white foreground to alert us to a problem.</li>
-            <li>We added two more ports to the HTTP preferences because they used more than the standard set of ports for web browsing to their internal servers.</li>
-            <li>We created a special coloring rule for the first packet of the TCP handshake processes (<code>tcp.flags==0x02</code>). These packets were colored with a dark green background and white foreground.</li>
-            <li>We created an ethers file that contained the hardware address of the network routers at each office. This made it easy to identify which router the clients' traffic went through.</li>
-            <li>We added <code>tcp.window_size</code> and <code>ip.dsfield.dscp</code> columns to the Packet List pane.</li>
-            <li>We configured GeoIP and enabled GeoIP lookup in the IP preferences, allowing us to look at the global target information right after the last IP header field.</li>
-          </ul>
-          <p>Using all these customized settings, we could understand and troubleshoot the network problems much faster and more accurately.</p>
-        </div>
-        <div class="cs-img-inline">
-          <div class="cs-img-wrap">
-            <img src="../all-casestudy-pictures/C11-CS1.png" alt="Customizing Wireshark for the Customer"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-            <div class="cs-img-ph" style="display:none">
-              <span class="cs-ph-icon">🖼️</span>
-              <div><strong>C11-CS1.png</strong></div>
-              <div class="cs-ph-sub">Save to all-casestudy-pictures/C11-CS1.png</div>
-            </div>
-          </div>
-          <div class="cs-prompt-row">
-            <button class="btn-cs-prompt"
-              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">
-              ▾ Show cartoon prompt
-            </button>
-            <div class="cs-prompt-text" hidden>
-              A network analyst sits at a conference table in a large corporate office. Three monitors are arranged around her — each showing a different Wireshark profile view labeled "Dallas HQ," "Chicago Branch," and "Austin Office." On the screens, traffic rows glow in custom colors: red rows for DB912 server delays, dark green for TCP handshake packets. A database server icon labeled "DB912" sits prominently in the background with an alert flag. The analyst is clicking a dropdown in Wireshark's status bar to switch profiles. A whiteboard behind her lists: "ethers file, GeoIP enabled, tcp.window_size column added." Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "DB912," "Dallas HQ Profile," "Chicago Branch Profile," "Austin Office Profile," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TL;DR -->
-    <div class="section-block" id="sec-tldr">
-      <div class="tldr-block">
-        <div class="tldr-label">TL;DR — Chapter Summary</div>
-        <div class="tldr-text">
-          <p>Wireshark's profiles enable you to customize Personal Configuration settings to work more efficiently in specific analysis environments. For example, a WLAN profile may have special coloring rules to identify traffic on separate channels and an extra column to indicate signal strength.</p>
-          <p>You can create an unlimited number of profiles and copy them to other Wireshark systems. Any configuration settings dealing with directory paths on the main Wireshark system may not work properly on other Wireshark systems if the directory structures do not match.</p>
-          <p>Consider creating profiles for your home environment, your office network, branch offices or wireless networks. You could also build profiles for specific traffic types, such as wireless, database, VoIP or web browsing traffic.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- REVIEW QUESTIONS -->
-    <div class="section-block" id="sec-rq">
-      <h2>Review Questions</h2>
-
-      <div class="rq-card" id="rq-11-1">
-        <div class="rq-question">Q11.1 What elements can you customize using Wireshark profiles?</div>
-        <div class="rq-answer-area">
-          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
-          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
-        </div>
-        <div class="rq-answer" style="display:none">
-          <strong>A11.1</strong> You can customize your preferences (such as name resolution, columns, stream coloring and protocol dissection settings), capture filters, display filters, coloring rules, and more.
-        </div>
-      </div>
-
-      <div class="rq-card" id="rq-11-2">
-        <div class="rq-question">Q11.2 How can you move a custom profile to another Wireshark system?</div>
-        <div class="rq-answer-area">
-          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
-          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
-        </div>
-        <div class="rq-answer" style="display:none">
-          <strong>A11.2</strong> You can copy the entire profile directory to the other Wireshark system's profiles directory.
-        </div>
-      </div>
-
-      <div class="rq-card" id="rq-11-3">
-        <div class="rq-question">Q11.3 Which file should you be cautious of sharing when copying a custom profile to another Wireshark system?</div>
-        <div class="rq-answer-area">
-          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
-          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
-        </div>
-        <div class="rq-answer" style="display:none">
-          <strong>A11.3</strong> The <code>preferences</code> file may contain settings that are specific to the original Wireshark system — such as the default directory setting for opening new trace files and the default capture device setting — that won't work on a machine with different paths or hardware.
-        </div>
-      </div>
-
-    </div>
-
-  </div><!-- end main-content -->
-
-  <div class="sidebar">
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Navigation</div>
-      <a class="sidebar-link" href="../hub.html">← Study Guide Hub</a>
-      <a class="sidebar-link" href="index.html">Practice Lab</a>
-    </div>
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Quick Reference</div>
-      <div class="quick-ref">
-        <div class="qr-term">Profile Location</div>
-        <div class="qr-def">Personal Configurations directory / profiles / &lt;ProfileName&gt;/</div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Create Profile</div>
-        <div class="qr-def">Right-click Status Bar Profile area → New, or Edit | Configuration Profiles | New</div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Share Profile</div>
-        <div class="qr-def">Copy entire profile directory to target machine's \profiles directory</div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Risky File</div>
-        <div class="qr-def">preferences — contains machine-specific paths and device names</div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">VoIP Pref</div>
-        <div class="qr-def">Enable "Try to Decode RTP outside of conversations"</div>
-      </div>
-    </div>
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Progress</div>
-      <div class="ins-prog-count" id="ins-prog-count">0 / 2 Think First complete</div>
-      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
-      <div style="margin-top:12px">
-        <label class="check-item"><input type="checkbox" id="chk-profiles" onchange="toggleDone('profiles')"> Profiles Overview</label>
-        <label class="check-item"><input type="checkbox" id="chk-types" onchange="toggleDone('types')"> Profile Types</label>
-        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Study</label>
-        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
-      </div>
-    </div>
-  </div><!-- end sidebar -->
-</main>
-
-<div class="practice-cta">
-  <div class="cta-inner">
-    <div class="cta-text">Ready to practice with real traffic?</div>
-    <a href="index.html" class="cta-btn">Open Practice Lab →</a>
   </div>
 </div>
 
-<footer>
-  <div class="footer-inner">
-    <span>Wireshark Network Analysis — Chapter 11</span>
-    <span>Customize Wireshark Profiles</span>
+<div class="section-block" id="tldr">
+  <div class="tldr-block">
+    <div class="tldr-label">TL;DR &#8212; Chapter Summary</div>
+    <p>Wireshark's profiles enable you to customize Personal Configuration settings to work more efficiently in specific analysis environments. For example, a WLAN profile may have special coloring rules to identify traffic on separate channels and an extra column to indicate signal strength.</p>
+    <p>You can create an unlimited number of profiles and copy them to other Wireshark systems. Any configuration settings dealing with directory paths on the main Wireshark system may not work properly on other Wireshark systems if the directory structures do not match.</p>
+    <p>Consider creating profiles for your home environment, your office network, branch offices, wireless networks, or specific traffic types such as wireless, database, VoIP or web browsing traffic.</p>
   </div>
-</footer>
+</div>
 
+<div class="section-block" id="rq">
+  <h2>Review Questions</h2>
+  <div class="rq-card" id="rq-11-1"><div class="rq-q">Q11.1 What elements can you customize using Wireshark profiles?</div><div class="rq-a" hidden><p>You can customize your preferences (such as name resolution, columns, stream coloring and protocol dissection settings), capture filters, display filters, coloring rules, etc.</p></div><button class="btn-rq-toggle" onclick="toggleRQ('rq-11-1',this)">Show Answer</button></div>
+  <div class="rq-card" id="rq-11-2"><div class="rq-q">Q11.2 How can you move a custom profile to another Wireshark system?</div><div class="rq-a" hidden><p>You can copy the entire profile directory to the other Wireshark system's profiles directory.</p></div><button class="btn-rq-toggle" onclick="toggleRQ('rq-11-2',this)">Show Answer</button></div>
+  <div class="rq-card" id="rq-11-3"><div class="rq-q">Q11.3 Which file should you be cautious of sharing when copying a custom profile to another Wireshark system?</div><div class="rq-a" hidden><p>The preferences file may contain settings that are specific to the original Wireshark system, such as the default directory setting for opening new trace files and the default capture device setting. These may not be compatible with the new computer's directory structure or configuration.</p></div><button class="btn-rq-toggle" onclick="toggleRQ('rq-11-3',this)">Show Answer</button></div>
+</div>
+</div>
+<div class="sidebar">
+  <div class="sidebar-card"><div class="sidebar-card-title">Navigation</div><a href="../index.html" class="sidebar-link">&#8592; Chapter Hub</a><a href="index.html" class="sidebar-link">Practice Lab</a></div>
+  <div class="sidebar-card"><div class="sidebar-card-title">Quick Reference</div>
+    <div class="quick-ref"><div class="qr-term">Profile Files</div><div class="qr-def">cfilters, dfilters, colorfilters, preferences, disabled_protos, decode_as_entries, recent</div></div>
+    <div class="quick-ref"><div class="qr-term">I- vs T- Rules</div><div class="qr-def">I- = Informational (green). T- = Trouble (orange/red). Used to distinguish normal from problem traffic in colorfilters.</div></div>
+    <div class="quick-ref"><div class="qr-term">Create from Master</div><div class="qr-def">Since v1.8: build all profiles from a Master profile that has baseline settings. Saves time setting up each new profile.</div></div>
+    <div class="quick-ref"><div class="qr-term">Share Profile</div><div class="qr-def">Copy entire profile directory. Avoid sharing preferences file — it may have machine-specific paths.</div></div>
+    <div class="quick-ref"><div class="qr-term">Key Columns to Add</div><div class="qr-def">tcp.window_size, tcp.time_delta, ip.dsfield.dscp, radiotap.dbm_antsignal (WLAN), tcp.stream (security)</div></div>
+  </div>
+  <div class="sidebar-card"><div class="sidebar-card-title">Progress</div><div class="ins-prog-count" id="ins-prog-count">0 / 5 completed</div><div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div></div>
+</div>
+</main>
+<div class="practice-cta"><div class="cta-inner"><div class="cta-title">Ready to Practice?</div><div class="cta-sub">Build your own custom Wireshark profile in the practice lab.</div><a href="index.html" class="btn-cta">Open Practice Lab &#8594;</a></div></div>
+<footer><div class="footer-inner"><span>Wireshark Network Analysis &#8212; Chapter 11</span><span>Customize Wireshark Profiles</span></div></footer>
 <script>
-const PAGE_KEY = 'ws-ch11-full';
-const SECTIONS = {
-  'sec-profiles': 'Profiles Overview',
-  'sec-types': 'Profile Types',
-  'sec-casestudy': 'Case Study',
-  'sec-tldr': 'TL;DR',
-  'sec-rq': 'Review Questions'
-};
-const INSIGHT_IDS = ['ins-profiles', 'ins-types'];
-const RQ_IDS = ['11-1', '11-2', '11-3'];
-const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
-
-// ── Socratic collapse ──
-document.querySelectorAll('.insight-header').forEach(h => {
-  h.addEventListener('click', () => h.closest('.insight-block').classList.toggle('ins-open'));
-});
-
-function saveSocAnswer(btn) {
-  const area = btn.closest('.answer-area');
-  const ta = area.querySelector('.answer-textarea');
-  if (!ta.value.trim()) return;
-  const key = PAGE_KEY + '-soc-' + area.dataset.section;
-  localStorage.setItem(key, ta.value);
-  area.querySelector('.btn-see-answer').disabled = false;
-  btn.textContent = '✓ Saved';
-  updateProgress();
-}
-
-function revealSocAnswer(btn) {
-  const area = btn.closest('.answer-area');
-  const ma = area.querySelector('.model-answers');
-  ma.style.display = ma.style.display === 'none' ? 'block' : 'none';
-  btn.textContent = ma.style.display === 'none' ? '🔒 See Model Answer' : '▴ Hide Answer';
-}
-
-// ── Q Panel ──
-function toggleQPanel() {
-  const body = document.getElementById('q-panel-body');
-  const tog = document.getElementById('q-panel-toggle');
-  const open = body.style.display !== 'none';
-  body.style.display = open ? 'none' : 'block';
-  tog.textContent = open ? '▾' : '▴';
-}
-
-function renderQPanel() {
-  const raw = localStorage.getItem(PAGE_KEY + '-questions') || '[]';
-  const qs = JSON.parse(raw);
-  const list = document.getElementById('q-list');
-  const empty = document.getElementById('q-empty');
-  list.innerHTML = '';
-  if (qs.length === 0) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  qs.forEach((q, i) => {
-    const div = document.createElement('div');
-    div.className = 'q-item';
-    div.innerHTML = '<span class="q-section-tag">' + q.section + '</span><span class="q-text">' + q.text + '</span><button class="q-del" onclick="deleteQuestion(' + i + ')">×</button>';
-    list.appendChild(div);
+const PAGE_KEY='ws-ch11-full';
+const SECTIONS={'profiles':'Customize with Profiles','ptypes':'Profile Types','casestudy':'Case Study','tldr':'TL’DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-profiles','ins-ptypes'];
+const RQ_IDS=['11-1','11-2','11-3'];
+const TOTAL=5;
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
+function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
+function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='inline';updateInsProgress();}
+function resetRQ(id){localStorage.removeItem(PAGE_KEY+'-rq-'+id);const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(ta){ta.value='';ta.disabled=false;}const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='Save Answer';sb.disabled=false;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=true;ab.textContent='🔒 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='none';const ah=document.getElementById('rqans-'+id);if(ah)ah.style.display='none';updateInsProgress();}
+function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();initSectionNav();initPT();updateInsProgress();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  INSIGHT_IDS.forEach(function(id){
+    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
   });
-}
-
-function addQuestion(secId, secName) {
-  const ta = document.getElementById('q-' + secId);
-  if (!ta || !ta.value.trim()) return;
-  const key = PAGE_KEY + '-questions';
-  const qs = JSON.parse(localStorage.getItem(key) || '[]');
-  qs.push({ section: secName, text: ta.value.trim() });
-  localStorage.setItem(key, JSON.stringify(qs));
-  ta.value = '';
-  renderQPanel();
-}
-
-function deleteQuestion(i) {
-  const key = PAGE_KEY + '-questions';
-  const qs = JSON.parse(localStorage.getItem(key) || '[]');
-  qs.splice(i, 1);
-  localStorage.setItem(key, JSON.stringify(qs));
-  renderQPanel();
-}
-
-function addNote(secId) {
-  const ta = document.getElementById('note-' + secId);
-  if (!ta || !ta.value.trim()) return;
-  const key = PAGE_KEY + '-note-' + secId;
-  localStorage.setItem(key, ta.value);
-  ta.style.borderColor = '#22c55e';
-  setTimeout(() => ta.style.borderColor = '', 1200);
-}
-
-// ── Nav ──
-function navTo(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  const tabs = document.querySelectorAll('.nav-tab');
-  const keys = Object.keys(SECTIONS);
-  const idx = keys.indexOf(id);
-  if (tabs[idx]) tabs[idx].classList.add('active');
-}
-
-// ── Progress ──
-function toggleDone(id) {
-  localStorage.setItem(PAGE_KEY + '-chk-' + id, document.getElementById('chk-' + id).checked ? '1' : '');
-}
-
-function updateProgress() {
-  let done = 0;
-  INSIGHT_IDS.forEach(id => {
-    const key = PAGE_KEY + '-soc-' + id;
-    if (localStorage.getItem(key)) done++;
+  RQ_IDS.forEach(function(id){
+    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb&&sv)rb.style.display='inline';
   });
-  RQ_IDS.forEach(id => {
-    if (localStorage.getItem(PAGE_KEY + '-rq-' + id)) done++;
-  });
-  document.getElementById('ins-prog-count').textContent = done + ' / ' + TOTAL + ' Think First complete';
-  document.getElementById('ins-prog-fill').style.width = Math.round(done / TOTAL * 100) + '%';
-}
-
-function revealRQ(btn) {
-  const card = btn.closest('.rq-card');
-  const ans = card.querySelector('.rq-answer');
-  const ta = card.querySelector('.rq-textarea');
-  const id = card.id.replace('rq-', '');
-  ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
-  btn.textContent = ans.style.display === 'none' ? 'Reveal Answer' : 'Hide Answer';
-  if (ta.value.trim()) {
-    localStorage.setItem(PAGE_KEY + '-rq-' + id, ta.value);
-    updateProgress();
-  }
-}
-
-function initNotes() {
-  const gn = document.getElementById('global-notes');
-  gn.value = localStorage.getItem(PAGE_KEY + '-global-notes') || '';
-  gn.addEventListener('input', () => localStorage.setItem(PAGE_KEY + '-global-notes', gn.value));
-
-  Object.keys(SECTIONS).forEach(secId => {
-    const noteKey = PAGE_KEY + '-note-' + secId;
-    const saved = localStorage.getItem(noteKey);
-    const ta = document.getElementById('note-' + secId);
-    if (ta && saved) ta.value = saved;
-  });
-
-  INSIGHT_IDS.forEach(id => {
-    const key = PAGE_KEY + '-soc-' + id;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      const block = document.getElementById(id);
-      if (!block) return;
-      const ta = block.querySelector('.answer-textarea');
-      const btn = block.querySelector('.btn-see-answer');
-      if (ta) ta.value = saved;
-      if (btn) btn.disabled = false;
-    }
-  });
-}
-
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
-function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-
-function initChecks() {
-  ['profiles','types','casestudy','rq'].forEach(id => {
-    const el = document.getElementById('chk-' + id);
-    if (el) el.checked = !!localStorage.getItem(PAGE_KEY + '-chk-' + id);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initNotes();
-  initChecks();
-  initFigures();
-  renderQPanel();
-  updateProgress();
-  document.body.style.opacity = '1';
-  sessionStorage.setItem('pt', '1');
 });
 </script>
 </body>
