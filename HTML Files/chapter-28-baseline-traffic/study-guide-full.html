@@ -3,344 +3,106 @@
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chapter 28: Baseline Your Network | Wireshark Study Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28: Baseline "Normal" Traffic Patterns | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
-html.pt-init body{opacity:0;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-a{color:var(--blue);text-decoration:none;}
-header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
-.header-left{flex:1;}
-.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
-.breadcrumb-sep{color:rgba(255,255,255,0.2);}
-.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
-.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
-h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
-header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
-.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
-.motivation-text em{font-style:italic;color:var(--blue);}
-.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.top-panels .qpanel{border-right:1px solid var(--border);}
-.qpanel,.notes-panel{background:var(--surface);}
-.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
-.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
-.qpanel-body.open,.notes-panel-body.open{display:block;}
-.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.q-item:last-child{border-bottom:none;}
-.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
-.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
-.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
-.q-del:hover{color:var(--red);}
-.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
-.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
-.nav-tab:hover{color:var(--text);}
-.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
-.main-content{min-width:0;}
-.section-block{margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
-.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
-.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
-.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
-.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.section-block strong{color:var(--text);font-weight:600;}
-code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
-.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
-.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
-.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
-.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
-.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
-.callout-blue strong{color:var(--blue);}
-.callout-amber strong{color:var(--amber);}
-.callout-green strong{color:var(--green);}
-.callout-red strong{color:var(--red);}
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
-.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
-.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
-.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
-.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
-.insight-block:not(.ins-open) .ins-body{display:none;}
-.ins-icon{font-size:17px;flex-shrink:0;}
-.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
-.ins-body{padding:0 20px 18px;}
-.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
-.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.ins-ta:focus{border-color:var(--blue);}
-.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
-.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
-.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-save-ins:hover:not(:disabled){opacity:.85;}
-.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
-.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-hint-ins:hover{background:var(--amber-light);}
-.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
-.btn-model-ins:not(:disabled):hover{opacity:.85;}
-.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
-.ins-hint-box .hm-label{color:var(--amber);}
-.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-.ins-model-box .hm-label{color:var(--blue);}
-.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
-.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
-.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
-.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
-.fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
-.fig-trace{color:var(--blue);font-style:italic;}
-.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
-.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
-.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
-.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
-.cs-body ul{padding-left:20px;margin:8px 0 14px;}
-.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{width:min(520px,100%);margin:16px auto;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);transition:width .18s ease,box-shadow .18s ease;}
-.cs-img-inline.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.cs-img-wrap{background:#1e293b;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.cs-img-inline.fig-expanded .cs-img-wrap{cursor:zoom-out;}
-.cs-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.cs-img-inline.fig-expanded .cs-img-wrap img{max-height:none;width:100%;}
-.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
-.cs-ph-icon{font-size:40px;display:block;}
-.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
-.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
-.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
-.btn-cs-prompt:hover{color:var(--blue);}
-.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
-.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
-.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
-.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
-.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
-.rq-ta:focus{border-color:var(--blue);}
-.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
-.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-save:hover:not(:disabled){opacity:.85;}
-.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
-.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-hint:hover{background:var(--amber-light);}
-.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
-.btn-rq-ans:not(:disabled):hover{opacity:.85;}
-.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
-.rq-hint-box .hm-label{color:var(--amber);}
-.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
-.rq-hint-box p:last-child{margin-bottom:0;}
-.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-.rq-ans-box .hm-label{color:var(--blue);}
-.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
-.rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-.sidebar{position:sticky;top:60px;}
-.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
-.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
-.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
-.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
-.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
-.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
-.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
-.qr-row:last-child{border-bottom:none;}
-.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
-.qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
-.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
-.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
-.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
-.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../study-guide.css">
 </head>
 <body>
-<header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 28<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 28</div>
-<h1>Baseline <em>Your Network</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
+<header><div class="header-inner">
+<div class="breadcrumb"><a href="../../index.html">Wireshark</a> › <a href="study-byte.html">Chapter 28</a></div>
+<div class="header-eyebrow"><span class="eyebrow-chip">Chapter 28</span><span class="eyebrow-dot">●</span><span>Baseline "Normal" Traffic Patterns</span></div>
+<h1>Baseline "Normal" Traffic Patterns</h1>
+<p class="header-sub"><em>Creating and using baseline trace files to identify anomalies</em></p>
+</div></header>
+<div class="motivation-banner"><div class="motivation-inner"><div class="motivation-quote">"You cannot identify unusual traffic unless you are aware of the usual traffic on your network."</div></div></div>
+<div class="top-panels"><div class="qpanel" id="qpanel"><div class="qpanel-header" onclick="toggleQPanel()"><span>MY QUESTIONS</span><span id="qpanel-toggle">▾</span></div><div class="qpanel-body" id="qpanel-body"></div></div><div class="notes-panel"><div class="notes-header">MY NOTES</div><textarea class="notes-textarea" id="global-notes" placeholder="Chapter-wide notes..."></textarea></div></div>
+<nav class="section-nav"><button class="nav-tab active" onclick="navTo('sec-why')">Why Baseline?</button><button class="nav-tab" onclick="navTo('sec-types')">Baseline Types</button><button class="nav-tab" onclick="navTo('sec-casestudy')">Case Studies</button><button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button></nav>
+<main><div class="main-content">
+<div class="insight-block" id="ins-why"><div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')"><span class="insight-icon">💭</span><span class="insight-label">THINK FIRST · BASELINING PURPOSE</span><span class="insight-chevron">▾</span></div><div class="insight-body"><p class="insight-text">Baselining is the process of creating trace files that depict normal communications on the network. Without a baseline, you cannot distinguish unusual traffic from normal traffic.</p><ul class="insight-questions"><li>If a user complains about performance today but the issue has since stopped, how could a baseline trace file from last month help diagnose the problem?</li><li>How can a baseline help during a security breach investigation?</li></ul><div class="answer-area" data-section="ins-why"><textarea class="answer-textarea" placeholder="Your thoughts..." rows="3"></textarea><div class="answer-buttons"><button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button><button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button></div><div class="model-answers" style="display:none"><div class="model-answer-item"><strong>Q1:</strong> You can filter the current traffic by removing traffic patterns that match the baseline — the remainder (unusual traffic) becomes visible. The baseline also helps quantify performance differences: compare packet rates, response times, and IO rates between the normal baseline and the problem capture.</div><div class="model-answer-item"><strong>Q2:</strong> The baseline tells you which protocols, ports, applications, and hosts are normally seen. Any traffic that deviates from the baseline — unexpected protocols, unknown hosts, unusual port usage — becomes a strong indicator of a security breach. For example, if IRC or TFTP suddenly appear on a network that does not normally use them, a host may be compromised.</div></div></div></div></div>
+<div class="section-block" id="sec-why"><h2>Understand the Importance of Baselining</h2>
+<p>Baselining is the process of creating a set of trace files that depict "normal" communications on the network. Having baselines that were created before network problems or security breaches occur can speed up the process of identifying unusual network activity. Ultimately, baselines enable you to resolve problems more effectively and efficiently.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig337-shows-an-smtp-baseline-trace-the-tcp-handshake.png" alt="Figure 337: SMTP baseline trace" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 337 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 337.</strong> An SMTP baseline trace — the TCP handshake indicates a round trip time of a little over 8ms and connection to a mail server. Summary information shows average bytes per second rate.</div></div>
+<p>Your baseline process may consist of more than trace files — the process could also include images of the client screens or server screens and summary data, IO Graph information and network maps.</p>
+<p>One method of using baselines is to identify normal traffic patterns on a problem network. For example, if a user complains about performance one day, you can take the trace file of the current traffic. Referring back to your baseline trace file you can filter out "normal" traffic and focus on the unusual traffic. This can reduce your troubleshooting time significantly.</p>
+<p>In a security breach situation, knowing the normal protocols, applications and traffic patterns helps you spot unusual communications. For example, if your hosts never use Internet Relay Chat, but you suddenly begin seeing this type of traffic, your host may be infected with a bot.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig338-we-know-this-network-doesn-t-usually-have.png" alt="Figure 338: Unexpected IRC and TFTP traffic" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 338 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 338.</strong> We know this network does not usually have IRC and TFTP traffic on it — the Protocol Hierarchy reveals unexpected protocols.</div></div>
+<div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Baselining = creating trace files of normal network behavior. Without a baseline, you cannot identify anomalies. Baselines are used for: performance comparison, security breach detection, and troubleshooting. A baseline should include trace files, IO Graph data, screen captures, and network maps. Create baselines now — before problems occur.</div></div></div>
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-sec-why" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-why','Why Baseline?')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-sec-why" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-why')">+ Add Note</button></div></div></div></div>
 </div>
-</header>
-<div class="motivation-banner">
-<div class="motivation-text"> <em>You can't know what's wrong until you know what's normal — baseline first.</em></div>
-<p class="motivation-sub">Regular baselines reveal gradual changes and enable rapid problem diagnosis.</p>
+<div class="insight-block" id="ins-types"><div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')"><span class="insight-icon">💭</span><span class="insight-label">THINK FIRST · BASELINE TYPES</span><span class="insight-chevron">▾</span></div><div class="insight-body"><p class="insight-text">A comprehensive baseline strategy covers all major network activities: broadcasts/multicasts, boot sequences, login/logout, idle time, application launch, web browsing, name resolution, throughput tests, wireless connectivity, and VoIP.</p><ul class="insight-questions"><li>For which baseline type must you capture traffic on a separate tap rather than from the host running Wireshark, and why?</li><li>What should be captured during application launch baselining that would not typically be visible in a running application trace?</li></ul><div class="answer-area" data-section="ins-types"><textarea class="answer-textarea" placeholder="Your thoughts..." rows="3"></textarea><div class="answer-buttons"><button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button><button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>🔒 See Model Answer</button></div><div class="model-answers" style="display:none"><div class="model-answer-item"><strong>Q1:</strong> Boot up and login sequence baselines cannot be captured on the host running Wireshark — the host must be powered off or logged out. You must tap into an existing network connection (as close to the client as possible), start capturing, then boot up or log in from the baseline host.</div><div class="model-answer-item"><strong>Q2:</strong> Application launch baselining should capture the discovery process (DNS lookups, initial connection to servers), interdependencies (other servers contacted), TCP options set in the handshake, initial IO rate, and any failures or retries during the startup sequence — all of which may be invisible during normal steady-state operation.</div></div></div></div></div>
+<div class="section-block" id="sec-types"><h2>Baseline Types</h2>
+<h3>Baseline Broadcast and Multicast Types and Rates</h3>
+<p>Baseline your broadcast and multicast traffic to identify a sudden increase in this traffic rate or to identify new hosts on the network in a passive manner. Key questions: Who is broadcasting? What application is using broadcasts? What is the typical broadcast rate in packets per second? Who is multicasting? What is the typical multicast rate?</p>
+<h3>Baseline Protocols and Applications</h3>
+<p>Creating a baseline of normal protocols and applications on the network can help you spot breached hosts. Key questions: Which applications are running on the network? What protocols are used? What UDP and TCP ports are in use? What routing protocol is in use? What ICMP traffic is seen on the network?</p>
+<h3>Baseline Boot Up Sequences</h3>
+<p>Analyzing the boot up sequence is important since this sequence sets up the client configuration and performance for the remaining up time. This baseline cannot be captured based on traffic to and from the host running Wireshark — you must tap into an existing network connection, start capturing, and then boot up the baseline host. Key questions: What is involved in the initial DHCP startup sequence? What applications generate traffic during startup?</p>
+<h3>Baseline Login/Logout Sequences</h3>
+<p>The login sequence should be baselined each time a new configuration is deployed. This baseline may also require tapping into an existing network connection and logging in from the baseline host separately. Key questions: What discovery process takes place during login? What server does the client connect to? How many packets does a typical login require? Are there any login dependencies?</p>
+<h3>Baseline Traffic during Idle Times</h3>
+<p>Watching the traffic flowing to and from a host during idle time (when no one is using the host) is important to identify background traffic that automatically occurs. Key questions: What protocols or applications are seen during idle time? What hosts are contacted? How frequently does the idle traffic occur?</p>
+<h3>Baseline Application Launch Sequences and Key Tasks</h3>
+<p>Key applications should be baselined to identify interdependencies and the general ports and startup procedure. Key questions: What discovery process is the application dependent upon? Is the application TCP-based or UDP-based? What port(s) does the application use? What hosts are contacted when the application starts? How many packets/how much time until the launch is complete? What is the IO rate during the launch sequence? Are there any failures or retries during the launch?</p>
+<h3>Baseline Web Browsing Sessions</h3>
+<p>Create a baseline of web browsing sessions to the most popular web hosts to determine typical behavior and latency times. Key questions: What browser is used? What is the name resolution response time? What is the round trip latency between the client and the target server? What is the application response time for a page request? Are there any HTTP errors?</p>
+<h3>Baseline Name Resolution Sessions</h3>
+<p>Problems during the name resolution process can have a significant impact on performance. Key questions: What name and type is being resolved? What is the IP address of the target name server? What is the round trip response time for the name resolution process?</p>
+<h3>Baseline Throughput Tests</h3>
+<p>Consider using an application such as iPerf to perform throughput tests. Capture the trace file during the test to graph the IO rate and spot any performance problems already occurring. Key questions: What is the Kbytes per second rate in each direction? What was the packet loss rate? What was the latency in each direction? Save the IO Graph from throughput tests.</p>
+<h3>Baseline Wireless Connectivity</h3>
+<p>Just as important as the site survey before WLAN deployment, the baseline of the WLAN traffic once the network is in place helps identify and solve problems later. Key questions: What packets are involved with the connection establishment to the access point? What encryption method is used? Were there WLAN retries? What is the beacon rate? Copy and save the Statistics | WLAN Traffic baseline information.</p>
+<h3>Baseline VoIP Communications</h3>
+<p>Understanding the basic VoIP traffic patterns (including call setup and actual call processes) will help speed up comparative analysis at a later date. Focus on the jitter rate, packet loss rate and call setup procedures. Key questions: What protocol is used for the call setup? What is the jitter rate? Is there any packet loss? Are there any SIP error responses?</p>
+<div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Comprehensive baseline strategy covers 12 areas: broadcasts/multicasts, protocols/apps, boot up, login/logout, idle time, application launch, web browsing, name resolution, throughput, WLAN, VoIP. Boot up and login baselines require a separate capture tap — you cannot capture on the host being booted/logged in. Use iPerf for throughput baseline. Create baselines now, before problems occur.</div></div></div>
+<div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-sec-types" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-types','Baseline Types')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-sec-types" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-types')">+ Add Note</button></div></div></div></div>
 </div>
-<div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+<div class="section-block" id="sec-casestudy"><h2>Case Studies</h2>
+<div class="case-study-block"><div class="cs-eyebrow">Case Study 1</div><div class="cs-title">Login Log Jam</div><div class="cs-sub">Submitted by: Anonymous</div><div class="cs-body"><p>One customer was shocked to learn their login sequence required over 70,000 packets. They felt their login process was slow, but assumed the problem was due to the increased number of connections the server had to deal with in the morning hours.</p><p>The slow login process was due to the high packet rate exchanged before completion of the login process. During an update process, the client roaming profile had been set up improperly to download numerous fonts and data that had been in cache on the original host — data that should never have been in the original image to be copied down to the client upon login.</p><p>After research into the traffic, a list of elements was created that should be excluded from the profile to speed up the login process. The users actually noticed the difference and commented on it — a shock to the IT department!</p></div><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C28-CS1.png" alt="Login Log Jam" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C28-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C28-CS1.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>Setting: a corporate login screen on a PC. A network engineer watches a packet counter climb to 70,000 during the login animation. A progress bar shows fonts and profile data downloading. In a second window, the Protocol Hierarchy shows hundreds of small application requests. Labels: Login sequence, 70,000 packets, Roaming profile, Fonts downloaded. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: Login, 70k packets, Profile, Fonts, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div></div></div></div>
+<div class="case-study-block"><div class="cs-eyebrow">Case Study 2</div><div class="cs-title">Solving SAN Disconnects</div><div class="cs-sub">Submitted by: Robert M., Network/Connectivity Team Lead, Xerox Corporation</div><div class="cs-body"><p>Robert M. (Network/Connectivity Team Lead, Xerox) investigated a Multifunction Printer that continuously failed to scan documents to a Storage Area Network (SAN) device using SMB protocol. He received two traces from a field technician: one of the failure process and one of a successful scan to a Windows workstation.</p><p>After sorting the scans to show only traffic going between the printer and the destination, the printer was able to negotiate an SMB connection and ask for access to the destination folder. The printer would then immediately send a TCP FIN after a positive SMB response from the SAN.</p><p>Comparing the SMB response from the SAN to the working one from the workstation revealed that the last line of the Tree Connect ANDX Response in the SMB header failed to announce the file system type (in this case NTFS). Since the printer was unsure of the file system, it dropped the connection. Changes to the SAN configuration resolved the issue.</p></div><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C28-CS2.png" alt="Solving SAN Disconnects" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C28-CS2.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C28-CS2.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>Setting: a server room with a large Multifunction Printer and a SAN device. A network engineer compares two Wireshark captures side by side on a laptop. One capture shows a successful SMB Tree Connect (with NTFS label), the other shows a broken one (missing NTFS label) followed by a TCP FIN. Labels: Printer, SAN, SMB Tree Connect, NTFS missing, TCP FIN. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: Printer, SAN, SMB, NTFS, TCP FIN, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div></div></div></div>
 </div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
+<div class="section-block" id="sec-tldr"><div class="tldr-inner"><div class="tldr-label">TL;DR — Chapter 28 Summary</div>
+<p>Baselines should be created when the network is running properly. These baselines can be used for comparative analysis sessions later when performance suffers or a security breach is suspected. You cannot identify unusual traffic unless you are aware of the usual traffic on your network.</p>
+<p>A comprehensive baseline strategy covers broadcast and multicast traffic, general protocols and applications, boot up sequences, login and logout sequences, idle time traffic, application launch sequences, web browsing sessions, name resolution sessions, throughput tests, wireless connection processes, and VoIP call setup and calls.</p>
+</div></div>
+<div class="section-block" id="sec-rq"><h2>Review Questions</h2>
+<div class="rq-card" id="rq-28.1"><div class="rq-q"><strong>Q28.1.</strong> What is the purpose of a baseline?</div><div class="rq-reveal"><button class="btn-reveal-rq" onclick="revealRQ('28.1')">Show Answer</button></div><div class="rq-answer" id="rqa-28.1" style="display:none"><strong>A:</strong> Baselining is the process of creating a set of trace files that depict "normal" communications on the network. Compare unusual traffic patterns to your baseline to identify anomalies.</div></div>
+<div class="rq-card" id="rq-28.2"><div class="rq-q"><strong>Q28.2.</strong> How can you obtain a baseline of a boot up sequence?</div><div class="rq-reveal"><button class="btn-reveal-rq" onclick="revealRQ('28.2')">Show Answer</button></div><div class="rq-answer" id="rqa-28.2" style="display:none"><strong>A:</strong> You cannot obtain a boot up baseline on the actual host you are analyzing. You must tap into an existing network connection, start capturing with Wireshark, and then boot up the baseline host.</div></div>
+<div class="rq-card" id="rq-28.3"><div class="rq-q"><strong>Q28.3.</strong> Why should you baseline traffic during idle times?</div><div class="rq-reveal"><button class="btn-reveal-rq" onclick="revealRQ('28.3')">Show Answer</button></div><div class="rq-answer" id="rqa-28.3" style="display:none"><strong>A:</strong> Baselining idle time traffic helps you identify background traffic that automatically occurs when no one is actively using the host — traffic that may interfere with your troubleshooting if not identified as "normal."</div></div>
 </div>
 </div>
-<nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Why Baseline</button><button class="nav-tab" data-target="sec-collect" onclick="navTo('sec-collect')">Collecting Baselines</button><button class="nav-tab" data-target="sec-analyze" onclick="navTo('sec-analyze')">Analyzing Baselines</button><button class="nav-tab" data-target="sec-interpret" onclick="navTo('sec-interpret')">Interpreting Results</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
-</nav>
-<main>
-<div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · WHY BASELINE YOUR NETWORK</span></div><div class="ins-body"><p class="ins-q">A baseline captures 'normal' network behavior — so you can detect deviations. But what makes a baseline useful? If you only capture 1 minute of traffic at 2 AM, is that a useful baseline? And how do you use a baseline when you're troubleshooting a reported problem?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about what factors affect what 'normal' looks like — time of day, day of week, network load, applications in use.</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>A useful baseline must capture representative traffic: peak hours, off-peak hours, multiple days of the week. A 2 AM baseline only shows maintenance traffic and doesn't represent business hours. When troubleshooting: compare current trace to the baseline — differences reveal what changed. Baseline captures should include: overall IO rate, protocol distribution, top talkers, average latency, and expert info counts. Regular baselines (monthly or quarterly) create a historical record that shows gradual changes that might otherwise go unnoticed.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>Why Baseline Your Network</h2><p>A network baseline establishes what 'normal' looks like on your network. Without a baseline, you can't answer: 'Is this traffic level unusual?' or 'Is this latency higher than normal?' Baselines are critical for:</p><ul><li>Detecting performance degradation over time</li><li>Identifying abnormal traffic patterns (potential security incidents)</li><li>Proving that a problem is real (not just user perception)</li><li>Measuring the impact of network changes</li><li>Capacity planning — identifying when to upgrade</li></ul><div class="callout callout-blue"><strong>CAPTURE BASELINES REGULARLY</strong><p>Capture baselines: at least once per quarter, before and after major network changes, during typical business hours, and during off-hours for comparison. Store trace files with timestamps and context notes. Compare current vs historical to spot trends. Even a 15-minute capture during peak hours is valuable.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Baseline = normal network behavior snapshot. Capture at: peak hours, off-peak, multiple days. Use: IO rate, protocol distribution, top talkers, latency, expert info counts. Compare current vs baseline to find changes. Essential before/after network changes and for capacity planning.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig337-shows-an-smtp-baseline-trace-the-tcp-handshake.png" alt="Figure 337: An SMTP baseline trace" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 337 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 337.</strong> An SMTP baseline trace</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Why Baseline')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-collect"><div class="insight-hdr" onclick="toggleInsight('ins-collect')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · COLLECTING BASELINES</span></div><div class="ins-body"><p class="ins-q">What Wireshark statistics should you collect for a useful network baseline? Which five statistics give the most complete picture of network health?</p><textarea class="ins-ta" data-key="ins-collect" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-collect" onclick="saveIns('ins-collect')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-collect')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-collect" onclick="toggleInsModel('ins-collect')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-collect" style="display:none"><div class="hm-label">HINT</div><p>Think about what questions a network administrator would want to answer: how busy is the network, who is talking to whom, what protocols, are there errors?</p></div><div class="ins-model-box" id="model-ins-collect" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Five essential baseline statistics: (1) IO Graph — overall traffic rate in packets/sec and bits/sec over time (reveals peaks and patterns). (2) Protocol Hierarchy (Statistics | Protocol Hierarchy) — percentage of each protocol type (useful for detecting new/unexpected protocols). (3) Conversations (Statistics | Conversations) — top talkers by bytes (identify bandwidth consumers). (4) Expert Info (Analyze | Expert Information) — count of TCP problems, errors, warnings (establish normal error rate). (5) TCP Round Trip Time Graph — baseline latency between key servers and clients. Save these statistics with each baseline capture.</p></div></div></div><div class="section-block" id="sec-collect"><h2>Collecting Baselines</h2><p>Useful statistics to collect for a network baseline:</p><ul><li><strong>Statistics | IO Graphs</strong>: Overall traffic rate (packets/sec, bytes/sec). Look for: normal peak rate, daily traffic patterns, traffic distribution over time</li><li><strong>Statistics | Protocol Hierarchy</strong>: Protocol distribution percentages. Look for: unexpected protocols, shifts in application usage</li><li><strong>Statistics | Conversations</strong>: Top talkers by bytes. Look for: bandwidth hogs, unexpected destinations</li><li><strong>Analyze | Expert Information</strong>: Counts of errors, warnings, notes, chats. Establish a 'normal' TCP problem rate</li><li><strong>Statistics | TCP Stream Graph | Round Trip Time</strong>: Baseline RTT to key servers</li><li><strong>Statistics | Summary</strong>: Overall trace statistics including average packet size and capture duration</li></ul><h3>What to Note in Your Baseline</h3><ul><li>Time and duration of capture</li><li>Network utilization percentage</li><li>Protocol breakdown (% broadcast, % TCP, % UDP)</li><li>Top 5 talkers by IP address and bytes</li><li>Expert Info count: errors, warnings, notes</li><li>Average TCP RTT to key servers</li><li>Average packet size</li></ul><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Baseline stats: IO Graph (rate/pattern), Protocol Hierarchy (distribution), Conversations (top talkers), Expert Info (error baseline), TCP RTT (latency baseline). Document: when captured, utilization %, protocol %, top talkers, error counts. Save trace files for future comparison.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig338-we-know-this-network-doesn-t-usually-have.png" alt="Figure 338: We know this network doesn't usually have IRC and TFTP traffic on it  Baseline Boot up Sequences Analyzing the boot up sequence is important since this sequence set" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 338 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 338.</strong> We know this network doesn't usually have IRC and TFTP traffic on it  Baseline Boot up Sequences Analyzing the boot up sequence is important since this sequence set</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-collect" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('collect','Collecting Baselines')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-collect" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('collect')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-analyze"><div class="insight-hdr" onclick="toggleInsight('ins-analyze')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · ANALYZING AND INTERPRETING BASELINES</span></div><div class="ins-body"><p class="ins-q">You've collected baselines for 3 months. Now users report the network 'feels slow.' How do you use your baselines to prove or disprove this? What deviations from baseline would confirm a network problem vs an application problem?</p><textarea class="ins-ta" data-key="ins-analyze" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-analyze" onclick="saveIns('ins-analyze')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-analyze')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-analyze" onclick="toggleInsModel('ins-analyze')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-analyze" style="display:none"><div class="hm-label">HINT</div><p>Think about which baseline metric would catch each type of problem: network saturation, new bandwidth-consuming application, degraded server response times.</p></div><div class="ins-model-box" id="model-ins-analyze" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Network saturation: IO Graph shows utilization at or near line rate during problem periods. New bandwidth consumer: Conversations shows new top talker or Protocol Hierarchy shows unexpected protocol spike. Degraded server response: TCP RTT Graph shows higher latency than baseline to that server. Application slowdown (not network): IO Graph shows normal utilization, conversations normal, but TCP analysis shows high application response times. Compare Expert Info counts — if retransmission count is much higher than baseline, there's a TCP-layer problem. If Expert Info is baseline-normal but users complain, look at application response times.</p></div></div></div><div class="section-block" id="sec-analyze"><h2>Analyzing and Interpreting Baselines</h2><p>When using baselines for troubleshooting, compare the current trace against your stored baseline traces. Look for significant deviations in:</p><ul><li><strong>IO rate</strong>: Is current traffic significantly higher or lower than baseline? Higher might indicate a new application or attack. Lower might indicate loss of legitimate traffic.</li><li><strong>Protocol mix</strong>: New protocols appearing in the Protocol Hierarchy? A protocol that was 5% of traffic now at 30% is suspicious.</li><li><strong>Top talkers</strong>: New IP addresses generating large amounts of traffic? Or a known host dramatically increasing its bandwidth usage?</li><li><strong>Expert Info counts</strong>: Are there significantly more TCP retransmissions, duplicate ACKs, or zero windows than baseline? This points to TCP-layer problems.</li><li><strong>Latency</strong>: Is TCP RTT to key servers higher than baseline? This indicates a path or server performance issue.</li></ul><div class="callout callout-green"><strong>BEFORE AND AFTER CAPTURES</strong><p>Always capture a baseline before making any significant network change (new router, new switch, new application, QoS configuration change). Capture another trace after the change. Compare: Protocol Hierarchy, IO Graph, Expert Info, and TCP RTT. This proves the change's impact and provides evidence if the change needs to be rolled back.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Compare current vs baseline: IO rate (utilization change?), Protocol Hierarchy (new protocols?), Conversations (new top talkers?), Expert Info (more TCP errors?), TCP RTT (latency change?). Network problem = IO high + TCP errors up. App problem = IO normal + TCP errors normal. Always capture before/after changes.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-analyze" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('analyze','Analyzing Baselines')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-analyze" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('analyze')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-interpret"><h2>Interpreting Baseline Results</h2><p>Interpreting what deviations mean:</p><ul><li><strong>IO rate significantly higher than baseline</strong> + high protocol % from unknown source = possible attack or new application</li><li><strong>IO rate higher than baseline</strong> + Expert Info shows many TCP retransmissions = congestion causing cascading retransmissions</li><li><strong>IO rate normal</strong> + TCP RTT much higher than baseline = server performance degradation or routing path change</li><li><strong>IO rate normal</strong> + Expert Info baseline-normal = likely application/server issue, not network</li><li><strong>New protocols in Protocol Hierarchy</strong> = new application deployed or possible security incident</li><li><strong>New top talker in Conversations</strong> = new bandwidth consumer — check if authorized</li></ul><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-interpret" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('interpret','Interpreting Results')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-interpret" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('interpret')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 28</h3><p>A network baseline establishes what normal traffic looks like — enabling you to detect deviations that indicate problems, attacks, or capacity issues. Baselines should be captured regularly (at least quarterly) during representative time periods including peak and off-peak hours.</p><p>Key baseline statistics: IO Graph (traffic rate), Protocol Hierarchy (protocol distribution), Conversations (top talkers), Expert Info (error counts), and TCP RTT (latency). Always capture baselines before and after significant network changes.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q28.1</div><div class="rq-q">Why is a network baseline useful for troubleshooting?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about what you can compare against when a problem is reported.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>A network baseline establishes what 'normal' looks like — enabling comparison when a problem is reported. Without a baseline, you can't answer: Is this traffic level unusual? Is this latency higher than normal? Is this error rate elevated? With a baseline, you can compare current trace statistics against the stored baseline to identify deviations that pinpoint the source of the problem. Baselines also establish trends over time for capacity planning.</p></div></div><div class="rq-card"><div class="rq-num">Q28.2</div><div class="rq-q">What five Wireshark statistics should you collect for a useful network baseline?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Think about what gives the most complete picture of network health.</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>Five essential baseline statistics: (1) <strong>IO Graph</strong> (Statistics | IO Graphs) — overall traffic rate over time. (2) <strong>Protocol Hierarchy</strong> (Statistics | Protocol Hierarchy) — protocol distribution percentages. (3) <strong>Conversations</strong> (Statistics | Conversations) — top talkers by bytes. (4) <strong>Expert Information</strong> (Analyze | Expert Information) — count of TCP errors, warnings, notes. (5) <strong>TCP RTT Graph</strong> (Statistics | TCP Stream Graph | Round Trip Time) — baseline latency to key servers.</p></div></div><div class="rq-card"><div class="rq-num">Q28.3</div><div class="rq-q">When should you capture a network baseline?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>Think about when baselines are most useful and what time periods should be represented.</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>Capture baselines: (1) <strong>Regularly</strong> — at least quarterly to detect gradual changes. (2) <strong>Before AND after</strong> major network changes (router upgrades, new applications, QoS changes). (3) <strong>During peak hours</strong> — to represent maximum load. (4) <strong>During off-hours</strong> — to compare with background traffic. (5) <strong>During reported problems</strong> — to compare against the 'normal' baseline and identify deviations. Store baselines with context notes including date, time, network conditions, and any recent changes.</p></div></div><div class="rq-card"><div class="rq-num">Q28.4</div><div class="rq-q">If the IO rate is normal but users report slowness, where should you focus your analysis?</div><textarea class="rq-ta" data-key="rq-rq4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq4" onclick="saveRQ('rq4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq4" onclick="toggleRQAns('rq4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq4" style="display:none"><div class="hm-label">HINT</div><p>If the network isn't saturated but performance is poor, what layer is the problem?</p></div><div class="rq-ans-box" id="rqans-rq4" style="display:none"><div class="hm-label">ANSWER</div><p>If the IO rate is at baseline-normal levels but users report slowness, the problem is likely NOT network congestion. Focus on: (1) <strong>Application response times</strong> — time between client request and server first response. (2) <strong>TCP RTT</strong> compared to baseline — has latency to the server increased? (3) <strong>Expert Info</strong> — are there more TCP retransmissions or zero windows than baseline? (4) <strong>Server-side performance</strong> — the server may be slow to process requests even with good network delivery. If Expert Info is also baseline-normal, the problem is likely at the application or server layer, not the network.</p></div></div>
+<div class="sidebar"><div class="sidebar-card"><div class="sidebar-card-title">Navigation</div><a class="sidebar-link" href="../../index.html">All Chapters</a><a class="sidebar-link" href="study-byte.html">Practice Lab</a></div>
+<div class="sidebar-card"><div class="sidebar-card-title">Quick Reference</div>
+<div class="quick-ref"><span class="qr-term">Baselining</span><span class="qr-def">Creating trace files of normal network behavior for future comparison</span></div>
+<div class="quick-ref"><span class="qr-term">Boot Up Baseline</span><span class="qr-def">Must capture on separate tap — cannot capture on the host being booted</span></div>
+<div class="quick-ref"><span class="qr-term">Security Use</span><span class="qr-def">Compare current traffic to baseline to spot unknown protocols (IRC, TFTP = suspicious)</span></div>
+<div class="quick-ref"><span class="qr-term">Throughput Tool</span><span class="qr-def">iPerf — captures trace during test to graph IO rate</span></div>
 </div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 28 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Baseline Filters</h4><div class="qr-row"><span class="qr-term">tcp.analysis.flags</span><span class="qr-def">TCP problems</span></div><div class="qr-row"><span class="qr-term">arp.opcode==1</span><span class="qr-def">ARP requests</span></div><div class="qr-row"><span class="qr-term">_ws.expert</span><span class="qr-def">All Expert Info</span></div><div class="qr-row"><span class="qr-term">Statistics | IO Graphs</span><span class="qr-def">Traffic rate</span></div><div class="qr-row"><span class="qr-term">Statistics | Conversations</span><span class="qr-def">Top talkers</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 7 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 28: Baseline Your Network</div>
-</footer>
+<div class="sidebar-card"><div class="sidebar-card-title">Progress</div><div class="ins-prog-count" id="ins-prog-count">0 / 0 completed</div><div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div></div>
+</div></main>
+<div class="practice-cta"><div class="practice-cta-inner"><div class="practice-cta-text">Ready to practice baseline analysis?</div><a href="study-byte.html" class="btn-practice">Open Practice Lab</a></div></div>
+<footer><div class="footer-inner"><span>Wireshark Network Analysis</span><span>Chapter 28: Baseline "Normal" Traffic Patterns</span></div></footer>
 <script>
-
-const PAGE_KEY='ws-ch28-full';
-const SECTIONS={'purpose':'Why Baseline','collect':'Collecting Baselines','analyze':'Analyzing Baselines','interpret':'Interpreting Results','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-collect','ins-analyze'];
-const RQ_IDS=['rq1','rq2','rq3','rq4'];
-const TOTAL=7;
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
-function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
-function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
-function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap,.cs-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse image':'Expand image');}
-function initFigures(){document.querySelectorAll('.figure-block,.cs-img-inline').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap,.cs-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand image');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initFigures();initPT();updateInsProgress();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
-  });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
-  });
-});
+const PAGE_KEY = 'ws-ch28-full';
+const SECTIONS = {"sec-why": "Why Baseline?", "sec-types": "Baseline Types", "sec-casestudy": "Case Studies", "sec-tldr": "TL;DR", "sec-rq": "Review Questions"};
+const INSIGHT_IDS = ["ins-why", "ins-types"];
+const RQ_IDS = ["28.1", "28.2", "28.3"];
+const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+function saveSocAnswer(btn){const aa=btn.closest('.answer-area');const ta=aa.querySelector('.answer-textarea');if(!ta.value.trim())return;const key=PAGE_KEY+'-soc-'+aa.dataset.section;localStorage.setItem(key,ta.value);btn.textContent='\u2713 Saved';btn.disabled=true;aa.querySelector('.btn-see-answer').disabled=false;}
+function revealSocAnswer(btn){const ma=btn.closest('.answer-area').querySelector('.model-answers');ma.style.display=ma.style.display==='none'?'block':'none';btn.textContent=ma.style.display==='none'?'\uD83D\uDD12 See Model Answer':'\u25B4 Hide Answer';}
+function toggleQPanel(){const b=document.getElementById('qpanel-body');const t=document.getElementById('qpanel-toggle');b.hidden=!b.hidden;t.textContent=b.hidden?'\u25BE':'\u25B4';}
+function renderQPanel(){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');const b=document.getElementById('qpanel-body');b.innerHTML=qs.length?qs.map((q,i)=>`<div class="qpanel-item"><span>${q.section}: ${q.text}</span><button onclick="deleteQuestion(${i})">\u00D7</button></div>`).join(''):'<div class="qpanel-empty">No questions yet.</div>';}
+function addQuestion(secid,secname){const ta=document.getElementById('q-'+secid);if(!ta||!ta.value.trim())return;const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.push({section:secname,text:ta.value.trim()});localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));ta.value='';renderQPanel();}
+function deleteQuestion(i){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.splice(i,1);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));renderQPanel();}
+function addNote(secid){const ta=document.getElementById('note-'+secid);if(!ta||!ta.value.trim())return;const key=PAGE_KEY+'-note-'+secid;const existing=localStorage.getItem(key)||'';localStorage.setItem(key,existing+(existing?'\n':'')+ta.value.trim());ta.value='';}
+function navTo(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'});document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));event?.target?.classList.add('active');}
+function revealRQ(id){const a=document.getElementById('rqa-'+id);a.style.display=a.style.display==='none'?'block':'none';}
+function updateProgress(){const done=INSIGHT_IDS.filter(id=>{const aa=document.querySelector(`#${id} .answer-area`);return aa&&localStorage.getItem(PAGE_KEY+'-soc-'+aa.dataset.section);}).length+RQ_IDS.filter(id=>document.querySelector(`#rqa-${id}`)?.style.display!=='none').length;document.getElementById('ins-prog-count').textContent=`${done} / ${TOTAL} completed`;document.getElementById('ins-prog-fill').style.width=`${Math.round(done/TOTAL*100)}%`;}
+function initNotes(){document.querySelectorAll('[id^="note-"]').forEach(ta=>{const key=PAGE_KEY+'-note-'+ta.id.replace('note-','');const v=localStorage.getItem(key);if(v)ta.value=v;});const gn=document.getElementById('global-notes');if(gn){gn.value=localStorage.getItem(PAGE_KEY+'-global-notes')||'';gn.addEventListener('input',()=>localStorage.setItem(PAGE_KEY+'-global-notes',gn.value));}}
+function initChecks(){INSIGHT_IDS.forEach(id=>{const aa=document.querySelector(`#${id} .answer-area`);if(aa&&localStorage.getItem(PAGE_KEY+'-soc-'+aa.dataset.section)){const btn=aa.querySelector('.btn-add-answer');if(btn){btn.textContent='\u2713 Saved';btn.disabled=true;}aa.querySelector('.btn-see-answer').disabled=false;}});}
+document.querySelectorAll('.insight-header').forEach(h=>h.addEventListener('click',()=>h.closest('.insight-block').classList.toggle('ins-open')));
+document.addEventListener('DOMContentLoaded',()=>{initNotes();initChecks();renderQPanel();updateProgress();document.body.style.opacity='1';sessionStorage.setItem('pt','1');});
 </script>
-</body>
-</html>
+</body></html>

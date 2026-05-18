@@ -2,345 +2,393 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 22: Analyze DHCP Traffic | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
-html.pt-init body{opacity:0;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-a{color:var(--blue);text-decoration:none;}
-header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
-.header-left{flex:1;}
-.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
-.breadcrumb-sep{color:rgba(255,255,255,0.2);}
-.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
-.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
-h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
-header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
-.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
-.motivation-text em{font-style:italic;color:var(--blue);}
-.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.top-panels .qpanel{border-right:1px solid var(--border);}
-.qpanel,.notes-panel{background:var(--surface);}
-.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
-.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
-.qpanel-body.open,.notes-panel-body.open{display:block;}
-.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.q-item:last-child{border-bottom:none;}
-.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
-.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
-.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
-.q-del:hover{color:var(--red);}
-.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
-.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
-.nav-tab:hover{color:var(--text);}
-.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
-.main-content{min-width:0;}
-.section-block{margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
-.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
-.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
-.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
-.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.section-block strong{color:var(--text);font-weight:600;}
-code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
-.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
-.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
-.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
-.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
-.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
-.callout-blue strong{color:var(--blue);}
-.callout-amber strong{color:var(--amber);}
-.callout-green strong{color:var(--green);}
-.callout-red strong{color:var(--red);}
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
-.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
-.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
-.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
-.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
-.insight-block:not(.ins-open) .ins-body{display:none;}
-.ins-icon{font-size:17px;flex-shrink:0;}
-.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
-.ins-body{padding:0 20px 18px;}
-.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
-.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.ins-ta:focus{border-color:var(--blue);}
-.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
-.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
-.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-save-ins:hover:not(:disabled){opacity:.85;}
-.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
-.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-hint-ins:hover{background:var(--amber-light);}
-.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
-.btn-model-ins:not(:disabled):hover{opacity:.85;}
-.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
-.ins-hint-box .hm-label{color:var(--amber);}
-.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-.ins-model-box .hm-label{color:var(--blue);}
-.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
-.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
-.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
-.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
-.fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
-.fig-trace{color:var(--blue);font-style:italic;}
-.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
-.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
-.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
-.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
-.cs-body ul{padding-left:20px;margin:8px 0 14px;}
-.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{width:min(520px,100%);margin:16px auto;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);transition:width .18s ease,box-shadow .18s ease;}
-.cs-img-inline.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.cs-img-wrap{background:#1e293b;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.cs-img-inline.fig-expanded .cs-img-wrap{cursor:zoom-out;}
-.cs-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.cs-img-inline.fig-expanded .cs-img-wrap img{max-height:none;width:100%;}
-.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
-.cs-ph-icon{font-size:40px;display:block;}
-.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
-.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
-.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
-.btn-cs-prompt:hover{color:var(--blue);}
-.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
-.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
-.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
-.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
-.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
-.rq-ta:focus{border-color:var(--blue);}
-.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
-.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-save:hover:not(:disabled){opacity:.85;}
-.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
-.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-hint:hover{background:var(--amber-light);}
-.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
-.btn-rq-ans:not(:disabled):hover{opacity:.85;}
-.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
-.rq-hint-box .hm-label{color:var(--amber);}
-.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
-.rq-hint-box p:last-child{margin-bottom:0;}
-.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-.rq-ans-box .hm-label{color:var(--blue);}
-.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
-.rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-.sidebar{position:sticky;top:60px;}
-.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
-.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
-.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
-.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
-.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
-.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
-.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
-.qr-row:last-child{border-bottom:none;}
-.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
-.qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
-.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
-.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
-.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
-.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
-</style>
-</head>
-<body>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../study-guide.css"></head><body>
 <header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 22<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 22</div>
-<h1>Analyze Dynamic Host Configuration Protocol <em>(DHCP/DHCPv6) Traffic</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
+  <div class="header-inner">
+    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> &rsaquo; <a href="../../index.html">Study Guides</a> &rsaquo; Chapter 22</div>
+    <div class="eyebrow-row"><span class="eyebrow-chip">CHAPTER 22</span><span class="animated-dot"></span></div>
+    <h1>Analyze DHCP <em>(DHCPv4/DHCPv6)</em> Traffic</h1>
+    <div class="header-sub">DORA sequences, lease lifecycle, DHCP problems, and DHCPv6</div>
+  </div>
 </header>
 <div class="motivation-banner">
-<div class="motivation-text"> <em>DHCP is invisible when it works and catastrophic when it doesn't — learn to read every packet.</em></div>
-<p class="motivation-sub">DORA, lease times, relay agents, and Decline packets are the keys to diagnosing DHCP problems.</p>
+  <div class="motivation-text"><em>"Without DHCP, every host needs a manual IP configuration. With broken DHCP, no host can communicate at all."</em></div>
+  <div class="motivation-sub">Diagnose DHCP failures before users call the helpdesk</div>
 </div>
 <div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  <div class="q-panel" id="q-panel">
+    <div class="q-panel-header" onclick="toggleQPanel()"><span>&#x1F4AD; My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">&#9662;</span></div>
+    <div class="q-panel-body" id="q-panel-body"><div id="q-list"></div><div class="q-empty" id="q-empty">No questions yet.</div></div>
+  </div>
+  <div class="note-panel" id="note-panel">
+    <div class="note-panel-header">&#x1F4DD; My Notes</div>
+    <div class="note-panel-body"><textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights..."></textarea></div>
+  </div>
 </div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
-<nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of DHCP</button><button class="nav-tab" data-target="sec-normal" onclick="navTo('sec-normal')">Normal DHCP Traffic</button><button class="nav-tab" data-target="sec-relay" onclick="navTo('sec-relay')">DHCP Relay Agents</button><button class="nav-tab" data-target="sec-problems" onclick="navTo('sec-problems')">DHCP Problems</button><button class="nav-tab" data-target="sec-structure" onclick="navTo('sec-structure')">DHCP Packet Structure</button><button class="nav-tab" data-target="sec-dhcpv6" onclick="navTo('sec-dhcpv6')">DHCPv6</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Filters & Case Study</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+<nav class="section-nav" id="section-nav">
+  <button class="nav-tab active" onclick="navTo('sec-dhcp')">DHCP Basics</button>
+  <button class="nav-tab" onclick="navTo('sec-lifecycle')">Lease Lifecycle</button>
+  <button class="nav-tab" onclick="navTo('sec-dhcpv6')">DHCPv6</button>
+  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
 </nav>
 <main>
-<div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF DHCP</span></div><div class="ins-body"><p class="ins-q">DHCP eliminates the need to manually configure IP addresses, subnet masks, gateways, and DNS servers on every host. But DHCP relies on broadcasts for initial discovery — what happens when a client boots on a different subnet than the DHCP server? What device must be present?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about why ARP and DHCP both rely on broadcasts and why broadcasts can't cross routers.</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Since DHCP Discover is a broadcast, the DHCP server must be on the same segment OR a DHCP Relay Agent (IP Helper) must be configured on the router interface to forward the broadcast as a unicast to the DHCP server. The relay agent's IP address appears in the Relay Agent IP Address field of the DHCP packet — this tells the server which subnet to assign an address from. Without a relay agent, clients on a different subnet from the DHCP server cannot obtain addresses.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of DHCP</h2><p>There are two flavors of DHCP — DHCPv4 (used on IPv4 networks) and DHCPv6 (used on IPv6 networks). In this chapter we will focus primarily on DHCPv4. DHCPv6 is covered in a dedicated section.</p><p>DHCP enables clients to obtain their IP addresses and configuration information in a dynamic manner. Based on BOOTP, DHCP is the standard for address/configuration assignments. DHCP uses UDP for transport offering connectionless services for numerous configuration options. The current definition for DHCP on IPv4 networks is RFC 2131.</p><p>The default ports for DHCP communications are port 68 (client process) and port 67 (server daemon).</p><div class="callout callout-blue"><strong>EIGHT DHCP MESSAGE TYPES</strong><ul><li><strong>Type 1 (Discover)</strong>: Client broadcast to locate available DHCP servers</li><li><strong>Type 2 (Offer)</strong>: Server to client with offer of configuration parameters</li><li><strong>Type 3 (Request)</strong>: Client requesting offered parameters or confirming address</li><li><strong>Type 4 (Decline)</strong>: Client indicating the offered address is not acceptable (duplicate address test failed)</li><li><strong>Type 5 (Acknowledgment)</strong>: Server to client with configuration parameters</li><li><strong>Type 6 (NAK)</strong>: Server indicating client's network address is incorrect</li><li><strong>Type 7 (Release)</strong>: Client relinquishing address and cancelling remaining lease</li><li><strong>Type 8 (Inform)</strong>: Client asking only for local configuration parameters; client already has IP address</li></ul></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DHCP = RFC 2131. UDP ports: 67 (server) + 68 (client). Based on BOOTP. 8 message types: Discover(1), Offer(2), Request(3), Decline(4), ACK(5), NAK(6), Release(7), Inform(8). Needs broadcast — requires relay agent across routers.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of DHCP')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-normal"><div class="insight-hdr" onclick="toggleInsight('ins-normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL DHCP TRAFFIC</span></div><div class="ins-body"><p class="ins-q">A DHCP client that boots up OUTSIDE its lease time performs a four-packet DORA process. A client that boots up INSIDE its lease time only performs two packets. What are those two packets and why can it skip Discover and Offer?</p><textarea class="ins-ta" data-key="ins-normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-normal" onclick="saveIns('ins-normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-normal" onclick="toggleInsModel('ins-normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-normal" style="display:none"><div class="hm-label">HINT</div><p>Think about what the client already knows if it's within its lease — it remembers the last IP address it used.</p></div><div class="ins-model-box" id="model-ins-normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Inside the lease time, the client skips Discover and Offer — it already knows its last IP address and the server that gave it. It sends a Request directly to that server (unicast if renewing at T1, broadcast if rebinding at T2) and the server responds with ACK (or NAK if the address is no longer available). The client obtains three time values: LT (Lease Time), T1 (renewal, 0.5 × LT), T2 (rebind, 0.875 × LT). At T1: unicast Request to original server. At T2: broadcast Request to any server. At LT expiry: client must release and start DORA.</p></div></div></div><div class="section-block" id="sec-normal"><h2>Analyze Normal DHCP Traffic</h2><h3>DHCP DORA Process</h3><p>When a DHCP client is outside its address lease time, it performs the four-packet <strong>DORA</strong> sequence:</p><ol><li><strong>Discover</strong> (Type 1): Broadcast from client to locate DHCP servers. Source: 0.0.0.0. Destination: 255.255.255.255.</li><li><strong>Offer</strong> (Type 2): Unicast or broadcast from server offering an IP address and configuration.</li><li><strong>Request</strong> (Type 3): Broadcast from client selecting one server's offer and confirming parameters.</li><li><strong>Acknowledgment</strong> (Type 5): Server confirms the address assignment. Client enters the Bound state.</li></ol><p>When a client is INSIDE its lease time, it only sends Request and receives ACK or NAK.</p><h3>Three Time Values</h3><p>During the address assignment, the client obtains three time values:</p><ul><li><strong>Lease Time (LT)</strong>: How long the client can use the assigned address</li><li><strong>Renewal Time (T1)</strong>: 0.5 × LT — client sends unicast Request to original server to extend lease</li><li><strong>Rebind Time (T2)</strong>: 0.875 × LT — if renewal fails, client sends broadcast Request to any server</li></ul><p>If no acknowledgment before LT expires, the client must release its IP address and start over with DORA.</p><div class="callout callout-amber"><strong>STICKY IP ADDRESS BEHAVIOR</strong><p>Most DHCP client software uses a 'sticky IP address' — the client system remembers the last assigned IP address and requests to explicitly use that address again during Discover and Request packets. Dynamic IP addressing is not as dynamic as the name implies! A client will typically request the same address it used before.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DORA = Discover → Offer → Request → Acknowledge. Client outside lease = 4 packets. Client inside lease = 2 packets (Request + ACK). T1=0.5×LT (renew), T2=0.875×LT (rebind). Stuck clients try to reuse last known address. Packets from 0.0.0.0 to 255.255.255.255 = DHCP Discover.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal DHCP Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-relay"><div class="insight-hdr" onclick="toggleInsight('ins-relay')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DHCP RELAY AGENTS</span></div><div class="ins-body"><p class="ins-q">A DHCP Relay Agent (IP Helper) forwards DHCP broadcasts as unicast packets to a remote DHCP server. When you see a DHCP packet that has come through a relay agent, what field in the DHCP packet identifies the relay agent's IP? How can you use this to identify which subnet the client belongs to?</p><textarea class="ins-ta" data-key="ins-relay" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-relay" onclick="saveIns('ins-relay')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-relay')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-relay" onclick="toggleInsModel('ins-relay')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-relay" style="display:none"><div class="hm-label">HINT</div><p>The DHCP server needs to know which subnet to assign an address from. Think about what information in the packet tells it this.</p></div><div class="ins-model-box" id="model-ins-relay" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The Relay Agent IP Address (giaddr) field contains the IP address of the DHCP Relay Agent that forwarded the message. The DHCP server uses the giaddr to determine which subnet scope to assign an address from. If giaddr=10.2.99.99, the server assigns an address from the 10.2.x.x scope. You can filter for relayed packets with <code>bootp.ip.relay!=0.0.0.0</code>. Compare the source MAC address in the Ethernet header with the Client MAC Address field inside the DHCP packet — if they differ, a relay agent is in the path.</p></div></div></div><div class="section-block" id="sec-relay"><h2>DHCP Relay Agents</h2><p>Since DHCP relies on broadcasts for the initial DHCP Discover process, either the DHCP server or a DHCP Relay Agent must be on the same network segment as the DHCP client.</p><p>DHCP Relay Agents forward messages between DHCP clients and DHCP servers. The DHCP Relay Agent's IP address is listed in the DHCP Request packet. The MAC address of the DHCP client is listed in the Client MAC address field. If you examine the Ethernet header of a relayed DHCP packet, you will notice it is coming from a router/switch that has the DHCP Relay Agent functionality enabled.</p><div class="callout callout-blue"><strong>IDENTIFY RELAY AGENT TRAFFIC</strong><p>Compare the source MAC address in the Ethernet header with the Client MAC Address field inside the DHCP packet. If they differ, the packet came through a relay agent. The Relay Agent IP Address (giaddr) field shows which router interface forwarded the broadcast. Filter: <code>bootp.ip.relay!=0.0.0.0</code></p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DHCP Relay Agent (IP Helper): forwards DHCP broadcasts as unicast to remote DHCP server. Relay Agent IP Address (giaddr) field tells server which subnet scope to use. Filter: bootp.ip.relay!=0.0.0.0. Client MAC in DHCP ≠ Source MAC in Ethernet = relay agent in path.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-relay" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('relay','DHCP Relay Agents')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-relay" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('relay')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-problems"><div class="insight-hdr" onclick="toggleInsight('ins-problems')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DHCP PROBLEMS</span></div><div class="ins-body"><p class="ins-q">A DHCP client receives an Offer from the server, sends a Request, receives an ACK, and then sends a Decline. What does this sequence mean? What is the client doing between the ACK and the Decline? How could a printer cause this problem?</p><textarea class="ins-ta" data-key="ins-problems" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-problems" onclick="saveIns('ins-problems')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-problems')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-problems" onclick="toggleInsModel('ins-problems')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-problems" style="display:none"><div class="hm-label">HINT</div><p>Think about what the client does after receiving an ACK — it doesn't just start using the address immediately. What test does it perform first?</p></div><div class="ins-model-box" id="model-ins-problems" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>After ACK, the client performs a duplicate address test — typically by sending a gratuitous ARP for the offered address. If another host responds to the ARP (i.e., the address is already in use), the client sends a DHCP Decline (Type 4) to tell the server the address is taken. In the classic case, a printer was statically assigned the address the DHCP server offered, so the ARP got a response and the client declined. The DHCP server never checked if the address was in use. Fix: configure static entries in DHCP for all statically-assigned devices. Lesson: always use a capture filter that includes ALL traffic (not just port 67) so you can see the ARP test that causes the Decline.</p></div></div></div><div class="section-block" id="sec-problems"><h2>Analyze DHCP Problems</h2><p>If DHCP doesn't work properly, clients may not be able to obtain or maintain IP addresses. Common problems include address conflicts, server unavailability, and misconfigured scopes.</p><h3>Address Decline Problem</h3><p>The DHCP Decline problem occurs when a client discovers the offered IP address is already in use. The sequence:</p><ol><li>Client sends DHCP Discover</li><li>Server sends DHCP Offer with an IP address</li><li>Client sends DHCP Request accepting the offer</li><li>Server sends DHCP ACK confirming the address</li><li>Client performs duplicate address test (gratuitous ARP or ping)</li><li>Another host responds — address is already in use</li><li>Client sends DHCP Decline (Type 4) back to server</li></ol><div class="callout callout-red"><strong>DON'T USE CAPTURE FILTERS FOR DHCP TROUBLESHOOTING</strong><p>If you apply a capture filter for port 67 only, you will MISS the duplicate address test (ARP or ICMP) that occurs between the ACK and Decline. The book's case study illustrates this perfectly — they only captured port 67 and 68, missing the ARP test entirely. Use display filters instead of capture filters for DHCP troubleshooting so you can see ALL related traffic.</p></div><div class="callout callout-amber"><strong>COMMON DHCP PROBLEMS</strong><ul><li>Client gets no response to Discover — no DHCP server on segment and no relay agent</li><li>Client declines offer — duplicate address conflict (statically-assigned device)</li><li>Client in rebind state — original DHCP server unreachable during renewal window</li><li>NAK received — client moved to different subnet, address is wrong scope</li><li>Address pool exhausted — server sends NAK to all requests</li></ul></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DHCP Decline (Type 4) = duplicate address detected. Client does ARP test after ACK. Always use display filters, not capture filters, for DHCP troubleshooting. Missing ARP = missing the root cause. Statically-assigned addresses must be excluded from DHCP scope or configured as reservations.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','DHCP Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-structure"><div class="insight-hdr" onclick="toggleInsight('ins-structure')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DHCP PACKET STRUCTURE</span></div><div class="ins-body"><p class="ins-q">DHCP packets are variable length. The Client MAC Address field inside the DHCP packet serves a specific purpose different from the Ethernet source MAC. What is it? And what is the Magic Cookie field?</p><textarea class="ins-ta" data-key="ins-structure" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-structure" onclick="saveIns('ins-structure')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-structure')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-structure" onclick="toggleInsModel('ins-structure')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-structure" style="display:none"><div class="hm-label">HINT</div><p>Think about when a DHCP packet has traveled through multiple relay agents — the Ethernet source MAC will be the last relay agent. How does the server know the actual client MAC address?</p></div><div class="ins-model-box" id="model-ins-structure" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The Client MAC Address field inside the DHCP packet always contains the actual client MAC address — it doesn't change as the packet is forwarded by relay agents. This is how the server knows which physical device to assign the address to, and how Wireshark can identify the actual client even in a relayed packet. The Magic Cookie (value 0x63825363) identifies the data following it as DHCP options rather than BOOTP options. The Hops field counts how many relay agents the packet has traversed.</p></div></div></div><div class="section-block" id="sec-structure"><h2>Dissect the DHCP Packet Structure</h2><p>DHCP packets are variable length. Key DHCP header fields:</p><ul><li><strong>Message Type (Opcode)</strong>: 1 = DHCP request, 2 = DHCP reply</li><li><strong>Hardware Type</strong>: Type of hardware address (0x0001 = Ethernet)</li><li><strong>Hardware Length</strong>: Length of hardware address (6 for Ethernet)</li><li><strong>Hops</strong>: Number of relay agents the packet has crossed</li><li><strong>Transaction ID</strong>: Matches request and response packets</li><li><strong>Seconds Elapsed</strong>: Time since client began requesting a new address</li><li><strong>BOOTP Flags</strong>: Indicates whether client accepts unicast or broadcast MAC packets</li><li><strong>Client IP Address</strong>: Filled in by client after it is assigned by the server</li><li><strong>Your (Client) IP Address</strong>: The address offered by the DHCP server (only DHCP server fills this)</li><li><strong>Next Server IP Address</strong>: DHCP server address when a relay agent is used</li><li><strong>Relay Agent IP Address</strong>: Shows relay agent's IP if one is in use</li><li><strong>Client MAC Address</strong>: Always contains the actual client's MAC address (unchanged through relays)</li><li><strong>Server Host Name</strong>: Optional server name</li><li><strong>Boot File Name</strong>: Optional boot file path</li><li><strong>Magic Cookie</strong>: 0x63825363 — indicates data is DHCP not BOOTP</li><li><strong>Options</strong>: Variable-length field carrying IP address, configuration, etc. Common options: 1=Subnet Mask, 3=Router, 5=Name Server, 6=Domain Server, 12=Host Name, 15=Domain Name, 51=Lease Time, 53=Message Type, 55=Parameter Request List</li></ul><div class="callout callout-blue"><strong>DHCP STATISTICS WINDOW</strong><p>The BOOTP-DHCP statistics window (Statistics | BOOTP-DHCP) summarizes the DHCPv4 message types in the trace file. This is useful for a quick overview of what types of DHCP messages are present. Note: as of Wireshark 1.7.2, this feature does not support DHCPv6.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DHCP packet key fields: Hops=relay count, Transaction ID=links request/response, giaddr=relay agent IP, chaddr=client MAC (always actual client). Magic Cookie=0x63825363. Option 53=message type. DORA uses the same Transaction ID throughout the exchange.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-structure" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('structure','DHCP Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-structure" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('structure')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-dhcpv6"><div class="insight-hdr" onclick="toggleInsight('ins-dhcpv6')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · DHCPv6</span></div><div class="ins-body"><p class="ins-q">DHCPv6 is defined in RFC 3315. Unlike DHCPv4 which uses broadcasts, DHCPv6 uses multicast. What specific multicast address do DHCPv6 clients use to contact servers? And what is the port range for DHCPv6 (hint: it's different from DHCPv4)?</p><textarea class="ins-ta" data-key="ins-dhcpv6" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-dhcpv6" onclick="saveIns('ins-dhcpv6')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-dhcpv6')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-dhcpv6" onclick="toggleInsModel('ins-dhcpv6')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-dhcpv6" style="display:none"><div class="hm-label">HINT</div><p>IPv6 doesn't support broadcasts — so what replaces the broadcast Discover message in DHCPv6?</p></div><div class="ins-model-box" id="model-ins-dhcpv6" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>DHCPv6 clients multicast to <code>ff02::1:2</code> (All_DHCP_Relay_Agents_and_Servers). Client port is 546, server port is 547. DHCPv6 message types differ from DHCPv4: Solicit (1), Advertise (2), Request (3), Confirm (4), Renew (5), Rebind (6), Reply (7), Release (8), Decline (9), Reconfigure (10), Information-Request (11), Relay-Forward (12), Relay-Reply (13). A Type 9 Decline is sent when a DHCPv6 client believes an assigned address is already in use on the link.</p></div></div></div><div class="section-block" id="sec-dhcpv6"><h2>An Introduction to DHCPv6</h2><p>DHCPv6 is defined in RFC 3315. Since IPv6 does not use broadcasts, DHCPv6 clients can use the multicast address for All_DHCP_Relay_Agents_and_Servers (<code>ff02::1:2</code>) to locate DHCPv6 servers and relay agents.</p><p>The DHCPv6 client port is <strong>546</strong> and the DHCPv6 server port is <strong>547</strong>.</p><p>The basic DHCPv6 communication sequence:</p><ul><li><strong>Solicit</strong> — DHCPv6 client to locate a DHCPv6 server; sent to ff02::1:2</li><li><strong>Advertise</strong> — One or more DHCPv6 servers provide the client with address and configuration</li><li><strong>Request</strong> — DHCPv6 client confirms the address assignment</li><li><strong>Reply</strong> — DHCPv6 server with confirmation</li></ul><div class="callout callout-blue"><strong>DHCPv6 DISPLAY FILTER</strong><p>DHCPv6 has no relationship to BOOTP. The display filter string is simply <code>dhcpv6</code>. To filter for a specific message type: <code>dhcpv6.msgtype==9</code> (Decline). To filter for Solicit messages from a specific MAC: <code>(eth.src==21:22:23:24:25:26) &amp;&amp; (dhcpv6.msgtype==1)</code>.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DHCPv6: RFC 3315. No broadcasts — multicast ff02::1:2. Ports: 546 (client) + 547 (server). 4-step: Solicit → Advertise → Request → Reply. 13 message types. Display filter: dhcpv6. NOT related to BOOTP. bootp display filter won't show DHCPv6.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-dhcpv6" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('dhcpv6','DHCPv6')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-dhcpv6" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('dhcpv6')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-filters"><h2>Filter on DHCP/DHCPv6 Traffic — Case Study</h2><p>Capture filter for DHCPv4: <code>port 67</code>. Capture filter for DHCPv6: <code>port 546</code>. DHCPv4 is derived from BOOTP and uses the <code>bootp</code> display filter string. DHCPv6 display filter: <code>dhcpv6</code>.</p><div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:12px 0;font-family:'SF Mono',monospace;font-size:12px;line-height:2;"><b style="color:var(--blue)">bootp.option.value==0</b> — DHCPv4 Discover<br><b style="color:var(--blue)">bootp.option.value==4</b> — DHCPv4 Decline<br><b style="color:var(--blue)">bootp.hw.mac_addr==00:1b:9e:70:10:42</b> — DHCP message from specific client MAC<br><b style="color:var(--blue)">bootp.option.type==12</b> — DHCP message contains hostname (option 12)<br><b style="color:var(--blue)">bootp.ip.relay!=0.0.0.0</b> — Message contains DHCP Relay Agent value<br><b style="color:var(--blue)">(bootp.ip.your==192.168.0.104) &amp;&amp; (bootp.option.value==05)</b> — ACK to client 192.168.0.104<br><b style="color:var(--blue)">dhcpv6.msgtype==9</b> — DHCPv6 Decline<br></div><h3>Case Study: Declining Clients</h3><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C22-CS1.png" alt="Declining Clients" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C22-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C22-CS1.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network engineer stares at a Wireshark screen showing a repeating DHCP pattern: Discover → Offer → Request → ACK → Decline. On the right side of the screen, an ARP request is visible showing the offered IP address is already in use by a printer. The engineer holds a paper labeled 'DHCP logs: multiple Decline packets.' A printer device in the corner has a sticky note: 'Static IP = 192.168.0.104.' The engineer looks relieved. Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 1</div><div class="cs-title">Declining Clients</div><div class="cs-sub"><em>DHCP Address Conflict Diagnosis</em></div><div class="cs-body"><p>A customer hit a problem where suddenly a number of hosts could not communicate on the Internet. A quick look at the local configurations confirmed that they did not have an IP address assigned.</p><p>So obviously something went wrong with the DHCP process, but the DHCP server seemed to be running fine. We launched Wireshark with a capture filter for all DHCP traffic (<code>port 67</code> or <code>port 68</code>).</p><p>The trace file showed that the clients booted up and sent the DHCP Discover packet and received an offer. We noticed that the server wasn't offering the same IP address requested by the client, but we assumed that the requested address was already assigned.</p><p>The client requested 192.168.0.102, but the server offered 192.168.0.104. The client sent the request for that address and an ACK finished the DHCP startup process — so far, so good.</p><p>Then... approximately one second later, the client sent a Decline to the DHCP server. Why?</p><p>This taught us a valuable lesson — DON'T use capture filters when troubleshooting the boot up process. We totally missed the problem. When we took the trace again without the capture filter we saw the client perform a ping to the offered address immediately after being offered 192.168.0.104.</p><p>To our surprise the ping to 192.168.0.104 was answered by a printer. We learned that the printer's IP address had been assigned statically. The DHCP server never checked to see if an address was in use by performing its own ping process.</p><p>The IT staff reconfigured the DHCP server with static entries for the printers. Never again has the DHCP server offered those addresses to the clients on the network.</p></div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">DHCP Decline investigation: ALWAYS use display filters, not capture filters. The ARP/ping test between ACK and Decline is the key event. Fix: add static reservations in DHCP for all statically-assigned devices. bootp display filter covers all DHCPv4 traffic.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filters','Filters & Case Study')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filters')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 22</h3><p>DHCP can be used to provide more configuration settings than just the client IP address, although that is the most common use of DHCP.</p><p>When a client boots up outside of its lease time, we see a four packet DHCP process — Discover, Offer, Request and Acknowledge. When a client boots up inside its lease time, we see a two packet DHCP process — Request and Acknowledge. Clients can request their last used IP address in their DHCP Discover or Request packets.</p><p>Packets sent from IP address 0.0.0.0 are typically DHCP Discover packets. The sender does not have an IP address at that time. These packets are sent to the broadcast address (255.255.255.255).</p><p>If a DHCP server is not on the local network, a DHCP relay agent is required to forward DHCP requests to the remote DHCP server.</p><p>DHCP for IPv4 networks (DHCPv4) is based on BOOTP; DHCPv6 is not. DHCP uses ports 67 and 68; DHCPv6 uses ports 546 and 547.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q22.1</div><div class="rq-q">What is the purpose of DHCP?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about what network administrators had to do before DHCP existed.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>DHCP enables clients to obtain their IP addresses and configuration information in a dynamic manner. Based on BOOTP, DHCP is the standard for address/configuration assignments. Without DHCP, administrators would need to manually configure the IP address, subnet mask, default gateway, DNS servers, and other parameters on every network device — a major operational burden.</p></div></div><div class="rq-card"><div class="rq-num">Q22.2</div><div class="rq-q">What is the DHCP traffic sequence when a DHCP client boots up outside of its lease time?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Think about what the client doesn't know when it boots outside its lease — it needs to rediscover the server.</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>When a DHCP client is outside of its address lease time, the startup traffic sequence is <strong>Discover — Offer — Request — Acknowledge</strong> (DORA). The client broadcasts a Discover, the server responds with an Offer, the client broadcasts a Request for that address, and the server finalizes with an ACK. The client then enters the Bound state and begins using the assigned address and configuration.</p></div></div><div class="rq-card"><div class="rq-num">Q22.3</div><div class="rq-q">What is the purpose of a DHCP Decline packet?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>Think about what the client discovered between receiving an ACK and sending the Decline.</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>A DHCP Decline packet (Type 4) is sent by a DHCP client to the DHCP server when the client determines through a duplicate address test (gratuitous ARP or ping) that the offered address is already in use on the network. This tells the server to mark that address as unavailable and not offer it again. The client then starts over with a new DHCP Discover.</p></div></div><div class="rq-card"><div class="rq-num">Q22.4</div><div class="rq-q">Why would a DHCP client enter the rebinding phase?</div><textarea class="rq-ta" data-key="rq-rq4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq4" onclick="saveRQ('rq4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq4" onclick="toggleRQAns('rq4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq4" style="display:none"><div class="hm-label">HINT</div><p>Think about the three time values — what happens after T1 expires but the original server doesn't respond?</p></div><div class="rq-ans-box" id="rqans-rq4" style="display:none"><div class="hm-label">ANSWER</div><p>A DHCP client enters the rebinding phase when it was unable to renew its IP address lease with the original DHCP server during the renewal window (T1). At T1 (0.5 × lease time), the client unicasts a Request to the original server. If there is no response by T2 (0.875 × lease time), the client broadcasts a Request to ANY available DHCP server — it enters the rebinding state. If still no response before lease expiry, the client must release its address and start DORA again.</p></div></div><div class="rq-card"><div class="rq-num">Q22.5</div><div class="rq-q">What is the syntax for capture and display filters for IP traffic?</div><textarea class="rq-ta" data-key="rq-rq5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq5" onclick="saveRQ('rq5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq5" onclick="toggleRQAns('rq5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq5" style="display:none"><div class="hm-label">HINT</div><p>Note: the question refers to DHCP traffic, not IP. Capture and display filter syntax differs.</p></div><div class="rq-ans-box" id="rqans-rq5" style="display:none"><div class="hm-label">ANSWER</div><p>For DHCPv4 traffic: <strong>Capture filter</strong>: <code>port 67</code> (although DHCPv4 uses port 68 as the client port, traffic will always flow to or from port 67, the server port). <strong>Display filter</strong>: <code>bootp</code> (DHCPv4 is derived from BOOTP and uses the bootp display filter string).<br>For DHCPv6: <strong>Capture filter</strong>: <code>port 546</code>. <strong>Display filter</strong>: <code>dhcpv6</code>.</p></div></div><div class="rq-card"><div class="rq-num">Q22.6</div><div class="rq-q">What is the IPv6 destination address used for DHCPv6 Solicit messages?</div><textarea class="rq-ta" data-key="rq-rq6" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq6" onclick="saveRQ('rq6')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq6')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq6" onclick="toggleRQAns('rq6')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq6" style="display:none"><div class="hm-label">HINT</div><p>IPv6 doesn't use broadcasts — what multicast address replaces the 255.255.255.255 broadcast for DHCP?</p></div><div class="rq-ans-box" id="rqans-rq6" style="display:none"><div class="hm-label">ANSWER</div><p>DHCPv6 Solicit messages are sent to the multicast address <code>ff02::1:2</code>, which is the <strong>All_DHCP_Relay_Agents_and_Servers</strong> multicast address. This is a link-local scope multicast address. The DHCPv6 client port is 546 and the DHCPv6 server port is 547. Unlike DHCPv4 which uses broadcasts (255.255.255.255), DHCPv6 uses this multicast address since IPv6 does not support broadcasts.</p></div></div>
-</div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 22 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Progress</h3><div class="progress-summary" id="prog-text">0 / 7 sections read</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-checklist"><label class="check-item" data-key="chk-purpose"><input type="checkbox" onchange="toggleDone(this,'chk-purpose')"> Purpose of DHCP</label><label class="check-item" data-key="chk-normal"><input type="checkbox" onchange="toggleDone(this,'chk-normal')"> Normal DHCP Traffic</label><label class="check-item" data-key="chk-relay"><input type="checkbox" onchange="toggleDone(this,'chk-relay')"> DHCP Relay Agents</label><label class="check-item" data-key="chk-problems"><input type="checkbox" onchange="toggleDone(this,'chk-problems')"> DHCP Problems</label><label class="check-item" data-key="chk-structure"><input type="checkbox" onchange="toggleDone(this,'chk-structure')"> DHCP Packet Structure</label><label class="check-item" data-key="chk-dhcpv6"><input type="checkbox" onchange="toggleDone(this,'chk-dhcpv6')"> DHCPv6</label><label class="check-item" data-key="chk-filters"><input type="checkbox" onchange="toggleDone(this,'chk-filters')"> Filters & Case Study</label></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 12 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>DHCP Filters</h4><div class="qr-row"><span class="qr-term">bootp</span><span class="qr-def">All DHCPv4 traffic</span></div><div class="qr-row"><span class="qr-term">dhcpv6</span><span class="qr-def">All DHCPv6 traffic</span></div><div class="qr-row"><span class="qr-term">bootp.option.value==1</span><span class="qr-def">DHCP Discover (Type 1)</span></div><div class="qr-row"><span class="qr-term">bootp.option.value==4</span><span class="qr-def">DHCP Decline (Type 4)</span></div><div class="qr-row"><span class="qr-term">bootp.ip.relay!=0.0.0.0</span><span class="qr-def">Has Relay Agent</span></div><div class="qr-row"><span class="qr-term">bootp.hw.mac_addr</span><span class="qr-def">Filter by client MAC</span></div></div></div><div class="sidebar-card"><h3>Trace Files</h3><div class="trace-list">dhcp-addressproblem.pcapng<br>dhcp-boot.pcapng<br>dhcp-decline.pcapng<br>dhcp-relay-serverside.pcapng<br>dhcp-renewtorebind.pcapng<br>pcaprnet-dhcpv6-decline.pcapngng</div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 22: Analyze DHCP Traffic</div>
-</footer>
-<script>
+  <div class="main-content">
 
-const PAGE_KEY='ws-ch22-full';
-const SECTIONS={'purpose':'Purpose of DHCP','normal':'Normal DHCP Traffic','relay':'DHCP Relay Agents','problems':'DHCP Problems','structure':'DHCP Packet Structure','dhcpv6':'DHCPv6','filters':'Filters & Case Study','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-normal','ins-relay','ins-problems','ins-structure','ins-dhcpv6'];
-const RQ_IDS=['rq1','rq2','rq3','rq4','rq5','rq6'];
-const TOTAL=12;
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
-function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
-function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
-function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap,.cs-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse image':'Expand image');}
-function initFigures(){document.querySelectorAll('.figure-block,.cs-img-inline').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap,.cs-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand image');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initFigures();initPT();updateInsProgress();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
-  });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
-  });
-});
+    <div class="insight-block" id="ins-dhcp">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; DHCP BASICS</span>
+      </div>
+      <p class="insight-insight">DHCP provides dynamic IP address and configuration assignment over UDP. The DORA sequence (Discover-Offer-Request-Acknowledge) happens when a client boots outside its lease. If inside the lease, only Request-Acknowledge is used. Clients remember their last IP address &mdash; dynamic IP assignment is less dynamic than it sounds.</p>
+      <ul class="insight-questions">
+        <li>If a DHCP server is on a different subnet from the client, how can the DHCP Discover broadcast reach it? What device must be present?</li>
+        <li>When a DHCP client sends a Decline, what condition caused it, and what happens next?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-dhcp">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> DHCP Discover is a broadcast (destination 255.255.255.255), which routers do not forward. A <strong>DHCP Relay Agent</strong> (typically configured on a router or Layer 3 switch) must be present on the client's local segment. The relay agent intercepts the broadcast, converts it to a unicast packet addressed to the remote DHCP server, and forwards it. The server's response is sent unicast to the relay agent, which then forwards it to the client. The relay agent's IP address appears in the DHCP packet's Relay Agent IP Address field.</p>
+          <p><strong>Model Answer 2:</strong> A DHCP Decline is sent when the client discovers the offered IP address is already in use by another host. This is detected through a gratuitous ARP (or ping) &mdash; the client sends an ARP/ping for the offered address and receives a reply from another host. After declining, the client must restart the DORA process and request a different address. The DHCP server should exclude the conflicting address or investigate the conflict. Common cause: a host with a statically-assigned IP in the DHCP server's dynamic pool.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-dhcp">
+      <h2>The Purpose of DHCP</h2>
+      <p>DHCP enables clients to obtain their IP addresses and configuration information in a dynamic manner. Based on BOOTP, DHCP is the standard for address/configuration assignments over <strong>UDP ports 67 (server) and 68 (client)</strong>. The current definition for DHCPv4 is RFC 2131.</p>
+
+      <h3>DHCP Message Types</h3>
+      <table class="def-table">
+        <thead><tr><th>Type</th><th>Name</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Discover</td><td>Client broadcast to locate available DHCP servers (src: 0.0.0.0, dst: 255.255.255.255)</td></tr>
+          <tr><td>2</td><td>Offer</td><td>Server to client in response to Discover, offering IP and configuration parameters</td></tr>
+          <tr><td>3</td><td>Request</td><td>Client to server: (a) requesting offered parameters, (b) confirming address after reboot, or (c) extending lease</td></tr>
+          <tr><td>4</td><td>Decline</td><td>Client to server: offered address is not acceptable (already in use, discovered via gratuitous ARP)</td></tr>
+          <tr><td>5</td><td>Acknowledgment</td><td>Server to client: configuration parameters confirmed</td></tr>
+          <tr><td>6</td><td>Negative Acknowledgment</td><td>Server to client: address is incorrect or lease expired</td></tr>
+          <tr><td>7</td><td>Release</td><td>Client relinquishes network address and cancels remaining lease</td></tr>
+          <tr><td>8</td><td>Informational</td><td>Client requesting only configuration parameters; already has an externally configured IP address</td></tr>
+        </tbody>
+      </table>
+
+      <h3>DHCP Packet Structure Key Fields</h3>
+      <table class="def-table">
+        <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Message Type (Opcode)</td><td>1 = DHCP request, 2 = DHCP reply</td></tr>
+          <tr><td>Transaction ID</td><td>Matches request with response packets</td></tr>
+          <tr><td>Client IP Address</td><td>Filled in by client after assigned</td></tr>
+          <tr><td>Your IP Address</td><td>IP address offered by the DHCP server</td></tr>
+          <tr><td>Relay Agent IP Address</td><td>IP of DHCP Relay Agent if one is in use</td></tr>
+          <tr><td>Client MAC Address</td><td>Hardware address of the DHCP client. Filter on this to isolate boot issues.</td></tr>
+          <tr><td>Magic Cookie</td><td>0x63825363 = data is DHCP</td></tr>
+          <tr><td>Options</td><td>Subnet Mask (1), Router/Gateway (3), DNS Server (6), Host Name (12), Domain Name (15)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>DHCP Relay Agents</h3>
+      <p>Since DHCP relies on broadcasts for the initial Discover, either the DHCP server or a <strong>DHCP Relay Agent</strong> must be on the same network segment as the client. DHCP Relay Agents forward messages between DHCP clients and DHCP servers on different networks. The relay agent's IP address is listed in the DHCP Request's Relay Agent IP Address field.</p>
+
+      <div class="callout callout-amber"><strong>CAUTION: Don't Use Capture Filters for Boot Process Analysis</strong> If you use a capture filter for only DHCP traffic (port 67 or 68), you'll miss the gratuitous ARP or ping that the client uses to test for duplicate IP addresses. Use display filters instead so you can see the full context when a client sends a Decline.</div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">DHCP ports: client=68, server=67. Full boot (outside lease): <strong>Discover-Offer-Request-ACK (DORA)</strong>. Renewal (inside lease): Request-ACK only. Decline = client detected offered IP already in use (via gratuitous ARP). DHCP capture filter: <code>port 67</code>. Display filter: <code>bootp</code> (DHCPv4). Relay agent = required when DHCP server not on local segment. Clients remember last IP &mdash; "sticky IP address."</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-dhcp" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-dhcp','DHCP Basics')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-dhcp" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-dhcp')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-block" id="ins-lifecycle">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; DHCP LEASE LIFECYCLE</span>
+      </div>
+      <p class="insight-insight">A DHCP lease has three time values: Lease Time (LT), Renewal Time T1 (50% of LT), and Rebind Time T2 (87.5% of LT). At T1 the client sends a unicast renewal. At T2 it broadcasts. If LT expires with no acknowledgment, the client returns to the uninitialized state.</p>
+      <ul class="insight-questions">
+        <li>A DHCP client entered the rebinding phase. What exactly happened between T1 and T2 that caused this?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-lifecycle">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> Between T1 and T2, the client attempted to unicast-renew its lease to its specific DHCP server (at T1 = 50% of lease time). The client retried the renewal at intervals equal to one-half of the remaining time until T2 approached with a minimum of 60 seconds between retries. The DHCP server never responded to any of these unicast requests &mdash; perhaps it was offline or the unicast path was broken. At T2 (87.5% of lease time), the client escalates by broadcasting a DHCP Request to any available DHCP server, attempting to get any server to extend its lease.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-lifecycle">
+      <h2>DHCP Lease Lifecycle</h2>
+      <p>When a DHCP client successfully receives and acknowledges an IP address, it enters the "bound" state. The client receives three time values:</p>
+      <table class="def-table">
+        <thead><tr><th>Timer</th><th>Value</th><th>Action at Expiry</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Lease Time (LT)</strong></td><td>100% &mdash; full lease duration</td><td>If expired with no ACK: release IP, return to uninitialized state, broadcast Discover</td></tr>
+          <tr><td><strong>Renewal Time (T1)</strong></td><td>50% of LT</td><td>Client enters renewal state &mdash; sends <em>unicast</em> DHCP Request to its specific server</td></tr>
+          <tr><td><strong>Rebind Time (T2)</strong></td><td>87.5% of LT</td><td>If T1 renewal failed: client sends <em>broadcast</em> DHCP Request to any available server</td></tr>
+        </tbody>
+      </table>
+
+      <p>At T1: client retries unicast renewal at intervals = ½ remaining time until T2 (minimum 60 seconds). At T2: client retries broadcast at intervals = ½ remaining time until LT expires.</p>
+      <p>Most DHCP clients use a "sticky IP address" &mdash; they remember the last assigned IP and explicitly request it again in the Discover or Request packet. This makes dynamic addressing less dynamic than it sounds.</p>
+
+      <h3>DHCP Filters</h3>
+      <p>Capture filter (DHCPv4): <code>port 67</code> &nbsp;&nbsp; Display filter (DHCPv4): <code>bootp</code> (DHCP is based on BOOTP)</p>
+      <p>Capture filter (DHCPv6): <code>port 546</code> &nbsp;&nbsp; Display filter (DHCPv6): <code>dhcpv6</code></p>
+
+      <table class="def-table">
+        <thead><tr><th>Filter</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>bootp.option.value==0</code></td><td>DHCPv4 Discover (message type 1)</td></tr>
+          <tr><td><code>bootp.option.value==4</code></td><td>DHCPv4 Decline (message type 4)</td></tr>
+          <tr><td><code>bootp.hw.mac_addr==00:1b:9e:70:10:42</code></td><td>DHCP messages containing a specific MAC</td></tr>
+          <tr><td><code>bootp.ip.relay !=0.0.0.0</code></td><td>DHCP messages forwarded by a relay agent</td></tr>
+          <tr><td><code>dhcpv6.msgtype==9</code></td><td>DHCPv6 Decline message</td></tr>
+        </tbody>
+      </table>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Lease lifecycle: T1=50% (unicast renewal), T2=87.5% (broadcast rebind), LT=100% (release if no ACK). Source 0.0.0.0 = client doesn't have IP yet (Discover). Dst 255.255.255.255 = broadcast. DHCP display filter = <code>bootp</code> (not "dhcp"). BOOTP-DHCP Statistics window: Statistics | BOOTP-DHCP. DHCPv6 display filter: <code>dhcpv6</code>. DHCPv6 ports: 546/547. DHCPv6 multicast: ff02::1:2 (All DHCP Relay Agents and Servers).</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-lifecycle" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-lifecycle','Lease Lifecycle')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-lifecycle" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-lifecycle')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-block" id="ins-dhcpv6">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; DHCPv6</span>
+      </div>
+      <p class="insight-insight">DHCPv6 operates over UDP ports 546 (client) and 547 (server). Since IPv6 has no broadcast, clients use the multicast address ff02::1:2 to reach DHCP servers and relay agents. The basic exchange is Solicit-Advertise-Request-Reply (SARR) instead of DORA.</p>
+      <ul class="insight-questions">
+        <li>DHCPv4 has a BOOTP legacy with message type 1=request, 2=reply. DHCPv6 has 13 message types. What scenarios require more than the basic SARR sequence?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-dhcpv6">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> Additional DHCPv6 message types beyond basic SARR are needed for: Confirm (client changed networks, checking if addresses are still valid), Renew (at T1 &mdash; unicast to extend lease), Rebind (at T2 &mdash; broadcast if Renew failed), Decline (offered address already in use), Release (client voluntarily releases address), Reconfigure (server pushes new parameters to client), and Information-Request (client wants other parameters like DNS but not an IP address &mdash; used in stateless DHCPv6 mode with SLAAC). Relay-Forward and Relay-Reply handle the relay agent layer.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-dhcpv6">
+      <h2>An Introduction to DHCPv6</h2>
+      <p>DHCPv6 is defined in RFC 3315. Since IPv6 does not use broadcasts, DHCPv6 clients use the multicast address <strong>ff02::1:2</strong> (All DHCP Relay Agents and Servers). DHCPv6 client port = <strong>546</strong>, server port = <strong>547</strong>.</p>
+
+      <p>Basic DHCPv6 exchange (analogous to DORA):</p>
+      <table class="def-table">
+        <thead><tr><th>DHCPv4</th><th>DHCPv6</th><th>Direction</th></tr></thead>
+        <tbody>
+          <tr><td>Discover</td><td>Solicit</td><td>Client → ff02::1:2 multicast</td></tr>
+          <tr><td>Offer</td><td>Advertise</td><td>Server → Client</td></tr>
+          <tr><td>Request</td><td>Request</td><td>Client → Server</td></tr>
+          <tr><td>Acknowledge</td><td>Reply</td><td>Server → Client</td></tr>
+        </tbody>
+      </table>
+
+      <p>DHCPv6 has 13 message types. Key additional types: Confirm (4), Renew (5), Rebind (6), Decline (9), Release (8), Reconfigure (10), Information-Request (11), Relay-Forward (12), Relay-Reply (13).</p>
+
+      <div class="callout callout-blue"><strong>TIP</strong> The BOOTP-DHCP Statistics window (Statistics | BOOTP-DHCP) summarizes DHCPv4 message types in the trace file. As of Wireshark 1.7.2 this feature does not support DHCPv6.</div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">DHCPv6 = SARR: Solicit(1)-Advertise(2)-Request(3)-Reply(7). No broadcast &rarr; uses multicast ff02::1:2. Ports 546(client)/547(server). DHCPv4 display filter = <code>bootp</code>. DHCPv6 display filter = <code>dhcpv6</code>. DHCP Decline (type 4/9) = offered address in use. DHCPv4 based on BOOTP; DHCPv6 has no BOOTP relationship. Information-Request = client wants other config params but not an IPv6 address (stateless DHCPv6).</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-dhcpv6" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-dhcpv6','DHCPv6')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-dhcpv6" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-dhcpv6')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-casestudy">
+      <h2>Case Studies</h2>
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 1</div>
+        <div class="cs-title">Declining Clients</div>
+        <div class="cs-sub">Submitted by: Laura Chappell</div>
+        <div class="cs-body">
+          <p>A customer hit a problem where suddenly a number of hosts could not communicate on the Internet &mdash; a quick look confirmed they had no IP address assigned.</p>
+          <p>We launched Wireshark with a capture filter for all DHCP traffic (<code>port 67 or port 68</code>). The trace file showed clients booting up, sending a DHCP Discover and receiving an offer. The client then sent the Request and received an ACK &mdash; so far so good. Then, approximately one second later, the client sent a <strong>Decline</strong> to the DHCP server.</p>
+          <p>We couldn't figure out why &mdash; <em>because we had used a capture filter</em>. We had totally missed the problem.</p>
+          <p>When we took the trace again <strong>without a capture filter</strong>, we saw the client perform a ping to the offered address (192.168.0.104) immediately after being offered it. The ping was answered by a <strong>printer</strong>. The printer had been configured with a static IP address of 192.168.0.104, and the DHCP server wasn't checking for duplicate addresses before offering it.</p>
+          <p>The IT staff reconfigured the DHCP server with static entries for the printers to exclude those addresses from the dynamic pool. The lesson: <strong>never use capture filters when troubleshooting the boot-up process.</strong></p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C22-CS1.png" alt="Declining DHCP Clients"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span><div><strong>C22-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C22-CS1.png</div></div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">&#9662; Show cartoon prompt</button>
+            <div class="cs-prompt-text" hidden>
+              A network scene showing a DHCP server offering IP address 192.168.0.104 to a laptop client via DORA arrows. Immediately after the ACK, the client sends a ping to 192.168.0.104 (shown as a question mark arrow). A printer in the corner labeled "Static IP: 192.168.0.104" responds with a ping reply (shown as an exclamation mark). The laptop then sends a "DECLINE" message back to the DHCP server with a red X. The DHCP server looks confused. A Wireshark analyst's screen shows two trace files side by side: the one with capture filter only shows DHCP messages; the one without shows the ICMP ping exchange that explains the Decline. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "DHCP Server," "Laptop," "Printer (192.168.0.104)," "DECLINE," "Static IP conflict," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-tldr">
+      <div class="tldr-block">
+        <div class="tldr-label">TL;DR &mdash; Chapter Summary</div>
+        <div class="tldr-text">
+          <p>DHCP can be used to provide more configuration settings than just the client IP address. When a client boots up outside of its lease time, we see the four-packet DORA process. When a client is inside its lease time, we see a two-packet Request-Acknowledge process. Clients can request their last used IP address in DHCP Discover or Request packets.</p>
+          <p>Packets sent from IP address 0.0.0.0 are typically DHCP Discover packets &mdash; the sender does not have an IP address. If a DHCP server is not on the local network, a DHCP relay agent is required. DHCPv4 is based on BOOTP (display filter: bootp); DHCPv6 is not (display filter: dhcpv6). DHCP uses ports 67/68; DHCPv6 uses 546/547.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-rq">
+      <h2>Review Questions</h2>
+      <div class="rq-card" id="rq-22-1">
+        <div class="rq-question">Q22.1 What is the purpose of DHCP?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A22.1</strong> DHCP enables clients to obtain their IP addresses and configuration information in a dynamic manner. Based on BOOTP, DHCP is the standard for address/configuration assignments.</div>
+      </div>
+      <div class="rq-card" id="rq-22-2">
+        <div class="rq-question">Q22.2 What is the DHCP traffic sequence when a DHCP client boots up outside of its lease time?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A22.2</strong> When a DHCP client is outside of its lease time, the startup traffic sequence is <strong>Discover &rarr; Offer &rarr; Request &rarr; Acknowledge (DORA)</strong>.</div>
+      </div>
+      <div class="rq-card" id="rq-22-3">
+        <div class="rq-question">Q22.3 What is the purpose of a DHCP Decline packet?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A22.3</strong> This DHCP packet is sent from a DHCP client to the DHCP server to indicate that the offered network address is already in use by another host (detected via a gratuitous ARP or ping test).</div>
+      </div>
+      <div class="rq-card" id="rq-22-4">
+        <div class="rq-question">Q22.4 Why would a DHCP client enter the rebinding phase?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A22.4</strong> A DHCP client enters the rebinding phase when the renewal process (unicast to the original DHCP server at T1) is unsuccessful. In the rebinding state, the client sends a broadcast DHCP Request to extend its lease with any available server.</div>
+      </div>
+      <div class="rq-card" id="rq-22-5">
+        <div class="rq-question">Q22.5 What is the syntax for capture and display filters for DHCP traffic?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A22.5</strong> DHCPv4: Capture filter = <code>port 67</code>; Display filter = <code>bootp</code>. DHCPv6: Capture filter = <code>port 546</code>; Display filter = <code>dhcpv6</code>.</div>
+      </div>
+      <div class="rq-card" id="rq-22-6">
+        <div class="rq-question">Q22.6 What is the IPv6 destination address used for DHCPv6 Solicit messages?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A22.6</strong> DHCPv6 Solicit messages are sent to <strong>ff02::1:2</strong> (All DHCP Relay Agents and Servers multicast address).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Navigation</div>
+      <a class="sidebar-link" href="../../index.html">&larr; Study Guide Hub</a>
+      <a class="sidebar-link" href="study-byte.html">Practice Lab</a>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Quick Reference</div>
+      <div class="quick-ref"><div class="qr-term">DHCP Sequence</div><div class="qr-def">Outside lease: D-O-R-A. Inside lease: R-A only.</div></div>
+      <div class="quick-ref"><div class="qr-term">Lease Timers</div><div class="qr-def">T1=50% (unicast renew), T2=87.5% (broadcast rebind), LT=100% (release if expired)</div></div>
+      <div class="quick-ref"><div class="qr-term">Filters</div><div class="qr-def">Capture: <code>port 67</code>. Display: <code>bootp</code>. DHCPv6 display: <code>dhcpv6</code></div></div>
+      <div class="quick-ref"><div class="qr-term">DHCP Decline</div><div class="qr-def">Client found offered IP already in use (via ping/gratuitous ARP)</div></div>
+      <div class="quick-ref"><div class="qr-term">DHCPv6 Ports</div><div class="qr-def">546 (client), 547 (server). Multicast: ff02::1:2</div></div>
+      <div class="quick-ref"><div class="qr-term">Key Tip</div><div class="qr-def">Never use capture filters for boot troubleshooting &mdash; you'll miss the ICMP/ARP that explains DHCP Decline</div></div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Progress</div>
+      <div class="ins-prog-count" id="ins-prog-count">0 / 9 complete</div>
+      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
+      <div style="margin-top:12px">
+        <label class="check-item"><input type="checkbox" id="chk-dhcp" onchange="toggleDone('dhcp')"> DHCP Basics</label>
+        <label class="check-item"><input type="checkbox" id="chk-lifecycle" onchange="toggleDone('lifecycle')"> Lease Lifecycle</label>
+        <label class="check-item"><input type="checkbox" id="chk-dhcpv6" onchange="toggleDone('dhcpv6')"> DHCPv6</label>
+        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Study</label>
+        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="practice-cta"><div class="cta-inner"><div class="cta-text">Ready to practice?</div><a href="study-byte.html" class="cta-btn">Open Practice Lab &rarr;</a></div></div>
+<footer><div class="footer-inner"><span>Wireshark Network Analysis &mdash; Chapter 22</span><span>Analyze DHCP Traffic</span></div></footer>
+<script>
+const PAGE_KEY = 'ws-ch22-full';
+const SECTIONS = {'sec-dhcp':'DHCP Basics','sec-lifecycle':'Lease Lifecycle','sec-dhcpv6':'DHCPv6','sec-casestudy':'Case Study','sec-tldr':'TL;DR','sec-rq':'Review Questions'};
+const INSIGHT_IDS = ['ins-dhcp','ins-lifecycle','ins-dhcpv6'];
+const RQ_IDS = ['22-1','22-2','22-3','22-4','22-5','22-6'];
+const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+document.querySelectorAll('.insight-header').forEach(h=>h.addEventListener('click',()=>h.closest('.insight-block').classList.toggle('ins-open')));
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim())return;localStorage.setItem(PAGE_KEY+'-soc-'+area.dataset.section,ta.value);area.querySelector('.btn-see-answer').disabled=false;btn.textContent='✓ Saved';updateProgress();}
+function revealSocAnswer(btn){const area=btn.closest('.answer-area');const ma=area.querySelector('.model-answers');ma.style.display=ma.style.display==='none'?'block':'none';btn.textContent=ma.style.display==='none'?'🔒 See Model Answer':'▴ Hide Answer';}
+function toggleQPanel(){const body=document.getElementById('q-panel-body');const tog=document.getElementById('q-panel-toggle');const open=body.style.display!=='none';body.style.display=open?'none':'block';tog.textContent=open?'▾':'▴';}
+function renderQPanel(){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');const list=document.getElementById('q-list');const empty=document.getElementById('q-empty');list.innerHTML='';if(qs.length===0){empty.style.display='block';return;}empty.style.display='none';qs.forEach((q,i)=>{const div=document.createElement('div');div.className='q-item';div.innerHTML='<span class="q-section-tag">'+q.section+'</span><span class="q-text">'+q.text+'</span><button class="q-del" onclick="deleteQuestion('+i+')">×</button>';list.appendChild(div);});}
+function addQuestion(secId,secName){const ta=document.getElementById('q-'+secId);if(!ta||!ta.value.trim())return;const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.push({section:secName,text:ta.value.trim()});localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));ta.value='';renderQPanel();}
+function deleteQuestion(i){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.splice(i,1);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));renderQPanel();}
+function addNote(secId){const ta=document.getElementById('note-'+secId);if(!ta||!ta.value.trim())return;localStorage.setItem(PAGE_KEY+'-note-'+secId,ta.value);ta.style.borderColor='#22c55e';setTimeout(()=>ta.style.borderColor='',1200);}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const idx=Object.keys(SECTIONS).indexOf(id);const tabs=document.querySelectorAll('.nav-tab');if(tabs[idx])tabs[idx].classList.add('active');}
+function toggleDone(id){localStorage.setItem(PAGE_KEY+'-chk-'+id,document.getElementById('chk-'+id).checked?'1':'');}
+function updateProgress(){let done=0;INSIGHT_IDS.forEach(id=>{if(localStorage.getItem(PAGE_KEY+'-soc-'+id))done++;});RQ_IDS.forEach(id=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+id))done++;});document.getElementById('ins-prog-count').textContent=done+' / '+TOTAL+' complete';document.getElementById('ins-prog-fill').style.width=Math.round(done/TOTAL*100)+'%';}
+function revealRQ(btn){const card=btn.closest('.rq-card');const ans=card.querySelector('.rq-answer');const ta=card.querySelector('.rq-textarea');const id=card.id.replace('rq-','');ans.style.display=ans.style.display==='none'?'block':'none';btn.textContent=ans.style.display==='none'?'Reveal Answer':'Hide Answer';if(ta.value.trim()){localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);updateProgress();}}
+function initNotes(){const gn=document.getElementById('global-notes');gn.value=localStorage.getItem(PAGE_KEY+'-global-notes')||'';gn.addEventListener('input',()=>localStorage.setItem(PAGE_KEY+'-global-notes',gn.value));Object.keys(SECTIONS).forEach(secId=>{const saved=localStorage.getItem(PAGE_KEY+'-note-'+secId);const ta=document.getElementById('note-'+secId);if(ta&&saved)ta.value=saved;});INSIGHT_IDS.forEach(id=>{const saved=localStorage.getItem(PAGE_KEY+'-soc-'+id);if(saved){const block=document.getElementById(id);if(!block)return;const ta=block.querySelector('.answer-textarea');const btn=block.querySelector('.btn-see-answer');if(ta)ta.value=saved;if(btn)btn.disabled=false;}});}
+function initChecks(){['dhcp','lifecycle','dhcpv6','casestudy','rq'].forEach(id=>{const el=document.getElementById('chk-'+id);if(el)el.checked=!!localStorage.getItem(PAGE_KEY+'-chk-'+id);});}
+document.addEventListener('DOMContentLoaded',()=>{initNotes();initChecks();renderQPanel();updateProgress();document.body.style.opacity='1';sessionStorage.setItem('pt','1');});
 </script>
-</body>
-</html>
+</body></html>

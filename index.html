@@ -78,21 +78,32 @@ main{max-width:1320px;margin:0 auto;padding:44px 60px 80px;}
 .pill-q{background:rgba(26,109,204,.12);color:var(--blue);}
 .pill-f{background:var(--green-light);color:var(--green);}
 .pill-s{background:var(--purple-light);color:var(--purple);}
-.ch-card-links{display:flex;align-items:stretch;gap:7px;max-height:0;opacity:0;padding-top:0;border-top:1px solid transparent;margin-top:auto;flex-direction:column;overflow:hidden;pointer-events:none;transform:translateY(6px);transition:max-height .26s ease,opacity .2s ease,padding-top .26s ease,border-color .26s ease,transform .26s ease;}
-.ch-card:hover .ch-card-links,.ch-card:focus-within .ch-card-links{max-height:132px;opacity:1;padding-top:10px;border-top-color:var(--border-dim);pointer-events:auto;transform:translateY(0);}
-.ch-card-links a{position:relative;display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border:1px solid transparent;border-radius:7px;font-size:10px;font-weight:700;text-decoration:none;letter-spacing:.04em;background-clip:padding-box,border-box;background-origin:border-box;transition:padding .22s cubic-bezier(.25,.8,.25,1),background .22s cubic-bezier(.25,.8,.25,1),color .22s cubic-bezier(.25,.8,.25,1),transform .22s cubic-bezier(.25,.8,.25,1),box-shadow .22s cubic-bezier(.25,.8,.25,1);}
-.ch-card-links a:hover,.ch-card-links a:focus-visible{padding-left:16px;padding-right:16px;transform:translateY(-2px) scale(1.045);outline:none;box-shadow:0 8px 20px rgba(26,109,204,.2),0 0 0 3px rgba(147,197,253,.18);}
-.ch-card-links a:active{transform:translateY(-1px) scale(1.01);box-shadow:0 2px 6px rgba(26,109,204,0.22);transition-duration:.08s;}
-.ch-action{display:flex;align-items:center;gap:7px;width:100%;}
-.ch-action-check{width:14px;height:14px;accent-color:var(--blue);cursor:pointer;flex:0 0 auto;}
-.ch-action a{flex:1;justify-content:center;order:1;}
-.ch-action-check{order:2;}
-.ch-link-full{color:var(--green);background:linear-gradient(var(--green-light),var(--green-light)) padding-box,linear-gradient(135deg,var(--green-border),rgba(26,109,204,.36),rgba(92,53,204,.32)) border-box;}
-.ch-link-full:hover,.ch-link-full:focus-visible{color:#fff;background:linear-gradient(135deg,var(--green),#148a77) padding-box,linear-gradient(135deg,#7dd3fc,#86efac,#c4b5fd) border-box;}
-.ch-link-sg{color:#fff;background:linear-gradient(var(--blue),var(--blue)) padding-box,linear-gradient(135deg,#93c5fd,#c4b5fd,#86efac) border-box;}
-.ch-link-sg:hover,.ch-link-sg:focus-visible{background:linear-gradient(135deg,var(--blue-deep),var(--blue)) padding-box,linear-gradient(135deg,#7dd3fc,#a78bfa,#86efac) border-box;}
-.ch-link-pr{color:var(--purple);background:linear-gradient(var(--purple-light),var(--purple-light)) padding-box,linear-gradient(135deg,rgba(92,53,204,.35),rgba(26,109,204,.34),rgba(26,124,74,.28)) border-box;}
-.ch-link-pr:hover,.ch-link-pr:focus-visible{color:#fff;background:linear-gradient(135deg,var(--purple),#3f6fdc) padding-box,linear-gradient(135deg,#c4b5fd,#7dd3fc,#86efac) border-box;}
+/* ── buttons — always visible, no animation ── */
+.ch-card-links{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-dim);}
+.ch-card-links a{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:7px;border:1px solid transparent;font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.04em;}
+.btn-icon{font-size:12px;}
+.btn-label{flex:1;}
+.btn-arrow{display:none;}
+
+/* Full Study Guide — green */
+.ch-link-full{color:#15803d;background:rgba(26,124,74,.1);border-color:rgba(26,124,74,.22);}
+.ch-link-full:hover{background:rgba(26,124,74,.18);border-color:rgba(26,124,74,.38);}
+
+/* Study Bytes — amber */
+.ch-link-sb{color:#92400e;background:rgba(180,83,9,.1);border-color:rgba(180,83,9,.22);}
+.ch-link-sb:hover{background:rgba(180,83,9,.18);border-color:rgba(180,83,9,.38);}
+
+/* Practice — blue */
+.ch-link-pr{color:#1a5fcc;background:rgba(26,95,204,.1);border-color:rgba(26,95,204,.22);}
+.ch-link-pr:hover{background:rgba(26,95,204,.18);border-color:rgba(26,95,204,.38);}
+
+/* ── action checkbox ── */
+.ch-action{display:flex;align-items:center;gap:6px;width:100%;}
+.ch-action-check{width:14px;height:14px;cursor:pointer;flex:0 0 auto;}
+.ch-action a{flex:1;order:0;}
+.ch-action .ch-action-check{order:1;accent-color:var(--blue);}
+.ch-action:has(.ch-link-full) .ch-action-check{accent-color:#16a05f;}
+.ch-action:has(.ch-link-sb)   .ch-action-check{accent-color:#d97706;}
 
 /* ── FOOTER ── */
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
@@ -165,9 +176,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-01-world-of-network-analysis/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-01-world-of-network-analysis/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-01-world-of-network-analysis/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-01-world-of-network-analysis/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-01-world-of-network-analysis/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-01-world-of-network-analysis/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch02-intro" data-chkkeys="chk-interface,chk-packetlist,chk-details,chk-menus">
@@ -183,9 +194,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-02-introduction-to-wireshark/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-02-introduction-to-wireshark/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-02-introduction-to-wireshark/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-02-introduction-to-wireshark/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-02-introduction-to-wireshark/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-02-introduction-to-wireshark/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch03-capture" data-chkkeys="chk-interfaces,chk-options,chk-controls,chk-techniques">
@@ -201,9 +212,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-03-capture-traffic/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-03-capture-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-03-capture-traffic/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-03-capture-traffic/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-03-capture-traffic/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-03-capture-traffic/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch04-capfilters" data-chkkeys="chk-overview,chk-bpf,chk-combining,chk-examples">
@@ -219,9 +230,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-04-capture-filters/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-04-capture-filters/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-04-capture-filters/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-04-capture-filters/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-04-capture-filters/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-04-capture-filters/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch05-prefs" data-chkkeys="chk-prefsoverview,chk-columns,chk-nameresolution,chk-protocolprefs">
@@ -237,9 +248,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-05-preferences/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-05-preferences/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-05-preferences/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-05-preferences/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-05-preferences/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-05-preferences/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch06-colorize" data-chkkeys="chk-coloroverview,chk-defaultrules,chk-customrules,chk-coloranalysis">
@@ -255,9 +266,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-06-colorize-traffic/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-06-colorize-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-06-colorize-traffic/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-06-colorize-traffic/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-06-colorize-traffic/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-06-colorize-traffic/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch07-time" data-chkkeys="chk-timeformats,chk-reference,chk-delta,chk-summaries">
@@ -273,9 +284,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-07-time-values/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-07-time-values/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-07-time-values/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-07-time-values/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-07-time-values/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-07-time-values/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch08-stats" data-chkkeys="chk-hierarchy,chk-conversations,chk-iographs,chk-flowgraph">
@@ -291,9 +302,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-08-trace-statistics/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-08-trace-statistics/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-08-trace-statistics/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-08-trace-statistics/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-08-trace-statistics/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-08-trace-statistics/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch09-dispfilters" data-chkkeys="chk-basics,chk-syntax,chk-commonfilters,chk-filtertools">
@@ -309,9 +320,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-09-display-filters/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-09-display-filters/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-09-display-filters/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-09-display-filters/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-09-display-filters/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-09-display-filters/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch10-streams" data-chkkeys="chk-tcpstream,chk-udpstream,chk-ssl,chk-streamanalysis">
@@ -327,9 +338,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-10-follow-streams/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-10-follow-streams/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-10-follow-streams/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-10-follow-streams/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-10-follow-streams/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-10-follow-streams/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch11-profiles" data-chkkeys="chk-profileoverview,chk-managing,chk-profilecontents,chk-sharing">
@@ -345,9 +356,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-11-customize-profiles/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-11-customize-profiles/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-11-customize-profiles/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-11-customize-profiles/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-11-customize-profiles/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-11-customize-profiles/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch12-annotate" data-chkkeys="chk-comments,chk-saving,chk-export,chk-print">
@@ -363,9 +374,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-12-annotate-export/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-12-annotate-export/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-12-annotate-export/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-12-annotate-export/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-12-annotate-export/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-12-annotate-export/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch13-expert" data-chkkeys="chk-expertoverview,chk-severity,chk-eventgroups,chk-expertfilters">
@@ -381,9 +392,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-13-expert-system/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-13-expert-system/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-13-expert-system/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-13-expert-system/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-13-expert-system/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-13-expert-system/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
   </div>
@@ -408,9 +419,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-14-tcp-ip-overview/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-14-tcp-ip-overview/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-14-tcp-ip-overview/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-14-tcp-ip-overview/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-14-tcp-ip-overview/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-14-tcp-ip-overview/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch15-dns" data-chkkeys="chk-purpose,chk-queries,chk-problems,chk-structure,chk-filtering,chk-casestudy">
@@ -426,9 +437,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">6 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-15-dns/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-15-dns/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-15-dns/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-15-dns/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-15-dns/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-15-dns/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch16-arp" data-chkkeys="chk-purpose,chk-normal,chk-gratuitous,chk-problems,chk-filtering">
@@ -444,9 +455,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">5 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-16-arp/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-16-arp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-16-arp/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-16-arp/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-16-arp/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-16-arp/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch17-ip" data-chkkeys="chk-ipv4-header,chk-fragmentation,chk-dscp,chk-ipv6,chk-ip-filtering">
@@ -462,9 +473,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">5 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-17-ip-traffic/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-17-ip-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-17-ip-traffic/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-17-ip-traffic/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-17-ip-traffic/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-17-ip-traffic/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch18-icmp" data-chkkeys="chk-purpose,chk-types,chk-ping,chk-traceroute,chk-icmpv6">
@@ -480,9 +491,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">5 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-18-icmp/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-18-icmp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-18-icmp/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-18-icmp/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-18-icmp/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-18-icmp/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch19-udp" data-chkkeys="chk-structure,chk-applications,chk-problems,chk-filtering">
@@ -498,9 +509,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-19-udp/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-19-udp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-19-udp/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-19-udp/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-19-udp/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-19-udp/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch20-tcp" data-chkkeys="chk-header,chk-handshake,chk-sequence,chk-windowing,chk-problems,chk-teardown">
@@ -516,9 +527,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">6 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-20-tcp/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-20-tcp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-20-tcp/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-20-tcp/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-20-tcp/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-20-tcp/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
   </div>
@@ -543,9 +554,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-21-io-graphs/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-21-io-graphs/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-21-io-graphs/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-21-io-graphs/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-21-io-graphs/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-21-io-graphs/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch22-dhcp" data-chkkeys="chk-dora,chk-header,chk-options,chk-troubleshoot">
@@ -561,9 +572,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-22-dhcp/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-22-dhcp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-22-dhcp/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-22-dhcp/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-22-dhcp/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-22-dhcp/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch23-http" data-chkkeys="chk-httprequest,chk-methods,chk-httpheaders,chk-http2">
@@ -579,9 +590,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-23-http/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-23-http/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-23-http/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-23-http/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-23-http/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-23-http/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch24-ftp" data-chkkeys="chk-ftpoverview,chk-activevpassive,chk-ftpcommands,chk-ftpanalysis">
@@ -597,9 +608,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-24-ftp/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-24-ftp/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-24-ftp/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-24-ftp/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-24-ftp/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-24-ftp/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch25-email" data-chkkeys="chk-smtp,chk-pop3,chk-imap,chk-emailanalysis">
@@ -615,9 +626,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-25-email/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-25-email/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-25-email/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-25-email/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-25-email/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-25-email/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch26-wlan" data-chkkeys="chk-wlanoverview,chk-frametypes,chk-wlanassoc,chk-wlananalysis">
@@ -633,9 +644,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-26-wlan/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-26-wlan/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-26-wlan/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-26-wlan/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-26-wlan/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-26-wlan/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch27-voip" data-chkkeys="chk-voipstack,chk-sipflow,chk-rtp,chk-voiptools">
@@ -651,9 +662,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-27-voip/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-27-voip/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-27-voip/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-27-voip/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-27-voip/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-27-voip/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch28-baseline" data-chkkeys="chk-whybaseline,chk-whatbaseline,chk-normalmetrics,chk-capturingbaseline">
@@ -669,9 +680,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-28-baseline-traffic/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-28-baseline-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-28-baseline-traffic/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-28-baseline-traffic/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-28-baseline-traffic/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-28-baseline-traffic/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
   </div>
@@ -696,9 +707,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-29-performance-problems/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-29-performance-problems/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-29-performance-problems/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-29-performance-problems/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-29-performance-problems/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-29-performance-problems/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch30-forensics" data-chkkeys="chk-forensicsoverview,chk-preservation,chk-reconstruction,chk-attackerid">
@@ -714,9 +725,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-30-network-forensics/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-30-network-forensics/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-30-network-forensics/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-30-network-forensics/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-30-network-forensics/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-30-network-forensics/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch31-scanning" data-chkkeys="chk-scantypes,chk-tcppatterns,chk-osfingerprint,chk-scandetect">
@@ -732,9 +743,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-31-network-scanning/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-31-network-scanning/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-31-network-scanning/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-31-network-scanning/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-31-network-scanning/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-31-network-scanning/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch32-suspect" data-chkkeys="chk-malwareindicators,chk-botnet,chk-exfiltration,chk-dnsanomalies">
@@ -750,9 +761,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-32-suspect-traffic/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-32-suspect-traffic/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-32-suspect-traffic/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-32-suspect-traffic/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-32-suspect-traffic/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-32-suspect-traffic/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
     <div class="ch-card" data-pagekey="ws-ch33-cmdline" data-chkkeys="chk-tshark,chk-tsharkfilters,chk-editcapmergecap,chk-capinfodumpcap">
@@ -768,9 +779,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
         <span class="pill-s">4 sections</span>
       </div>
       <div class="ch-card-links">
-        <a href="HTML Files/chapter-33-command-line-tools/study-guide-full.html" class="ch-link-full">📚 Full Study Guide</a>
-        <a href="HTML Files/chapter-33-command-line-tools/study-guide.html" class="ch-link-sg">📖 Study Guide</a>
-        <a href="HTML Files/chapter-33-command-line-tools/index.html" class="ch-link-pr">❓ Practice</a>
+        <a href="HTML Files/chapter-33-command-line-tools/study-guide-full.html" class="ch-link-full"><span class="btn-icon">📚</span><span class="btn-label">Full Study Guide</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-33-command-line-tools/study-byte.html" class="ch-link-sb"><span class="btn-icon">⚡</span><span class="btn-label">Study Bytes</span><span class="btn-arrow">→</span></a>
+        <a href="HTML Files/chapter-33-command-line-tools/study-guide.html" class="ch-link-pr"><span class="btn-icon">🎯</span><span class="btn-label">Practice</span><span class="btn-arrow">→</span></a>
       </div>
     </div>
   </div>
@@ -788,8 +799,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:16p
 const CHAPTER_CARDS = document.querySelectorAll('.ch-card[data-pagekey]');
 const ACTION_TYPES = [
   { cls: 'ch-link-full', key: 'full-study-guide' },
-  { cls: 'ch-link-sg', key: 'study-guide' },
-  { cls: 'ch-link-pr', key: 'practice' }
+  { cls: 'ch-link-sb',   key: 'study-bytes' },
+  { cls: 'ch-link-pr',   key: 'practice' }
 ];
 
 function renderDots(card) {

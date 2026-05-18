@@ -2,345 +2,436 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 23: Analyze HTTP Traffic | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
-html.pt-init body{opacity:0;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-a{color:var(--blue);text-decoration:none;}
-header{padding:40px 60px 32px;background:var(--text);display:flex;align-items:flex-end;gap:32px;}
-.header-left{flex:1;}
-.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;flex-wrap:wrap;}
-.breadcrumb a{color:#60a5fa;text-decoration:none;}
-.breadcrumb a:hover{text-decoration:underline;}
-.breadcrumb-sep{color:rgba(255,255,255,0.2);}
-.header-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:5px 14px;border-radius:20px;font-size:11px;color:#93c5fd;letter-spacing:.08em;margin-bottom:14px;}
-.dot-live{width:6px;height:6px;background:#93c5fd;border-radius:50%;display:inline-block;animation:blink 2.4s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-h1{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1.05;color:#fff;margin-bottom:10px;}
-h1 em{font-style:italic;font-weight:400;color:#93c5fd;}
-header p{font-size:13px;color:rgba(255,255,255,0.42);margin-top:10px;line-height:1.7;}
-.motivation-banner{padding:20px 60px;min-height:84px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface);}
-.motivation-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);}
-.motivation-text em{font-style:italic;color:var(--blue);}
-.motivation-sub{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
-.top-panels{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.top-panels .qpanel{border-right:1px solid var(--border);}
-.qpanel,.notes-panel{background:var(--surface);}
-.qpanel-header,.notes-panel-header{width:100%;display:flex;align-items:center;gap:12px;padding:13px 32px;cursor:pointer;background:var(--surface);border:none;font-family:'Epilogue',sans-serif;text-align:left;}
-.qpanel-header:hover,.qpanel-header.open,.notes-panel-header:hover,.notes-panel-header.open{background:var(--surface-2);}
-.qpanel-title,.notes-panel-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--text);}
-.qpanel-count,.notes-panel-count{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:none;}
-.qpanel-hint,.notes-panel-hint{font-size:11px;color:var(--text-muted);margin-left:4px;}
-.qpanel-chevron,.notes-panel-chevron{margin-left:auto;font-size:13px;color:var(--text-muted);}
-.qpanel-body,.notes-panel-body{display:none;padding:0 32px 22px;}
-.qpanel-body.open,.notes-panel-body.open{display:block;}
-.no-questions{font-size:12px;color:var(--text-muted);padding:12px 0;}
-.q-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.q-item:last-child{border-bottom:none;}
-.q-num{flex-shrink:0;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:2px;}
-.q-text{font-size:12px;color:var(--text-soft);line-height:1.55;flex:1;}
-.q-del{flex-shrink:0;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 4px;}
-.q-del:hover{color:var(--red);}
-.section-nav{position:sticky;top:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
-.nav-tab{display:inline-flex;align-items:center;padding:12px 18px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Epilogue',sans-serif;transition:color .15s,border-color .15s;}
-.nav-tab:hover{color:var(--text);}
-.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;}
-.main-content{min-width:0;}
-.section-block{margin-bottom:8px;}
-.section-block h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.2;padding-top:12px;border-top:2px solid var(--border);margin-top:32px;}
-.section-block h2:first-child{margin-top:0;padding-top:0;border-top:none;}
-.section-block h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);margin:18px 0 8px;}
-.section-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
-.section-block ul,.section-block ol{padding-left:20px;margin:10px 0 14px;}
-.section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.section-block strong{color:var(--text);font-weight:600;}
-code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
-.section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
-.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
-.callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
-.callout-amber{background:var(--amber-light);border:1px solid var(--amber-border);border-left:3px solid var(--amber);}
-.callout-green{background:var(--green-light);border:1px solid var(--green-border);border-left:3px solid var(--green);}
-.callout-red{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);}
-.callout strong{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
-.callout-blue strong{color:var(--blue);}
-.callout-amber strong{color:var(--amber);}
-.callout-green strong{color:var(--green);}
-.callout-red strong{color:var(--red);}
-.mental-note-block{border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;background:var(--blue-glow);border:1px solid var(--border);}
-.mental-note-block-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.mental-note-block-inner{flex:1;}
-.mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
-.mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
-.insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
-.insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
-.insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
-.insight-block.ins-open .insight-hdr::after{content:'▾ Collapse';}
-.insight-block:not(.ins-open) .ins-body{display:none;}
-.ins-icon{font-size:17px;flex-shrink:0;}
-.ins-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);}
-.ins-body{padding:0 20px 18px;}
-.ins-q{font-size:13px;color:var(--text-soft);line-height:1.75;margin-bottom:12px;font-style:italic;padding-top:4px;}
-.ins-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.ins-ta:focus{border-color:var(--blue);}
-.ins-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
-.ins-btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
-.btn-save-ins{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-save-ins:hover:not(:disabled){opacity:.85;}
-.btn-save-ins:disabled{opacity:.5;cursor:not-allowed;}
-.btn-hint-ins{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-hint-ins:hover{background:var(--amber-light);}
-.btn-model-ins{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-model-ins:disabled{opacity:.4;cursor:not-allowed;}
-.btn-model-ins:not(:disabled):hover{opacity:.85;}
-.ins-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
-.ins-hint-box .hm-label{color:var(--amber);}
-.ins-model-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-.ins-model-box .hm-label{color:var(--blue);}
-.ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
-.ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
-.hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
-.fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
-.fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
-.fig-trace{color:var(--blue);font-style:italic;}
-.case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
-.cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
-.cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.cs-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic;}
-.cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
-.cs-body ul{padding-left:20px;margin:8px 0 14px;}
-.cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{width:min(520px,100%);margin:16px auto;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);transition:width .18s ease,box-shadow .18s ease;}
-.cs-img-inline.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.cs-img-wrap{background:#1e293b;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.cs-img-inline.fig-expanded .cs-img-wrap{cursor:zoom-out;}
-.cs-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.cs-img-inline.fig-expanded .cs-img-wrap img{max-height:none;width:100%;}
-.cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
-.cs-ph-icon{font-size:40px;display:block;}
-.cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
-.cs-prompt-row{padding:8px 14px;border-top:1px solid var(--border-dim);background:var(--surface-2);}
-.btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
-.btn-cs-prompt:hover{color:var(--blue);}
-.cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
-.rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
-.rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
-.rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-.rq-q{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;}
-.rq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Epilogue',sans-serif;resize:vertical;min-height:80px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;}
-.rq-ta:focus{border-color:var(--blue);}
-.rq-ta:disabled{opacity:.7;background:var(--surface-2);cursor:default;}
-.rq-btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.btn-rq-save{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-save:hover:not(:disabled){opacity:.85;}
-.btn-rq-save:disabled{opacity:.5;cursor:not-allowed;}
-.btn-rq-hint{background:var(--surface);color:var(--amber);border:1px solid var(--amber-border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-hint:hover{background:var(--amber-light);}
-.btn-rq-ans{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-rq-ans:disabled{opacity:.4;cursor:not-allowed;}
-.btn-rq-ans:not(:disabled):hover{opacity:.85;}
-.rq-hint-box{margin-top:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;}
-.rq-hint-box .hm-label{color:var(--amber);}
-.rq-hint-box p{font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:8px;}
-.rq-hint-box p:last-child{margin-bottom:0;}
-.rq-ans-box{margin-top:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
-.rq-ans-box .hm-label{color:var(--blue);}
-.rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
-.rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
-.sidebar{position:sticky;top:60px;}
-.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
-.sidebar-nav-links{display:flex;flex-direction:column;gap:6px;}
-.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
-.sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
-.sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
-.quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
-.qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
-.qr-row:last-child{border-bottom:none;}
-.qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
-.qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
-.practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
-.btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
-.btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
-.practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
-</style>
-</head>
-<body>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../study-guide.css"></head><body>
 <header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 23<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 23</div>
-<h1>Analyze Hypertext Transfer Protocol <em>(HTTP) Traffic</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
+  <div class="header-inner">
+    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> &rsaquo; <a href="../../index.html">Study Guides</a> &rsaquo; Chapter 23</div>
+    <div class="eyebrow-row"><span class="eyebrow-chip">CHAPTER 23</span><span class="animated-dot"></span></div>
+    <h1>Analyze HTTP <em>&amp; HTTPS</em> Traffic</h1>
+    <div class="header-sub">Request/response model, status codes, TLS handshake, and decryption</div>
+  </div>
 </header>
 <div class="motivation-banner">
-<div class="motivation-text"> <em>HTTP is the language of the web — every click, every GET, every 404 is a story to decode.</em></div>
-<p class="motivation-sub">Master HTTP analysis and you can diagnose slow web apps, detect proxy issues, and decrypt HTTPS sessions.</p>
+  <div class="motivation-text"><em>"HTTP is the language of the web &mdash; and everything from slow page loads to security failures is visible in the plaintext request/response stream."</em></div>
+  <div class="motivation-sub">Diagnose web browsing problems and analyze TLS handshakes</div>
 </div>
 <div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  <div class="q-panel" id="q-panel">
+    <div class="q-panel-header" onclick="toggleQPanel()"><span>&#x1F4AD; My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">&#9662;</span></div>
+    <div class="q-panel-body" id="q-panel-body"><div id="q-list"></div><div class="q-empty" id="q-empty">No questions yet.</div></div>
+  </div>
+  <div class="note-panel" id="note-panel">
+    <div class="note-panel-header">&#x1F4DD; My Notes</div>
+    <div class="note-panel-body"><textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights..."></textarea></div>
+  </div>
 </div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
-<nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of HTTP</button><button class="nav-tab" data-target="sec-normal" onclick="navTo('sec-normal')">Normal HTTP Traffic</button><button class="nav-tab" data-target="sec-methods" onclick="navTo('sec-methods')">HTTP Methods & Codes</button><button class="nav-tab" data-target="sec-structure" onclick="navTo('sec-structure')">HTTP Packet Structure</button><button class="nav-tab" data-target="sec-statistics" onclick="navTo('sec-statistics')">HTTP Statistics</button><button class="nav-tab" data-target="sec-https" onclick="navTo('sec-https')">HTTPS & TLS</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+<nav class="section-nav" id="section-nav">
+  <button class="nav-tab active" onclick="navTo('sec-http')">HTTP Basics</button>
+  <button class="nav-tab" onclick="navTo('sec-methods')">Methods &amp; Codes</button>
+  <button class="nav-tab" onclick="navTo('sec-https')">HTTPS / TLS</button>
+  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
 </nav>
 <main>
-<div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF HTTP</span></div><div class="ins-body"><p class="ins-q">HTTP is a request/response protocol. The client sends a request, the server sends a response. HTTP uses TCP — but what's the trade-off of using a new TCP connection for every HTTP object? How did HTTP 1.1 Persistent Connections and HTTP Pipelining address this?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about the overhead of a TCP three-way handshake for every small image on a web page with 50 images.</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Each new TCP connection requires a three-way handshake (3 packets) plus slow start. A 1990s-era web page with 50 images would need 50 handshakes = 150 overhead packets before any data! HTTP 1.1 introduced Persistent Connections (keep-alive) — the TCP connection stays open for multiple requests. HTTP Pipelining allows sending multiple requests without waiting for each response. Modern browsers open several persistent connections in parallel to different servers to further parallelize downloads. HTTP/2 (not in this book) uses multiplexing over a single connection.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of HTTP</h2><p>HTTP (HyperText Transfer Protocol) uses a request/response model to transfer data between hosts. HTTP communications use TCP as the transport mechanism — the most commonly used HTTP port number is 80. HTTP is defined in RFC 2616.</p><p>Clients send commands such as GET and POST to the HTTP server. HTTP servers respond with a numerical response code followed by data. Response codes greater than 399 identify client and server errors.</p><div class="callout callout-blue"><strong>HTTP RESPONSE CODE RANGES</strong><ul><li><strong>1xx — Informational</strong>: Request received, continuing process</li><li><strong>2xx — Success</strong>: Request successfully received, understood, and accepted. 200 OK most common</li><li><strong>3xx — Redirection</strong>: Further action needed. 301 Moved Permanently, 302 Found (temp redirect), 304 Not Modified (cache)</li><li><strong>4xx — Client Error</strong>: Bad request syntax or cannot fulfill. 400 Bad Request, 404 Not Found, 403 Forbidden</li><li><strong>5xx — Server Error</strong>: Server failed to fulfill apparently valid request. 500 Internal Server Error, 502 Bad Gateway, 503 Service Unavailable</li></ul></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">HTTP = RFC 2616. TCP port 80. Request/response. Client sends GET/POST, server sends status code + data. 2xx=success, 3xx=redirect, 4xx=client error, 5xx=server error. 200=OK, 304=cache hit, 404=not found, 500=server error. HTTP filter shows only application data (not TCP handshake).</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of HTTP')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-normal"><div class="insight-hdr" onclick="toggleInsight('ins-normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL HTTP TRAFFIC</span></div><div class="ins-body"><p class="ins-q">When a client loads a web page, the first object downloaded is the HTML page, which references many other objects (CSS, JS, images). A web page that appears to load slowly might actually have good network performance to the primary server but be slow due to dependencies on third-party servers. How would you prove this in Wireshark?</p><textarea class="ins-ta" data-key="ins-normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-normal" onclick="saveIns('ins-normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-normal" onclick="toggleInsModel('ins-normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-normal" style="display:none"><div class="hm-label">HINT</div><p>Think about the HTTP Load Distribution statistic and the Flow Graph — how do they help identify which server is causing the delay?</p></div><div class="ins-model-box" id="model-ins-normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Use Statistics | HTTP | HTTP Load Distribution to see all servers contacted and the count of requests to each. Sort by count or by server — a slow third-party server (like an ad network) will show up as having high response times or missing entirely. The Flow Graph shows a timeline column for each server — you can see which server column shows delays. Click a packet in the Flow Graph to jump to that exact packet. A simple browse of www.espn.com contacts 35+ different servers — each with its own TCP handshake and potential for adding latency.</p></div></div></div><div class="section-block" id="sec-normal"><h2>Analyze Normal HTTP Traffic</h2><h3>HTTP Request Process</h3><p>Normal HTTP traffic shows a predictable pattern: TCP three-way handshake → HTTP GET request → HTTP response → possibly more GET requests for embedded objects.</p><p>When analyzing HTTP communications, watch for the <strong>If-Modified-Since</strong> request modifier. This indicates the client has a page in cache. If the server responds with code <strong>304 Not Modified</strong>, the client loads the page from cache instead of across the network — this will significantly affect web loading time analysis.</p><div class="callout callout-green"><strong>304 NOT MODIFIED = CACHE HIT</strong><p>If a client frequently gets 304 Not Modified responses, it's loading content from cache. This is efficient but may hide the true download time. When benchmarking web page performance, clear the browser cache first so you see the actual download times. Filter: <code>http.response.code==304</code></p></div><h3>Analyze Slow HTTP Sessions</h3><p>Slow web browsing sessions can be caused by:</p><ul><li>TCP problems (retransmissions, window zero conditions)</li><li>Interdependencies on third-party sites (advertisers, CDNs, analytics)</li><li>Non-optimized web sites with many small objects requiring many TCP connections</li><li>High server response times (time between HTTP request and first response byte)</li></ul><p>Wireshark enables you to rebuild web pages and export HTTP objects (File | Export Objects | HTTP) to examine what was downloaded.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">If-Modified-Since = cache check. 304 Not Modified = load from cache. Slow web = check TCP problems first, then check third-party dependencies. Statistics | HTTP | Load Distribution shows all servers contacted. File | Export Objects | HTTP to extract downloaded files.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal HTTP Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-methods"><div class="insight-hdr" onclick="toggleInsight('ins-methods')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · HTTP METHODS & RESPONSE CODES</span></div><div class="ins-body"><p class="ins-q">HTTP clients use GET to retrieve data and POST to send data to the server. POST is commonly used for form submissions and file uploads. What display filter would you use to filter only HTTP POST requests? And how would you filter all HTTP server errors (5xx range)?</p><textarea class="ins-ta" data-key="ins-methods" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-methods" onclick="saveIns('ins-methods')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-methods')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-methods" onclick="toggleInsModel('ins-methods')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-methods" style="display:none"><div class="hm-label">HINT</div><p>Think about the specific Wireshark HTTP display filter fields for request method and response code.</p></div><div class="ins-model-box" id="model-ins-methods" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Filter POST requests: <code>http.request.method==POST</code>. Filter all 5xx server errors: <code>http.response.code>=500</code>. Filter all 4xx client errors: <code>http.response.code>=400 &amp;&amp; http.response.code&lt;500</code>. The HTTP request command filter <code>http.request.method</code> accepts: GET, POST, HEAD, PUT, DELETE, OPTIONS, TRACE, CONNECT. POST is used to submit form data and upload files — POST request bodies contain the data being sent to the server and can be read in plaintext (if not HTTPS).</p></div></div></div><div class="section-block" id="sec-methods"><h2>HTTP Methods & Response Codes</h2><h3>Common HTTP Request Methods</h3><ul><li><strong>GET</strong>: Retrieve a resource from the server</li><li><strong>POST</strong>: Send data to the server (form submissions, file uploads). Data is in the request body.</li><li><strong>HEAD</strong>: Same as GET but only returns headers — check if resource exists/changed without downloading it</li><li><strong>PUT</strong>: Upload a file to the server</li><li><strong>DELETE</strong>: Delete a resource on the server</li><li><strong>OPTIONS</strong>: Request supported methods for a resource (CORS preflight)</li></ul><h3>Key HTTP Response Codes</h3><ul><li><strong>200 OK</strong>: The desired page was located successfully</li><li><strong>301 Moved Permanently</strong>: Resource has permanently moved — update bookmarks</li><li><strong>302 Found</strong>: Temporary redirect</li><li><strong>304 Not Modified</strong>: Cached version is current — load from cache</li><li><strong>400 Bad Request</strong>: Server can't understand the request</li><li><strong>401 Unauthorized</strong>: Authentication required</li><li><strong>403 Forbidden</strong>: Server refuses to authorize</li><li><strong>404 Not Found</strong>: Resource doesn't exist — categorized as CLIENT error (even if caused by broken server link)</li><li><strong>500 Internal Server Error</strong>: Server-side error</li><li><strong>502 Bad Gateway</strong>: Proxy received invalid response from upstream server</li><li><strong>503 Service Unavailable</strong>: Server temporarily unable to handle requests</li></ul><div class="callout callout-amber"><strong>404 IS A CLIENT ERROR</strong><p>HTTP 404 Not Found is categorized as a <strong>4xx client error</strong> — even though it's often caused by a broken link on the server (the server itself is running fine). This can be counterintuitive. Use filter <code>http.response.code==404</code> to find all 404 errors in a trace.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">HTTP methods: GET (retrieve), POST (send data), HEAD (headers only). Response codes: 200=OK, 301/302=redirect, 304=cache, 404=not found (CLIENT error), 500=server error. Filter: http.request.method==POST. Avoid http filter if you want to see TCP handshake — use tcp.port==80 instead.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-methods" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('methods','HTTP Methods & Codes')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-methods" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('methods')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-structure"><div class="insight-hdr" onclick="toggleInsight('ins-structure')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · HTTP PACKET STRUCTURE</span></div><div class="ins-body"><p class="ins-q">HTTP is a text-based protocol — requests and responses are human-readable. When you use the http display filter, you only see packets with HTTP content. But a web browsing session also has TCP handshake packets and TCP ACKs. What filter should you use to see the COMPLETE HTTP conversation including the TCP handshake?</p><textarea class="ins-ta" data-key="ins-structure" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-structure" onclick="saveIns('ins-structure')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-structure')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-structure" onclick="toggleInsModel('ins-structure')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-structure" style="display:none"><div class="hm-label">HINT</div><p>Think about what the http filter does — it only shows packets that the HTTP dissector recognizes. What about the underlying TCP packets?</p></div><div class="ins-model-box" id="model-ins-structure" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The <code>http</code> display filter will not display the TCP handshake or the TCP ACKs during the session. Use <code>tcp.port==80</code> to view the entire HTTP conversation including handshake and all TCP control packets. This is important when diagnosing connection issues — you need to see the SYN, SYN/ACK, ACK sequence to know if the connection was established. Use <code>http.host==www.wireshark.org</code> to apply a display filter on HTTP statistics for a specific host.</p></div></div></div><div class="section-block" id="sec-structure"><h2>HTTP Packet Structure</h2><h3>HTTP Request Format</h3><p>HTTP requests follow a simple text format. A GET request packet contains:</p><ul><li><strong>Request line</strong>: Method + URI + HTTP version (e.g., <code>GET / HTTP/1.1</code>)</li><li><strong>Request headers</strong>: Host, User-Agent, Accept, Accept-Language, Connection, If-Modified-Since, Cookie, etc.</li><li><strong>Empty line</strong>: Separates headers from body</li><li><strong>Request body</strong> (optional): Used in POST requests to send data</li></ul><h3>HTTP Response Format</h3><ul><li><strong>Status line</strong>: HTTP version + status code + reason (e.g., <code>HTTP/1.1 200 OK</code>)</li><li><strong>Response headers</strong>: Content-Type, Content-Length, Server, Date, Set-Cookie, Cache-Control, etc.</li><li><strong>Empty line</strong></li><li><strong>Response body</strong>: The requested content (HTML, images, etc.)</li></ul><h3>Follow TCP Stream</h3><p>Right-click any HTTP packet and select <strong>Follow TCP Stream</strong> to view the complete HTTP conversation in human-readable format. This shows both the client request and server response. Use <strong>Follow SSL Stream</strong> for HTTPS (if you have the decryption key).</p><div class="callout callout-blue"><strong>EXPORT HTTP OBJECTS</strong><p>Select <strong>File | Export Objects | HTTP</strong> to view all objects downloaded from a web session and save them. Wireshark reassembles the TCP stream and extracts each HTTP object. Remember to enable TCP reassembly (TCP preference: Allow subdissector to reassemble TCP streams) before trying to export objects.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">HTTP = text-based, human readable. Request: Method URI version + headers. Response: version status-code reason + headers + body. Follow TCP Stream: right-click → Follow TCP Stream. Export objects: File | Export Objects | HTTP. To see TCP handshake: use tcp.port==80, NOT http filter.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-structure" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('structure','HTTP Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-structure" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('structure')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-statistics"><div class="insight-hdr" onclick="toggleInsight('ins-statistics')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · HTTP STATISTICS</span></div><div class="ins-body"><p class="ins-q">The HTTP Load Distribution statistic reveals website dependencies. If you browse www.espn.com and create an HTTP Load Distribution report, what would the different rows represent? Why would a web page that appears slow show mostly 2xx response codes in the HTTP Packet Counter?</p><textarea class="ins-ta" data-key="ins-statistics" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-statistics" onclick="saveIns('ins-statistics')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-statistics')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-statistics" onclick="toggleInsModel('ins-statistics')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-statistics" style="display:none"><div class="hm-label">HINT</div><p>Think about what 'slow' means — is it errors, or is it third-party dependencies that are slow to respond?</p></div><div class="ins-model-box" id="model-ins-statistics" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Each row in HTTP Load Distribution = one server contacted during the browsing session. A single browse of espn.com shows 35+ different servers — CDNs, ad networks, analytics providers, font servers. 'Slow' pages often show clean 2xx responses but have many server dependencies — each requires its own TCP handshake. The HTTP Packet Counter shows request/response types (200, 301, 302, 404 counts). A high number of 3xx redirections adds extra round trips per redirect. The Flow Graph shows the timeline column per server — find which column has delays.</p></div></div></div><div class="section-block" id="sec-statistics"><h2>HTTP Statistics & Flow Graphs</h2><h3>Display HTTP Statistics</h3><p>Wireshark tracks HTTP statistics for load distribution, packet counters, and HTTP requests. Select <strong>Statistics | HTTP</strong>.</p><h3>HTTP Load Distribution</h3><p>HTTP Load Distribution lists the HTTP requests and responses by server. Expanding the HTTP Requests by HTTP Host section lists the hosts contacted and the number of request packets sent to each one. This statistic is excellent for determining web site redirections and dependencies. A simple browsing session to www.espn.com may contact 35 different servers — it is easy to understand why such sites are slow to load.</p><h3>HTTP Packet Counter</h3><p>When analyzing HTTP communications, the HTTP Packet Counter is invaluable because it lists the Status Code responses. Spotting 4xx Client Error or 5xx Server Error responses is simple. Use this to quickly find: count of 200 OK, 301 redirections, 404 errors, 500 server errors.</p><h3>HTTP Requests</h3><p>HTTP Requests lists each item requested of each HTTP server — useful for seeing exactly which URLs were requested and how often. You can apply a display filter to the statistics for specific host analysis.</p><h3>Graph HTTP Traffic Flows</h3><p>Flow Graphs (Statistics | Flow Graph) provide a visual representation of the communications that occur during an HTTP session. Each target host is listed in a column and every packet is listed in a row. This is an ideal statistic window to open when troubleshooting slow web browsing sessions — you can see at a glance which server is causing delays.</p><p>Flow Graph options: All Packets or Displayed Packets; General Flow or TCP Flow; Standard source/destination addresses.</p><div class="callout callout-green"><strong>CREATE A FLOW GRAPH TO SPOT WEB SITE DEPENDENCIES</strong><p>Consider creating a Flow Graph based on your web browsing traffic. Capture your own browsing traffic to a popular website and notice the number of columns created because of other linked servers. Each column = one server. A column that shows long gaps between the request arrow and the response arrow = a slow dependency. Click the corresponding packet description to jump to that point in the trace file.</p></div><h3>Set HTTP Preferences</h3><p>HTTP Preferences (Edit → Preferences → Protocols → HTTP) allow you to: configure TCP Ports list (for non-standard HTTP ports), set SSL/TLS port for HTTPS traffic, enable/disable header reassembly, uncompress entity bodies (gzip/deflate), and set custom HTTP header fields.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">HTTP Statistics: Load Distribution (servers contacted + request counts), Packet Counter (status code breakdown), Requests (URL list). Flow Graph: Timeline per server — find the slow column. To see HTTP for specific host: http.host==www.example.com. Remember TCP reassembly must be enabled for Export Objects to work.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-statistics" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('statistics','HTTP Statistics')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-statistics" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('statistics')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-https"><div class="insight-hdr" onclick="toggleInsight('ins-https')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · HTTPS & TLS</span></div><div class="ins-body"><p class="ins-q">HTTPS uses TLS to create an encrypted channel over TCP port 443. The TLS handshake occurs AFTER the TCP handshake. During the TLS Client Hello, the client sends a list of cipher suites it supports. Which side selects the actual cipher suite? What is the filter to see only TLS handshake packets?</p><textarea class="ins-ta" data-key="ins-https" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-https" onclick="saveIns('ins-https')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-https')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-https" onclick="toggleInsModel('ins-https')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-https" style="display:none"><div class="hm-label">HINT</div><p>Think about the TLS handshake sequence: Client Hello → Server Hello + Certificate + Server Hello Done → Client Key Exchange + Change Cipher Spec → Server Change Cipher Spec → Encrypted data.</p></div><div class="ins-model-box" id="model-ins-https" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The <strong>SERVER selects the cipher suite</strong> from the client's list — the server chooses the cipher it prefers from what the client offered. Filter for TLS handshake packets: <code>ssl.record.content_type==22</code>. The TLS handshake includes: Client Hello (client's cipher suites list, random bytes, session ID), Server Hello + Certificate (server's chosen cipher, its certificate, 28 random bytes), Client Key Exchange (encrypted premaster secret), Change Cipher Spec (all future messages encrypted). To decrypt: you need the server's RSA private key, configure it in SSL preferences under RSA Keys List.</p></div></div></div><div class="section-block" id="sec-https"><h2>Analyze HTTPS Communications</h2><p>Your web browsing analysis will likely include HTTPS communications. At the start of a secure HTTP conversation, a standard TCP handshake is executed followed by a secure handshake process.</p><p>RFC 2818 defines the use of HTTP over Transport Layer Security (TLS). RFC 2246 details TLS version 1.0 which is based on SSL version 3.0.</p><h3>Analyze SSL/TLS Handshake</h3><p>The HTTPS communication begins with the TCP handshake on port 443 (or configured port). Then a TLS handshake occurs. View TLS handshake packets with filter: <code>ssl.record.content_type==22</code>.</p><p>TLS handshake traffic types:</p><ul><li><strong>Session identifier</strong>: Identifies a new or resumed session (0 = new)</li><li><strong>Peer certificate</strong>: X509 certificate of the peer</li><li><strong>Compression method</strong>: Compression method for data prior to encryption</li><li><strong>Cipher spec</strong>: Defines the data encryption algorithm — the SERVER chooses from the client's list</li><li><strong>Master secret</strong>: 48-byte secret shared between client and server</li></ul><h3>TLS Handshake Sequence</h3><ol><li><strong>Client Hello</strong>: Lists supported cipher suites, TLS version, 28 random bytes, Session ID (0 = new session)</li><li><strong>Server Hello + Certificate + Server Hello Done</strong>: Server selects cipher suite, sends its certificate</li><li><strong>Client Key Exchange + Change Cipher Spec</strong>: Client computes premaster secret, encrypts with server's public key. Future client messages = encrypted.</li><li><strong>Server Change Cipher Spec</strong>: Server also switches to encrypted. Handshake complete.</li></ol><h3>Analyze TLS Encrypted Alerts</h3><p>Encrypted Alerts may be seen in HTTPS communications — most commonly <code>close_notify</code> alerts, shortly followed by TCP FIN or Reset packets. Fatal alerts result in connection termination. If you see an encrypted alert followed by FIN, it's most likely a normal close_notify — not a problem.</p><h3>Decrypt HTTPS Traffic</h3><p>To decrypt HTTPS traffic, obtain the RSA private key from the server and configure it in Wireshark: Edit → Preferences → Protocols → SSL → RSA Keys List. Add: IP address, port (443), protocol (http), and path to the key file (.key or .pem format).</p><p>Once the key is applied, Wireshark can decrypt the traffic — HTTP requests become visible in the Protocol column. You can then Follow SSL Stream to read the decrypted content. Export SSL keys: File | Export SSL Session Keys.</p><div class="callout callout-amber"><strong>CLIENT OFFERS CIPHER SUITES, SERVER SELECTS</strong><p>The HTTPS client offers a list of acceptable cipher suites in the Client Hello. The HTTPS server selects the desired cipher suite to use for the communication. If the server doesn't support any of the client's cipher suites, the handshake fails. This is important for troubleshooting TLS connection failures — check what cipher suites each side supports.</p></div><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C23-CS1.png" alt="HTTP Proxy Problems" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C23-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C23-CS1.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network engineer captures traffic between a client and an ISA firewall proxy server using Wireshark. The screen shows two captures: one on the client side showing HTTP 2.0 request headers, and one on the server side showing the proxy rejecting with a 502 error. The engineer points to the 'HTTP Version: 2.0' text highlighted in the packet details — a non-RFC-compliant version. A whiteboard behind shows: CLIENT → PROXY → APP SERVER. Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 1</div><div class="cs-title">HTTP Proxy Problems</div><div class="cs-sub"><em>Submitted by: Richard Hicks, Senior Sales Engineer, Celestix Networks</em></div><div class="cs-body"><p>When troubleshooting connectivity issues through proxy servers that perform application layer traffic inspection, a tool like Wireshark is invaluable.</p><p>A common scenario is one in which requests made through a router or simple packet filtering firewall work without issue, yet the same request made through a proxy fails.</p><p>An example of this was brought to my attention recently when a customer called our support team. Attempts to access a third-party web-based application were failing when accessed through the proxy, in this case a Microsoft ISA Server 2006. The error message received was an ambiguous HTTP 502 error.</p><p>Immediately I was able to reproduce the error and used Wireshark to capture traffic on both sides of the proxy. Looking at the response from the application server, the trace showed that the request version was HTTP 2.0 (as shown below).</p><p>Fascinating, because there is no RFC specification for HTTP 2.0! The ISA firewall, with its deep application layer inspection capabilities, limits communication over TCP port 80 to only valid, RFC-compliant HTTP. Since this was technically a violation of the RFC, the ISA firewall denied the request.</p><p>Uncovering these details would not have been possible without Wireshark.</p></div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">HTTPS = TCP handshake → TLS handshake → encrypted data. Filter TLS handshake: ssl.record.content_type==22. Client offers cipher suites, SERVER selects. To decrypt: need RSA private key → SSL Preferences → RSA Keys List. Encrypted Alert followed by FIN = normal close_notify. Proxy issues: capture both sides of the proxy.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-https" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('https','HTTPS & TLS')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-https" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('https')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 23</h3><p>HTTP uses a request/response model to transfer data between hosts. HTTP communications use TCP as the transport mechanism — the most commonly used HTTP port number is 80.</p><p>Clients send commands such as GET and POST to the HTTP server. HTTP servers respond with a numerical response code. Codes greater than 399 identify client and server errors. Many people are familiar with the dreaded 404 Not Found response seen when a page does not exist.</p><p>When analyzing HTTP communications, watch for the IfModified-Since request modifier. This indicates that the client has a page in cache. If the server responds with code 304 Not Modified, the client will load the page from cache instead of across the network. This will affect your web loading time analysis.</p><p>Slow web browsing sessions can be caused by TCP problems as well as interdependencies on other web sites (such as advertisers), and non-optimized web sites. Wireshark enables you to rebuild web pages and export HTTP objects.</p><p>HTTPS traffic uses TLS to create a secure connection for HTTP traffic. These connections begin with a TCP connection which is followed by a secure handshake connection. During this connection process, the client and server negotiate security parameters such as the cipher suite. Wireshark can decrypt HTTPS sessions as long as you have the decryption key and configure Wireshark to apply that key to the HTTPS conversation.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q23.1</div><div class="rq-q">You are analyzing an HTTP session as a user browses a new website. What HTTP response code indicates the page was found locally?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about the response code that indicates the resource is in the client's cache and hasn't changed on the server.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>The HTTP response code <strong>304 Not Modified</strong> indicates that the desired page was found locally (in the client's cache) and is still current. The client sent an If-Modified-Since request modifier, and the server confirmed the cached version is still valid. The client then loads the page from its local cache rather than downloading it again. This significantly reduces load times for returning visitors.</p></div></div><div class="rq-card"><div class="rq-num">Q23.2</div><div class="rq-q">How is an HTTP 404 Not Found categorized?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Is a 'page not found' a client problem or a server problem?</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>HTTP 404 Not Found is categorized as a <strong>client error</strong> (4xx range), even though it may be caused by a broken link on a website. The server itself is running and responding — it just can't find the requested resource. This can be counterintuitive since the broken link might be the server's fault, but in HTTP taxonomy, 4xx = client error, 5xx = server error.</p></div></div><div class="rq-card"><div class="rq-num">Q23.3</div><div class="rq-q">How can you determine that a client is loading web pages out of cache?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>What does the client send to check if its cached version is still current?</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>To determine that a client is loading web pages from cache, look for the <strong>If-Modified-Since</strong> request modifier from the client, or a response code <strong>304 Not Modified</strong> from the server. The If-Modified-Since header tells the server the date of the client's cached version. If the server's content hasn't changed, it responds with 304 and no body — the client loads from cache. If content has changed, the server responds with 200 OK and the new content.</p></div></div><div class="rq-card"><div class="rq-num">Q23.4</div><div class="rq-q">What display filter should you AVOID if you want to view the TCP handshake and TCP ACKs during a web browsing session?</div><textarea class="rq-ta" data-key="rq-rq4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq4" onclick="saveRQ('rq4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq4" onclick="toggleRQAns('rq4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq4" style="display:none"><div class="hm-label">HINT</div><p>Think about what the http display filter does NOT show.</p></div><div class="rq-ans-box" id="rqans-rq4" style="display:none"><div class="hm-label">ANSWER</div><p>The <code>http</code> display filter will NOT display the TCP handshake or the TCP ACKs during the session. Consider using <code>tcp.port==80</code> to view the entire HTTP conversation including the TCP handshake (SYN, SYN/ACK, ACK), TCP ACKs, and all HTTP packets. This is essential when diagnosing connection establishment problems or measuring TCP round-trip times at the start of an HTTP session.</p></div></div><div class="rq-card"><div class="rq-num">Q23.5</div><div class="rq-q">What is the HTTP request method used to send data up to an HTTP server?</div><textarea class="rq-ta" data-key="rq-rq5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq5" onclick="saveRQ('rq5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq5" onclick="toggleRQAns('rq5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq5" style="display:none"><div class="hm-label">HINT</div><p>Think about which method is used for form submissions and file uploads.</p></div><div class="rq-ans-box" id="rqans-rq5" style="display:none"><div class="hm-label">ANSWER</div><p>HTTP clients use <strong>POST</strong> to send data up to an HTTP server. POST is used for form submissions, file uploads, and API calls that create or update resources. The data is included in the request body rather than the URL. This is different from GET which appends parameters to the URL. In plaintext HTTP, POST body content is visible in Wireshark — which is why sensitive data should always be sent over HTTPS.</p></div></div><div class="rq-card"><div class="rq-num">Q23.6</div><div class="rq-q">What is the syntax for capture and display filters for HTTP traffic running over port 80?</div><textarea class="rq-ta" data-key="rq-rq6" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq6" onclick="saveRQ('rq6')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq6')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq6" onclick="toggleRQAns('rq6')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq6" style="display:none"><div class="hm-label">HINT</div><p>Note that the capture filter and display filter syntaxes differ.</p></div><div class="rq-ans-box" id="rqans-rq6" style="display:none"><div class="hm-label">ANSWER</div><p>For HTTP traffic over port 80: <strong>Capture filter</strong>: <code>tcp port http</code> or <code>tcp port 80</code>. <strong>Display filter</strong>: <code>http</code>. Note: the <code>http</code> display filter only shows packets that the HTTP dissector recognizes as HTTP application data — it does NOT show the TCP handshake or TCP ACKs. Use <code>tcp.port==80</code> as the display filter to see all TCP traffic on port 80 including the handshake.</p></div></div><div class="rq-card"><div class="rq-num">Q23.7</div><div class="rq-q">How can you configure Wireshark to always recognize port 444 as an SSL/TLS port?</div><textarea class="rq-ta" data-key="rq-rq7" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq7" onclick="saveRQ('rq7')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq7')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq7" onclick="toggleRQAns('rq7')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq7" style="display:none"><div class="hm-label">HINT</div><p>Think about where HTTP/SSL protocol preferences are configured in Wireshark.</p></div><div class="rq-ans-box" id="rqans-rq7" style="display:none"><div class="hm-label">ANSWER</div><p>To add port 444 as an SSL/TLS port, select <strong>Edit | Preferences | Protocols | HTTP</strong> and add port 444 in the SSL/TLS ports section. This tells Wireshark to apply the SSL/TLS dissector to traffic on port 444 in addition to the default port 443.</p></div></div><div class="rq-card"><div class="rq-num">Q23.8</div><div class="rq-q">What steps are required to decrypt HTTPS traffic with Wireshark?</div><textarea class="rq-ta" data-key="rq-rq8" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq8" onclick="saveRQ('rq8')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq8')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq8" onclick="toggleRQAns('rq8')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq8" style="display:none"><div class="hm-label">HINT</div><p>Think about what you need (the key), where to put it in Wireshark, and what you'll see afterward.</p></div><div class="rq-ans-box" id="rqans-rq8" style="display:none"><div class="hm-label">ANSWER</div><p>To decrypt HTTPS traffic: (1) You must obtain the decryption key (RSA private key from the server). (2) Copy the key file to your Wireshark system. (3) Configure Wireshark's SSL preferences RSA Key List setting (Edit → Preferences → Protocols → SSL → RSA Keys List) with the proper syntax: IP address of server, port number (443), protocol name (http), and path to the key file. (4) Load the HTTPS traffic trace file — it should be decrypted. You can then right-click an HTTP packet and select Follow SSL Stream to read the decrypted content.</p></div></div><div class="rq-card"><div class="rq-num">Q23.9</div><div class="rq-q">Which side of an HTTPS communication offers a list of acceptable cipher suites and which side selects the desired cipher suite?</div><textarea class="rq-ta" data-key="rq-rq9" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq9" onclick="saveRQ('rq9')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq9')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq9" onclick="toggleRQAns('rq9')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq9" style="display:none"><div class="hm-label">HINT</div><p>Think about the Client Hello and Server Hello packets in the TLS handshake.</p></div><div class="rq-ans-box" id="rqans-rq9" style="display:none"><div class="hm-label">ANSWER</div><p>The <strong>HTTPS client offers a list</strong> of acceptable cipher suites in the Client Hello packet. The <strong>HTTPS server selects the desired cipher suite</strong> to use for the communication from the client's list and indicates this in the Server Hello packet. If the server doesn't support any cipher suite offered by the client, the handshake fails. This design allows clients to advertise maximum capabilities while servers can enforce security policies by choosing only strong, supported cipher suites.</p></div></div>
-</div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 23 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Progress</h3><div class="progress-summary" id="prog-text">0 / 6 sections read</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-checklist"><label class="check-item" data-key="chk-purpose"><input type="checkbox" onchange="toggleDone(this,'chk-purpose')"> Purpose of HTTP</label><label class="check-item" data-key="chk-normal"><input type="checkbox" onchange="toggleDone(this,'chk-normal')"> Normal HTTP Traffic</label><label class="check-item" data-key="chk-methods"><input type="checkbox" onchange="toggleDone(this,'chk-methods')"> HTTP Methods & Codes</label><label class="check-item" data-key="chk-structure"><input type="checkbox" onchange="toggleDone(this,'chk-structure')"> HTTP Packet Structure</label><label class="check-item" data-key="chk-statistics"><input type="checkbox" onchange="toggleDone(this,'chk-statistics')"> HTTP Statistics</label><label class="check-item" data-key="chk-https"><input type="checkbox" onchange="toggleDone(this,'chk-https')"> HTTPS & TLS</label></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 15 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>HTTP Filters</h4><div class="qr-row"><span class="qr-term">http</span><span class="qr-def">All HTTP traffic (port 80)</span></div><div class="qr-row"><span class="qr-term">tcp.port==80</span><span class="qr-def">HTTP + handshake/ACKs</span></div><div class="qr-row"><span class="qr-term">http.request</span><span class="qr-def">HTTP GET/POST requests</span></div><div class="qr-row"><span class="qr-term">http.response</span><span class="qr-def">HTTP responses</span></div><div class="qr-row"><span class="qr-term">http.response.code==404</span><span class="qr-def">HTTP Not Found</span></div><div class="qr-row"><span class="qr-term">http.response.code>=400</span><span class="qr-def">HTTP errors</span></div><div class="qr-row"><span class="qr-term">ssl.record.content_type==22</span><span class="qr-def">TLS handshake packets</span></div><div class="qr-row"><span class="qr-term">http.host</span><span class="qr-def">HTTP Host header</span></div></div></div><div class="sidebar-card"><h3>Trace Files</h3><div class="trace-list">http-espn2011.pcapng<br>http-espn2012.pcapng<br>http-facebook.pcapng<br>http-500error.pcapng<br>https-justlaunchpage.pcapng<br>client_init_renego.pcap</div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 23: Analyze HTTP Traffic</div>
-</footer>
-<script>
+  <div class="main-content">
 
-const PAGE_KEY='ws-ch23-full';
-const SECTIONS={'purpose':'Purpose of HTTP','normal':'Normal HTTP Traffic','methods':'HTTP Methods & Codes','structure':'HTTP Packet Structure','statistics':'HTTP Statistics','https':'HTTPS & TLS','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-normal','ins-methods','ins-structure','ins-statistics','ins-https'];
-const RQ_IDS=['rq1','rq2','rq3','rq4','rq5','rq6','rq7','rq8','rq9'];
-const TOTAL=15;
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
-function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
-function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
-function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap,.cs-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse image':'Expand image');}
-function initFigures(){document.querySelectorAll('.figure-block,.cs-img-inline').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap,.cs-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand image');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initFigures();initPT();updateInsProgress();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
-  });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
-  });
-});
+    <div class="insight-block" id="ins-http">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; HTTP OVERVIEW &amp; FILTERING</span>
+      </div>
+      <p class="insight-insight">HTTP uses a request/response model over TCP. The client sends a request with a Method (GET, POST, etc.) and the server responds with a Status Code. For analysis, using the <code>http</code> display filter shows only HTTP application packets &mdash; you miss the TCP handshake and ACKs. Use <code>tcp.port==80</code> to see everything.</p>
+      <ul class="insight-questions">
+        <li>Why does the <code>http</code> display filter give a partial view of a web browsing session? When would you prefer <code>http</code> vs <code>tcp.port==80</code>?</li>
+        <li>A user complains that the first visit to a website is slow but subsequent visits are fast. What HTTP mechanism explains this, and what would you look for in a trace file?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-http">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> The <code>http</code> filter only shows packets where Wireshark's HTTP dissector has identified application-layer HTTP content. When TCP stream reassembly is enabled, data packets are combined into reassembled streams and Wireshark shows only the reassembled packets (not the individual TCP data segments). TCP handshake, ACKs, and FIN/RST packets don't contain HTTP application data so they're filtered out. Use <code>tcp.port==80</code> when you need to see the full TCP conversation including handshake timing and retransmissions. Use <code>http</code> when you just want to see which pages were requested and what status codes came back.</p>
+          <p><strong>Model Answer 2:</strong> HTTP caching. After the first visit, the browser stores page elements locally. On subsequent visits, the browser sends requests with the <code>IfModified-Since</code> modifier containing the date/time of the cached version. If the server hasn't changed the content, it returns HTTP 304 Not Modified, and the browser loads the cached version without downloading it again. In the trace file, look for GET requests containing "IfModified-Since" and responses of "304 Not Modified" &mdash; these confirm cache is being used and explain why the first load is slow while repeat visits are fast.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-http">
+      <h2>HTTP — Purpose &amp; Normal Communications</h2>
+      <p>HTTP (Hypertext Transfer Protocol) is the application used when someone browses (unsecured) on the Internet. HTTP uses a <strong>request/response model</strong>. HTTP v1.1 (RFC 2616) is the current version. HTTP uses TCP as transport &mdash; most commonly on port 80.</p>
+      <p>By default, Wireshark is configured to dissect HTTP on 9 ports: 80, 3128, 3132, 5985, 8080, 8088, 11371, 1900, and 2869. If HTTP traffic is running on another port, add it to the HTTP preferences.</p>
+
+      <div class="callout callout-blue"><strong>TIP: Disable Stream Reassembly for Clearest HTTP View</strong> For the clearest view of HTTP traffic in the Packet List pane, disable <strong>Allow subdissector to reassemble TCP streams</strong> in TCP preferences. This enables you to see all HTTP GET requests and HTTP response codes in the Packet List pane Info column.</div>
+
+      <h3>HTTP Request Filters</h3>
+      <table class="def-table">
+        <thead><tr><th>Filter</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>tcp.port==80</code></td><td>All traffic in the HTTP conversation including TCP handshake, ACKs, FIN/RST</td></tr>
+          <tr><td><code>http</code></td><td>Only HTTP application layer packets (no TCP handshake/ACKs)</td></tr>
+          <tr><td><code>http.request.method=="GET"</code></td><td>HTTP GET requests only</td></tr>
+          <tr><td><code>http.request.method=="POST"</code></td><td>HTTP POST requests</td></tr>
+          <tr><td><code>http.response.code &gt; 399</code></td><td>HTTP 4xx and 5xx errors</td></tr>
+          <tr><td><code>http contains "IfModified-Since"</code></td><td>Client has a cached page</td></tr>
+          <tr><td><code>http.host=="www.wireshark.org"</code></td><td>Traffic to specific host</td></tr>
+          <tr><td><code>http.user_agent contains "Firefox"</code></td><td>Requests from Firefox browser</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-amber"><strong>CAUTION: Watch Out for Cache-Loaded Pages</strong> If a user complains that first visits are slow but return visits are fast, they may be loading pages from cache. Look for the <code>IfModified-Since</code> request modifier and HTTP 304 Not Modified responses. This is not a network problem.</div>
+
+      <div class="callout callout-blue"><strong>TIP: Export HTTP Objects</strong> Use <strong>File | Export Objects | HTTP</strong> to save objects downloaded during an HTTP session. TCP reassembly must be enabled. The original object names are retained.</div>
+
+      <h3>HTTP Statistics</h3>
+      <p>Select <strong>Statistics | HTTP</strong> for three statistics windows:</p>
+      <ul>
+        <li><strong>Load Distribution</strong>: Lists all HTTP servers contacted and number of requests. Reveals website dependencies and CDN partners (e.g., a single www.espn.com page may contact 35 servers).</li>
+        <li><strong>Packet Counter</strong>: Lists all Status Code responses. Instantly spots 4xx Client Errors and 5xx Server Errors.</li>
+        <li><strong>HTTP Requests</strong>: Lists each item requested from each HTTP server.</li>
+      </ul>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">HTTP filter <code>http</code> = app layer only (no TCP handshake). <code>tcp.port==80</code> = complete conversation. Use <code>http</code> for method/code analysis; use <code>tcp.port==80</code> for performance troubleshooting. IfModified-Since + 304 = page from cache. 404 = Not Found (client error, may be broken link). 503 = Service Unavailable. <code>http.response.code &gt; 399</code> = all errors. HTTPS: <code>tcp.port==443</code> preferred over <code>ssl</code> filter.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-http" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-http','HTTP Basics')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-http" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-http')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-block" id="ins-methods">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; HTTP METHODS &amp; STATUS CODES</span>
+      </div>
+      <p class="insight-insight">HTTP methods define what the client wants to do (GET, POST, PUT, DELETE). Status codes define the outcome. Codes 1xx=informational, 2xx=success, 3xx=redirect, 4xx=client error, 5xx=server error. Anything above 399 means something went wrong.</p>
+      <ul class="insight-questions">
+        <li>What is the difference between a 301 Moved Permanently and a 302 Found redirect? When analyzing a slow website, why would multiple 301/302 redirects matter?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-methods">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> 301 Moved Permanently tells the client and any search engines that the resource has moved forever &mdash; browsers will cache this redirect and go directly to the new location next time. 302 Found means the resource is temporarily at a different location &mdash; browsers won't cache it. When analyzing slow websites, multiple redirects matter because each 3xx response requires the client to establish a new TCP connection (or reuse an existing one) to the redirected URL, adding one full round trip per redirect. If a website has 3 levels of redirects, it adds 3 extra TCP+DNS round trips before the actual content starts flowing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-methods">
+      <h2>HTTP Methods &amp; Status Codes</h2>
+      <h3>HTTP Methods</h3>
+      <table class="def-table">
+        <thead><tr><th>Method</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>GET</strong></td><td>Retrieve resource defined by URI</td></tr>
+          <tr><td><strong>POST</strong></td><td>Send data up to HTTP server</td></tr>
+          <tr><td><strong>HEAD</strong></td><td>Retrieve meta data only (no body)</td></tr>
+          <tr><td><strong>PUT</strong></td><td>Send data to server (replace or create resource)</td></tr>
+          <tr><td><strong>DELETE</strong></td><td>Delete resource defined by URI</td></tr>
+          <tr><td><strong>OPTIONS</strong></td><td>Determine options/capabilities of a resource</td></tr>
+          <tr><td><strong>TRACE</strong></td><td>Remote loopback (disabled in most configurations due to Cross-Site Tracing vulnerability)</td></tr>
+          <tr><td><strong>CONNECT</strong></td><td>Connect through a proxy device</td></tr>
+        </tbody>
+      </table>
+
+      <h3>HTTP Status Code Categories</h3>
+      <table class="def-table">
+        <thead><tr><th>Range</th><th>Category</th><th>Key Codes</th></tr></thead>
+        <tbody>
+          <tr><td>1xx</td><td>Informational</td><td>100 Continue, 101 Switching Protocols</td></tr>
+          <tr><td>2xx</td><td>Success</td><td>200 OK, 201 Created, 204 No Content, 206 Partial Content</td></tr>
+          <tr><td>3xx</td><td>Redirection</td><td>301 Moved Permanently, 302 Found, 304 Not Modified (cache hit), 307 Temporary Redirect</td></tr>
+          <tr><td>4xx</td><td>Client Error</td><td>400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 408 Timeout, 429 Too Many Requests</td></tr>
+          <tr><td>5xx</td><td>Server Error</td><td>500 Internal Server Error, 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-blue"><strong>TIP</strong> Build a coloring rule for HTTP errors: <code>http.response.code &gt;= 400</code>. Spot server or client issues instantly in the Packet List pane without opening each packet.</div>
+
+      <div class="callout callout-amber"><strong>CAUTION: Don't Troubleshoot Delays Before FIN/RST</strong> If you see a large delay before a packet with the FIN or RST bit set, do not waste time troubleshooting it. These packets can be sent long after the user has finished getting the required data. The user doesn't notice this delay. Focus instead on delays during the active data exchange.</div>
+
+      <h3>HTTP Request Structure Key Fields</h3>
+      <ul>
+        <li><strong>Host</strong>: Required in HTTP/1.1. Identifies target host and port. If no port, default (80) is assumed.</li>
+        <li><strong>User-Agent</strong>: Browser and OS information.</li>
+        <li><strong>IfModified-Since</strong>: Date of cached version. Server returns 304 if content unchanged.</li>
+        <li><strong>Referer</strong>: Previous website that linked to current one.</li>
+        <li><strong>Accept</strong>: Acceptable content types the client can handle.</li>
+        <li><strong>Connection</strong>: Type of connection preferred (Keep-Alive, close).</li>
+      </ul>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Methods: GET (retrieve), POST (send up), PUT (replace), DELETE. POST = user clicked Submit. Status code &gt; 399 = error. 304 = cache hit (IfModified-Since). 404 = Not Found (client error category). 500 = Internal Server Error. 502 = Bad Gateway (often proxy issue). 503 = Service Unavailable. Don't troubleshoot delays before FIN/RST packets. Statistics | HTTP shows Load Distribution, Packet Counter, and HTTP Requests.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-methods" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-methods','Methods &amp; Codes')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-methods" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-methods')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-block" id="ins-https">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; HTTPS &amp; TLS ANALYSIS</span>
+      </div>
+      <p class="insight-insight">HTTPS uses TLS over TCP port 443. After the TCP handshake, a TLS handshake negotiates a cipher suite and authenticates the server. The client offers a list of cipher suites; the server chooses. Wireshark can decrypt HTTPS traffic if you have the server's private RSA key.</p>
+      <ul class="insight-questions">
+        <li>During a TLS handshake, the client sends a Client Hello with 34 cipher suites. Who decides which one is used, and what determines their preference order?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-https">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> The <em>server</em> selects the cipher suite from the client's offered list (Server Hello). The client's list is ordered by preference (strongest/preferred first). The server selects based on its own policy &mdash; typically it picks the strongest suite it supports from the client's list, but it may prefer its own order. In enterprise environments, servers are often configured to prefer Perfect Forward Secrecy (PFS) suites like ECDHE over older RSA key exchange to improve security. In the Client Hello, the first listed cipher = client's top preference. What the server actually selects may differ from the client's top choice.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-https">
+      <h2>Analyze HTTPS / TLS Communications</h2>
+      <p>HTTPS uses HTTP over <strong>Transport Layer Security (TLS)</strong> on TCP port 443. RFC 2818 defines HTTPS. RFC 2246 defines TLS 1.0 (based on SSL 3.0, but not interoperable).</p>
+
+      <h3>TLS Handshake</h3>
+      <p>After the TCP handshake, a TLS handshake occurs. Filter: <code>ssl.record.content_type==22</code> to view TLS handshake packets.</p>
+
+      <table class="def-table">
+        <thead><tr><th>Step</th><th>Packet</th><th>Direction</th><th>Key Content</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Client Hello</td><td>Client &rarr; Server</td><td>TLS version, Session ID (0=new), 28 random bytes, list of cipher suites supported</td></tr>
+          <tr><td>2</td><td>Server Hello + Certificate + Server Hello Done</td><td>Server &rarr; Client</td><td>Chosen cipher suite, 28 random bytes, Session ID (32 bytes), server X.509 certificate</td></tr>
+          <tr><td>3</td><td>Client Key Exchange + Change Cipher Spec + Finished</td><td>Client &rarr; Server</td><td>Premaster secret, "all future messages from client will be encrypted"</td></tr>
+          <tr><td>4</td><td>Change Cipher Spec + Finished</td><td>Server &rarr; Client</td><td>"All future messages from server will be encrypted"</td></tr>
+        </tbody>
+      </table>
+
+      <p>Session ID = 0 in Client Hello &rarr; new session. Non-zero Session ID &rarr; resumed session (faster).</p>
+
+      <h3>HTTPS Filters</h3>
+      <table class="def-table">
+        <thead><tr><th>Filter</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>tcp.port==443</code></td><td>Complete HTTPS conversation (preferred for analysis)</td></tr>
+          <tr><td><code>ssl</code></td><td>SSL/TLS traffic only (no TCP handshake/ACKs)</td></tr>
+          <tr><td><code>ssl.record.content_type==22</code></td><td>TLS handshake packets only</td></tr>
+          <tr><td><code>ssl.handshake.type==1</code></td><td>Client Hello</td></tr>
+          <tr><td><code>ssl.handshake.type==16</code></td><td>Client Key Exchange</td></tr>
+          <tr><td><code>ssl.record.content_type==20</code></td><td>Change Cipher Spec</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Decrypt HTTPS Traffic</h3>
+      <p>To decrypt HTTPS in Wireshark: (1) Obtain the server's private RSA key. (2) Copy it to your Wireshark system. (3) Configure <strong>Edit | Preferences | Protocols | SSL</strong> RSA Keys list with: server IP, port (443), protocol (http), and key file path. (4) Open the HTTPS trace file &mdash; traffic will be decrypted. A "Decrypted SSL data" tab appears below the Packet Bytes pane.</p>
+
+      <div class="callout callout-amber"><strong>CAUTION</strong> The RSA private key can only be obtained from the server side. You cannot decrypt HTTPS traffic from a client capture unless you have access to the server's private key.</div>
+
+      <div class="callout callout-blue"><strong>TIP: Delays Before Encrypted Alerts May Be OK</strong> When you see an established TLS handshake, data exchange, a large delay, then an Encrypted Alert followed by FIN/RST &mdash; the alert is most likely a <code>close_notify</code> (normal graceful TLS shutdown). Don't troubleshoot this delay.</div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">TLS handshake: Client Hello &rarr; Server Hello+Cert+Done &rarr; Client Key Exchange+Change Cipher &rarr; Server Change Cipher. Client offers cipher suite list; <strong>server selects</strong>. Session ID=0 = new session. TLS handshake filter: <code>ssl.record.content_type==22</code>. Decrypt = need server private RSA key + configure SSL preferences RSA Key List. close_notify Encrypted Alert + FIN = normal TLS shutdown. TCP reassembly must be ON to see all 4 TLS handshake packets.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-https" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-https','HTTPS / TLS')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-https" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-https')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-casestudy">
+      <h2>Case Studies</h2>
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 1</div>
+        <div class="cs-title">HTTP Proxy Problems</div>
+        <div class="cs-sub">Submitted by: Richard Hicks, Senior Sales Engineer, Edge Security Solutions, Celestix Networks</div>
+        <div class="cs-body">
+          <p>A common troubleshooting scenario: requests through a simple packet-filtering router work fine, but the same request through an application layer proxy (ISA Server) fails.</p>
+          <p>A customer called reporting HTTP 502 errors accessing a third-party web-based application when going through a Microsoft ISA Server 2006 proxy. The application worked when going through a router directly.</p>
+          <p>Knowing that ISA performs application layer traffic inspection, I immediately reproduced the error and captured traffic on both sides of the proxy.</p>
+          <p>The key finding: looking at the response from the application server, the trace showed that the request was using <strong>HTTP 2.0</strong>. There is no RFC specification for HTTP 2.0! The ISA firewall, with its deep application layer inspection capabilities, limits communication over TCP port 80 to only valid, RFC-compliant HTTP. Since HTTP 2.0 was technically an RFC violation, the ISA firewall denied the traffic and returned a 502 Bad Gateway.</p>
+          <p>Uncovering these details would not have been possible without Wireshark. Capturing on both sides of the proxy was the key to finding the violation.</p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C23-CS1.png" alt="HTTP Proxy Problems"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span><div><strong>C23-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C23-CS1.png</div></div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">&#9662; Show cartoon prompt</button>
+            <div class="cs-prompt-text" hidden>
+              A split-scene diagram. Left side: a client workstation successfully connecting to a web application server through a simple router (shown as a happy green check). Right side: the same client attempting the same request through a Microsoft ISA Server proxy (shown as a stop sign with "502 Bad Gateway"). The ISA server has a magnifying glass icon labeled "Deep Packet Inspection" examining the HTTP request. A callout from the ISA server says "HTTP 2.0?! There's no RFC for that!" The application server's HTTP request header is shown with "HTTP/2.0" highlighted in red. Two Wireshark capture points are shown (one on each side of the proxy) with the analyst comparing the two traces on a split screen. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "Router (works)," "ISA Proxy (fails)," "HTTP 2.0 (no RFC!)," "502 Bad Gateway," "DPI," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-tldr">
+      <div class="tldr-block">
+        <div class="tldr-label">TL;DR &mdash; Chapter Summary</div>
+        <div class="tldr-text">
+          <p>HTTP uses a request/response model to transfer data. HTTP uses TCP transport &mdash; most commonly port 80. Clients send commands (GET, POST) and servers respond with status codes. Codes greater than 399 identify errors. Watch for IfModified-Since requests and 304 Not Modified responses indicating cached pages.</p>
+          <p>HTTPS uses TLS to create a secure HTTP connection. After the TCP handshake, a TLS handshake negotiates cipher suite and authentication. The client offers cipher suites; the server selects one. Wireshark can decrypt HTTPS with the server's private RSA key configured in SSL preferences.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-rq">
+      <h2>Review Questions</h2>
+      <div class="rq-card" id="rq-23-1">
+        <div class="rq-question">Q23.1 What HTTP response code indicates the page was found and returned successfully?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.1</strong> HTTP response code <strong>200 OK</strong> indicates the desired page was located and returned successfully.</div>
+      </div>
+      <div class="rq-card" id="rq-23-2">
+        <div class="rq-question">Q23.2 How is an HTTP 404 Not Found categorized?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.2</strong> A 404 Not Found is categorized as a <strong>Client Error</strong> (4xx range), even though it may be caused by a broken link on a website rather than an actual client mistake.</div>
+      </div>
+      <div class="rq-card" id="rq-23-3">
+        <div class="rq-question">Q23.3 How can you determine that a client is loading web pages out of cache?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.3</strong> Look for the <code>IfModified-Since</code> request modifier from the client, or a response code <strong>304 Not Modified</strong> from the server, indicating the client loaded the page from cache.</div>
+      </div>
+      <div class="rq-card" id="rq-23-4">
+        <div class="rq-question">Q23.4 What display filter should you AVOID if you want to view the TCP handshake and ACKs during a web browsing session?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.4</strong> The <code>http</code> display filter will not display the TCP handshake or ACKs. Use <code>tcp.port==80</code> to view the entire HTTP conversation.</div>
+      </div>
+      <div class="rq-card" id="rq-23-5">
+        <div class="rq-question">Q23.5 What is the HTTP request method used to send data up to an HTTP server?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.5</strong> HTTP clients use <strong>POST</strong> to send data up to an HTTP server (e.g., form submissions).</div>
+      </div>
+      <div class="rq-card" id="rq-23-6">
+        <div class="rq-question">Q23.6 What is the syntax for capture and display filters for HTTP traffic on port 80?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.6</strong> Capture filter: <code>tcp port http</code>. Display filter: <code>http</code> (app layer only) or <code>tcp.port==80</code> (entire conversation).</div>
+      </div>
+      <div class="rq-card" id="rq-23-7">
+        <div class="rq-question">Q23.7 How do you configure Wireshark to always recognize port 444 as an SSL/TLS port?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.7</strong> Select Edit | Preferences | Protocols | HTTP and add port 444 in the SSL/TLS ports section.</div>
+      </div>
+      <div class="rq-card" id="rq-23-8">
+        <div class="rq-question">Q23.8 What steps are required to decrypt HTTPS traffic with Wireshark?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.8</strong> Obtain the server's RSA private key and copy it to your Wireshark system. Configure Edit | Preferences | Protocols | SSL &rarr; RSA Keys list with the server IP, port, protocol (http), and key path. Load the HTTPS trace file &mdash; Wireshark will decrypt the traffic.</div>
+      </div>
+      <div class="rq-card" id="rq-23-9">
+        <div class="rq-question">Q23.9 Which side offers cipher suites and which side selects the cipher suite in HTTPS?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A23.9</strong> The <strong>HTTPS client</strong> offers a list of acceptable cipher suites (in the Client Hello). The <strong>HTTPS server</strong> selects the cipher suite to use for the communication (in the Server Hello).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Navigation</div>
+      <a class="sidebar-link" href="../../index.html">&larr; Study Guide Hub</a>
+      <a class="sidebar-link" href="study-byte.html">Practice Lab</a>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Quick Reference</div>
+      <div class="quick-ref"><div class="qr-term">HTTP Ports Default</div><div class="qr-def">80, 3128, 3132, 5985, 8080, 8088, 11371, 1900, 2869</div></div>
+      <div class="quick-ref"><div class="qr-term">Error Filter</div><div class="qr-def"><code>http.response.code &gt; 399</code></div></div>
+      <div class="quick-ref"><div class="qr-term">Cache Hit</div><div class="qr-def">IfModified-Since in request + 304 Not Modified in response</div></div>
+      <div class="quick-ref"><div class="qr-term">TLS Handshake</div><div class="qr-def"><code>ssl.record.content_type==22</code></div></div>
+      <div class="quick-ref"><div class="qr-term">Who Picks Cipher</div><div class="qr-def">Client offers list; server selects</div></div>
+      <div class="quick-ref"><div class="qr-term">Full HTTP View</div><div class="qr-def"><code>tcp.port==80</code> (not <code>http</code>) for TCP handshake + ACKs</div></div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Progress</div>
+      <div class="ins-prog-count" id="ins-prog-count">0 / 12 complete</div>
+      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
+      <div style="margin-top:12px">
+        <label class="check-item"><input type="checkbox" id="chk-http" onchange="toggleDone('http')"> HTTP Basics</label>
+        <label class="check-item"><input type="checkbox" id="chk-methods" onchange="toggleDone('methods')"> Methods &amp; Codes</label>
+        <label class="check-item"><input type="checkbox" id="chk-https" onchange="toggleDone('https')"> HTTPS / TLS</label>
+        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Study</label>
+        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="practice-cta"><div class="cta-inner"><div class="cta-text">Ready to practice?</div><a href="study-byte.html" class="cta-btn">Open Practice Lab &rarr;</a></div></div>
+<footer><div class="footer-inner"><span>Wireshark Network Analysis &mdash; Chapter 23</span><span>Analyze HTTP Traffic</span></div></footer>
+<script>
+const PAGE_KEY = 'ws-ch23-full';
+const SECTIONS = {'sec-http':'HTTP Basics','sec-methods':'Methods & Codes','sec-https':'HTTPS / TLS','sec-casestudy':'Case Study','sec-tldr':'TL;DR','sec-rq':'Review Questions'};
+const INSIGHT_IDS = ['ins-http','ins-methods','ins-https'];
+const RQ_IDS = ['23-1','23-2','23-3','23-4','23-5','23-6','23-7','23-8','23-9'];
+const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+document.querySelectorAll('.insight-header').forEach(h=>h.addEventListener('click',()=>h.closest('.insight-block').classList.toggle('ins-open')));
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim())return;localStorage.setItem(PAGE_KEY+'-soc-'+area.dataset.section,ta.value);area.querySelector('.btn-see-answer').disabled=false;btn.textContent='✓ Saved';updateProgress();}
+function revealSocAnswer(btn){const area=btn.closest('.answer-area');const ma=area.querySelector('.model-answers');ma.style.display=ma.style.display==='none'?'block':'none';btn.textContent=ma.style.display==='none'?'🔒 See Model Answer':'▴ Hide Answer';}
+function toggleQPanel(){const body=document.getElementById('q-panel-body');const tog=document.getElementById('q-panel-toggle');const open=body.style.display!=='none';body.style.display=open?'none':'block';tog.textContent=open?'▾':'▴';}
+function renderQPanel(){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');const list=document.getElementById('q-list');const empty=document.getElementById('q-empty');list.innerHTML='';if(qs.length===0){empty.style.display='block';return;}empty.style.display='none';qs.forEach((q,i)=>{const div=document.createElement('div');div.className='q-item';div.innerHTML='<span class="q-section-tag">'+q.section+'</span><span class="q-text">'+q.text+'</span><button class="q-del" onclick="deleteQuestion('+i+')">×</button>';list.appendChild(div);});}
+function addQuestion(secId,secName){const ta=document.getElementById('q-'+secId);if(!ta||!ta.value.trim())return;const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.push({section:secName,text:ta.value.trim()});localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));ta.value='';renderQPanel();}
+function deleteQuestion(i){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.splice(i,1);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));renderQPanel();}
+function addNote(secId){const ta=document.getElementById('note-'+secId);if(!ta||!ta.value.trim())return;localStorage.setItem(PAGE_KEY+'-note-'+secId,ta.value);ta.style.borderColor='#22c55e';setTimeout(()=>ta.style.borderColor='',1200);}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const idx=Object.keys(SECTIONS).indexOf(id);const tabs=document.querySelectorAll('.nav-tab');if(tabs[idx])tabs[idx].classList.add('active');}
+function toggleDone(id){localStorage.setItem(PAGE_KEY+'-chk-'+id,document.getElementById('chk-'+id).checked?'1':'');}
+function updateProgress(){let done=0;INSIGHT_IDS.forEach(id=>{if(localStorage.getItem(PAGE_KEY+'-soc-'+id))done++;});RQ_IDS.forEach(id=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+id))done++;});document.getElementById('ins-prog-count').textContent=done+' / '+TOTAL+' complete';document.getElementById('ins-prog-fill').style.width=Math.round(done/TOTAL*100)+'%';}
+function revealRQ(btn){const card=btn.closest('.rq-card');const ans=card.querySelector('.rq-answer');const ta=card.querySelector('.rq-textarea');const id=card.id.replace('rq-','');ans.style.display=ans.style.display==='none'?'block':'none';btn.textContent=ans.style.display==='none'?'Reveal Answer':'Hide Answer';if(ta.value.trim()){localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);updateProgress();}}
+function initNotes(){const gn=document.getElementById('global-notes');gn.value=localStorage.getItem(PAGE_KEY+'-global-notes')||'';gn.addEventListener('input',()=>localStorage.setItem(PAGE_KEY+'-global-notes',gn.value));Object.keys(SECTIONS).forEach(secId=>{const saved=localStorage.getItem(PAGE_KEY+'-note-'+secId);const ta=document.getElementById('note-'+secId);if(ta&&saved)ta.value=saved;});INSIGHT_IDS.forEach(id=>{const saved=localStorage.getItem(PAGE_KEY+'-soc-'+id);if(saved){const block=document.getElementById(id);if(!block)return;const ta=block.querySelector('.answer-textarea');const btn=block.querySelector('.btn-see-answer');if(ta)ta.value=saved;if(btn)btn.disabled=false;}});}
+function initChecks(){['http','methods','https','casestudy','rq'].forEach(id=>{const el=document.getElementById('chk-'+id);if(el)el.checked=!!localStorage.getItem(PAGE_KEY+'-chk-'+id);});}
+document.addEventListener('DOMContentLoaded',()=>{initNotes();initChecks();renderQPanel();updateProgress();document.body.style.opacity='1';sessionStorage.setItem('pt','1');});
 </script>
-</body>
-</html>
+</body></html>
