@@ -2,22 +2,13 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 18: Analyze ICMP Traffic | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +62,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,12 +79,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
 .insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
@@ -121,16 +107,17 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
-.fig-trace{color:var(--blue);font-style:italic;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -138,7 +125,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -148,11 +135,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -177,15 +168,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -193,151 +175,453 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
-</style>
-</head>
-<body>
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
+</style></head><body>
 <header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 18<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 18</div>
-<h1>Analyze Internet Control Message Protocol <em>(ICMPv4/ICMPv6) Traffic</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
+  <div class="header-inner">
+    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> &rsaquo; <a href="../hub.html">Study Guides</a> &rsaquo; Chapter 18</div>
+    <div class="eyebrow-row"><span class="eyebrow-chip">CHAPTER 18</span><span class="animated-dot"></span></div>
+    <h1>Analyze ICMP <em>(ICMPv4/ICMPv6)</em> Traffic</h1>
+    <div class="header-sub">Ping, traceroute, redirects, Destination Unreachable, and ICMPv6</div>
+  </div>
 </header>
 <div class="motivation-banner">
-<div class="motivation-text"> <em>ICMP is the network's voice — it tells you when and why things go wrong.</em></div>
-<p class="motivation-sub">From ping to traceroute to Path MTU Discovery, ICMP is everywhere in network operations.</p>
+  <div class="motivation-text"><em>"ICMP is the network's voice &mdash; it says what went wrong, where, and why. Silence it and troubleshooting goes dark."</em></div>
+  <div class="motivation-sub">Read ICMP messages to diagnose routing, MTU, and service failures instantly</div>
 </div>
 <div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  <div class="q-panel" id="q-panel">
+    <div class="q-panel-header" onclick="toggleQPanel()"><span>&#x1F4AD; My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">&#9662;</span></div>
+    <div class="q-panel-body" id="q-panel-body"><div id="q-list"></div><div class="q-empty" id="q-empty">No questions yet.</div></div>
+  </div>
+  <div class="note-panel" id="note-panel">
+    <div class="note-panel-header">&#x1F4DD; My Notes</div>
+    <div class="note-panel-body"><textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights..."></textarea></div>
+  </div>
 </div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
-<nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of ICMP</button><button class="nav-tab" data-target="sec-normal" onclick="navTo('sec-normal')">Normal ICMP Traffic</button><button class="nav-tab" data-target="sec-problems" onclick="navTo('sec-problems')">ICMP Problems</button><button class="nav-tab" data-target="sec-structure" onclick="navTo('sec-structure')">ICMP Packet Structure</button><button class="nav-tab" data-target="sec-icmpv6" onclick="navTo('sec-icmpv6')">ICMPv6</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Filters & Case Study</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+<nav class="section-nav" id="section-nav">
+  <button class="nav-tab active" onclick="navTo('sec-icmp')">ICMP Basics</button>
+  <button class="nav-tab" onclick="navTo('sec-types')">Types &amp; Codes</button>
+  <button class="nav-tab" onclick="navTo('sec-icmpv6')">ICMPv6</button>
+  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
 </nav>
 <main>
-<div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF ICMP</span></div><div class="ins-body"><p class="ins-q">ICMP carries error and informational messages — but it doesn't fix problems itself. If a router can't forward a packet because TTL expired, it sends ICMP Type 11. But what determines whether the SENDING host does anything with that ICMP message? What would happen if all ICMP messages were blocked?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Consider: ICMP is advisory. The host receives ICMP messages but is not required to act on them. What critical network function depends on ICMP Type 3, Code 4 messages reaching the sender?</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>ICMP provides error reporting and diagnostic messaging — but it doesn't retransmit lost packets or establish connections. Hosts use ICMP messages to learn about network conditions (e.g., better routes via Redirect, path MTU via Type 3 Code 4). If ICMP is blocked: Path MTU Discovery (PMTUD) fails — TCP connections stall because hosts can't learn the MTU of the path (Black Hole problem). Traceroute stops working. Ping-based connectivity tests fail. ICMP filtering for security has trade-offs; blocking all ICMP creates serious operational problems.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of ICMP</h2><p>ICMP (Internet Control Message Protocol) is used as a messaging system for errors, alerts, and general notifications on an IP network. ICMP is defined in RFC 792. There are many ICMP message types including:</p><ul><li><strong>Echo messages</strong> — used by ping and traceroute to test end-to-end connectivity. Too many might signal a reconnaissance process or Denial of Service attack.</li><li><strong>Redirect messages</strong> — used by routers to let the source know there is a better path to a destination. If this packet is not sent by a router, it should be considered suspect.</li><li><strong>Destination Unreachable messages</strong> — tell the source host that their packet could not be delivered. A large number of these reply packets could indicate an unsuccessful UDP port scan or a service not running properly.</li></ul><p>By examining the ICMP traffic on your network for a few hours or days, you can determine how efficiently the network is designed and spot numerous configuration errors, functional problems, or security breaches. ICMP is defined in RFC 792.</p><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig213-icmp-stack.png" alt="Figure 213: ICMP offers messaging services on IP networks — operating at the same level as IP but using the IP header for delivery" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 213 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 213.</strong> ICMP offers messaging services on IP networks — operating at the same level as IP but using the IP header for delivery </div></div><div class="callout callout-blue"><strong>KEY ROLE: ICMP IN PATH MTU DISCOVERY</strong><p>ICMP Type 3, Code 4 (Fragmentation Needed, Don't Fragment Bit Set) is critical for TCP connections. When a router can't forward a packet because the MTU is too small and DF=1, it sends this ICMP back to the source. The source adjusts its packet size. If firewalls block this ICMP type, TCP connections stall silently — called the "Black Hole" problem. Never block ICMP Type 3.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">ICMP purpose: error reporting (Dest Unreachable, Time Exceeded), routing advice (Redirect), diagnostics (Echo Request/Reply). RFC 792. ICMP does NOT fix problems — it advises. Blocking ICMP Type 3 causes Black Hole (PMTUD failure). Key: ICMP messages often trigger based on original packet contents.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of ICMP')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-normal"><div class="insight-hdr" onclick="toggleInsight('ins-normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL ICMP TRAFFIC</span></div><div class="ins-body"><p class="ins-q">Wireshark shows ICMP using default coloring rules. During a traceroute, you'll see a distinctive pattern of alternating Echo Requests and Time Exceeded messages — the "striping" effect. What creates this striping? How does traceroute use TTL to map routers along a path?</p><textarea class="ins-ta" data-key="ins-normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-normal" onclick="saveIns('ins-normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-normal" onclick="toggleInsModel('ins-normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-normal" style="display:none"><div class="hm-label">HINT</div><p>Traceroute sends packets with TTL=1, 2, 3... How does this cause each router along the path to reveal its IP address? What ICMP message type does each router send back?</p></div><div class="ins-model-box" id="model-ins-normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Traceroute works by sending packets with incrementing TTL: TTL=1 causes the first router to discard and send ICMP Time Exceeded (Type 11, Code 0) revealing its IP. TTL=2 causes the second router to do the same. This continues until the destination is reached. The striping in Wireshark appears because each TTL group generates a Time Exceeded from a different router IP. ICMP-based traceroute uses ICMP Echo Requests. TCP-based traceroute uses TCP SYNs. UDP-based traceroute (Unix default) uses UDP with unusual port numbers. All trigger ICMP Time Exceeded responses from intermediate routers.</p></div></div></div><div class="section-block" id="sec-normal"><h2>Analyze Normal ICMP Traffic</h2><p>Normal ICMP traffic comes from three main operations: ping, traceroute, and error responses. In this book, normal ICMP traffic includes ICMP ping tests and ICMP-based traceroute traffic.</p><h3>ICMP-Based Ping</h3><p>ICMP ping uses Type 8 (Echo Request) and Type 0 (Echo Reply). Each ping exchange shows:</p><ul><li>Echo Request from source to target — Type 8, Code 0</li><li>Echo Reply from target back to source — Type 0, Code 0</li><li>The Identifier and Sequence Number fields link requests to replies</li><li>The Data field contains payload (usually repeating pattern)</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig214-icmp-ping.png" alt="Figure 214: A normal ICMP-based ping process — Type 8 Echo Request followed by Type 0 Echo Reply [icmp-ping-basic.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 214 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 214.</strong> A normal ICMP-based ping process — Type 8 Echo Request followed by Type 0 Echo Reply [icmp-ping-basic.pcapng] <span class="fig-trace">[icmp-ping-basic.pcapng]</span></div></div><div class="callout callout-green"><strong>MEASURE RTT WITH ICMP FILTER</strong><p>Set the Time column to <em>Seconds Since Previous Displayed Packet</em> and apply an <code>icmp</code> filter to get precise round-trip time values from any capture location. Wireshark's timing is typically more granular than the command-line ping response time — this gives you per-packet RTT measurements.</p></div><h3>ICMP-Based Traceroute</h3><p>ICMP traceroute uses Echo Requests with incrementing TTL values. There are three variations:</p><ul><li><strong>ICMP-based (Windows default)</strong>: sends ICMP Echo Requests with TTL=1, 2, 3... Each router along the path responds with ICMP Time Exceeded (Type 11, Code 0)</li><li><strong>UDP-based (Unix/Linux default)</strong>: sends UDP packets to high-numbered ports with incrementing TTL</li><li><strong>TCP-based</strong>: sends TCP SYN packets with incrementing TTL — used to test through firewalls</li></ul><p>When Wireshark's default colorization is enabled, traceroute traffic appears as alternating colored stripes — ICMP Echo Requests mixed with ICMP Time Exceeded responses from intermediate routers.</p><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig215-icmp-traceroute.png" alt="Figure 215: ICMP-based traceroute traffic showing the characteristic striping pattern in Wireshark [icmp-traceroute-2011.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 215 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 215.</strong> ICMP-based traceroute traffic showing the characteristic striping pattern in Wireshark [icmp-traceroute-2011.pcapng] <span class="fig-trace">[icmp-traceroute-2011.pcapng]</span></div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Ping: Type 8 (Request) → Type 0 (Reply). Traceroute: TTL=1,2,3... → each router sends Type 11 Code 0 (Time Exceeded). Three traceroute types: ICMP (Windows), UDP (Unix), TCP (firewall bypass). Wireshark shows traceroute as color striping.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('normal','Normal ICMP Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-problems"><div class="insight-hdr" onclick="toggleInsight('ins-problems')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · ICMP PROBLEMS</span></div><div class="ins-body"><p class="ins-q">An ICMP Redirect (Type 5) message from a router tells a host to use a different gateway for a specific destination. Why is this message a security concern if not sent by a router? What would happen if a malicious host sent a spoofed Redirect message?</p><textarea class="ins-ta" data-key="ins-problems" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-problems" onclick="saveIns('ins-problems')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-problems')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-problems" onclick="toggleInsModel('ins-problems')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-problems" style="display:none"><div class="hm-label">HINT</div><p>Think about what a host does when it receives an ICMP Redirect — it updates its routing table. Who else could send a spoofed Redirect and why would that be dangerous?</p></div><div class="ins-model-box" id="model-ins-problems" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>ICMP Redirect (Type 5) tells the receiver to update its routing table with a new next-hop for a destination. If received from a router, it's legitimate — the router found a better path. If a non-router sends a spoofed Redirect, it can redirect a host's traffic to the attacker (man-in-the-middle attack). Legitimate use: a router on the same subnet as the sender detects that the sender is routing through it unnecessarily, and redirects the sender to use the correct router directly. Security rule: Redirect packets not sourced from a router should be treated as suspect.</p></div></div></div><div class="section-block" id="sec-problems"><h2>Analyze ICMP Problems</h2><h3>Ping Failure</h3><p>One common ICMP problem is an echo test that does not receive a reply, implying there is no connectivity to a target. Identifying the point where the ICMP traffic is dropped requires moving the Wireshark system along the path until you reach the point where packet loss occurs.</p><div class="callout callout-red"><strong>NO ICMP REPLY — WHAT TO CHECK</strong><p>When ICMP Echo Requests go unanswered: (1) Target host is down or unreachable. (2) Firewall is silently dropping pings. (3) Target OS has ping disabled. (4) Network path is broken. Start by pinging the default gateway. If that succeeds, progressively ping hosts closer to the target to find the failure point.</p></div><h3>ICMP Redirect</h3><p>ICMP Redirect packets (Type 5) are sent by routers when they receive a packet they must forward but detect there is a better next-hop on the same segment as the original sender. The router forwards the packet AND sends an ICMP Redirect to tell the sender to use the better route directly next time.</p><p>Upon receipt of an ICMP Redirect (Type 5, Code 1 — Redirect Datagram for the Host), a host should add a dynamic route entry to its routing tables and begin using the new routing information immediately.</p><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig216-icmp-redirect.png" alt="Figure 216: An ICMP Redirect packet pointing to a better gateway — the ICMP header includes the recommended gateway IP [icmpredirect.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 216 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 216.</strong> An ICMP Redirect packet pointing to a better gateway — the ICMP header includes the recommended gateway IP [icmpredirect.pcapng] <span class="fig-trace">[icmpredirect.pcapng]</span></div></div><p>ICMP Redirect Codes:</p><ul><li><strong>Code 0</strong>: Redirect Datagram for the Network (or subnet)</li><li><strong>Code 1</strong>: Redirect Datagram for the Host</li><li><strong>Code 2</strong>: Redirect Datagram for the Type of Service and Network</li><li><strong>Code 3</strong>: Redirect Datagram for the Type of Service and Host</li></ul><h3>Destination Unreachable Messages</h3><p>ICMP Destination Unreachable (Type 3) packets contain the IP header and at least the next 8 bytes of the packet that triggered the ICMP response. By examining this embedded packet, you can determine why the Destination Unreachable was sent.</p><p>ICMP Destination Unreachable responses to TCP handshake connection requests (Port Unreachable) are unusual — TCP connections should elicit either a SYN/ACK or a TCP Reset. An ICMP response to a TCP handshake is a likely indication that a host-based firewall is blocking a port (verbose host firewall).</p><div class="callout callout-amber"><strong>ICMP REVEALS THE TRIGGERING PACKET</strong><p>ICMP error messages (Type 3, 4, 5, 11, 12) include the IP header + first 8 bytes of the original packet that caused the error. This allows you to identify: what protocol was running, what source/destination ports were involved, and reconstruct what went wrong. Examine the embedded headers in ICMP error packets!</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Redirect (Type 5): legitimate from routers = routing optimization; from non-routers = potential MitM attack. Dest Unreachable (Type 3): contains embedded IP header + 8 bytes of original packet. Code 3 (Port Unreachable) for TCP = verbose firewall (should get RST instead). Time Exceeded (Type 11) = TTL expired or reassembly timeout.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','ICMP Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-structure"><div class="insight-hdr" onclick="toggleInsight('ins-structure')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · ICMP PACKET STRUCTURE</span></div><div class="ins-body"><p class="ins-q">ICMP packets do not contain TCP or UDP headers — what does this mean for port-based filtering? An ICMP Type 3 (Destination Unreachable) packet embeds the original IP header. What specifically does this embedded header allow you to determine?</p><textarea class="ins-ta" data-key="ins-structure" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-structure" onclick="saveIns('ins-structure')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-structure')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-structure" onclick="toggleInsModel('ins-structure')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-structure" style="display:none"><div class="hm-label">HINT</div><p>Think about why ICMP packets can't be filtered by port number. Also consider what information the embedded IP header inside a Type 3 ICMP packet gives you about the original communication that failed.</p></div><div class="ins-model-box" id="model-ins-structure" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>ICMP has no port numbers — port-based firewalls can't selectively block some ICMP messages based on port. They must allow all ICMP or none (or filter by Type/Code). The embedded IP header in Type 3/5/11/12 packets includes: source/destination IP, protocol (TCP/UDP), and the first 8 bytes of data (which includes the source/destination ports for TCP/UDP). This lets you identify exactly which connection caused the ICMP error — even though the ICMP itself has no port fields.</p></div></div></div><div class="section-block" id="sec-structure"><h2>Dissect the ICMP Packet Structure</h2><p>ICMP packets do not contain a UDP or TCP header — port filtering settings cannot affect ICMP traffic. ICMP packets only contain three required fields after the IP header: <strong>type</strong>, <strong>code</strong>, and <strong>checksum</strong>. Some ICMP packets contain additional fields to provide information or details on the message.</p><h3>Type Field</h3><p>The Type field identifies the category of ICMP message. Key ICMP Type values:</p><ul><li><strong>Type 0</strong>: Echo Reply [RFC 792]</li><li><strong>Type 3</strong>: Destination Unreachable [RFC 792]</li><li><strong>Type 4</strong>: Source Quench [RFC 792] — deprecated</li><li><strong>Type 5</strong>: Redirect [RFC 792]</li><li><strong>Type 8</strong>: Echo Request [RFC 792]</li><li><strong>Type 9</strong>: Router Advertisement [RFC 1256]</li><li><strong>Type 10</strong>: Router Solicitation [RFC 1256]</li><li><strong>Type 11</strong>: Time Exceeded [RFC 792]</li><li><strong>Type 12</strong>: Parameter Problem [RFC 792]</li><li><strong>Type 13</strong>: Timestamp [RFC 792]</li><li><strong>Type 14</strong>: Timestamp Reply [RFC 792]</li></ul><h3>Code Field</h3><p>The Code field provides more detail within a Type. Type 3 (Destination Unreachable) Codes:</p><ul><li><strong>Code 0</strong>: Net Unreachable</li><li><strong>Code 1</strong>: Host Unreachable</li><li><strong>Code 2</strong>: Protocol Unreachable</li><li><strong>Code 3</strong>: Port Unreachable</li><li><strong>Code 4</strong>: Fragmentation Needed, Don't Fragment Bit Set</li><li><strong>Code 5</strong>: Source Route Failed</li><li><strong>Code 9</strong>: Communication with Destination Network Administratively Prohibited</li><li><strong>Code 10</strong>: Communication with Destination Host Administratively Prohibited</li><li><strong>Code 11</strong>: Network Unreachable for Type of Service</li><li><strong>Code 13</strong>: Communication Administratively Prohibited (firewall)</li></ul><p>Type 11 (Time Exceeded) Codes: <strong>Code 0</strong>: Time to Live Exceeded in Transit; <strong>Code 1</strong>: Fragment Reassembly Time Exceeded</p><p>Type 5 (Redirect) Codes: <strong>Code 0</strong>: Network; <strong>Code 1</strong>: Host; <strong>Code 2</strong>: ToS+Network; <strong>Code 3</strong>: ToS+Host</p><h3>Checksum Field</h3><p>The ICMP checksum covers the ICMP header and data (unlike IP checksum which only covers the IP header). Unlike TCP and UDP, the ICMP checksum does NOT include a pseudo-header from the IP layer.</p><div class="callout callout-green"><strong>TYPE 3 CODE 13 — WHO SENDS IT?</strong><p>ICMP Type 3, Code 13 (Communication Administratively Prohibited) is typically generated by a <em>verbose firewall</em>. Most firewalls silently discard blocked packets rather than send this notification (which would reveal the firewall's presence). Seeing Code 13 in a trace often means the blocking device is explicitly notifying the sender — useful for troubleshooting but potentially a security information leak.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">ICMP: Type + Code + Checksum (no ports!). Type 3 = Dest Unreachable (Code 4 = DF needed, Code 13 = firewall). Type 5 = Redirect. Type 8/0 = ping. Type 11 = TTL exceeded. ICMP error messages embed the IP header + first 8 bytes of triggering packet. No port filtering possible — filter by icmp.type and icmp.code.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-structure" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('structure','ICMP Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-structure" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('structure')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-icmpv6"><div class="insight-hdr" onclick="toggleInsight('ins-icmpv6')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · ICMPv6</span></div><div class="ins-body"><p class="ins-q">ICMPv6 is far more than just the IPv6 equivalent of ICMPv4 — it takes on functions that were separate protocols in IPv4. What IPv4 protocols does ICMPv6 completely replace? What does this mean for network operation without ICMPv6?</p><textarea class="ins-ta" data-key="ins-icmpv6" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-icmpv6" onclick="saveIns('ins-icmpv6')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-icmpv6')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-icmpv6" onclick="toggleInsModel('ins-icmpv6')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-icmpv6" style="display:none"><div class="hm-label">HINT</div><p>In IPv4: ARP resolves MAC addresses, IGMP handles multicast group management, and DHCP handles address configuration. What happens to these functions in IPv6?</p></div><div class="ins-model-box" id="model-ins-icmpv6" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>ICMPv6 replaces: (1) ARP → replaced by Neighbor Discovery Protocol (NDP) using ICMPv6 Types 135/136. (2) IGMP → replaced by MLD (Multicast Listener Discovery) using ICMPv6 Types 130-132. (3) Router Discovery → Router Solicitation/Advertisement (Types 133/134). ICMPv6 is also required for IPv6 PMTUD (Type 2 - Packet Too Big), duplicate address detection (DAD), and SLAAC. Without ICMPv6, IPv6 networks cannot function — you cannot block ICMPv6 the way you might block ICMPv4 pings.</p></div></div></div><div class="section-block" id="sec-icmpv6"><h2>Analyze ICMPv6 Traffic</h2><p>ICMPv6 is defined in RFC 4443. It performs far more functions than ICMPv4, replacing ARP and IGMP and enabling IPv6 auto-configuration.</p><h3>ICMPv6 vs ICMPv4</h3><p>ICMPv6 handles all the same error reporting as ICMPv4, plus many additional functions:</p><ul><li><strong>Neighbor Discovery (NDP)</strong> — replaces ARP entirely. Uses ICMPv6 Types 135 (Neighbor Solicitation) and 136 (Neighbor Advertisement)</li><li><strong>Router Discovery</strong> — Type 133 (Router Solicitation), Type 134 (Router Advertisement). Hosts use RAs for SLAAC</li><li><strong>Duplicate Address Detection (DAD)</strong> — hosts send Neighbor Solicitation with :: source before using an IPv6 address</li><li><strong>Path MTU Discovery</strong> — Type 2 (Packet Too Big) replaces ICMP Type 3 Code 4</li><li><strong>Multicast Listener Discovery (MLD)</strong> — Types 130-132, replaces IGMP</li></ul><h3>Key ICMPv6 Type Numbers</h3><ul><li>Type 1: Destination Unreachable | Type 2: Packet Too Big | Type 3: Time Exceeded | Type 4: Parameter Problem</li><li>Type 128: Echo Request | Type 129: Echo Reply</li><li>Type 130: MLD Listener Query | Type 131: MLD Report | Type 132: MLD Done</li><li>Type 133: Router Solicitation | Type 134: Router Advertisement</li><li>Type 135: Neighbor Solicitation | Type 136: Neighbor Advertisement</li><li>Type 137: Redirect | Type 138: Router Renumbering</li><li>Type 143: MLDv2 Report | Type 148: SEND Certificate Path | Type 151-153: Multicast Router Discovery</li></ul><h3>ICMPv6 Type 1 Destination Unreachable Codes</h3><ul><li><strong>Code 0</strong>: No route to destination</li><li><strong>Code 1</strong>: Communication with destination administratively prohibited</li><li><strong>Code 2</strong>: Beyond scope of source address</li><li><strong>Code 3</strong>: Address unreachable (catch-all)</li><li><strong>Code 4</strong>: Port unreachable</li><li><strong>Code 5</strong>: Source address failed ingress/egress policy</li><li><strong>Code 6</strong>: Reject route to destination</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig217-dead-end-router.png" alt="Figure 217: The Dead-End Router case study: hosts receive a Router Advertisement from an accounting server and use it as their default gateway" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 217 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 217.</strong> The Dead-End Router case study: hosts receive a Router Advertisement from an accounting server and use it as their default gateway </div></div><div class="callout callout-amber"><strong>ICMPv6 IS CRITICAL — NEVER BLOCK ALL OF IT</strong><p>Unlike ICMPv4, you cannot safely block all ICMPv6 traffic. NDP (which replaces ARP) runs over ICMPv6. Blocking it prevents hosts from finding their default gateway, discovering neighbors, or performing DAD. At minimum, Types 133-136 must be allowed for IPv6 to work. Selectively block only specific types (like Type 128 Echo Requests for security) if needed.</p></div><div class="callout callout-blue"><strong>FILTER ICMPv6 NEIGHBOR SOLICITATION</strong><p>DAD uses Neighbor Solicitation from <code>::</code> (unspecified address): filter <code>(ipv6.src==::) && (icmpv6.type==135)</code>. This tells you which hosts are performing duplicate address detection — useful for troubleshooting IPv6 address assignment problems. The target address in the NS is the address being tested.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">ICMPv6 replaces ARP (NDP Types 135/136), IGMP (MLD 130-132), Router Discovery (133/134). Type 2 = Packet Too Big (replaces ICMP Type 3 Code 4). Type 128/129 = Echo Request/Reply. DAD = Neighbor Solicitation from :: to solicited-node multicast. CANNOT block all ICMPv6 — IPv6 fails without it.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-icmpv6" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('icmpv6','ICMPv6')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-icmpv6" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('icmpv6')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-filters"><h2>Filter on ICMP/ICMPv6 Traffic — Case Study</h2><h3>Display Filter Reference</h3><p>Capture filter syntax: <code>icmp</code> (IPv4) or <code>icmp6</code> (IPv6). Display filter syntax: <code>icmp</code> or <code>icmpv6</code>.</p><div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:12px 0;font-family:'SF Mono',monospace;font-size:12px;line-height:2;"><b style="color:var(--blue)">icmp.type==8</b> — ICMP ping request<br><b style="color:var(--blue)">icmp.type==8 || icmp.type==0</b> — ICMP ping request or response<br><b style="color:var(--blue)">(icmp.type==8) && !(icmp.code==0)</b> — Unusual ICMP ping packets<br><b style="color:var(--blue)">icmp.type==13 || icmp.type==15 || icmp.type==17</b> — Timestamp/Info Requests (OS fingerprinting)<br><b style="color:var(--blue)">tcp && icmp.type==3 && (icmp.code==1 || icmp.code==2 || icmp.code==3)</b> — ICMP Dest Unreachable response to TCP<br><b style="color:var(--blue)">icmp.type==11</b> — Time to Live Exceeded (traceroute?)<br><b style="color:var(--blue)">icmp.type==3 && icmp.code==4</b> — Fragmentation Needed (PMTUD)<br><b style="color:var(--blue)">icmpv6.type==133</b> — Router Solicitation<br><b style="color:var(--blue)">(ipv6.src==::) && (icmpv6.type==135)</b> — IPv6 duplicate address detection<br><b style="color:var(--blue)">icmpv6 && ipv6.src==fe80::85ed:bc2e:dfc8:e5c8</b> — ICMPv6 from specific IPv6 host<br></div><h3>Case Study: The Dead-End Router</h3><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C18-CS1.png" alt="The Dead-End Router" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C18-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C18-CS1.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A confused network analyst stares at a Wireshark capture showing hosts sending all their traffic to an accounting server instead of a real router. The diagram on the whiteboard shows three devices: Client A, Client B, the Accounting Server, and the real Router. Arrows show traffic going to the Accounting Server (labeled 'DEFAULT GATEWAY' with a red X) instead of the real Router. A Router Advertisement packet is highlighted on the monitor with the accounting server's IP as the gateway. Speech bubble: 'The accounting server thinks it's a router!' Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 1</div><div class="cs-title">The Dead-End Router</div><div class="cs-sub"><em>Network Configuration Problem Diagnosed with ICMPv6 Analysis</em></div><div class="cs-body"><p>My customer complained that some of their hosts could not reach the internet on certain days — they would reboot their workstations and everything would work fine.</p><p>The traffic showed the clients transmitting Router Solicitations because the default gateway provided by the DHCP server did not reside on the local network.</p><p>The accounting server, a Sun host, was configured to respond with Router Advertisements. That Sun host was not a router, however. If the Sun host's Router Advertisement arrived before the Cisco router's Router Advertisement, the client used the Sun host's IP address in its routing tables as the default gateway.</p><p>When the clients received the Router Advertisements from the accounting server, they would update their routing tables with the IP address of the accounting server as their default gateway. When the clients wanted to communicate with hosts that were on other networks, they would consult their routing tables and send the packets to the default gateway (the accounting server).</p><p>Packets sent to the Sun box for routing were discarded by that box because it didn't really offer routing services — this caused the isolated host problem.</p><p>It was easy to spot the problem in just a few minutes with Wireshark.</p></div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Filter ICMP Type 13/15/17 for OS fingerprinting. ICMP Redirect from non-routers = suspicious. ICMPv6 Router Advertisements can be mis-sent by non-routers — always verify RA source. DAD filter: (ipv6.src==::) && (icmpv6.type==135). ICMP Type 3 Code 4 critical for PMTUD.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filters','Filters & Case Study')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filters')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 18</h3><p>ICMP offers a messaging service to indicate network configuration problems, unavailable services, hosts that are too far away from each other, fragmentation problems and more.</p><p>ICMP packets do not contain TCP or UDP headers — port filtering cannot block ICMP traffic.</p><p>Many ICMP packets contain the original header that triggered the ICMP packet.</p><p>ICMP Echo Requests are commonly used for standard ping tests and traceroute operations.</p><p>ICMPv6 plays several very important roles in IPv6 communications including duplicate address detection, neighbor discovery and more.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q18.1</div><div class="rq-q">What is the purpose of ICMP?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about the three main categories of ICMP messages and what network operations depend on them.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>ICMP is used as a messaging system for errors, alerts, and general notifications on an IP network. ICMP provides: (1) Error reporting — Destination Unreachable (Type 3) when packets can't be delivered, Time Exceeded (Type 11) when TTL expires; (2) Network advisories — Redirect (Type 5) for better routing paths; (3) Diagnostics — Echo Request/Reply (Types 8/0) for ping testing. ICMP is defined in RFC 792.</p></div></div><div class="rq-card"><div class="rq-num">Q18.2</div><div class="rq-q">What type of device might generate an ICMP Type 3, Code 13 (Destination Unreachable, Communication Administratively Prohibited) packet?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Think about who sends ICMP error messages — and why most security devices prefer not to send this particular type.</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>This packet might be generated by a <strong>verbose firewall</strong>. Many firewalls will silently discard blocked packets rather than send this packet — a verbose firewall explicitly notifies the sender that the communication is blocked. Sending this ICMP response reveals that a firewall is present (a firewall fingerprinting opportunity for an attacker). For security, most firewalls are configured to silently drop rather than send Code 13.</p></div></div><div class="rq-card"><div class="rq-num">Q18.3</div><div class="rq-q">You have captured only ICMP packets on your network. How can you determine what triggered the ICMP Type 3 (Destination Unreachable) packets on your network?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>Remember that ICMP error messages are not self-contained — they carry information about the packet that triggered them.</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>ICMP Type 3 packets contain the IP header and at least the next 8 bytes of the packet that triggered this response. Examine the IP header and bytes following the ICMP portion to determine why this packet was sent. In Wireshark, expand the ICMP section and look for the embedded "Internet Protocol" and "User Datagram Protocol" or "Transmission Control Protocol" headers inside the ICMP error message. This reveals the original source/destination IPs and port numbers that caused the Destination Unreachable.</p></div></div><div class="rq-card"><div class="rq-num">Q18.4</div><div class="rq-q">Which ICMPv4 and ICMPv6 packets are used for the standard ICMP-based ping process?</div><textarea class="rq-ta" data-key="rq-rq4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq4" onclick="saveRQ('rq4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq4" onclick="toggleRQAns('rq4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq4" style="display:none"><div class="hm-label">HINT</div><p>Ping uses two message types — one from the sender and one from the receiver. The ICMPv4 and ICMPv6 type numbers differ.</p></div><div class="rq-ans-box" id="rqans-rq4" style="display:none"><div class="hm-label">ANSWER</div><p>For the standard ICMPv4 ping: <strong>Type 8 (Echo Request)</strong> and <strong>Type 0 (Echo Reply)</strong>. For ICMPv6: <strong>Type 128 (Echo Request)</strong> and <strong>Type 129 (Echo Reply)</strong>. The Identifier and Sequence Number fields in both protocols link specific requests to their replies. Note: ICMP-based traceroute processes use Echo Requests with incrementing TTL values to elicit ICMP Time Exceeded (Type 11) responses from routers along the path.</p></div></div><div class="rq-card"><div class="rq-num">Q18.5</div><div class="rq-q">What should a host do when it receives an ICMP Type 5, Code 0 (Redirection, Redirect Datagram for the Network/Subnet) packet?</div><textarea class="rq-ta" data-key="rq-rq5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq5" onclick="saveRQ('rq5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq5" onclick="toggleRQAns('rq5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq5" style="display:none"><div class="hm-label">HINT</div><p>Think about what information is in the Redirect packet and what the host does with it.</p></div><div class="rq-ans-box" id="rqans-rq5" style="display:none"><div class="hm-label">ANSWER</div><p>When a host receives an ICMP Type 5, Code 0 (Redirection, Redirect Datagram for the Network/Subnet) packet, it should <strong>update its routing tables with the gateway address included in the ICMP packet</strong>. When it wants to communicate with that network again at a later time, it will use the new gateway entry in its routing tables. Important: Redirect packets should only be trusted when sourced from a router on the local segment. Redirect messages from non-router hosts should be treated as a potential man-in-the-middle attack.</p></div></div><div class="rq-card"><div class="rq-num">Q18.6</div><div class="rq-q">What is the syntax for capture and display filters for ICMPv4 and ICMPv6 traffic?</div><textarea class="rq-ta" data-key="rq-rq6" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq6" onclick="saveRQ('rq6')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq6')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq6" onclick="toggleRQAns('rq6')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq6" style="display:none"><div class="hm-label">HINT</div><p>Note that the capture filter and display filter syntaxes differ slightly.</p></div><div class="rq-ans-box" id="rqans-rq6" style="display:none"><div class="hm-label">ANSWER</div><p>For ICMPv4: <strong>Capture filter</strong>: <code>icmp</code> — <strong>Display filter</strong>: <code>icmp</code><br>For ICMPv6: <strong>Capture filter</strong>: <code>icmp6</code> — <strong>Display filter</strong>: <code>icmpv6</code><br>To capture all ICMP including both versions: <code>icmp or icmp6</code>. To display all: <code>icmp or icmpv6</code>. Additional filters: <code>icmp.type==8</code> (ping requests), <code>icmp.type==3</code> (destination unreachable), <code>icmpv6.type==135</code> (Neighbor Solicitation).</p></div></div><div class="rq-card"><div class="rq-num">Q18.7</div><div class="rq-q">What ICMPv6 packet is used to check for duplicate IP address assignment?</div><textarea class="rq-ta" data-key="rq-rq7" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq7" onclick="saveRQ('rq7')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq7')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq7" onclick="toggleRQAns('rq7')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq7" style="display:none"><div class="hm-label">HINT</div><p>IPv6 hosts perform Duplicate Address Detection (DAD) before fully claiming an address. What ICMPv6 type is used and what is notable about its source address?</p></div><div class="rq-ans-box" id="rqans-rq7" style="display:none"><div class="hm-label">ANSWER</div><p>ICMPv6 <strong>Neighbor Solicitation (Type 135)</strong> is used for duplicate address detection. When a host wants to use an IPv6 address, it first sends a Neighbor Solicitation for that address with a <strong>source address of :: (all zeros/unspecified)</strong>. If another host on the network already has that address, it responds with a Neighbor Advertisement (Type 136), and the first host must not use that address. Display filter: <code>(ipv6.src == ::) &amp;&amp; (icmpv6.type == 135)</code>. This is why you see :: as a source address in IPv6 captures during host initialization.</p></div></div>
-</div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 18 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Section Progress</h3><div class="progress-summary" id="prog-text">0 / 6 sections read</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-checklist"><label class="check-item" data-key="chk-purpose"><input type="checkbox" onchange="toggleDone(this,'chk-purpose')"> Purpose of ICMP</label><label class="check-item" data-key="chk-normal"><input type="checkbox" onchange="toggleDone(this,'chk-normal')"> Normal ICMP Traffic</label><label class="check-item" data-key="chk-problems"><input type="checkbox" onchange="toggleDone(this,'chk-problems')"> ICMP Problems</label><label class="check-item" data-key="chk-structure"><input type="checkbox" onchange="toggleDone(this,'chk-structure')"> ICMP Packet Structure</label><label class="check-item" data-key="chk-icmpv6"><input type="checkbox" onchange="toggleDone(this,'chk-icmpv6')"> ICMPv6</label><label class="check-item" data-key="chk-filters"><input type="checkbox" onchange="toggleDone(this,'chk-filters')"> Filters & Case Study</label></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 12 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>ICMP Key Filters</h4><div class="qr-row"><span class="qr-term">icmp</span><span class="qr-def">All ICMP traffic</span></div><div class="qr-row"><span class="qr-term">icmpv6</span><span class="qr-def">All ICMPv6 traffic</span></div><div class="qr-row"><span class="qr-term">icmp.type==8</span><span class="qr-def">Echo Request (ping)</span></div><div class="qr-row"><span class="qr-term">icmp.type==0</span><span class="qr-def">Echo Reply</span></div><div class="qr-row"><span class="qr-term">icmp.type==3</span><span class="qr-def">Destination Unreachable</span></div><div class="qr-row"><span class="qr-term">icmp.type==5</span><span class="qr-def">Redirect</span></div><div class="qr-row"><span class="qr-term">icmp.type==11</span><span class="qr-def">Time Exceeded</span></div><div class="qr-row"><span class="qr-term">icmpv6.type==133</span><span class="qr-def">Router Solicitation</span></div><div class="qr-row"><span class="qr-term">icmpv6.type==134</span><span class="qr-def">Router Advertisement</span></div><div class="qr-row"><span class="qr-term">icmpv6.type==135</span><span class="qr-def">Neighbor Solicitation</span></div></div></div><div class="sidebar-card"><h3>Trace Files</h3><div class="trace-list">icmp-ping-basic.pcapng<br>icmp-traceroute-2011.pcapng<br>icmpredirect.pcapng<br>icmp-dest-unreachable.pcapng<br>ipv6-mcasts.pcapng<br>pcapr-icmpv6-router-discovery.pcap</div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 18: Analyze ICMP Traffic</div>
-</footer>
-<script>
+  <div class="main-content">
 
-const PAGE_KEY='ws-ch18-full';
-const SECTIONS={'purpose':'Purpose of ICMP','normal':'Normal ICMP Traffic','problems':'ICMP Problems','structure':'ICMP Packet Structure','icmpv6':'ICMPv6','filters':'Filters & Case Study','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-normal','ins-problems','ins-structure','ins-icmpv6'];
-const RQ_IDS=['rq1','rq2','rq3','rq4','rq5','rq6','rq7'];
-const TOTAL=12;
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
-function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
-function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
-function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
-function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initFigures();initPT();updateInsProgress();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
-  });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
-  });
-});
+    <div class="insight-block" id="ins-icmp">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; ICMP PURPOSE &amp; BEHAVIOR</span>
+      </div>
+      <p class="insight-insight">ICMP is a messaging layer for IP &mdash; it reports errors, provides echo tests, and signals routing information. Because ICMP packets carry no TCP or UDP header, port-based filters cannot block them. Many ICMP packets include a copy of the original IP header and first 8 bytes of the packet that triggered the ICMP response.</p>
+      <ul class="insight-questions">
+        <li>ICMP Destination Unreachable (Type 3) responses to TCP handshake SYN packets are unusual. What does this suggest about the target, and why is it different from a TCP RST response?</li>
+        <li>Why should you never block ICMP Type 3, Code 4 (Fragmentation Needed) packets on a firewall?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-icmp">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> A TCP RST means the target host is reachable, the TCP stack is working, and the port is simply closed. An ICMP Destination Unreachable response to a TCP SYN suggests the target port is firewalled &mdash; a host-based or network firewall is intercepting and generating the ICMP response rather than the TCP stack itself. This is more unusual because a well-configured firewall would silently discard (not announce with an ICMP) the packet.</p>
+          <p><strong>Model Answer 2:</strong> ICMP Type 3 Code 4 is the Path MTU Discovery mechanism. When a router must fragment a packet with the Don't Fragment bit set, it sends this ICMP message back to the source indicating the maximum MTU on the next link. If this ICMP is blocked, the source never learns about the MTU limitation, keeps sending oversized packets, and the connection hangs silently &mdash; the "black hole" problem. Without these ICMP messages, MTU discovery is impossible and file transfers above the fragmented MTU size will fail.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-icmp">
+      <h2>The Purpose of ICMP</h2>
+      <p>ICMP is used as a messaging system for errors, alerts, and general notifications on an IP network. ICMP is defined in RFC 792. ICMP packets do not contain a UDP or TCP header &mdash; <strong>port filtering cannot affect ICMP traffic</strong>.</p>
+      <p>Key ICMP message categories:</p>
+      <ul>
+        <li><strong>Echo messages</strong> (Type 8/0): Used by ping and traceroute. Too many may signal reconnaissance or DoS.</li>
+        <li><strong>Redirect messages</strong> (Type 5): Used by routers to indicate a better path. If NOT sent by a router, consider it suspect.</li>
+        <li><strong>Destination Unreachable messages</strong> (Type 3): Explain why a packet could not be delivered. Many of these could indicate a UDP port scan or a misconfigured service.</li>
+      </ul>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig213-icmp-stack.png" alt="Figure 213: ICMP stack on IP network"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 213 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 213.</strong> ICMP offers messaging services on IP networks.</div>
+      </div>
+
+      <h3>Analyze Normal ICMP Traffic</h3>
+      <p>ICMP-based pings use ICMP Type 8 (Echo Request) and ICMP Type 0 (Echo Reply). Setting the Time column to <em>Seconds Since Previous Displayed Packet</em> with an ICMP filter provides round-trip time values more granular than command-line ping.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig214-icmp-ping.png" alt="Figure 214: Normal ICMP ping process"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 214 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 214.</strong> A normal ICMP-based ping process [icmp-ping-basic.pcapng].</div>
+      </div>
+
+      <p>ICMP-based traceroute sends Echo Requests with incrementing TTL values. Each router along the path that receives TTL=1 sends back ICMP Type 11, Code 0 (Time Exceeded), revealing its IP address.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig215-icmp-traceroute.png" alt="Figure 215: ICMP traceroute traffic"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 215 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 215.</strong> ICMP-based traceroute traffic [icmp-traceroute-2011.pcapng].</div>
+      </div>
+
+      <h3>ICMP Redirect</h3>
+      <p>Figure 216 shows an ICMP Redirect packet (Type 5/Code 1) pointing to another gateway at 10.2.99.98. This is sent when a receiving router identifies a better router for the sender. <strong>Redirects should only be sent by routers.</strong> Upon receipt, a host should update its routing table.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig216-icmp-redirect.png" alt="Figure 216: ICMP Redirect packet"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 216 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 216.</strong> An ICMP Redirect packet [icmpredirect.pcapng].</div>
+      </div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">ICMP = no TCP/UDP header, port filtering cannot block it. Ping: Type 8 (request), Type 0 (reply). Traceroute: Type 8 with incrementing TTL &rarr; routers return Type 11 Code 0. Redirect = Type 5, only sent by routers, host updates routing table. Dst Unreachable to TCP SYN = firewalled port (verbose firewall). Many ICMP Type 3 = UDP port scan or service down. Capture: <code>icmp</code>. Display: <code>icmp</code> or <code>icmpv6</code>.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-icmp" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-icmp','ICMP Basics')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-icmp" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-icmp')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-block" id="ins-types">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; ICMP TYPES &amp; CODES</span>
+      </div>
+      <p class="insight-insight">ICMP packet types define the category of message; the Code field provides detail within that type. Type 3 (Destination Unreachable) has 16 different codes. Understanding which codes indicate which kind of failure lets you pinpoint the problem without moving the analyzer.</p>
+      <ul class="insight-questions">
+        <li>ICMP Type 3 Code 1 (Host Unreachable) versus Code 3 (Port Unreachable): what infrastructure element is likely generating each, and what does it tell you about the path?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-types">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> Code 1 (Host Unreachable) is generated by a <em>router</em> that knows about the network but cannot reach the specific host &mdash; it sent an ARP broadcast for the host and got no reply. This means the packet arrived at the right network, but the host isn't up or isn't responding to ARP. Code 3 (Port Unreachable) is generated by the <em>destination host itself</em> &mdash; the host received the packet and its IP/transport stack processed it, but no application is listening on that UDP port. Code 3 on a TCP SYN indicates a firewall is generating the response, since TCP connections should trigger RST, not ICMP.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-types">
+      <h2>ICMP Types &amp; Codes</h2>
+      <p>ICMP packets only require three fields after the IP header: <strong>Type</strong>, <strong>Code</strong>, and <strong>Checksum</strong>. Some packets contain additional fields.</p>
+
+      <h3>Key ICMP Types</h3>
+      <table class="def-table">
+        <thead><tr><th>Type</th><th>Name</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>Echo Reply</td><td>Ping response</td></tr>
+          <tr><td>3</td><td>Destination Unreachable</td><td>16 codes. Most commonly seen ICMP type in troubleshooting.</td></tr>
+          <tr><td>5</td><td>Redirect</td><td>Better path available. Should only come from a router.</td></tr>
+          <tr><td>8</td><td>Echo Request</td><td>Ping request. Traceroute uses these with incrementing TTL.</td></tr>
+          <tr><td>11</td><td>Time Exceeded</td><td>Code 0: TTL expired in transit (traceroute). Code 1: Fragment reassembly time exceeded.</td></tr>
+          <tr><td>13</td><td>Timestamp</td><td>Used for OS fingerprinting &mdash; watch for these</td></tr>
+          <tr><td>17</td><td>Address Mask Request</td><td>Used for OS fingerprinting &mdash; watch for these</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Type 3 — Destination Unreachable Codes</h3>
+      <table class="def-table">
+        <thead><tr><th>Code</th><th>Name</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>Net Unreachable</td><td>Router knows the network but believes it is not up</td></tr>
+          <tr><td>1</td><td>Host Unreachable</td><td>Router knows the host, but got no ARP reply (host is down)</td></tr>
+          <tr><td>2</td><td>Protocol Unreachable</td><td>Protocol in IP header cannot be processed (seen in IP scans)</td></tr>
+          <tr><td>3</td><td>Port Unreachable</td><td>No service listening on that port. Many = UDP scan. TCP SYN + ICMP 3/3 = firewalled port</td></tr>
+          <tr><td>4</td><td>Fragmentation Needed, DF Set</td><td>Router needed to fragment but DF bit was set. <strong>Never block this code!</strong> (MTU/black hole detection)</td></tr>
+          <tr><td>9/10/13</td><td>Administratively Prohibited</td><td>Firewall blocking. You may not want to advertise these.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Filter on ICMP Traffic</h3>
+      <table class="def-table">
+        <thead><tr><th>Filter</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>icmp.type==8</code></td><td>ICMP Echo Request (ping)</td></tr>
+          <tr><td><code>icmp.type==8 || icmp.type==0</code></td><td>Ping request or response</td></tr>
+          <tr><td><code>icmp.type==11</code></td><td>Time Exceeded (traceroute hops)</td></tr>
+          <tr><td><code>icmp.type==3 &amp;&amp; icmp.code==4</code></td><td>Fragmentation Needed/DF Set (don't block!)</td></tr>
+          <tr><td><code>icmp.type==13 || icmp.type==15 || icmp.type==17</code></td><td>Timestamp/Info/Address Mask (OS fingerprinting)</td></tr>
+          <tr><td><code>tcp &amp;&amp; icmp.type==3</code></td><td>ICMP Dest Unreachable in response to TCP (firewalled port)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Type 3/Code 3 (Port Unreachable) = service not running at target. Type 3/Code 4 (Fragmentation Needed) = <strong>never block, needed for black hole detection</strong>. Type 5/Code 0 or 1 (Redirect) = better router known, host should update routing table. Type 11/Code 0 (TTL exceeded) = traceroute mechanism. Type 13/15/17 = OS fingerprinting. ICMP to TCP SYN = firewalled port (verbose firewall). Capture filter: <code>icmp</code> or <code>icmp6</code>. Display filter: <code>icmp</code> or <code>icmpv6</code>.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-types" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-types','Types &amp; Codes')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-types" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-types')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-block" id="ins-icmpv6">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span><span class="insight-label">THINK FIRST &middot; ICMPv6</span>
+      </div>
+      <p class="insight-insight">ICMPv6 expands on ICMP's role significantly. In IPv6, ICMPv6 handles not only error reporting and echo, but also neighbor discovery (replacing ARP), duplicate address detection, and router discovery. ICMPv6 Echo uses Types 128/129 instead of 8/0.</p>
+      <ul class="insight-questions">
+        <li>ICMPv6 Neighbor Solicitation (Type 135) sent from source address :: has a special meaning. What is it, and which IPv4 mechanism does it correspond to?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-icmpv6">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> Source address :: (the unspecified address) in a Neighbor Solicitation means the host doesn't yet have an IPv6 address and is performing <em>Duplicate Address Detection (DAD)</em> &mdash; it's asking "is anyone already using this address?" before configuring it. This is the ICMPv6 equivalent of a gratuitous ARP in IPv4, where a host sets both source and target IP to its own address to check for conflicts. Both serve the same purpose: verifying address uniqueness before putting the address into service.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-icmpv6">
+      <h2>Basic ICMPv6 Functionality</h2>
+      <p>RFC 4443 defines ICMPv6. The packet structure is the same as ICMP. ICMPv6 plays several critical roles in IPv6 communications:</p>
+      <table class="def-table">
+        <thead><tr><th>Type</th><th>Name</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Destination Unreachable</td><td>Replaces IPv4 ICMP Type 3</td></tr>
+          <tr><td>2</td><td>Packet Too Big</td><td>Path MTU Discovery (replaces ICMP Type 3/Code 4). Only code value = 0. Contains MTU field.</td></tr>
+          <tr><td>3</td><td>Time Exceeded</td><td>Code 0: Hop limit exceeded. Code 1: Fragment reassembly timeout.</td></tr>
+          <tr><td>128</td><td>Echo Request</td><td>IPv6 ping (replaces IPv4 Type 8)</td></tr>
+          <tr><td>129</td><td>Echo Reply</td><td>IPv6 ping reply (replaces IPv4 Type 0)</td></tr>
+          <tr><td>133</td><td>Router Solicitation</td><td>Client asks routers to send Router Advertisements immediately</td></tr>
+          <tr><td>134</td><td>Router Advertisement</td><td>Routers advertise presence, M/O bits, prefix info</td></tr>
+          <tr><td>135</td><td>Neighbor Solicitation</td><td>Replaces ARP. Also used for Duplicate Address Detection (src=::)</td></tr>
+          <tr><td>136</td><td>Neighbor Advertisement</td><td>Response to Neighbor Solicitation</td></tr>
+          <tr><td>137</td><td>Redirect</td><td>Replaces IPv4 ICMP Type 5 Redirect</td></tr>
+        </tbody>
+      </table>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig217-dead-end-router.png" alt="Figure 217: ICMPv6 echo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 217 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 217.</strong> ICMPv6 uses Type 128 and 129 for Echo Requests and Echo Replies [ipv6-pinginipv4.pcapng].</div>
+      </div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">ICMPv6 Echo = Type <strong>128</strong> (request) / <strong>129</strong> (reply). Not 8/0 like IPv4. Neighbor Solicitation (135) = ARP replacement. NS from :: = Duplicate Address Detection (DAD) = IPv4 gratuitous ARP equivalent. Packet Too Big (Type 2) = IPv6 Path MTU Discovery. Router Solicitation (133) and Advertisement (134) = used for router discovery and M/O flag delivery. Display filter: <code>icmpv6.type==133</code> for RS, <code>(ipv6.src==::) &amp;&amp; (icmpv6.type==135)</code> for DAD.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-icmpv6" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-icmpv6','ICMPv6')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-icmpv6" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-icmpv6')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-casestudy">
+      <h2>Case Studies</h2>
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 1</div>
+        <div class="cs-title">The Dead-End Router</div>
+        <div class="cs-sub">Submitted by: Laura Chappell</div>
+        <div class="cs-body">
+          <p>A customer complained that some of their hosts could not reach the internet on certain days &mdash; rebooting workstations would fix it temporarily.</p>
+          <p>The traffic showed the clients transmitting ICMPv6 Router Solicitations because the default gateway provided by the DHCP server did not reside on the local network. An accounting server (a Sun host) was configured to respond with Router Advertisements. That Sun host was not actually a router.</p>
+          <p>If the Sun host's Router Advertisement arrived before the Cisco router's Router Advertisement, the client used the Sun host's IP address as its default gateway. When the clients needed to communicate with hosts on other networks, packets were sent to the Sun box &mdash; and discarded, because it didn't offer routing services.</p>
+          <p>It was easy to spot the problem in just a few minutes by examining the ICMP/ICMPv6 traffic and noticing the non-router was sending Router Advertisements.</p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C18-CS1.png" alt="The Dead-End Router"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none">
+              <span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
+              <div><strong>C18-CS1.png</strong></div>
+              <div class="cs-ph-sub">Save to all-casestudy-pictures/C18-CS1.png</div>
+            </div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt"
+              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
+              &#9662; Show cartoon prompt
+            </button>
+            <div class="cs-prompt-text" hidden>
+              A network diagram showing a corporate LAN with two devices: a Cisco router labeled "Real Router" and a Sun server labeled "Accounting Server (NOT a router)." Both are sending Router Advertisement packets (depicted as broadcast arrows) to client workstations. One client's routing table shows "Default GW = Sun Server IP" with a red X. Traffic from the client goes to the Sun server, which has a sign reading "I don't route!" and a dead-end wall behind it. In the background, the Cisco router looks frustrated. A Wireshark capture on the analyst's laptop shows two ICMPv6 Router Advertisement sources. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "Real Router," "Sun Accounting Server," "Router Advertisement (wrong)," "Dead-end," "Client," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-tldr">
+      <div class="tldr-block">
+        <div class="tldr-label">TL;DR &mdash; Chapter Summary</div>
+        <div class="tldr-text">
+          <p>ICMP offers a messaging service to indicate network configuration problems, unavailable services, hosts that are too far away, fragmentation problems and more. ICMP packets do not contain TCP or UDP headers &mdash; port filtering cannot block ICMP traffic.</p>
+          <p>Many ICMP packets contain the original IP header that triggered the ICMP packet. ICMP Echo Requests are commonly used for ping tests and traceroute operations.</p>
+          <p>ICMPv6 plays several very important roles in IPv6 communications including duplicate address detection (Type 135 from ::), neighbor discovery, router solicitation/advertisement, and error reporting. ICMPv6 Echo uses Types 128/129.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="sec-rq">
+      <h2>Review Questions</h2>
+      <div class="rq-card" id="rq-18-1">
+        <div class="rq-question">Q18.1 What is the purpose of ICMP?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A18.1</strong> ICMP is used as a messaging system for errors, alerts, and general notifications on an IP network.</div>
+      </div>
+      <div class="rq-card" id="rq-18-2">
+        <div class="rq-question">Q18.2 What type of device might generate an ICMP Type 3, Code 13 (Destination Unreachable, Communication Administratively Prohibited) packet?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A18.2</strong> This packet might be generated by a verbose firewall. Many firewalls will silently discard blocked packets rather than send this response.</div>
+      </div>
+      <div class="rq-card" id="rq-18-3">
+        <div class="rq-question">Q18.3 You have captured only ICMP packets. How can you determine what triggered the ICMP Type 3 (Destination Unreachable) packets?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A18.3</strong> ICMP Type 3 packets contain the IP header and at least the next 8 bytes of the packet that triggered the response. Examine the IP header and bytes following the ICMP portion to determine why this packet was sent.</div>
+      </div>
+      <div class="rq-card" id="rq-18-4">
+        <div class="rq-question">Q18.4 Which ICMPv4 and ICMPv6 packets are used for the standard ICMP-based ping process?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A18.4</strong> ICMPv4: Type 8 (Echo Request) and Type 0 (Echo Reply). ICMPv6: Type 128 (Echo Request) and Type 129 (Echo Reply).</div>
+      </div>
+      <div class="rq-card" id="rq-18-5">
+        <div class="rq-question">Q18.5 What should a host do when it receives an ICMP Type 5, Code 0 (Redirect Datagram for the Network) packet?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A18.5</strong> The host should update its routing tables with the gateway address included in the ICMP packet and use the new gateway entry for future communications to that network.</div>
+      </div>
+      <div class="rq-card" id="rq-18-6">
+        <div class="rq-question">Q18.6 What is the syntax for capture and display filters for ICMPv4 and ICMPv6 traffic?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A18.6</strong> Capture: <code>icmp</code> (IPv4) or <code>icmp6</code> (IPv6). Display: <code>icmp</code> (IPv4) or <code>icmpv6</code> (IPv6).</div>
+      </div>
+      <div class="rq-card" id="rq-18-7">
+        <div class="rq-question">Q18.7 What ICMPv6 packet is used to check for duplicate IP address assignment?</div>
+        <div class="rq-answer-area"><textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea><button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button></div>
+        <div class="rq-answer" style="display:none"><strong>A18.7</strong> ICMPv6 Neighbor Solicitation (Type 135) sent from source address :: (unspecified) is used for Duplicate Address Detection (DAD).</div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Navigation</div>
+      <a class="sidebar-link" href="../hub.html">&larr; Study Guide Hub</a>
+      <a class="sidebar-link" href="index.html">Practice Lab</a>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Quick Reference</div>
+      <div class="quick-ref"><div class="qr-term">Ping Types</div><div class="qr-def">IPv4: Type 8/0. IPv6: Type 128/129</div></div>
+      <div class="quick-ref"><div class="qr-term">Traceroute</div><div class="qr-def">ICMP Type 8 with TTL 1,2,3... &rarr; routers return Type 11 Code 0</div></div>
+      <div class="quick-ref"><div class="qr-term">Don't Block</div><div class="qr-def">ICMP Type 3 Code 4 (Fragmentation Needed) &mdash; needed for MTU discovery</div></div>
+      <div class="quick-ref"><div class="qr-term">ICMPv6 DAD</div><div class="qr-def">Type 135 (Neighbor Solicitation) from src :: = duplicate address detection</div></div>
+      <div class="quick-ref"><div class="qr-term">Redirect</div><div class="qr-def">Type 5 &mdash; only sent by routers. Host updates routing table.</div></div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Progress</div>
+      <div class="ins-prog-count" id="ins-prog-count">0 / 10 complete</div>
+      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
+      <div style="margin-top:12px">
+        <label class="check-item"><input type="checkbox" id="chk-icmp" onchange="toggleDone('icmp')"> ICMP Basics</label>
+        <label class="check-item"><input type="checkbox" id="chk-types" onchange="toggleDone('types')"> Types &amp; Codes</label>
+        <label class="check-item"><input type="checkbox" id="chk-icmpv6" onchange="toggleDone('icmpv6')"> ICMPv6</label>
+        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Study</label>
+        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="practice-cta"><div class="cta-inner"><div class="cta-text">Ready to practice?</div><a href="index.html" class="cta-btn">Open Practice Lab &rarr;</a></div></div>
+<footer><div class="footer-inner"><span>Wireshark Network Analysis &mdash; Chapter 18</span><span>Analyze ICMP Traffic</span></div></footer>
+<script>
+const PAGE_KEY = 'ws-ch18-full';
+const SECTIONS = {'sec-icmp':'ICMP Basics','sec-types':'Types & Codes','sec-icmpv6':'ICMPv6','sec-casestudy':'Case Study','sec-tldr':'TL;DR','sec-rq':'Review Questions'};
+const INSIGHT_IDS = ['ins-icmp','ins-types','ins-icmpv6'];
+const RQ_IDS = ['18-1','18-2','18-3','18-4','18-5','18-6','18-7'];
+const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+document.querySelectorAll('.insight-header').forEach(h=>h.addEventListener('click',()=>h.closest('.insight-block').classList.toggle('ins-open')));
+function saveSocAnswer(btn){const area=btn.closest('.answer-area');const ta=area.querySelector('.answer-textarea');if(!ta.value.trim())return;localStorage.setItem(PAGE_KEY+'-soc-'+area.dataset.section,ta.value);area.querySelector('.btn-see-answer').disabled=false;btn.textContent='✓ Saved';updateProgress();}
+function revealSocAnswer(btn){const area=btn.closest('.answer-area');const ma=area.querySelector('.model-answers');ma.style.display=ma.style.display==='none'?'block':'none';btn.textContent=ma.style.display==='none'?'🔒 See Model Answer':'▴ Hide Answer';}
+function toggleQPanel(){const body=document.getElementById('q-panel-body');const tog=document.getElementById('q-panel-toggle');const open=body.style.display!=='none';body.style.display=open?'none':'block';tog.textContent=open?'▾':'▴';}
+function renderQPanel(){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');const list=document.getElementById('q-list');const empty=document.getElementById('q-empty');list.innerHTML='';if(qs.length===0){empty.style.display='block';return;}empty.style.display='none';qs.forEach((q,i)=>{const div=document.createElement('div');div.className='q-item';div.innerHTML='<span class="q-section-tag">'+q.section+'</span><span class="q-text">'+q.text+'</span><button class="q-del" onclick="deleteQuestion('+i+')">×</button>';list.appendChild(div);});}
+function addQuestion(secId,secName){const ta=document.getElementById('q-'+secId);if(!ta||!ta.value.trim())return;const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.push({section:secName,text:ta.value.trim()});localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));ta.value='';renderQPanel();}
+function deleteQuestion(i){const qs=JSON.parse(localStorage.getItem(PAGE_KEY+'-questions')||'[]');qs.splice(i,1);localStorage.setItem(PAGE_KEY+'-questions',JSON.stringify(qs));renderQPanel();}
+function addNote(secId){const ta=document.getElementById('note-'+secId);if(!ta||!ta.value.trim())return;localStorage.setItem(PAGE_KEY+'-note-'+secId,ta.value);ta.style.borderColor='#22c55e';setTimeout(()=>ta.style.borderColor='',1200);}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const idx=Object.keys(SECTIONS).indexOf(id);const tabs=document.querySelectorAll('.nav-tab');if(tabs[idx])tabs[idx].classList.add('active');}
+function toggleDone(id){localStorage.setItem(PAGE_KEY+'-chk-'+id,document.getElementById('chk-'+id).checked?'1':'');}
+function updateProgress(){let done=0;INSIGHT_IDS.forEach(id=>{if(localStorage.getItem(PAGE_KEY+'-soc-'+id))done++;});RQ_IDS.forEach(id=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+id))done++;});document.getElementById('ins-prog-count').textContent=done+' / '+TOTAL+' complete';document.getElementById('ins-prog-fill').style.width=Math.round(done/TOTAL*100)+'%';}
+function revealRQ(btn){const card=btn.closest('.rq-card');const ans=card.querySelector('.rq-answer');const ta=card.querySelector('.rq-textarea');const id=card.id.replace('rq-','');ans.style.display=ans.style.display==='none'?'block':'none';btn.textContent=ans.style.display==='none'?'Reveal Answer':'Hide Answer';if(ta.value.trim()){localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);updateProgress();}}
+function initNotes(){const gn=document.getElementById('global-notes');gn.value=localStorage.getItem(PAGE_KEY+'-global-notes')||'';gn.addEventListener('input',()=>localStorage.setItem(PAGE_KEY+'-global-notes',gn.value));Object.keys(SECTIONS).forEach(secId=>{const saved=localStorage.getItem(PAGE_KEY+'-note-'+secId);const ta=document.getElementById('note-'+secId);if(ta&&saved)ta.value=saved;});INSIGHT_IDS.forEach(id=>{const saved=localStorage.getItem(PAGE_KEY+'-soc-'+id);if(saved){const block=document.getElementById(id);if(!block)return;const ta=block.querySelector('.answer-textarea');const btn=block.querySelector('.btn-see-answer');if(ta)ta.value=saved;if(btn)btn.disabled=false;}});}
+function initChecks(){['icmp','types','icmpv6','casestudy','rq'].forEach(id=>{const el=document.getElementById('chk-'+id);if(el)el.checked=!!localStorage.getItem(PAGE_KEY+'-chk-'+id);});}
+document.addEventListener('DOMContentLoaded',()=>{initNotes();initChecks();renderQPanel();updateProgress();document.body.style.opacity='1';sessionStorage.setItem('pt','1');});
 </script>
-</body>
-</html>
+</body></html>

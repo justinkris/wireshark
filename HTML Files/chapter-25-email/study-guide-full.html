@@ -3,21 +3,13 @@
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 25: Analyze Email Traffic | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +63,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,12 +80,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
 .insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
@@ -121,16 +108,17 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
-.fig-trace{color:var(--blue);font-style:italic;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -138,7 +126,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -148,11 +136,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -177,15 +169,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -193,104 +176,282 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
 </style>
 </head>
 <body>
 <header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 25<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 25</div>
-<h1>Analyze Email <em>Traffic</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
+  <div class="header-inner">
+    <div class="breadcrumb"><a href="../index.html">Wireshark</a> &rsaquo; Chapter 25</div>
+    <div class="eyebrow"><span class="eyebrow-chip">Ch 25</span><span class="eyebrow-dot"></span><span>Email Traffic Analysis</span></div>
+    <h1>Analyze Email Traffic<em>POP &amp; SMTP</em></h1>
+    <div class="header-sub">Retrieve and send email — decoding POP sessions and SMTP handshakes in the packet trace.</div>
+  </div>
 </header>
+
 <div class="motivation-banner">
-<div class="motivation-text"> <em>Every email tells a story — read the SMTP handshake and POP3 exchange to understand it.</em></div>
-<p class="motivation-sub">POP3, SMTP, and IMAP are the three protocols that power email — all visible in Wireshark.</p>
+  <div class="motiv-quote">"Email leaves a trail. Every USER, PASS, MAIL FROM, and RCPT TO travels in the clear — read it in the trace before the attacker does."</div>
+  <div class="motiv-sub">Chapter 25 · Wireshark Network Analysis</div>
 </div>
+
 <div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
+  <div class="qpanel" id="qpanel">
+    <div class="qpanel-header" onclick="toggleQPanel()">
+      <span>&#128172; My Questions</span><span class="qpanel-toggle">&#9662;</span>
+    </div>
+    <div class="qpanel-body" id="qpanel-body"></div>
+  </div>
+  <div class="notes-panel" id="notes-panel">
+    <div class="notes-header">&#128221; My Notes</div>
+    <div class="notes-body" id="notes-body"></div>
+  </div>
 </div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
+
 <nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of Email</button><button class="nav-tab" data-target="sec-pop" onclick="navTo('sec-pop')">POP Traffic</button><button class="nav-tab" data-target="sec-smtp" onclick="navTo('sec-smtp')">SMTP Traffic</button><button class="nav-tab" data-target="sec-imap" onclick="navTo('sec-imap')">IMAP Traffic</button><button class="nav-tab" data-target="sec-problems" onclick="navTo('sec-problems')">Email Problems</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Filters & Case Study</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
+  <button class="nav-tab active" onclick="navTo('sec-pop')">POP</button>
+  <button class="nav-tab" onclick="navTo('sec-smtp')">SMTP</button>
+  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
 </nav>
+
 <main>
-<div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF EMAIL</span></div><div class="ins-body"><p class="ins-q">Email uses different protocols for sending vs retrieving. SMTP sends email from client to server AND between mail servers. POP3 and IMAP retrieve email from the server. What is the key difference between POP3 and IMAP in terms of where email is stored?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Think about what happens to email on the server after a POP3 client downloads it vs what an IMAP client does.</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>POP3: downloads email to the local client and typically deletes it from the server. Email lives on your local device — accessing from multiple devices means older emails may not be available everywhere. IMAP: email stays on the server. Clients sync with the server — you see the same email from every device. Folders are maintained on the server. IMAP is preferred for multi-device access. POP3 is defined in RFC 1939; IMAP in RFC 1730; SMTP in RFC 2821.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>The Purpose of Email</h2><p>Email programs use <strong>POP</strong> (Post Office Protocol) or <strong>IMAP</strong> (Internet Message Access Protocol) to retrieve email and <strong>SMTP</strong> (Simple Mail Transfer Protocol) to send email. This chapter covers POP and SMTP.</p><p>POP is defined in RFC 1939. IMAP is defined in RFC 1730. Both are TCP-based. SMTP is defined in RFC 2821. POP itself does not provide security in email data transfer — usernames, passwords, and email content are sent in clear text unless encryption (STARTTLS/SSL) is enabled.</p><div class="callout callout-red"><strong>EMAIL IS NOT SECURE BY DEFAULT</strong><p>POP3, IMAP, and SMTP transmit email content, usernames, and passwords in clear text unless encrypted. Use POP3S (port 995), IMAPS (port 993), and SMTPS (port 587 or 465 with STARTTLS) for encrypted email. In Wireshark, you can often read email content and credentials in plain POP3/SMTP sessions by following the TCP stream.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Email protocols: SMTP (send, port 25/587), POP3 (retrieve, port 110), IMAP (retrieve+sync, port 143). All clear text unless TLS. POP3 downloads+deletes from server. IMAP keeps on server, syncs across devices. Secure versions: SMTPS(465), POP3S(995), IMAPS(993).</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig296-email-programs-always-run-over-tcp.png" alt="Figure 296: Email programs always run over TCP" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 296 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 296.</strong> Email programs always run over TCP</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of Email')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-pop"><div class="insight-hdr" onclick="toggleInsight('ins-pop')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · POP TRAFFIC</span></div><div class="ins-body"><p class="ins-q">POP3 uses a simple command/response sequence. After authentication, a client typically issues RETR followed by DELE to download and remove each message. What does the STAT command return? And what does the LIST command do?</p><textarea class="ins-ta" data-key="ins-pop" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-pop" onclick="saveIns('ins-pop')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-pop')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-pop" onclick="toggleInsModel('ins-pop')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-pop" style="display:none"><div class="hm-label">HINT</div><p>Think about what basic operations you need: see how many messages, get a list, download one, delete one.</p></div><div class="ins-model-box" id="model-ins-pop" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>STAT returns the number of messages and total mailbox size. LIST returns a list of message numbers and sizes. RETR &lt;n&gt; downloads message number n. DELE &lt;n&gt; marks message n for deletion. QUIT commits the deletions and closes the session. POP3 uses simple OK/ERR responses. Authentication: USER command sends username, PASS sends password (both in clear text). A Wireshark Follow TCP Stream on a POP3 session shows the complete email headers and body in plain text.</p></div></div></div><div class="section-block" id="sec-pop"><h2>Analyze POP Traffic</h2><p>POP3 uses TCP port 110 (POP3S on port 995). The session begins with a TCP handshake, then the server sends a greeting. Basic POP3 session commands:</p><ul><li><strong>USER</strong> &lt;name&gt;: Sends the username</li><li><strong>PASS</strong> &lt;password&gt;: Sends the password (clear text!)</li><li><strong>STAT</strong>: Returns number of messages and total mailbox size</li><li><strong>LIST</strong> [n]: Lists all messages or message n with sizes</li><li><strong>RETR</strong> n: Retrieves message number n</li><li><strong>DELE</strong> n: Marks message n for deletion (executed at QUIT)</li><li><strong>TOP</strong> n m: Returns header + first m lines of message n</li><li><strong>UIDL</strong> [n]: Returns unique IDs for messages</li><li><strong>QUIT</strong>: Commits deletions and closes connection</li></ul><p>Server responses: +OK followed by data (success) or -ERR followed by error message (failure).</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">POP3: port 110. USER → PASS → STAT/LIST → RETR → DELE → QUIT. Responses: +OK or -ERR. All clear text. Follow TCP Stream to read email content. POP3 downloads then deletes from server by default. Filter: pop or tcp.port==110.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig297-shows-a-pop-request-to-retrieve-a-message.png" alt="Figure 297: A user retrieves one email message  Analyze POP Problems POP communication problems can begin with the TCP connection process and can also be affected by high latency an" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 297 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 297.</strong> A user retrieves one email message  Analyze POP Problems POP communication problems can begin with the TCP connection process and can also be affected by high latency an</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig298-a-pop-error-message-indicates-the-pop-server.png" alt="Figure 298: A POP error message indicates the POP server is busy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 298 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 298.</strong> A POP error message indicates the POP server is busy</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig304-inside-an-smtp-ehlo-command-packet.png" alt="Figure 304: shows an EHLO command packet. In this packet, the command is followed by a request parameter, the name of the host sending the email." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 304 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 304.</strong> shows an EHLO command packet. In this packet, the command is followed by a request parameter, the name of the host sending the email.</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-pop" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('pop','POP Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-pop" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('pop')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-smtp"><div class="insight-hdr" onclick="toggleInsight('ins-smtp')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · SMTP TRAFFIC</span></div><div class="ins-body"><p class="ins-q">SMTP sends email from client to server and between mail servers. The SMTP server greeting is important — it announces the server's identity. What SMTP commands are used to deliver an email? And why might you see SMTP traffic in your capture even when you're not sending email?</p><textarea class="ins-ta" data-key="ins-smtp" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-smtp" onclick="saveIns('ins-smtp')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-smtp')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-smtp" onclick="toggleInsModel('ins-smtp')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-smtp" style="display:none"><div class="hm-label">HINT</div><p>Think about what happens in the background when mail servers relay messages to each other.</p></div><div class="ins-model-box" id="model-ins-smtp" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>SMTP email delivery sequence: HELO/EHLO (greeting), MAIL FROM: (sender), RCPT TO: (recipient), DATA (start of message body — ends with a period on a line by itself), QUIT. You'll see SMTP even without sending email because mail servers relay messages between each other — your captured network might be handling email in transit. EHLO (Extended HELLO) returns the list of SMTP extensions supported (e.g., STARTTLS for encryption, SIZE for max message size, AUTH for authentication methods). SMTP spam often uses many RCPT TO: commands — filter: smtp.req.command==RCPT.</p></div></div></div><div class="section-block" id="sec-smtp"><h2>Analyze SMTP Traffic</h2><p>SMTP uses TCP port 25 (SMTPS on port 465, SMTP with STARTTLS on port 587). SMTP communications between mail servers use port 25. Client-to-server submission typically uses port 587.</p><p>Normal SMTP session sequence:</p><ol><li>Server sends 220 greeting (identifies server)</li><li>Client sends <strong>EHLO</strong> (or HELO for old servers) with its hostname</li><li>Server responds with supported extensions (STARTTLS, SIZE, AUTH, etc.)</li><li>Client sends <strong>MAIL FROM:</strong> with sender address</li><li>Server responds 250 OK</li><li>Client sends <strong>RCPT TO:</strong> with recipient address</li><li>Server responds 250 OK (or 550 if address doesn't exist)</li><li>Client sends <strong>DATA</strong></li><li>Server responds 354 (start input, end with .)</li><li>Client sends email headers + body + single period on empty line</li><li>Server responds 250 OK (message accepted)</li><li>Client sends <strong>QUIT</strong></li></ol><p>Key SMTP response codes: 220=service ready, 250=action completed, 354=start mail input, 421=service unavailable, 450=mailbox busy, 550=mailbox unavailable/rejected.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">SMTP: port 25 (server-to-server), 587 (client-to-server). EHLO → MAIL FROM → RCPT TO → DATA → . (period) → QUIT. 250=success, 550=reject. STARTTLS upgrades plain SMTP to encrypted. Follow TCP Stream to see email content. Many RCPT TO = possible spam relay.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig300-the-response-to-the-retr-command-includes-the.png" alt="Figure 300: shows an email response. The response begins with the response indicator and the response description. There are only two response indicators used in POP communications:" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 300 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 300.</strong> shows an email response. The response begins with the response indicator and the response description. There are only two response indicators used in POP communications:</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig301-smtp-messages-are-delivered-in-internet-message-format.png" alt="Figure 301: SMTP messages are delivered in Internet Message Format  Analyze Normal SMTP Communications After a successful TCP handshake, the SMTP server responds with a numerical c" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 301 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 301.</strong> SMTP messages are delivered in Internet Message Format  Analyze Normal SMTP Communications After a successful TCP handshake, the SMTP server responds with a numerical c</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig302-an-smtp-client-sends-an-email-message.png" alt="Figure 302: An SMTP client sends an email message" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 302 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 302.</strong> An SMTP client sends an email message</div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig303-a-host-is-running-a-relay-test-against.png" alt="Figure 303: shows an unusual SMTP traffic pattern. A host’s email program is performing an SMTP relay test by generating a series of MAIL FROM addresses to test whether the server will accept them." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 303 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 303.</strong> shows an unusual SMTP traffic pattern. A host’s email program is performing an SMTP relay test by generating a series of MAIL FROM addresses to test whether the server will accept them.</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-smtp" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('smtp','SMTP Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-smtp" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('smtp')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-imap"><div class="insight-hdr" onclick="toggleInsight('ins-imap')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · IMAP TRAFFIC</span></div><div class="ins-body"><p class="ins-q">IMAP keeps email on the server and synchronizes with clients. Unlike POP3 which uses simple numbered commands, IMAP tags each command with a client-generated identifier. Why? And what IMAP capability allows clients to watch for new mail without polling constantly?</p><textarea class="ins-ta" data-key="ins-imap" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-imap" onclick="saveIns('ins-imap')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-imap')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-imap" onclick="toggleInsModel('ins-imap')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-imap" style="display:none"><div class="hm-label">HINT</div><p>Think about what 'tagging' commands means for out-of-order responses, and what 'IDLE' does.</p></div><div class="ins-model-box" id="model-ins-imap" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>IMAP tags each command (e.g., A001 SELECT INBOX) because IMAP supports pipelining — the client can send multiple commands without waiting for each response. Tags allow matching responses to specific commands even when responses arrive out of order. The IDLE command allows the server to PUSH notifications to the client when new mail arrives — instead of polling every few minutes, the client stays connected and is notified instantly. This is how 'push email' works with IMAP. The client sends IDLE, the server sends EXISTS when new mail arrives, client sends DONE to end IDLE mode.</p></div></div></div><div class="section-block" id="sec-imap"><h2>Analyze IMAP Traffic</h2><p>IMAP uses TCP port 143 (IMAPS on port 993). IMAP keeps email on the server and synchronizes the client view. IMAP supports folders, flags, and server-side searching.</p><p>Key IMAP commands (preceded by a client-generated tag):</p><ul><li><strong>LOGIN</strong>: Authenticate (clear text)</li><li><strong>AUTHENTICATE</strong>: Authenticate using SASL mechanism</li><li><strong>SELECT INBOX</strong>: Open a mailbox</li><li><strong>FETCH</strong>: Retrieve message data</li><li><strong>STORE</strong>: Change message flags (\Seen, \Deleted, \Answered)</li><li><strong>SEARCH</strong>: Search messages server-side</li><li><strong>IDLE</strong>: Wait for server notifications (push email)</li><li><strong>LOGOUT</strong>: Close connection</li></ul><p>IMAP advantages over POP3: email stays on server (multi-device access), server-side folders and search, synchronization of read/unread flags, IDLE command for push notifications.</p><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">IMAP: port 143. Email stays on server — multi-device sync. Commands tagged with client ID (A001, A002...) for out-of-order matching. IDLE = push notifications. Filter: imap or tcp.port==143. IMAPS (encrypted): port 993.</div></div></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig299-spam-messages-clog-an-inbox-email-retrieval-takes.png" alt="Figure 299: SPAM messages clog an inbox—email retrieval takes over 30 minutes  Dissect the POP Packet Structure POP packet structures are very simple. POP requests consist of a Re" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 299 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 299.</strong> SPAM messages clog an inbox—email retrieval takes over 30 minutes  Dissect the POP Packet Structure POP packet structures are very simple. POP requests consist of a Re</div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-imap" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('imap','IMAP Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-imap" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('imap')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-problems"><h2>Email Problems & Filters</h2><p>Common email problems:</p><ul><li>SMTP 550 rejection: recipient address doesn't exist or is blocked (spam filter)</li><li>POP3 -ERR: authentication failure (wrong password) or mailbox locked</li><li>SMTP relay denied: server rejects MAIL FROM because sender not authorized</li><li>Connection refused: email server not running on expected port</li><li>Authentication failure: credentials wrong, or clear text auth blocked</li></ul><p>Display filter reference: <code>pop</code> (POP3), <code>smtp</code> (SMTP), <code>imap</code> (IMAP). Capture filters: <code>tcp port 25</code> (SMTP), <code>tcp port 110</code> (POP3), <code>tcp port 143</code> (IMAP).</p><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-problems" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('problems','Email Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-problems" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('problems')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 25</h3><p>Email programs use POP or IMAP to retrieve email and SMTP to send email. POP3 downloads and typically deletes email from the server. IMAP keeps email on the server and synchronizes across multiple devices. SMTP handles both client-to-server submission and server-to-server relay.</p><p>All three protocols are plain text by default — credentials and email content are visible in Wireshark. Use TLS variants (POP3S, IMAPS, SMTPS) for secure email. Follow TCP Stream on any email session to read the complete exchange including headers and body.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q25.1</div><div class="rq-q">What is the purpose of POP?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about what POP does — it retrieves email.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>POP (Post Office Protocol) is used to retrieve email from a mail server to a local email client. POP3 (version 3, defined in RFC 1939) downloads email from the server to the local machine. By default, POP3 deletes messages from the server after downloading. This means email is stored locally — accessing from a second device won't show messages already downloaded by the first device. POP3 uses TCP port 110.</p></div></div><div class="rq-card"><div class="rq-num">Q25.2</div><div class="rq-q">What are the default port numbers for POP3, SMTP, and IMAP?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Three protocols, three port numbers.</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p><strong>POP3</strong>: port <strong>110</strong> (POP3S encrypted: port 995). <strong>SMTP</strong>: port <strong>25</strong> (server-to-server); port 587 (client submission with STARTTLS); port 465 (SMTPS, deprecated but still used). <strong>IMAP</strong>: port <strong>143</strong> (IMAPS encrypted: port 993).</p></div></div><div class="rq-card"><div class="rq-num">Q25.3</div><div class="rq-q">How does IMAP differ from POP3 in how email is stored?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>Think about where email lives with each protocol.</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>POP3 downloads email to the local device and typically deletes it from the server — email is stored locally. IMAP keeps email on the server and synchronizes the client view — email remains on the server and is accessible from multiple devices. IMAP also supports server-side folders, read/unread flags across devices, server-side searching, and the IDLE command for push notifications. For multi-device access, IMAP is strongly preferred.</p></div></div><div class="rq-card"><div class="rq-num">Q25.4</div><div class="rq-q">What SMTP command begins the transmission of the email body?</div><textarea class="rq-ta" data-key="rq-rq4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq4" onclick="saveRQ('rq4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq4" onclick="toggleRQAns('rq4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq4" style="display:none"><div class="hm-label">HINT</div><p>Think about the sequence: greeting, sender, recipient, then body.</p></div><div class="rq-ans-box" id="rqans-rq4" style="display:none"><div class="hm-label">ANSWER</div><p>The <strong>DATA</strong> command begins the transmission of the email body. The server responds with 354 (Start input; end with &lt;CRLF&gt;.&lt;CRLF&gt;). The client then sends the email headers and body, terminating with a single period on an otherwise empty line (which signals end of message). The server responds with 250 OK when the message is accepted. The sequence before DATA: EHLO → MAIL FROM → RCPT TO → DATA.</p></div></div><div class="rq-card"><div class="rq-num">Q25.5</div><div class="rq-q">What is the syntax for capture and display filters for SMTP traffic?</div><textarea class="rq-ta" data-key="rq-rq5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq5" onclick="saveRQ('rq5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq5" onclick="toggleRQAns('rq5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq5" style="display:none"><div class="hm-label">HINT</div><p>Both capture and display filter syntax for SMTP.</p></div><div class="rq-ans-box" id="rqans-rq5" style="display:none"><div class="hm-label">ANSWER</div><p>For SMTP traffic: <strong>Capture filter</strong>: <code>tcp port 25</code> (or tcp port 587 for submission). <strong>Display filter</strong>: <code>smtp</code>. To filter for specific SMTP commands: <code>smtp.req.command==RCPT</code> (find RCPT TO commands — useful for spotting spam relay attempts). To filter for SMTP authentication: <code>smtp.req.command==AUTH</code>. To find rejected recipients: <code>smtp.response.code==550</code>.</p></div></div>
+  <div class="main-content">
+    <div class="insight-block" id="ins-pop"><div class="insight-header" onclick="toggleInsight('ins-pop')"><span class="insight-icon">&#128173;</span><span class="insight-label">THINK FIRST &middot; POP EMAIL RETRIEVAL</span><span class="insight-toggle">&#9662;</span></div><div class="insight-body"><p class="insight-q">POP downloads email to your device and typically deletes it from the server. Before building a display filter, which port does POP use, and what are the only two response indicators the protocol ever sends?</p><p class="insight-q">When a POP mailbox is flooded with spam, the client downloads every message including binary attachments — sometimes taking 30+ minutes. How could you detect this pattern in Wireshark, and what filter would isolate only the RETR commands?</p></div></div>
+    
+<div class="section-block" id="sec-pop">
+  <h2>POP — Post Office Protocol</h2>
+
+  <h3>Purpose of POP</h3>
+  <p>POP (Post Office Protocol) is a popular method for retrieving email, defined in RFC 1939. IMAP (Internet Message Access Protocol, RFC 1730) is another common retrieval protocol. POP itself does not provide security in email data transfer; third-party applications provide that added functionality. This chapter covers POP and SMTP (Simple Mail Transfer Protocol).</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig296-email-programs-always-run-over-tcp.png" alt="Figure 296: Email programs always run over TCP" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 296 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 296.</strong> Email programs always run over TCP</div></div>
+
+  <p>POP does not maintain a persistent connection — the connection is established to retrieve email and then terminated upon successful completion.</p>
+
+  <div class="callout callout-amber"><strong>CAUTION</strong> The trace file pop-spamclog.pcapng contains a portion of "document_9446.pif," a malicious attachment from the Sobig worm. A portion has been removed. If your antivirus does not flag it, update your definitions.</div>
+
+  <h3>Analyze Normal POP Communications</h3>
+  <p>In Figure 297 Wireshark's Info column provides enough detail on POP communications to interpret the entire process. The POP user provides their username and password. The POP server opens the mailbox and tells the user that one message is waiting (11,110 bytes long). The client asks for the Unique Identification Listing (UIDL) before issuing the RETR command, and the POP server begins sending the data over multiple TCP packets if necessary.</p>
+  <p>Upon successful download, the client sends the delete command (DELE). The server responds indicating it has deleted the message. The POP communications are then terminated by the client.</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig297-shows-a-pop-request-to-retrieve-a-message.png" alt="Figure 297: A user retrieves one email message [pop-normal.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 297 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 297.</strong> A user retrieves one email message [pop-normal.pcapng]</div></div>
+
+  <h3>Analyze POP Problems</h3>
+  <p>POP communication problems can begin with the TCP connection process and can also be affected by high latency and packet loss. As shown in Figure 298, a client cannot even log in to the POP server — the server indicates it is too busy. Before the -ERR response, there is another indication of a problem: the client had to issue two TCP handshake requests (SYN) to make the connection. This trace indicates a capacity issue at the POP server.</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig298-a-pop-error-message-indicates-the-pop-server.png" alt="Figure 298: A POP error message indicates the POP server is busy [pop-problem.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 298 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 298.</strong> A POP error message indicates the POP server is busy [pop-problem.pcapng]</div></div>
+  <p>Spam-clogged mailboxes can also severely affect performance. In Figure 299, a client's mailbox is filled with spam messages, each carrying a binary .pif attachment. The client complained that downloading email took over 30 minutes — but did not complain about spam, because the messages were being automatically moved to the spam folder. More aggressive spam filtering at the POP server is the fix.</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig299-spam-messages-clog-an-inbox-email-retrieval-takes.png" alt="Figure 299: Spam messages clog an inbox — email retrieval takes over 30 minutes [pop-spamclog.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 299 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 299.</strong> Spam messages clog an inbox — email retrieval takes over 30 minutes [pop-spamclog.pcapng]</div></div>
+
+  <h3>POP Packet Structure</h3>
+  <p>POP packet structures are very simple. Requests consist of a Request Command and Request Parameter. Responses consist of a Response Indicator and Response Description. Key request commands:</p>
+  <table class="def-table">
+    <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>USER</td><td>Provide user name</td></tr>
+      <tr><td>PASS</td><td>Provide password</td></tr>
+      <tr><td>STAT</td><td>Obtain server status</td></tr>
+      <tr><td>LIST</td><td>List messages and sizes</td></tr>
+      <tr><td>RETR</td><td>Retrieve a message</td></tr>
+      <tr><td>DELE</td><td>Delete a message</td></tr>
+      <tr><td>UIDL</td><td>Unique ID List — list all email IDs [RFC2449]</td></tr>
+      <tr><td>PIPELINING</td><td>Server can accept multiple commands at once [RFC2449]</td></tr>
+      <tr><td>QUIT</td><td>Terminate the connection</td></tr>
+    </tbody>
+  </table>
+  <p>There are only two response indicators used in POP communications: <code>+OK</code> and <code>-ERR</code>. Figure 300 shows an email response beginning with the indicator and description. We can follow the POP mail message header to identify the path the packet took through mail exchange servers.</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig300-the-response-to-the-retr-command-includes-the.png" alt="Figure 300: The response to the RETR command includes the email header and the email itself [pop-normal.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 300 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 300.</strong> The response to the RETR command includes the email header and the email itself [pop-normal.pcapng]</div></div>
+
+  <h3>Filter on POP Traffic</h3>
+  <p>Capture filter: <code>tcp port 110</code>. Display filter: <code>pop</code> (shows only POP command and email traffic, not TCP handshake or ACKs). To view all related packets: <code>tcp.port==110</code> or a conversation filter.</p>
+  <table class="def-table">
+    <thead><tr><th>Filter</th><th>What It Matches</th></tr></thead>
+    <tbody>
+      <tr><td><code>pop.response.indicator=="+OK"</code></td><td>POP +OK responses</td></tr>
+      <tr><td><code>pop.response.indicator=="-ERR"</code></td><td>POP -ERR responses</td></tr>
+      <tr><td><code>pop.request.command=="USER"</code></td><td>POP USER commands</td></tr>
+      <tr><td><code>(pop.request.command=="USER") &amp;&amp; (pop.request.parameter=="Fred")</code></td><td>USER commands for a specific username (case sensitive)</td></tr>
+      <tr><td><code>(pop.response.indicator=="+OK") &amp;&amp; (pop.response.description contains "octets")</code></td><td>Email UIDL values and lengths — useful for spotting spam with attachments</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block"><div class="mental-note-block-icon">&#129504;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">POP runs on TCP port 110 and uses only two response indicators: +OK and -ERR. The RETR command retrieves a message; DELE removes it after download. Spam-filled mailboxes can cause multi-minute download times even when the user is unaware of the spam — look for hundreds of sequential RETR commands as the indicator.</div></div></div>
+  <div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-sec-pop" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-pop','POP — Post Office Protocol')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-sec-pop" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-pop')">+ Add Note</button></div></div></div></div>
 </div>
+
+    <div class="insight-block" id="ins-smtp"><div class="insight-header" onclick="toggleInsight('ins-smtp')"><span class="insight-icon">&#128173;</span><span class="insight-label">THINK FIRST &middot; SMTP EMAIL DELIVERY</span><span class="insight-toggle">&#9662;</span></div><div class="insight-body"><p class="insight-q">SMTP uses numerical response codes to signal status. What does a code above 399 tell you, and how does EHLO differ from HELO in the handshake sequence?</p><p class="insight-q">An MTU/ICMP mismatch can silently abort an SMTP DATA transfer. What sequence of events in the packet trace would reveal that an ICMP Type 3 Code 4 message caused the session to stall?</p></div></div>
+    
+<div class="section-block" id="sec-smtp">
+  <h2>SMTP — Simple Mail Transfer Protocol</h2>
+
+  <h3>Purpose of SMTP</h3>
+  <p>SMTP is the de facto standard for sending email, defined in RFC 5321. It uses Sender-SMTP and Receiver-SMTP processes. By default, SMTP communications are not secure. The default port is 25, though many ISPs and firewalls block port 25 to combat spam. SMTP messages are delivered in Internet Message Format (RFC 2822).</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig301-smtp-messages-are-delivered-in-internet-message-format.png" alt="Figure 301: SMTP messages are delivered in Internet Message Format [smtp-normal.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 301 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 301.</strong> SMTP messages are delivered in Internet Message Format [smtp-normal.pcapng]</div></div>
+
+  <h3>Analyze Normal SMTP Communications</h3>
+  <p>After a successful TCP handshake, the SMTP server responds with code <strong>220</strong> indicating the service is ready; the greeting also identifies the server and signals ESMTP support. The client sends <code>HELO</code> (standard) or <code>EHLO</code> (extensions supported). When the server sends its capability list — for example, indicating it supports pipelining — the client can send additional commands without waiting for each response.</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig302-an-smtp-client-sends-an-email-message.png" alt="Figure 302: An SMTP client sends an email message [smtp-normal.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 302 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 302.</strong> An SMTP client sends an email message [smtp-normal.pcapng]</div></div>
+  <p>The SMTP client sends <code>MAIL FROM</code> with its source email address. Next, <code>RCPT TO</code> identifies the recipient. The <code>DATA</code> command signals readiness to send; the server responds with <strong>354 Start Mail Input</strong>, after which the client transmits the email. Once the email is sent, the client issues <code>QUIT</code> to begin connection termination.</p>
+
+  <h3>Analyze SMTP Problems</h3>
+  <p>SMTP communication problems can begin at the TCP connection level and can also be affected by high latency and packet loss. If the SMTP server responds with numerical codes above 399, it is indicating a problem with the email transmission process.</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig303-a-host-is-running-a-relay-test-against.png" alt="Figure 303: A host is running a relay test against the SMTP server [smtp-strange.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 303 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 303.</strong> A host is running a relay test against the SMTP server [smtp-strange.pcapng]</div></div>
+  <p>Figure 303 shows an unusual SMTP pattern: a host's email program performs an SMTP relay test by generating a series of MAIL FROM addresses to test whether the server will accept them. This could be caused by malware or a deliberate spam test (here, NetScanTools Pro was used). One server response (packet 42) sends code 554 with the text "Validating Sender." Many RCPT TO lines generate 553 Invalid Recipient. After each attempt, the sending program generates a RST. Email communications should be baselined — refer to Chapter 28 for details.</p>
+
+  <h3>SMTP Packet Structure</h3>
+  <p>SMTP communications consist of commands and response codes following immediately after the TCP header. Figure 304 shows an EHLO command packet, where the command is followed by the host name parameter.</p>
+  <div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig304-inside-an-smtp-ehlo-command-packet.png" alt="Figure 304: Inside an SMTP EHLO command packet [smtp-strange.pcapng]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 304 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 304.</strong> Inside an SMTP EHLO command packet [smtp-strange.pcapng]</div></div>
+  <table class="def-table">
+    <thead><tr><th>SMTP Command</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>HELO</td><td>Initiates a standard SMTP session</td></tr>
+      <tr><td>EHLO</td><td>Initiates SMTP session with mail service extensions</td></tr>
+      <tr><td>MAIL</td><td>Initiates mail transfer (MAIL FROM)</td></tr>
+      <tr><td>RCPT</td><td>Identifies the mail recipient (RCPT TO)</td></tr>
+      <tr><td>DATA</td><td>Initiates mail data transfer</td></tr>
+      <tr><td>VRFY</td><td>Verifies recipient exists</td></tr>
+      <tr><td>RSET</td><td>Aborts the current mail transaction</td></tr>
+      <tr><td>NOOP</td><td>Tests connection to server</td></tr>
+      <tr><td>QUIT</td><td>Closes the SMTP connection</td></tr>
+      <tr><td>EXPN</td><td>Expands a mailing list</td></tr>
+      <tr><td>HELP</td><td>Lists help information</td></tr>
+    </tbody>
+  </table>
+  <table class="def-table">
+    <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>220</td><td>&lt;domain&gt; service ready</td></tr>
+      <tr><td>221</td><td>&lt;domain&gt; service closing channel</td></tr>
+      <tr><td>250</td><td>Requested action okay and completed</td></tr>
+      <tr><td>354</td><td>Start mail input</td></tr>
+      <tr><td>421</td><td>&lt;domain&gt; service not available</td></tr>
+      <tr><td>450</td><td>Mailbox unavailable</td></tr>
+      <tr><td>500</td><td>Syntax error, command unrecognized</td></tr>
+      <tr><td>550</td><td>Mailbox unavailable (permanent)</td></tr>
+      <tr><td>553</td><td>Mailbox name not allowed</td></tr>
+      <tr><td>554</td><td>Transaction failed</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Filter on SMTP Traffic</h3>
+  <p>Capture filter: <code>tcp port 25</code>. Display filter: <code>smtp</code> (shows commands and data only; TCP handshake and ACKs hidden). To view all packets: <code>tcp.port==25</code>.</p>
+  <table class="def-table">
+    <thead><tr><th>Filter</th><th>What It Matches</th></tr></thead>
+    <tbody>
+      <tr><td><code>smtp.req.command=="EHLO"</code></td><td>Client and server support extensions</td></tr>
+      <tr><td><code>(smtp.req.command=="MAIL") &amp;&amp; (smtp.req.parameter=="FROM: &lt;user@domain.com&gt;")</code></td><td>Email from a specific sender</td></tr>
+      <tr><td><code>(smtp.req.command=="RCPT") &amp;&amp; (smtp.req.parameter=="TO: &lt;user@domain.com&gt;")</code></td><td>Email to a specific recipient</td></tr>
+      <tr><td><code>smtp.response.code &gt; 399</code></td><td>Server indicates a problem with email transmission</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mental-note-block"><div class="mental-note-block-icon">&#129504;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">SMTP runs on TCP port 25. The server greets with 220; the session ends with QUIT. EHLO (extensions) vs HELO (standard) is set by capability negotiation. Response codes 220/250/354 are success; any code above 399 indicates an error. MTU mismatches can silently abort DATA transfer — look for an ICMP Type 3 Code 4 arriving after the DATA segment to identify this condition.</div></div></div>
+  <div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-sec-smtp" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-smtp','SMTP — Simple Mail Transfer Protocol')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-sec-smtp" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-smtp')">+ Add Note</button></div></div></div></div>
+</div>
+
+    
+<div class="section-block" id="sec-casestudy">
+  <h2>Case Studies</h2>
+  <div class="case-study-block">
+  <div class="cs-eyebrow">Case Study 1</div>
+  <div class="cs-title">SMTP Problem — Scan2Email Job</div>
+  <div class="cs-sub">Submitted by: Christian Kreide</div>
+  <div class="cs-body"><p><strong>Facts:</strong> 1) Scan device was a multifunctional device (MFD). 2) The device was connected to the SMTP server via an IPsec VPN over the Internet. 3) The scan device supported passive MTU discovery and did not allow IP fragmentation.</p>
+<p><strong>Symptoms:</strong> Without Wireshark, the Scan2Email job was simply aborted by an unknown cause. With Wireshark, the SMTP handshake worked fine, but data transmission failed as a router claimed a packet size issue by sending an ICMP Type 3 Code 4 (Fragmentation Needed) packet. The MFD did not resend the rejected packet using a smaller MTU even though Path MTU Discovery is supported on the MFD.</p>
+<p><strong>Cause:</strong> The customer used a Cisco PIX firewall performing TCP sequence number randomization. The TCP sequence number of the original MFD packet differed from the TCP sequence number in the TCP header carried by the ICMP Type 3 Code 4 packet. The MFD rejected the ICMP packet because it never sent a TCP (SMTP) packet with that altered sequence number — a security function that prevented Path MTU Discovery from working correctly.</p>
+<p><strong>Solution:</strong> (a) Reduce the MTU size on the VPN gateway router to at most the max MTU defined in the received ICMP Type 3 Code 4 packet. (b) Allow IP fragmentation on the MFD.</p></div>
+  <div class="cs-img-inline">
+    <div class="cs-img-wrap">
+      <img src="../all-casestudy-pictures/C25-CS1.png" alt="SMTP Problem — Scan2Email Job" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">&#128444;</span><div><strong>C25-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C25-CS1.png</div></div>
+    </div>
+    <div class="cs-prompt-row">
+      <button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">&#9662; Show cartoon prompt</button>
+      <div class="cs-prompt-text" hidden>A network analyst in a server room is examining a Wireshark trace on his monitor. The screen shows an SMTP session where a large DATA segment is followed by an ICMP 'Destination Unreachable - Fragmentation Needed' message from a router. A multifunctional device (labeled 'MFD / Scan2Email') is shown on the left, connected via an IPsec VPN tunnel (labeled 'VPN') to an SMTP server on the right. A Cisco PIX firewall icon sits in the middle of the tunnel path, with an arrow labeled 'TCP seq# randomization' pointing at it. The analyst points to a stalled session indicator on the screen. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: MFD, VPN, PIX Firewall, SMTP Server, ICMP Type 3 Code 4, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+    
+<div class="section-block" id="sec-tldr">
+  <div style="background:#0d1a2e;border-radius:12px;padding:28px 32px;color:#e8edf5;">
+    <div style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#93c5fd;margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em;">TL;DR — Chapter 25 Summary</div>
+    <p style="margin:0 0 10px;line-height:1.7;">POP and SMTP communications are used to receive and send email, respectively. POP communications rely on a username and password; basic SMTP communications do not authenticate the sender. Both POP and SMTP run over TCP. Oftentimes, an authorized POP communication must be established before an SMTP communication can be established.</p>
+    <p style="margin:0;line-height:1.7;">POP and SMTP communications rely on clear-text request commands. There are only two response indicators in POP communications: +OK or -ERR. SMTP responses use numerical codes. Response codes greater than 400 indicate there is a problem with the SMTP communications.</p>
+  </div>
+</div>
+
+    
+<div class="section-block" id="sec-rq">
+  <h2>Review Questions</h2>
+  <div class="rq-card" id="rq-25.1"><div class="rq-q"><span class="rq-num">Q25.1</span>What is the purpose of POP? What is the purpose of SMTP?</div><div class="rq-a" style="display:none"><strong>Answer:</strong> POP is an application used to retrieve email from a mail server to a client device. SMTP is the de facto standard used for sending email between systems. Both run over TCP — POP on port 110 by default, SMTP on port 25.</div><button class="btn-rq-toggle" onclick="toggleRQ('25.1')">Show Answer</button></div>
+  <div class="rq-card" id="rq-25.2"><div class="rq-q"><span class="rq-num">Q25.2</span>What command is used by a POP client to request that the POP server download emails to the client?</div><div class="rq-a" style="display:none"><strong>Answer:</strong> The POP client issues a RETR command to retrieve messages. The RETR command is followed by a message number parameter indicating which message to retrieve.</div><button class="btn-rq-toggle" onclick="toggleRQ('25.2')">Show Answer</button></div>
+  <div class="rq-card" id="rq-25.3"><div class="rq-q"><span class="rq-num">Q25.3</span>What are the two POP response codes?</div><div class="rq-a" style="display:none"><strong>Answer:</strong> The two POP response indicators are +OK (success) and -ERR (failure). These are the only two response indicators used in all POP communications.</div><button class="btn-rq-toggle" onclick="toggleRQ('25.3')">Show Answer</button></div>
+  <div class="rq-card" id="rq-25.4"><div class="rq-q"><span class="rq-num">Q25.4</span>What is the difference between an SMTP EHLO and HELO message?</div><div class="rq-a" style="display:none"><strong>Answer:</strong> HELO initiates a standard SMTP session. EHLO initiates an SMTP session from a sender that supports SMTP mail service extensions (ESMTP). The server signals ESMTP support in its 220 greeting, prompting the client to use EHLO.</div><button class="btn-rq-toggle" onclick="toggleRQ('25.4')">Show Answer</button></div>
+  <div class="rq-card" id="rq-25.5"><div class="rq-q"><span class="rq-num">Q25.5</span>What is the syntax for capture and display filters for POP communications?</div><div class="rq-a" style="display:none"><strong>Answer:</strong> Capture filter: <code>tcp port 110</code>. Display filter: <code>pop</code>. To see all packets including the TCP handshake: <code>tcp.port==110</code>.</div><button class="btn-rq-toggle" onclick="toggleRQ('25.5')">Show Answer</button></div>
+  <div class="rq-card" id="rq-25.6"><div class="rq-q"><span class="rq-num">Q25.6</span>What is the syntax for capture and display filters for SMTP communications?</div><div class="rq-a" style="display:none"><strong>Answer:</strong> Capture filter: <code>tcp port 25</code>. Display filter: <code>smtp</code>. To see all packets including the TCP handshake: <code>tcp.port==25</code>.</div><button class="btn-rq-toggle" onclick="toggleRQ('25.6')">Show Answer</button></div>
+</div>
+
+  </div>
+  
 <div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 25 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Email Filters</h4><div class="qr-row"><span class="qr-term">pop</span><span class="qr-def">POP3 traffic</span></div><div class="qr-row"><span class="qr-term">smtp</span><span class="qr-def">SMTP traffic</span></div><div class="qr-row"><span class="qr-term">imap</span><span class="qr-def">IMAP traffic</span></div><div class="qr-row"><span class="qr-term">tcp.port==110</span><span class="qr-def">POP3</span></div><div class="qr-row"><span class="qr-term">tcp.port==25</span><span class="qr-def">SMTP</span></div><div class="qr-row"><span class="qr-term">tcp.port==143</span><span class="qr-def">IMAP</span></div></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + RQs answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);">0 / 9 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div>
+  <div class="sidebar-card">
+    <div class="sidebar-card-title">Navigation</div>
+    <a class="sidebar-link" href="../index.html">&#8592; Wireshark Hub</a>
+    <a class="sidebar-link" href="index.html">Practice Lab</a>
+  </div>
+  <div class="sidebar-card">
+    <div class="sidebar-card-title">Quick Reference</div>
+    <div class="quick-ref"><span class="qr-term">POP port</span><span class="qr-def">TCP 110</span></div>
+    <div class="quick-ref"><span class="qr-term">SMTP port</span><span class="qr-def">TCP 25</span></div>
+    <div class="quick-ref"><span class="qr-term">POP responses</span><span class="qr-def">+OK / -ERR</span></div>
+    <div class="quick-ref"><span class="qr-term">SMTP ready</span><span class="qr-def">220</span></div>
+    <div class="quick-ref"><span class="qr-term">SMTP ok</span><span class="qr-def">250</span></div>
+    <div class="quick-ref"><span class="qr-term">SMTP start data</span><span class="qr-def">354</span></div>
+    <div class="quick-ref"><span class="qr-term">SMTP error</span><span class="qr-def">&gt;399</span></div>
+    <div class="quick-ref"><span class="qr-term">HELO vs EHLO</span><span class="qr-def">EHLO = extensions</span></div>
+  </div>
+  <div class="sidebar-card">
+    <div class="sidebar-card-title">Progress</div>
+    <div class="ins-prog-count" id="prog-count">0 / 8 completed</div>
+    <div class="ins-prog-bar"><div class="ins-prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
 </div>
+
 </main>
+
 <div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
+  <div class="cta-inner">
+    <div class="cta-text">Ready to practice?</div>
+    <a href="index.html" class="btn-cta">Open Practice Lab &rarr;</a>
+  </div>
 </div>
+
 <footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 25: Analyze Email Traffic</div>
+  <div class="footer-inner">Wireshark Network Analysis &mdash; Chapter 25: Analyze Email Traffic</div>
 </footer>
+
 <script>
 
 const PAGE_KEY='ws-ch25-full';
-const SECTIONS={'purpose':'Purpose of Email','pop':'POP Traffic','smtp':'SMTP Traffic','imap':'IMAP Traffic','problems':'Email Problems','filters':'Filters & Case Study','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-pop','ins-smtp','ins-imap'];
-const RQ_IDS=['rq1','rq2','rq3','rq4','rq5'];
-const TOTAL=9;
+const SECTIONS = {'sec-pop':'POP','sec-smtp':'SMTP','sec-casestudy':'Case Studies','sec-tldr':'TL;DR','sec-rq':'Review Questions'};
+const INSIGHT_IDS = ['ins-pop','ins-smtp'];
+const RQ_IDS = ['25.1','25.2','25.3','25.4','25.5','25.6'];
+const TOTAL = 8;
 function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
 function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
 function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
@@ -307,20 +468,16 @@ function toggleInsight(id){const block=document.getElementById(id);if(!block)ret
 function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
 function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='inline';updateInsProgress();}
+function resetRQ(id){localStorage.removeItem(PAGE_KEY+'-rq-'+id);const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(ta){ta.value='';ta.disabled=false;}const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='Save Answer';sb.disabled=false;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=true;ab.textContent='🔒 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='none';const ah=document.getElementById('rqans-'+id);if(ah)ah.style.display='none';updateInsProgress();}
 function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
 function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
-function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
 document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initFigures();initPT();updateInsProgress();
+  renderQPanel();renderNotesPanel();initSectionNav();initPT();updateInsProgress();
   if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
   if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
   INSIGHT_IDS.forEach(function(id){
@@ -335,9 +492,10 @@ document.addEventListener('DOMContentLoaded',function(){
     const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
     if(ta&&sv){ta.value=sv;ta.disabled=true;}
     const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb&&sv)rb.style.display='inline';
   });
 });
+
 </script>
 </body>
 </html>

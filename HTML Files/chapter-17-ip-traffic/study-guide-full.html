@@ -3,21 +3,14 @@
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 17: Analyze IPv4/IPv6 Traffic | Wireshark Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,700&family=Epilogue:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;
-  --border:#bfdbfe;--border-dim:#dbeafe;
-  --text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;
-  --blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;
-  --green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;
-  --red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;
-  --amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;
-}
+
+:root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -71,6 +64,7 @@ main{max-width:1280px;margin:0 auto;padding:40px 60px 80px;display:grid;grid-tem
 .section-block li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
 .section-block strong{color:var(--text);font-weight:600;}
 code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.5px;color:var(--blue);font-family:'SF Mono','Fira Code',monospace;}
+pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;overflow-x:auto;margin:12px 0;line-height:1.8;}
 .section-label{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;}
 .callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.65;}
 .callout-blue{background:rgba(26,109,204,0.07);border:1px solid var(--border);border-left:3px solid var(--blue);}
@@ -87,12 +81,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .mental-note-block-inner{flex:1;}
 .mental-note-block-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:3px;}
 .mental-note-block-text{font-size:13px;font-weight:600;line-height:1.55;color:var(--text);}
-.step-block{margin:12px 0;padding:14px 18px;background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;}
-.step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:6px;}
-.step-block p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:8px;}
-.step-block p:last-child{margin-bottom:0;}
-.step-block ul{padding-left:18px;margin:6px 0;}
-.step-block li{font-size:14px;color:var(--text-soft);margin-bottom:3px;line-height:1.65;}
 .insight-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;border-top:3px solid var(--blue);overflow:hidden;}
 .insight-hdr{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;user-select:none;}
 .insight-hdr::after{content:'▸ Expand';margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);font-family:'Epilogue',sans-serif;}
@@ -121,16 +109,17 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .ins-model-box p,.ins-hint-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .ins-model-box p:last-child,.ins-hint-box p:last-child{margin-bottom:0;}
 .hm-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
-.figure-block{width:min(520px,100%);margin:20px auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:width .18s ease,box-shadow .18s ease;}
-.figure-block.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
-.fig-img-wrap{background:#0d1a2e;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
-.figure-block.fig-expanded .fig-img-wrap{cursor:zoom-out;}
-.fig-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
-.figure-block.fig-expanded .fig-img-wrap img{max-height:none;width:100%;}
+.figure-block{margin:20px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fig-img-wrap{background:#0d1a2e;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.fig-img-wrap img{max-width:100%;height:auto;display:block;}
 .fig-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px;color:#93c5fd;font-size:13px;text-align:center;}
 .fig-ph-icon{font-size:36px;}
-.fig-cap{width:100%;padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);overflow-wrap:anywhere;}
-.fig-trace{color:var(--blue);font-style:italic;}
+.fig-cap{padding:10px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-top:1px solid var(--border-dim);background:var(--surface-2);}
+.def-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13px;}
+.def-table th{background:#0d1a2e;color:#93c5fd;font-size:10px;font-weight:700;letter-spacing:.1em;padding:8px 12px;text-align:left;}
+.def-table td{padding:8px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-soft);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap;}
 .case-study-block{background:var(--surface);border:1px solid var(--border);border-top:4px solid #f59e0b;border-radius:10px;padding:24px 28px;margin:24px 0;}
 .cs-eyebrow{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:6px;}
 .cs-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -138,7 +127,7 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:0 0 16px;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
+.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
 .cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
 .cs-img-wrap img{max-width:100%;height:auto;display:block;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
@@ -148,11 +137,15 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .btn-cs-prompt{background:none;border:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:'Epilogue',sans-serif;padding:0;}
 .btn-cs-prompt:hover{color:var(--blue);}
 .cs-prompt-text{margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.65;font-style:italic;background:var(--bg);border-radius:6px;padding:8px 10px;}
-.tldr-block{background:#0d1a2e;color:#e2e8f0;border-radius:12px;padding:28px 32px;margin:32px 0 20px;}
-.tldr-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
-.tldr-block h3{font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:14px;}
-.tldr-block p{font-size:14px;line-height:1.75;color:#cbd5e1;}
-.tldr-block p+p{margin-top:10px;}
+.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
+.tool-textarea:focus{border-color:var(--blue);}
+.tool-textarea::placeholder{color:var(--text-muted);}
+.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
+.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
+.btn-add-q:hover{opacity:.85;}
 .rq-section-heading{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--text);margin:32px 0 16px;padding-top:12px;border-top:2px solid var(--border);}
 .rq-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px;}
 .rq-num{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
@@ -177,15 +170,6 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .rq-ans-box .hm-label{color:var(--blue);}
 .rq-ans-box p{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px;}
 .rq-ans-box p:last-child{margin-bottom:0;}
-.lesson-tools{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:24px;}
-.lesson-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.tool-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
-.tool-textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Epilogue',sans-serif;font-size:13px;color:var(--text);background:var(--bg);resize:vertical;min-height:60px;outline:none;line-height:1.6;}
-.tool-textarea:focus{border-color:var(--blue);}
-.tool-textarea::placeholder{color:var(--text-muted);}
-.tool-row{display:flex;justify-content:flex-end;margin-top:8px;}
-.btn-add-q{background:#0d1a2e;color:#93c5fd;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:'Epilogue',sans-serif;}
-.btn-add-q:hover{opacity:.85;}
 .sidebar{position:sticky;top:60px;}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
 .sidebar-card h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;}
@@ -193,150 +177,854 @@ code{background:var(--blue-glow);padding:2px 6px;border-radius:4px;font-size:12.
 .sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:var(--text-soft);text-decoration:none;background:var(--surface-2);border:1px solid var(--border-dim);transition:all .15s;}
 .sidebar-link:hover{border-color:var(--blue);color:var(--blue);}
 .sidebar-link .arr{margin-left:auto;font-size:10px;color:var(--text-muted);}
-.progress-checklist{display:flex;flex-direction:column;gap:6px;}
-.check-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-soft);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-dim);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
-.check-item.done{color:var(--text-muted);text-decoration:line-through;}
-.progress-summary{font-size:11px;color:var(--text-muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
-.progress-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.progress-bar-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
-.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
-.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
-.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .quick-ref{background:#0d1a2e;border-radius:10px;padding:16px 18px;margin-top:8px;}
 .quick-ref h4{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:12px;}
 .qr-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;gap:8px;}
 .qr-row:last-child{border-bottom:none;}
 .qr-term{color:#93c5fd;font-weight:600;font-family:'SF Mono','Fira Code',monospace;flex-shrink:0;}
 .qr-def{color:rgba(255,255,255,.6);text-align:right;}
-.trace-list{font-size:12px;color:var(--text-muted);line-height:1.9;}
+.ins-prog-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;margin-top:12px;}
+.ins-prog-bar-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ins-prog-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .3s;}
 .practice-cta{padding:52px 60px;text-align:center;background:var(--text);border-top:2px solid rgba(147,197,253,.15);}
 .btn-practice-cta{display:inline-flex;align-items:center;gap:12px;background:var(--blue);color:#fff;font-family:'Epilogue',sans-serif;font-size:18px;font-weight:700;padding:20px 48px;border-radius:14px;text-decoration:none;letter-spacing:.04em;transition:background .15s,transform .15s;box-shadow:0 6px 28px rgba(26,109,204,.4);}
 .btn-practice-cta:hover{background:#1560b8;transform:translateY(-3px);}
 .practice-cta-sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.45);}
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
-@media(max-width:900px){
-  header{padding:24px 20px 20px;flex-direction:column;}
-  .motivation-banner{padding:16px 20px;}
-  .top-panels{grid-template-columns:1fr;}
-  .top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}
-  .section-nav{padding:0 20px;}
-  main{grid-template-columns:1fr;padding:24px 20px 60px;}
-  .sidebar{position:static;}
-  h1{font-size:30px;}
-  .lesson-tools-grid{grid-template-columns:1fr;}
-  footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}
-  .practice-cta{padding:36px 20px;}
-  .btn-practice-cta{font-size:15px;padding:16px 32px;}
-}
+@media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
+.btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
+
 </style>
 </head>
 <body>
-<header>
-<div class="header-left">
-<div class="breadcrumb"><a href="../../index.html">Wireshark Hub</a><span class="breadcrumb-sep">›</span>Chapter 17<span class="breadcrumb-sep">›</span>Full Study Guide</div>
-<div class="header-eyebrow"><span class="dot-live"></span> CHAPTER 17</div>
-<h1>Analyze Internet Protocol <em>(IPv4/IPv6) Traffic</em></h1>
-<p>Wireshark Network Analysis 2nd Ed · Laura Chappell</p>
-</div>
-</header>
-<div class="motivation-banner">
-<div class="motivation-text"> <em>IP is the universal language of the internet — master it and you can follow any packet anywhere.</em></div>
-<p class="motivation-sub">Understanding IPv4 header fields and IPv6's improvements is foundational for all network analysis.</p>
-</div>
-<div class="top-panels">
-<div class="qpanel">
-<button class="qpanel-header" onclick="toggleQPanel()" id="qpanel-header">
-<span class="qpanel-title">MY QUESTIONS</span>
-<span class="qpanel-count" id="qpanel-count">0</span>
-<span class="qpanel-hint">— click to expand</span>
-<span class="qpanel-chevron" id="qpanel-chevron">▾</span>
-</button>
-<div class="qpanel-body" id="qpanel-body"><p class="no-questions">No questions yet.</p></div>
-</div>
-<div class="notes-panel">
-<button class="notes-panel-header" onclick="toggleNotesPanel()" id="notes-panel-header">
-<span class="notes-panel-title">MY NOTES</span>
-<span class="notes-panel-count" id="notes-panel-count">0</span>
-<span class="notes-panel-hint">— click to expand</span>
-<span class="notes-panel-chevron" id="notes-panel-chevron">▾</span>
-</button>
-<div class="notes-panel-body" id="notes-panel-body"><p class="no-questions">No notes yet.</p></div>
-</div>
-</div>
-<nav class="section-nav">
-<button class="nav-tab" data-target="sec-purpose" onclick="navTo('sec-purpose')">Purpose of IP</button><button class="nav-tab" data-target="sec-ipv4normal" onclick="navTo('sec-ipv4normal')">Normal IPv4 Traffic</button><button class="nav-tab" data-target="sec-ipv4probs" onclick="navTo('sec-ipv4probs')">IPv4 Problems</button><button class="nav-tab" data-target="sec-ipv4struct" onclick="navTo('sec-ipv4struct')">IPv4 Packet Structure</button><button class="nav-tab" data-target="sec-ipv6intro" onclick="navTo('sec-ipv6intro')">Introduction to IPv6</button><button class="nav-tab" data-target="sec-ipv6struct" onclick="navTo('sec-ipv6struct')">IPv6 Packet Structure</button><button class="nav-tab" data-target="sec-ipv6addr" onclick="navTo('sec-ipv6addr')">IPv6 Addressing</button><button class="nav-tab" data-target="sec-transition" onclick="navTo('sec-transition')">IPv6 Transition</button><button class="nav-tab" data-target="sec-sanitize" onclick="navTo('sec-sanitize')">Sanitize & Preferences</button><button class="nav-tab" data-target="sec-filters" onclick="navTo('sec-filters')">Filters & Case Studies</button><button class="nav-tab" data-target="sec-tldr" onclick="navTo('sec-tldr')">TL;DR</button><button class="nav-tab" data-target="sec-rq" onclick="navTo('sec-rq')">Review Questions</button>
-</nav>
-<main>
-<div class="main-content">
-<div class="insight-block" id="ins-purpose"><div class="insight-hdr" onclick="toggleInsight('ins-purpose')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · PURPOSE OF IP</span></div><div class="ins-body"><p class="ins-q">IP sits at Layer 3 — but what exactly does it provide that Layer 2 can't? Think about what happens when a packet needs to cross multiple networks to reach its destination. What role does IP play in making that possible, and why does it not guarantee delivery?</p><textarea class="ins-ta" data-key="ins-purpose" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-purpose" onclick="saveIns('ins-purpose')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-purpose')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-purpose" onclick="toggleInsModel('ins-purpose')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-purpose" style="display:none"><div class="hm-label">HINT</div><p>Consider what Layer 2 (Ethernet) addresses: it handles delivery within a single network segment using MAC addresses. But MAC addresses don't route across networks.</p></div><div class="ins-model-box" id="model-ins-purpose" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>IP provides logical addressing (IPv4/IPv6) and routing to move packets across multiple networks. It is a <strong>connectionless, best-effort</strong> protocol — it does not guarantee delivery, ordering, or error recovery. Those functions are left to higher-layer protocols like TCP. IP handles fragmentation to allow large packets to traverse networks with smaller MTUs, and uses TTL to prevent packets from looping forever.</p></div></div></div><div class="section-block" id="sec-purpose"><h2>Identify the Purpose of IP</h2><div class="callout callout-blue"><strong>WHAT IP PROVIDES</strong><p>IP (Internet Protocol) provides logical addressing and routing to move data across multiple networks. IP is defined in RFC 791 (IPv4) and RFC 2460 (IPv6). The IP header is added by Layer 3 routers and contains source and destination IP addresses that remain constant across the entire path.</p></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig200-ip-stack.png" alt="Figure 200: IP operates at Layer 3 of the TCP/IP stack, sitting between the Data Link layer and Transport layer protocols like TCP and UDP" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 200 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 200.</strong> IP operates at Layer 3 of the TCP/IP stack, sitting between the Data Link layer and Transport layer protocols like TCP and UDP </div></div><p>IP is a <strong>connectionless, best-effort</strong> protocol. This means:</p><ul><li>No connection is established before data is sent</li><li>IP does not guarantee delivery — packets may be lost, duplicated, or delivered out of order</li><li>No acknowledgment mechanism exists at the IP layer</li><li>Higher-layer protocols (TCP) provide reliability when needed</li></ul><p>IP provides two key services: <strong>addressing</strong> (identifying source and destination hosts globally) and <strong>routing</strong> (determining the path packets take across networks). Each router along the path decrements the TTL and makes a forwarding decision based on the destination IP address.</p><div class="callout callout-green"><strong>KEY INSIGHT: WHY IP IS STATELESS</strong><p>IP is stateless by design. Each packet is independent — routers make forwarding decisions based solely on the destination address in that packet. This makes the internet highly resilient: if a router fails, packets are rerouted automatically. The trade-off is that IP itself provides no reliability guarantees.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">IP = logical addressing + routing, connectionless + best-effort. IPv4 defined in RFC 791; IPv6 in RFC 2460. IP sits at Layer 3 between Data Link and Transport layers. TTL prevents infinite loops. IP does NOT guarantee delivery — TCP does that.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-purpose" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('purpose','Purpose of IP')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-purpose" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('purpose')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-ipv4normal"><div class="insight-hdr" onclick="toggleInsight('ins-ipv4normal')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · NORMAL IPv4 TRAFFIC</span></div><div class="ins-body"><p class="ins-q">When you see 'normal' IPv4 traffic in Wireshark, what patterns should you expect? Think about how packet sizes vary, what TTL values typically look like, and what the Info column tells you. How does knowing the 'normal' baseline help you spot problems?</p><textarea class="ins-ta" data-key="ins-ipv4normal" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-ipv4normal" onclick="saveIns('ins-ipv4normal')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-ipv4normal')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-ipv4normal" onclick="toggleInsModel('ins-ipv4normal')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-ipv4normal" style="display:none"><div class="hm-label">HINT</div><p>Consider the TTL field — operating systems set different default TTL values. Windows starts at 128, Linux/macOS at 64. What does this tell you about the number of hops a packet has traversed?</p></div><div class="ins-model-box" id="model-ins-ipv4normal" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Normal IPv4 traffic shows consistent TTL values that reflect the OS origin and path length. Packets traveling through few routers will have TTL values close to the OS default (128 for Windows, 64 for Linux/macOS). The Wireshark Info column shows protocol info. Look for consistent source/destination pairs, incrementing IP ID fields, and TTL values that make sense for the path distance. Any sudden TTL changes, fragmentation, or checksum errors indicate problems.</p></div></div></div><div class="section-block" id="sec-ipv4normal"><h2>Analyze Normal IPv4 Traffic</h2><p>Normal IPv4 communications show predictable patterns in the packet header fields. When analyzing IPv4 traffic, examine these baseline characteristics:</p><h3>Normal IPv4 Traffic Characteristics</h3><ul><li><strong>Consistent TTL values</strong> — Windows hosts typically start with TTL=128; Linux/macOS with TTL=64. A packet that has traversed 3 hops from a Windows host will show TTL=125.</li><li><strong>Incrementing IP ID field</strong> — The IP Identification field increments for each packet sent from a host, allowing you to identify retransmissions and track packet order</li><li><strong>No fragmentation</strong> — Most modern networks use Path MTU Discovery (PMTUD) to avoid fragmentation. Ethernet networks typically have an MTU of 1500 bytes.</li><li><strong>Valid checksums</strong> — IP header checksums should be valid unless checksum offloading is enabled on the capturing host</li><li><strong>Appropriate protocol numbers</strong> — The Protocol field indicates the next-layer protocol (6=TCP, 17=UDP, 1=ICMP, 58=ICMPv6)</li></ul><div class="callout callout-amber"><strong>CHECKSUM OFFLOADING</strong><p>If you see many <em>bad IP checksums</em> when capturing on the local machine, this is almost certainly due to checksum offloading — not a real problem. The NIC computes the checksum before transmission, but Wireshark captures the packet before this step. Disable offloading or ignore these errors when capturing locally.</p></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig201-normal-ipv4.png" alt="Figure 201: Normal IPv4 traffic with consistent TTL values visible in the Packet Details pane" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 201 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 201.</strong> Normal IPv4 traffic with consistent TTL values visible in the Packet Details pane </div></div><h3>IP Identification Field</h3><p>The IP ID field is set by the sending host and increments with each datagram sent. This field is used to reassemble fragmented datagrams. You can track a host's packet output by watching the IP ID values. A sudden jump in IP ID values may indicate lost packets between the two captured packets.</p><div class="callout callout-blue"><strong>TRACK PACKET LOSS WITH IP ID</strong><p>If you see IP ID values that jump by large amounts (e.g., 1234, 1235, 1240), packets 1236-1239 were lost between capture points. Add the IP ID field as a column in Wireshark to easily spot these gaps.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Windows default TTL=128, Linux/macOS=64. TTL decrements by 1 at each router hop. IP ID increments per datagram. Protocol field: 6=TCP, 17=UDP, 1=ICMP. Checksum errors on local capture = offloading, not a real problem.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv4normal" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv4normal','Normal IPv4 Traffic')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv4normal" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv4normal')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-ipv4probs"><div class="insight-hdr" onclick="toggleInsight('ins-ipv4probs')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · IPv4 PROBLEMS</span></div><div class="ins-body"><p class="ins-q">What are the most common IPv4-layer problems you'd see in Wireshark? Consider: if a host sends a packet with TTL=1 and hits a router, what happens? What about fragmentation — when is it necessary and when does it cause performance issues?</p><textarea class="ins-ta" data-key="ins-ipv4probs" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-ipv4probs" onclick="saveIns('ins-ipv4probs')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-ipv4probs')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-ipv4probs" onclick="toggleInsModel('ins-ipv4probs')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-ipv4probs" style="display:none"><div class="hm-label">HINT</div><p>Think about the TTL field and what happens when a packet can't reach its destination within the hop limit. Also consider what the DF (Don't Fragment) bit does when a packet is too large for a link.</p></div><div class="ins-model-box" id="model-ins-ipv4probs" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Key IPv4 problems: (1) <strong>TTL Exceeded</strong> — packet dies before reaching destination, router sends ICMP Type 11. (2) <strong>Fragmentation</strong> — when DF=0 and packet exceeds MTU, routers fragment it; reassembly at destination is expensive. (3) <strong>IP checksum errors</strong> — indicates corruption or (more commonly) checksum offloading. (4) <strong>Routing loops</strong> — packet bounces between routers until TTL expires. Use traceroute to identify path issues.</p></div></div></div><div class="section-block" id="sec-ipv4probs"><h2>Analyze IPv4 Problems</h2><h3>TTL-Related Problems</h3><p>When a router receives a packet with TTL=1, it decrements the TTL to 0 and discards the packet, sending back an <strong>ICMP Time Exceeded (Type 11)</strong> message to the source. This is actually the mechanism traceroute uses to map the path to a destination.</p><div class="callout callout-red"><strong>ROUTING LOOPS</strong><p>If you see a packet with a very low TTL that never seems to get where it's going, suspect a routing loop. The packet is being forwarded between two routers that both think the other is the correct next hop. The TTL field prevents infinite loops — eventually the packet is dropped and an ICMP Time Exceeded is sent.</p></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig202-ipv4-ttl.png" alt="Figure 202: IPv4 TTL problems — the TTL field value reveals how many hops a packet has traversed" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 202 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 202.</strong> IPv4 TTL problems — the TTL field value reveals how many hops a packet has traversed </div></div><h3>IP Fragmentation</h3><p>IP fragmentation occurs when a packet exceeds the MTU of a network link and the DF (Don't Fragment) bit is not set. The router breaks the packet into smaller fragments, each with the same IP ID but different Fragment Offset values.</p><p>Fragmentation is expensive because:</p><ul><li>Each fragment must be reassembled at the destination</li><li>If one fragment is lost, all fragments must be retransmitted (TCP handles this)</li><li>Reassembly consumes CPU and memory at the destination</li><li>Some firewalls block fragmented packets</li></ul><div class="callout callout-amber"><strong>DF BIT AND PMTU DISCOVERY</strong><p>Modern TCP stacks set the <strong>Don't Fragment (DF)</strong> bit and use <strong>Path MTU Discovery (PMTUD)</strong> to find the smallest MTU along the path. If a router can't forward the packet due to MTU constraints, it sends back ICMP Type 3, Code 4 (Fragmentation Needed, Don't Fragment Set). If this ICMP is blocked by a firewall, PMTUD fails and connections stall — a common problem in enterprise networks.</p></div><h3>Checksum Errors</h3><p>IP checksum errors in Wireshark usually indicate one of two things:</p><ol><li><strong>Checksum offloading</strong> — the NIC computes checksums after Wireshark captures the packet. This is very common and not a real problem.</li><li><strong>Packet corruption</strong> — actual bit errors in the packet. This is rare on modern networks but can occur on wireless links or faulty hardware.</li></ol><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Fragmentation: same IP ID, different Fragment Offset values. DF bit=1 prevents fragmentation — if packet too big, router sends ICMP Type 3 Code 4. PMTU Discovery depends on these ICMP messages reaching the sender. If ICMP is blocked, connections stall (Black Hole problem).</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv4probs" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv4probs','IPv4 Problems')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv4probs" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv4probs')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-ipv4struct"><div class="insight-hdr" onclick="toggleInsight('ins-ipv4struct')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · IPv4 PACKET STRUCTURE</span></div><div class="ins-body"><p class="ins-q">The IPv4 header has 13+ fields. Which ones are most critical for network analysis, and why? When you see a packet with DSCP markings, what does that tell you? How does the Protocol field help you filter traffic without knowing port numbers?</p><textarea class="ins-ta" data-key="ins-ipv4struct" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-ipv4struct" onclick="saveIns('ins-ipv4struct')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-ipv4struct')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-ipv4struct" onclick="toggleInsModel('ins-ipv4struct')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-ipv4struct" style="display:none"><div class="hm-label">HINT</div><p>Focus on: TTL (path length), Protocol (next layer), Flags+Fragment Offset (fragmentation), DSCP/ToS (QoS markings). Think about which fields change at each hop vs which stay constant.</p></div><div class="ins-model-box" id="model-ins-ipv4struct" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Most analysis-critical fields: <strong>TTL</strong> (indicates hops traversed, diagnoses routing issues), <strong>Protocol</strong> (identifies Layer 4 protocol without needing port numbers), <strong>Flags</strong> (DF/MF bits reveal fragmentation state), <strong>DSCP</strong> (QoS class — important for VoIP/video), <strong>Source/Dest IP</strong> (stay constant unlike MAC addresses which change at each hop). The IP ID can track individual hosts. The Checksum covers only the header, not data.</p></div></div></div><div class="section-block" id="sec-ipv4struct"><h2>Dissect the IPv4 Packet Structure</h2><p>The IPv4 header is variable length (minimum 20 bytes) due to the optional Options field. Understanding each field helps you analyze traffic and create precise filters.</p><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig203-ipv4-header.png" alt="Figure 203: The IPv4 header fields as shown in Wireshark's Packet Details pane" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 203 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 203.</strong> The IPv4 header fields as shown in Wireshark's Packet Details pane </div></div><h3>IPv4 Header Fields</h3><h3>Version Field</h3><p>The Version field is set to 4 for IPv4 and 6 for IPv6. If you see a packet with an unexpected version number, it may indicate a tunneling protocol or malformed packet.</p><h3>IP Header Length (IHL)</h3><p>IHL indicates the length of the IP header in 32-bit words. A value of 5 means a 20-byte header (no options). Values above 5 indicate IP Options are present. The IHL is needed because the Options field is variable length.</p><h3>DSCP / Type of Service (ToS)</h3><p>The DSCP (Differentiated Services Code Point) field is the first 6 bits of the original ToS byte. DSCP markings are used for Quality of Service (QoS) — they tell routers how to prioritize traffic. Common DSCP values:</p><ul><li><strong>0 (Default)</strong> — Best effort traffic (most web traffic)</li><li><strong>46 (EF — Expedited Forwarding)</strong> — VoIP RTP traffic (low latency, low jitter)</li><li><strong>34 (AF41)</strong> — Video conferencing</li><li><strong>24 (CS3)</strong> — Call signaling (SIP)</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig204-ipv4-options.png" alt="Figure 204: The DSCP/ToS field in the IPv4 header used for QoS traffic marking" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 204 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 204.</strong> The DSCP/ToS field in the IPv4 header used for QoS traffic marking </div></div><h3>Total Length Field</h3><p>The Total Length field indicates the entire size of the IP packet (header + data) in bytes. The maximum is 65,535 bytes. On Ethernet, maximum payload is 1500 bytes. If Total Length exceeds 1500, the packet has been fragmented or jumbo frames are in use.</p><h3>Identification Field</h3><p>The IP ID is set by the source host and uniquely identifies a datagram. All fragments of a datagram share the same IP ID. The IP ID typically increments by 1 for each datagram sent, though some operating systems randomize it for security.</p><h3>Flags Field</h3><ul><li><strong>Reserved bit</strong> — must be 0 (was "Evil Bit" RFC 3514 — an April Fool's joke)</li><li><strong>DF (Don't Fragment)</strong> — if set, routers must not fragment this packet; if it's too large for the next hop, send ICMP Fragmentation Needed</li><li><strong>MF (More Fragments)</strong> — if set, more fragments follow; last fragment has MF=0</li></ul><h3>Fragment Offset Field</h3><p>Indicates where in the original datagram this fragment belongs, in 8-byte units. Fragment Offset of 0 = first fragment. To reconstruct the original datagram: multiply offset by 8 to get the byte position.</p><h3>Time to Live (TTL)</h3><p>TTL is decremented by 1 at each router hop. When TTL reaches 0, the router discards the packet and sends ICMP Time Exceeded. Default TTL values: Windows=128, Linux/macOS=64, Cisco routers=255. Comparing observed TTL against expected defaults tells you how many hops a packet has traversed.</p><h3>Protocol Field</h3><p>Identifies the Layer 4 protocol carried in the IP payload. Key protocol numbers:</p><ul><li>1 = ICMP | 6 = TCP | 17 = UDP | 41 = IPv6 (6in4 tunnel) | 47 = GRE | 50 = ESP (IPsec) | 89 = OSPF</li></ul><h3>Header Checksum</h3><p>Covers only the IP header (not the data). Recomputed at each router since TTL changes. Wireshark may show checksum errors on the capturing host due to offloading.</p><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig205-ipv4-fragment.png" alt="Figure 205: Fragmented IPv4 packets share the same IP ID with different Fragment Offset values" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 205 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 205.</strong> Fragmented IPv4 packets share the same IP ID with different Fragment Offset values </div></div><div class="callout callout-green"><strong>IP vs MAC ADDRESS BEHAVIOR</strong><p>IP addresses stay <strong>constant</strong> throughout the entire path (unless NAT is involved). MAC addresses change at each hop — the router replaces source and destination MAC at every hop. This is why you can't use MAC addresses to track traffic beyond the local subnet.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">IPv4 header minimum 20 bytes. IHL field counts 32-bit words (5=20 bytes). Protocol field: 1=ICMP, 6=TCP, 17=UDP, 41=IPv6-in-IPv4. Checksum covers ONLY the header, not data. IP addresses constant across path; MAC addresses change at each hop.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv4struct" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv4struct','IPv4 Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv4struct" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv4struct')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-ipv6intro"><div class="insight-hdr" onclick="toggleInsight('ins-ipv6intro')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · INTRODUCTION TO IPv6</span></div><div class="ins-body"><p class="ins-q">IPv6 was designed to fix IPv4's limitations — but it also made deliberate architectural choices that differ from IPv4. Why does IPv6 eliminate the checksum? Why was fragmentation moved to an extension header? What problems does the massive address space actually solve beyond just having more addresses?</p><textarea class="ins-ta" data-key="ins-ipv6intro" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-ipv6intro" onclick="saveIns('ins-ipv6intro')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-ipv6intro')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-ipv6intro" onclick="toggleInsModel('ins-ipv6intro')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-ipv6intro" style="display:none"><div class="hm-label">HINT</div><p>Think about what IPv4 features were removed in IPv6 and why. The absence of NAT in pure IPv6 networks has profound security and architectural implications.</p></div><div class="ins-model-box" id="model-ins-ipv6intro" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>IPv6 removes the header checksum (redundant since Layer 2 and TCP/UDP have checksums — reduces router processing), eliminates fragmentation from the base header (moved to Hop-by-Hop extension header; only source hosts fragment, not routers), and adds a Flow Label for QoS. The 128-bit address space provides ~340 undecillion addresses — enough for every device ever to have multiple global addresses, eliminating the need for NAT. Without NAT, every device is directly routable, restoring the end-to-end principle of the original Internet.</p></div></div></div><div class="section-block" id="sec-ipv6intro"><h2>Introduction to IPv6</h2><p>IPv6 was developed to address the exhaustion of IPv4 addresses and to improve on IPv4's design. IPv6 is defined in RFC 2460 and uses 128-bit addresses instead of IPv4's 32-bit addresses.</p><div class="callout callout-blue"><strong>WHY IPv6 NOW</strong><p>IPv4 can support approximately 4.3 billion unique addresses (2³²). IANA allocated the last /8 IPv4 blocks in 2011. IPv6 supports 340 undecillion addresses (3.4 × 10³⁸) — enough to assign trillions of addresses to every person on Earth. IPv6 deployment accelerated significantly after 2012.</p></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig206-ipv6-header.png" alt="Figure 206: IPv6 header structure showing the fixed 40-byte base header" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 206 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 206.</strong> IPv6 header structure showing the fixed 40-byte base header </div></div><h3>Key IPv6 Improvements Over IPv4</h3><ul><li><strong>No header checksum</strong> — eliminated to speed up router processing (Layer 2 and TCP/UDP already provide error detection)</li><li><strong>No fragmentation by routers</strong> — only source hosts fragment; routers that receive too-large packets send ICMPv6 Packet Too Big (Type 2)</li><li><strong>Fixed 40-byte base header</strong> — faster router processing; options moved to extension headers</li><li><strong>Flow Label field</strong> — enables routers to identify packets belonging to the same flow without examining upper-layer headers</li><li><strong>Built-in IPsec support</strong> — IPv6 mandates IPsec capability (though not required to use it)</li><li><strong>Auto-configuration (SLAAC)</strong> — hosts can configure their own IPv6 addresses without DHCP</li><li><strong>No broadcasts</strong> — replaced by multicast; reduces network-wide traffic</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig207-ipv6-ext.png" alt="Figure 207: IPv6 extension headers extend the base header with optional functionality" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 207 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 207.</strong> IPv6 extension headers extend the base header with optional functionality </div></div><div class="callout callout-green"><strong>IPv6 NEIGHBOR DISCOVERY (NDP)</strong><p>IPv6 replaces ARP with <strong>Neighbor Discovery Protocol (NDP)</strong>, which uses ICMPv6 messages: Router Solicitation (Type 133), Router Advertisement (Type 134), Neighbor Solicitation (Type 135), and Neighbor Advertisement (Type 136). NDP also handles duplicate address detection (DAD) and path MTU discovery.</p></div><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig208-ipv6-flow.png" alt="Figure 208: IPv6 Flow Label enables QoS-aware routing without examining TCP/UDP port numbers" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 208 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 208.</strong> IPv6 Flow Label enables QoS-aware routing without examining TCP/UDP port numbers </div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">IPv6 = 128-bit addresses, 340 undecillion total. Fixed 40-byte base header. NO checksum, NO router fragmentation. NDP replaces ARP using ICMPv6. SLAAC allows auto-configuration without DHCP. No broadcasts — only unicast and multicast.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv6intro" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv6intro','Introduction to IPv6')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv6intro" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv6intro')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-ipv6struct"><div class="insight-hdr" onclick="toggleInsight('ins-ipv6struct')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · IPv6 PACKET STRUCTURE</span></div><div class="ins-body"><p class="ins-q">The IPv6 base header is fixed at 40 bytes — compare this to IPv4's variable-length header. The Next Header field in IPv6 serves a dual purpose. What is it? How does the chain of extension headers work, and why does this design provide more flexibility than IPv4 options?</p><textarea class="ins-ta" data-key="ins-ipv6struct" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-ipv6struct" onclick="saveIns('ins-ipv6struct')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-ipv6struct')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-ipv6struct" onclick="toggleInsModel('ins-ipv6struct')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-ipv6struct" style="display:none"><div class="hm-label">HINT</div><p>Think about the IPv6 Next Header field. When there are no extension headers, it points to the Layer 4 protocol (like TCP=6). When extension headers exist, what does it point to instead?</p></div><div class="ins-model-box" id="model-ins-ipv6struct" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>The IPv6 Next Header field creates a linked list of headers — each header points to the next one via its own Next Header field. This allows unlimited, flexible extension without changing the base header. The base header's Next Header points to the first extension header (or directly to TCP/UDP if no extensions). Each extension header has its own Next Header field pointing to the next extension or the transport layer. This is more flexible than IPv4's single Options field.</p></div></div></div><div class="section-block" id="sec-ipv6struct"><h2>Dissect the IPv6 Packet Structure</h2><p>The IPv6 base header is always exactly 40 bytes — much simpler than the variable-length IPv4 header.</p><h3>IPv6 Base Header Fields</h3><ul><li><strong>Version (4 bits)</strong> — set to 6</li><li><strong>Traffic Class (8 bits)</strong> — equivalent to IPv4 DSCP/ToS; used for QoS</li><li><strong>Flow Label (20 bits)</strong> — identifies packets belonging to the same flow; enables routers to apply consistent forwarding without per-packet decision-making</li><li><strong>Payload Length (16 bits)</strong> — length of everything after the 40-byte IPv6 header (extension headers + data)</li><li><strong>Next Header (8 bits)</strong> — identifies the next header type (extension header or Layer 4 protocol)</li><li><strong>Hop Limit (8 bits)</strong> — equivalent to IPv4 TTL; decremented by each router</li><li><strong>Source Address (128 bits / 16 bytes)</strong></li><li><strong>Destination Address (128 bits / 16 bytes)</strong></li></ul><div class="callout callout-blue"><strong>COMMON NEXT HEADER VALUES</strong><p>Next Header field values: 0=Hop-by-Hop Options, 6=TCP, 17=UDP, 43=Routing Header, 44=Fragment Header, 50=ESP (IPsec), 51=AH (IPsec), 58=ICMPv6, 59=No Next Header, 60=Destination Options. The value 58 (ICMPv6) is particularly important — ICMPv6 handles NDP, MLD, and error reporting all in one protocol.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">IPv6 base header: 40 bytes fixed. 8 fields. Next Header creates a linked list — base header → extension headers → TCP/UDP. Hop Limit replaces TTL. No checksum field. Flow Label (20 bits) enables QoS routing. Payload Length = extension headers + data (NOT including the 40-byte base header).</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv6struct" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv6struct','IPv6 Packet Structure')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv6struct" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv6struct')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-ipv6addr"><div class="insight-hdr" onclick="toggleInsight('ins-ipv6addr')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · IPv6 ADDRESSING</span></div><div class="ins-body"><p class="ins-q">IPv6 uses 128-bit addresses written in hexadecimal — but there are rules for shortening them. More importantly, IPv6 has several address types that serve different purposes. What is the difference between a link-local address and a global unicast address? When would you filter for one vs the other in Wireshark?</p><textarea class="ins-ta" data-key="ins-ipv6addr" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-ipv6addr" onclick="saveIns('ins-ipv6addr')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-ipv6addr')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-ipv6addr" onclick="toggleInsModel('ins-ipv6addr')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-ipv6addr" style="display:none"><div class="hm-label">HINT</div><p>Think about what "link-local" means — where can these addresses be used? Why does every IPv6 interface automatically have a link-local address even before global addresses are assigned?</p></div><div class="ins-model-box" id="model-ins-ipv6addr" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Link-local addresses (fe80::/10) are valid only on the local network segment — they cannot be routed. Every IPv6 interface generates a link-local address automatically using SLAAC (from the MAC address via EUI-64). They're used for NDP (neighbor discovery) and router discovery. Global unicast addresses (2000::/3) are globally routable, equivalent to public IPv4 addresses. Site-local (fc00::/7) are private/non-routable. Multicast (ff00::/8) replaces IPv4 broadcast. In Wireshark: fe80:: addresses = local segment traffic; 2001:: or similar = globally routed traffic.</p></div></div></div><div class="section-block" id="sec-ipv6addr"><h2>Basic IPv6 Addressing</h2><h3>IPv6 Address Notation</h3><p>IPv6 addresses are 128 bits written as 8 groups of 4 hexadecimal digits separated by colons:</p><p><code>2001:0db8:85a3:0000:0000:8a2e:0370:7334</code></p><p>Two shortening rules:</p><ol><li><strong>Leading zeros</strong> in each group can be omitted: <code>0db8</code> → <code>db8</code></li><li><strong>One consecutive sequence</strong> of all-zero groups can be replaced with <code>::</code>: <code>2001:db8::8a2e:370:7334</code></li></ol><div class="callout callout-amber"><strong>DOUBLE COLON SHORTHAND</strong><p>The <code>::</code> shorthand can only be used ONCE in an IPv6 address. If used twice, the address is ambiguous. The loopback address 0:0:0:0:0:0:0:1 becomes <code>::1</code>. The all-zeros address becomes just <code>::</code>.</p></div><h3>IPv6 Address Types</h3><ul><li><strong>Global Unicast (2000::/3)</strong> — globally routable, equivalent to public IPv4 addresses. Most begin with 2001: or 2002:</li><li><strong>Link-Local (fe80::/10)</strong> — valid only on the local network segment, not routed. Auto-generated by every IPv6 interface. Used for NDP, router discovery, and DHCPv6.</li><li><strong>Unique Local (fc00::/7)</strong> — private address space, similar to RFC 1918 IPv4 (10.x, 192.168.x). Not globally routed.</li><li><strong>Multicast (ff00::/8)</strong> — one-to-many; replaces broadcasts. ff02::1 = all nodes, ff02::2 = all routers, ff02::1:ff00:0/104 = solicited-node multicast</li><li><strong>Loopback (::1)</strong> — equivalent to IPv4 127.0.0.1</li><li><strong>Unspecified (::)</strong> — no address assigned yet (used during boot/DHCPv6 discover)</li></ul><div class="callout callout-green"><strong>SLAAC — STATELESS ADDRESS AUTOCONFIGURATION</strong><p>IPv6 hosts can auto-generate their own global addresses using SLAAC (RFC 4862). The host takes its 64-bit network prefix from the Router Advertisement and combines it with a 64-bit interface identifier (derived from the MAC address using EUI-64, or randomly generated for privacy). No DHCP server required!</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Link-local: fe80::/10 — local segment only, auto-generated, used for NDP. Global unicast: 2000::/3 — routable. Multicast: ff00::/8 — no more broadcasts. Loopback: ::1. :: = all zeros. Shorthand: drop leading zeros + replace one consecutive zero group with ::</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-ipv6addr" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('ipv6addr','IPv6 Addressing')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-ipv6addr" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('ipv6addr')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-transition"><div class="insight-hdr" onclick="toggleInsight('ins-transition')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · IPv6 TRANSITION MECHANISMS</span></div><div class="ins-body"><p class="ins-q">Networks can't switch from IPv4 to IPv6 overnight. Transition mechanisms like 6to4, Teredo, and ISATAP allow IPv6 traffic to traverse IPv4 networks. What is the fundamental difference between 6to4 and Teredo? When would one fail but the other succeed?</p><textarea class="ins-ta" data-key="ins-transition" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-transition" onclick="saveIns('ins-transition')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-transition')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-transition" onclick="toggleInsModel('ins-transition')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-transition" style="display:none"><div class="hm-label">HINT</div><p>Think about NAT. 6to4 encapsulates IPv6 directly in IPv4 — what happens when the host is behind NAT and doesn't have a public IPv4 address? How does Teredo solve this problem?</p></div><div class="ins-model-box" id="model-ins-transition" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>6to4 (RFC 3056) encapsulates IPv6 in IPv4 Protocol 41. It requires a public IPv4 address — NAT breaks it. 6to4 addresses start with 2002::/16. Teredo (RFC 4380) encapsulates IPv6 in UDP port 3544, which traverses NAT (since NAT handles UDP fine). Teredo addresses start with 2001:0000::/32. ISATAP creates a virtual IPv6 link over an IPv4 network inside an organization. If a user is behind NAT: Teredo works, 6to4 fails. Wireshark shows 6to4 traffic as Protocol 41 in IPv4; Teredo as UDP port 3544.</p></div></div></div><div class="section-block" id="sec-transition"><h2>IPv6 Transition Mechanisms</h2><p>During the transition from IPv4 to IPv6, several tunneling mechanisms allow IPv6 traffic to traverse IPv4-only networks. These mechanisms encapsulate IPv6 packets inside IPv4 packets.</p><h3>6to4 Tunneling</h3><p>6to4 (RFC 3056) automatically encapsulates IPv6 packets within IPv4 packets using Protocol number 41. Key characteristics:</p><ul><li>6to4 addresses begin with <code>2002::</code>/16</li><li>The next 32 bits of the address contain the host's public IPv4 address in hex</li><li>Requires a <strong>public IPv4 address</strong> — does not work behind NAT</li><li>Uses IPv4 Protocol 41 (no UDP overhead)</li><li>6to4 relay routers connect 6to4 hosts to native IPv6 networks</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig209-6to4-tunnel.png" alt="Figure 209: 6to4 tunneling encapsulates IPv6 packets within IPv4 Protocol 41 packets" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 209 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 209.</strong> 6to4 tunneling encapsulates IPv6 packets within IPv4 Protocol 41 packets <span class="fig-trace">[6to4-tunnel.pcapng]</span></div></div><h3>Teredo</h3><p>Teredo (RFC 4380) encapsulates IPv6 packets within <strong>UDP</strong> to traverse NAT devices. Key characteristics:</p><ul><li>Teredo addresses begin with <code>2001:0000::</code>/32</li><li>Uses UDP port 3544</li><li>Works behind NAT (unlike 6to4) because NAT handles UDP naturally</li><li>Requires a Teredo server to coordinate the mapping</li><li>Teredo relay servers connect Teredo clients to native IPv6 networks</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig210-teredo.png" alt="Figure 210: Teredo encapsulates IPv6 in UDP port 3544 to traverse NAT devices" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 210 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 210.</strong> Teredo encapsulates IPv6 in UDP port 3544 to traverse NAT devices <span class="fig-trace">[teredo.pcapng]</span></div></div><h3>ISATAP (Intra-Site Automatic Tunnel Addressing Protocol)</h3><p>ISATAP (RFC 5214) creates virtual IPv6 links over IPv4 networks within an organization. Unlike 6to4 and Teredo which target internet connectivity, ISATAP is designed for internal enterprise use:</p><ul><li>ISATAP addresses embed the IPv4 address as <code>::0:5efe:x.x.x.x</code> for private IPv4 or <code>::200:5efe:x.x.x.x</code> for public IPv4</li><li>Works with both public and private (NAT) IPv4 addresses</li><li>An ISATAP router provides the connection between ISATAP hosts and native IPv6</li><li>Commonly used on Windows networks for internal IPv6 deployment</li></ul><div class="callout callout-blue"><strong>IDENTIFYING TRANSITION MECHANISMS IN WIRESHARK</strong><p><strong>6to4</strong>: Look for IPv4 packets with Protocol=41. The payload is an IPv6 packet. Filter: <code>ip.proto==41</code><br><strong>Teredo</strong>: Look for UDP port 3544. Filter: <code>udp.port==3544</code><br><strong>ISATAP</strong>: Look for IPv6 addresses containing 0:5efe: or 200:5efe:. Filter: <code>ipv6.addr contains "5efe"</code></p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">6to4: Protocol 41, requires public IP, address starts 2002::, NO NAT. Teredo: UDP 3544, works behind NAT, address starts 2001:0000::. ISATAP: enterprise internal, embeds IPv4 as 0:5efe: or 200:5efe: in IPv6 address.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-transition" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('transition','IPv6 Transition Mechanisms')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-transition" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('transition')">+ Add Note</button></div></div></div></div></div><div class="insight-block" id="ins-sanitize"><div class="insight-hdr" onclick="toggleInsight('ins-sanitize')"><span class="ins-icon">💡</span><span class="ins-label">THINK FIRST · SANITIZE IPs & ENCRYPTED TRAFFIC</span></div><div class="ins-body"><p class="ins-q">When sharing a trace file for troubleshooting, you might want to hide real IP addresses for privacy. How does Wireshark help with this? Separately — if traffic is encrypted, what IP-layer information is still visible even though the payload is hidden? What can you still analyze?</p><textarea class="ins-ta" data-key="ins-sanitize" rows="4" placeholder="Write your answer here before reading the section…"></textarea><div class="ins-btn-row"><button class="btn-save-ins" id="savebtn-ins-sanitize" onclick="saveIns('ins-sanitize')">Save Answer</button><button class="btn-hint-ins" onclick="toggleInsHint('ins-sanitize')">💭 Hint</button><button class="btn-model-ins" id="mibtn-ins-sanitize" onclick="toggleInsModel('ins-sanitize')" disabled>🔒 Model Answer</button></div><div class="ins-hint-box" id="hint-ins-sanitize" style="display:none"><div class="hm-label">HINT</div><p>Consider what's visible in encrypted traffic: the IP addresses, port numbers, packet sizes, and timing all remain visible. What can an analyst infer from this metadata even without reading the payload?</p></div><div class="ins-model-box" id="model-ins-sanitize" style="display:none"><div class="hm-label">MODEL ANSWER</div><p>Sanitization: Wireshark's EditCap tool can anonymize IP addresses before sharing traces. The IPv4 Protocol Preferences allow you to disable checksum validation. For encrypted traffic (TLS, IPsec): IP addresses and port numbers remain visible (allows identifying endpoints). Packet sizes can reveal file types or activity patterns. Timing patterns can identify connection establishment, data bursts, and teardowns. Retransmissions and window sizes reveal network quality. You can identify encrypted tunnel traffic by protocol number (50=ESP/IPsec) even without decrypting the payload.</p></div></div></div><div class="section-block" id="sec-sanitize"><h2>Sanitize IP Addresses & Analyze Encrypted Traffic</h2><h3>Sanitize IP Addresses</h3><p>Before sharing a trace file externally (for vendor support, community help, or documentation), you should remove or obfuscate sensitive IP addresses. Wireshark provides tools for this:</p><ul><li>Use <strong>EditCap</strong> with <code>-s</code> to truncate packet payloads</li><li>Use the <strong>SanitizeTrace</strong> tool to replace IP addresses with substitutes</li><li>Use Wireshark's <strong>Edit | Preferences | IP addresses</strong> to mask addresses in the display</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig211-sanitize-ip.png" alt="Figure 211: IP address sanitization preserves packet structure while hiding sensitive address information" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 211 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 211.</strong> IP address sanitization preserves packet structure while hiding sensitive address information </div></div><h3>IPv4 Protocol Preferences</h3><p>Wireshark's IPv4 protocol preferences (Edit → Preferences → Protocols → IPv4) allow you to configure:</p><ul><li><strong>Validate the IPv4 checksum if possible</strong> — disable to suppress false checksum errors from checksum offloading</li><li><strong>Reassemble fragmented IPv4 datagrams</strong> — allows Wireshark to reconstruct fragmented packets for analysis</li><li><strong>IP geolocation</strong> — if a GeoIP database is configured, map IP addresses to geographic locations</li><li><strong>Subdissector reassembly</strong> — allow higher-layer protocols to request IP reassembly</li></ul><h3>Troubleshoot Encrypted Communications</h3><p>Even when traffic is encrypted (TLS, IPsec), significant information remains visible at the IP layer:</p><ul><li><strong>IP addresses</strong> — source and destination are always visible (unless using a VPN)</li><li><strong>Protocol numbers</strong> — reveals if IPsec (ESP=50, AH=51) is in use</li><li><strong>Packet sizes and timing</strong> — can reveal application behavior patterns</li><li><strong>TCP handshake details</strong> — visible even for TLS connections (window sizes, MSS, SACK support)</li></ul><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig212-encrypted-comms.png" alt="Figure 212: Even encrypted traffic reveals IP-layer metadata: addresses, protocol numbers, packet sizes, and timing" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 212 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 212.</strong> Even encrypted traffic reveals IP-layer metadata: addresses, protocol numbers, packet sizes, and timing </div></div><div class="callout callout-amber"><strong>WHAT YOU CAN ANALYZE IN ENCRYPTED TRAFFIC</strong><p>With encrypted traffic you can still: (1) identify the communicating endpoints by IP, (2) identify the transport protocol (TCP/UDP), (3) check for TCP problems (retransmissions, window issues), (4) measure response times (time between SYN and SYN/ACK), (5) identify IPsec tunnels by Protocol 50/51. You cannot read the application payload or HTTP headers.</p></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Sanitize traces before sharing — remove real IPs with EditCap. In encrypted traffic: IP addresses, port numbers, packet sizes, timing, and TCP behavior are all visible. ESP (Protocol 50) and AH (Protocol 51) identify IPsec-encrypted traffic. Disable IP checksum validation in preferences to suppress offloading false positives.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-sanitize" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sanitize','Sanitize & Preferences')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-sanitize" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('sanitize')">+ Add Note</button></div></div></div></div></div><div class="section-block" id="sec-filters"><h2>Filter on IPv4/IPv6 Traffic — Case Studies</h2><h3>IPv4 and IPv6 Display Filters</h3><p>The capture filter syntax for IPv4 is <code>ip</code>; for IPv6 it is <code>ip6</code>. Display filters are <code>ip</code> and <code>ipv6</code> respectively.</p><div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig213-filter-ipv4.png" alt="Figure 213: Filtering on IPv4 and IPv6 traffic in Wireshark using display filter expressions" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">📷</span><span>Figure 213 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 213.</strong> Filtering on IPv4 and IPv6 traffic in Wireshark using display filter expressions </div></div><div style="font-family:'SF Mono',monospace;font-size:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:12px 0;line-height:2;"><span style="color:var(--blue)">ip.ttl &lt; 10</span> — packets with very low TTL (routing issues)<br><span style="color:var(--blue)">ip.flags.df == 1</span> — Don't Fragment bit set<br><span style="color:var(--blue)">ip.flags.mf == 1</span> — More Fragments (fragmentation in progress)<br><span style="color:var(--blue)">ip.frag_offset &gt; 0</span> — non-first fragments<br><span style="color:var(--blue)">ip.checksum_bad == 1</span> — bad IPv4 checksum<br><span style="color:var(--blue)">ip.proto == 41</span> — 6to4 tunneled IPv6-in-IPv4<br><span style="color:var(--blue)">ip.proto == 50</span> — ESP (IPsec encrypted)<br><span style="color:var(--blue)">ipv6.nxt == 58</span> — ICMPv6<br><span style="color:var(--blue)">ipv6.dst == ff02::1</span> — all-nodes multicast<br><span style="color:var(--blue)">ipv6.src matches "^fe80"</span> — link-local source<br></div><div class="callout callout-green"><strong>ANALYZING IP ACROSS MULTIPLE CAPTURE POINTS</strong><p>Because IP addresses remain constant across the entire path (unlike MAC addresses), you can correlate captures taken at different points in the network by IP address. This makes it easy to determine whether a problem is occurring before or after a specific network device.</p></div><h3>Case Study 1: Everyone Blamed the Router</h3><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C17-CS1.png" alt="Everyone Blamed the Router" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C17-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C17-CS1.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network analyst sits at a laptop capturing packets with Wireshark in a server room filled with blinking equipment. A router device in the center of the room is surrounded by sticky notes from colleagues all reading 'BROKEN ROUTER!' The Wireshark screen shows a multicast storm — many identical packets flooding the trace. One analyst points at a specific server in the rack, not the router. A speech bubble says 'It's the server, not the router!' Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 1</div><div class="cs-title">Everyone Blamed the Router</div><div class="cs-sub"><em>Submitted by: Russ F.</em></div><div class="cs-body"><p>One day we received a report of a router problem. It would periodically not respond to pings.</p><p>A colleague suggested we start by replacing the router's Ethernet NIC. Before doing that, I suggested we connect Wireshark to the same VLAN and get a network trace using no mirroring — we expected to see a broadcast storm.</p><p>The trace showed an IP multicast storm occurring at the same time the router stopped responding. We could see the IP address of one of the servers in the multicast packets.</p><p>We located the server and disconnected it from the network, resolving the router issue. Further investigation revealed a misconfiguration on the server, which was easily corrected.</p><p>Without Wireshark, we would have caused a major network outage while we replaced the router NIC and then probably the router — neither of which would have resolved the problem.</p></div></div><h3>Case Study 2: It's Not the Network's Problem!</h3><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C17-CS2.png" alt="It's Not the Network's Problem" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C17-CS2.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C17-CS2.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network analyst stands confidently next to a Wireshark screen while pointing at an IP address in the packet list. The source IP address shown begins with an old network scheme (e.g. 10.1.x.x) highlighted in yellow. Frustrated IT staff in the background point at switches and routers. A whiteboard behind the analyst reads 'IP address MISMATCH' with an arrow from old scheme to new scheme. The setting is a corporate IT office. Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 2</div><div class="cs-title">It's Not the Network's Problem!</div><div class="cs-sub"><em>Submitted by: Jennifer Keels, Coastal Bend College</em></div><div class="cs-body"><p>Our primary data information system was experiencing connection issues with external resources. The programming department spoke with their technical support, who pointed fingers at our DNS server.</p><p>I was still new to Wireshark but knew enough that I could perform some basic troubleshooting. I set a span on the switch port to the system (I didn't own a tap yet) and captured the packets.</p><p>I instantly saw the system was using an IP address from an old addressing scheme. For some reason, the system would periodically use that old IP address when sending packets.</p><p>I was able to inform technical support that they did not remove the old IP address configuration and that was why the system was having network related issues.</p><p>I really enjoyed the experience of being able to prove, once again, IT WAS NOT THE NETWORK!!</p></div></div><h3>Case Study 3: IPv6 Addressing Mayhem</h3><div class="cs-img-inline"><div class="cs-img-wrap"><img src="../all-casestudy-pictures/C17-CS3.png" alt="IPv6 Addressing Mayhem" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">🖼️</span><div><strong>C17-CS3.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C17-CS3.png</div></div></div><div class="cs-prompt-row"><button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'▾ Show cartoon prompt':'▴ Hide cartoon prompt'">▾ Show cartoon prompt</button><div class="cs-prompt-text" hidden>A network engineer stares wide-eyed at a Wireshark screen showing an explosion of IPv6 addresses, some labeled 'fe80::' and others 'ff02::'. Post-it notes with IPv6 addresses cover the walls of a network operations center. Another engineer points to a Router Advertisement packet in the trace. A whiteboard behind them shows two routers, both sending conflicting Router Advertisements. Flat simple cartoon style, bold outlines, bright colours.</div></div></div><div class="case-study-block"><div class="cs-eyebrow">Case Study 3</div><div class="cs-title">IPv6 Addressing Mayhem</div><div class="cs-sub"><em>Submitted by: Jeff Carrell, Network Security Consultant, Network Conversions</em></div><div class="cs-body"><p>Recently I used Wireshark to detect a configuration error that was plaguing an IPv6 lab setup.</p><p>The lab has a common network where a Windows 2008-R2 server is located providing DHCP, DHCPv6 and DNS services. This is VLAN 1 and dual-stacked. There are also 2 routers: an HP router and a Cisco router, each connected to the common VLAN 1, and then each going out to their own separate networks (VLAN 1001 and 2001) supporting clients.</p><p>I have a Windows 7 client on VLAN 1 which is configured to use DHCP/DHCPv6. At first it was getting IPv4 and IPv6 addresses just fine, but then for some unexplained reason the client would simply release its IPv6 address and ask for an address again. The DHCPv6 server was sending it an IPv6 address, but the client wouldn't configure itself to use it. A bit later, the client would get an IPv6 address again, but a bit later the client would drop the address and ask again.</p><p>The mystery was solved by looking at the traffic with Wireshark! The ICMPv6 Router Advertisements were going out just fine. But wait — the RAs from the HP router have the M and O flags set to 1, but the RAs from the Cisco router sent RAs with M and O flags set off (0). The client was acting on conflicting RAs — sometimes told to use DHCPv6, sometimes told to use SLAAC.</p><p>The Cisco router needed to set the M and O flags to 1 just like the HP router. So, the moral of this story is ANY router on a network segment that is sending RAs needs to have the M and O bits set on if you want the clients to get their IPv6 address from a DHCPv6 server — otherwise mayhem and confusion will take over.</p></div></div><div class="mental-note-block"><div class="mental-note-block-icon">🧠</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Wireshark filter for Router Advertisements: icmpv6.type==134. Link-local addresses (fe80::) are auto-generated and cannot be routed. Multiple Router Advertisements on the same segment cause SLAAC address chaos. Always check for rogue RA sources when troubleshooting IPv6 addressing.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-filters" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('filters','Filters & Case Studies')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-filters" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('filters')">+ Add Note</button></div></div></div></div></div><div class="tldr-block" id="sec-tldr"><div class="tldr-eyebrow">CHAPTER SUMMARY</div><h3>TL;DR — Chapter 17</h3><p>IP provides connectionless, best-effort packet delivery across multiple networks using logical addressing and routing. IPv4 uses 32-bit addresses and a variable-length header; IPv6 uses 128-bit addresses and a fixed 40-byte header.</p><p>The TTL field (IPv4) and Hop Limit field (IPv6) limit packet lifetime — each router decrements by 1. When TTL reaches 0, the router sends ICMP Time Exceeded. The Protocol field identifies the Layer 4 protocol carried in the IP payload.</p><p>IPv6 improvements over IPv4 include: no header checksum, no router fragmentation, fixed header length, built-in flow labels, and multicast replacing broadcast. SLAAC allows hosts to auto-configure IPv6 addresses without DHCP.</p><p>Transition mechanisms bridge IPv4 and IPv6: 6to4 encapsulates IPv6 in IPv4 Protocol 41 (requires public IP); Teredo encapsulates in UDP port 3544 (works through NAT); ISATAP creates virtual IPv6 links over internal IPv4 networks.</p><p>IPv4 display filter: <code>ip</code>. IPv6 display filter: <code>ipv6</code>. Use <code>ip.ttl</code>, <code>ip.proto</code>, <code>ip.flags</code>, and <code>ip.frag_offset</code> to analyze specific packet characteristics.</p></div><h2 class="rq-section-heading" id="sec-rq">Review Questions</h2><div class="rq-card"><div class="rq-num">Q17.1</div><div class="rq-q">What is the purpose of IPv4/IPv6?</div><textarea class="rq-ta" data-key="rq-rq1" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq1" onclick="saveRQ('rq1')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq1')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq1" onclick="toggleRQAns('rq1')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq1" style="display:none"><div class="hm-label">HINT</div><p>Think about what IP provides that makes the internet possible — delivery, addressing, and handling packets that are too large for a link.</p></div><div class="rq-ans-box" id="rqans-rq1" style="display:none"><div class="hm-label">ANSWER</div><p>IP provides the datagram delivery services for networked systems, fragmentation and reassembly for low MTU (Maximum Transmission Unit) networks and quality of service designation capability to enable certain traffic to be prioritized over other traffic. IP is connectionless and unreliable — it provides best-effort delivery of datagrams between IP hosts with no way to determine if a packet arrived at the target. An application that needs guaranteed delivery should use TCP over IP.</p></div></div><div class="rq-card"><div class="rq-num">Q17.2</div><div class="rq-q">Which three IPv4 header fields are used with IP fragmentation?</div><textarea class="rq-ta" data-key="rq-rq2" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq2" onclick="saveRQ('rq2')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq2')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq2" onclick="toggleRQAns('rq2')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq2" style="display:none"><div class="hm-label">HINT</div><p>Think about the fields needed to split a large packet into pieces and later reassemble them in the correct order.</p></div><div class="rq-ans-box" id="rqans-rq2" style="display:none"><div class="hm-label">ANSWER</div><p>The three IPv4 header fields used with IP fragmentation are: (1) <strong>Don't Fragment (DF) bit</strong> — when set to 1, routers must not fragment the packet; if it's too large, they send ICMP Type 3, Code 4 (Fragmentation Needed). (2) <strong>More Fragments (MF) bit</strong> — set to 1 on all fragments except the last one, indicating more fragments follow. (3) <strong>Fragment Offset field</strong> — indicates where in the original datagram this fragment belongs, measured in 8-byte units. All fragments of the same datagram share the same IP Identification field value.</p></div></div><div class="rq-card"><div class="rq-num">Q17.3</div><div class="rq-q">What should an IPv4 router do when a packet to be forwarded arrives with a TTL value of one?</div><textarea class="rq-ta" data-key="rq-rq3" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq3" onclick="saveRQ('rq3')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq3')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq3" onclick="toggleRQAns('rq3')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq3" style="display:none"><div class="hm-label">HINT</div><p>The router cannot decrement TTL to 0 and forward the packet — what are its options?</p></div><div class="rq-ans-box" id="rqans-rq3" style="display:none"><div class="hm-label">ANSWER</div><p>The router should discard the packet. This process may occur silently or cause the router to generate an ICMP Type 11, Code 0 response to the sender (Time Exceeded, Time to Live Exceeded in Transit). This ICMP message informs the sender that the packet was discarded due to its TTL expiring. If a packet with TTL=1 arrives at a <em>host</em> (not a router), the host should process the packet normally — hosts do not decrement the TTL on packets they receive.</p></div></div><div class="rq-card"><div class="rq-num">Q17.4</div><div class="rq-q">What is the purpose of the Differentiated Services field?</div><textarea class="rq-ta" data-key="rq-rq4" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq4" onclick="saveRQ('rq4')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq4')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq4" onclick="toggleRQAns('rq4')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq4" style="display:none"><div class="hm-label">HINT</div><p>Think about how the network can prioritize some traffic (like VoIP) over other traffic (like bulk file transfers).</p></div><div class="rq-ans-box" id="rqans-rq4" style="display:none"><div class="hm-label">ANSWER</div><p>The Differentiated Services (DiffServ) field can be used to prioritize traffic along a path. The first 6 bits contain the DSCP (Differentiated Services Code Point) value that indicates how to handle the packet (per-hop behavior). This prioritization requires that routers along the path support Differentiated Services and recognize the prioritization value set. The two-bit ECN (Explicit Congestion Notification) field is also part of this byte. Common DSCP values: 46 (EF/Expedited Forwarding) for VoIP, 34 (AF41) for video conferencing, 0 (Default) for best-effort traffic.</p></div></div><div class="rq-card"><div class="rq-num">Q17.5</div><div class="rq-q">What is the syntax for capture and display filters for IPv4 and IPv6 traffic?</div><textarea class="rq-ta" data-key="rq-rq5" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq5" onclick="saveRQ('rq5')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq5')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq5" onclick="toggleRQAns('rq5')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq5" style="display:none"><div class="hm-label">HINT</div><p>The capture filter and display filter syntaxes differ slightly for IPv6 — think about how they are specified in each context.</p></div><div class="rq-ans-box" id="rqans-rq5" style="display:none"><div class="hm-label">ANSWER</div><p>For IPv4 traffic: <strong>Capture filter</strong>: <code>ip</code> — Display filter: <code>ip</code><br>For IPv6 traffic: <strong>Capture filter</strong>: <code>ip6</code> — Display filter: <code>ipv6</code><br>Note that the capture filter for IPv6 uses <code>ip6</code> while the display filter uses <code>ipv6</code>. To capture both IPv4 and IPv6: <code>ip or ip6</code>. To display both: <code>ip or ipv6</code>. Additional display filters: <code>ip.ttl &lt; 10</code> (low TTL), <code>ip.flags.mf==1</code> (fragmented), <code>ipv6.nxt==58</code> (ICMPv6).</p></div></div><div class="rq-card"><div class="rq-num">Q17.6</div><div class="rq-q">What is the format of an IPv6 6to4 packet?</div><textarea class="rq-ta" data-key="rq-rq6" rows="4" placeholder="Write your answer before revealing the model answer…"></textarea><div class="rq-btn-row"><button class="btn-rq-save" id="rqsave-rq6" onclick="saveRQ('rq6')">Save Answer</button><button class="btn-rq-hint" onclick="toggleRQHint('rq6')">💭 Hint</button><button class="btn-rq-ans" id="ansbtn-rq6" onclick="toggleRQAns('rq6')" disabled>🔒 See Answer</button></div><div class="rq-hint-box" id="rqhint-rq6" style="display:none"><div class="hm-label">HINT</div><p>6to4 is a tunneling mechanism — think about what wraps around the IPv6 packet and what protocol number is used.</p></div><div class="rq-ans-box" id="rqans-rq6" style="display:none"><div class="hm-label">ANSWER</div><p>An IPv6 6to4 packet has an IPv6 header preceded by an IPv4 header. The IPv4 Protocol field is set to <strong>41</strong> (IPv6). The 6to4 IPv6 address begins with the prefix <strong>2002::/16</strong>, followed by 32 bits derived from the host's public IPv4 address in hexadecimal. RFC 3056 defines Connection of IPv6 Domains via IPv4 Clouds. Wireshark adds two notations to 6to4 packets: Source 6to4 Gateway IPv4 (<code>ipv6.src_6to4_gw_ipv4</code>) and Source 6to4 SLA ID (<code>ipv6.src_6to4_sla_id</code>). Display filter: <code>ip.proto == 41</code>.</p></div></div>
-</div>
-<div class="sidebar">
-<div class="sidebar-card"><h3>Navigation</h3><div class="sidebar-nav-links"><a class="sidebar-link" href="../index.html">← Wireshark Hub <span class="arr">↗</span></a><a class="sidebar-link" href="index.html">Chapter 17 Practice Lab <span class="arr">→</span></a></div></div><div class="sidebar-card"><h3>Section Progress</h3><div class="progress-summary" id="prog-text">0 / 10 sections read</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-checklist"><label class="check-item" data-key="chk-purpose"><input type="checkbox" onchange="toggleDone(this,'chk-purpose')"> Purpose of IP</label><label class="check-item" data-key="chk-ipv4normal"><input type="checkbox" onchange="toggleDone(this,'chk-ipv4normal')"> Normal IPv4 Traffic</label><label class="check-item" data-key="chk-ipv4probs"><input type="checkbox" onchange="toggleDone(this,'chk-ipv4probs')"> IPv4 Problems</label><label class="check-item" data-key="chk-ipv4struct"><input type="checkbox" onchange="toggleDone(this,'chk-ipv4struct')"> IPv4 Packet Structure</label><label class="check-item" data-key="chk-ipv6intro"><input type="checkbox" onchange="toggleDone(this,'chk-ipv6intro')"> Introduction to IPv6</label><label class="check-item" data-key="chk-ipv6struct"><input type="checkbox" onchange="toggleDone(this,'chk-ipv6struct')"> IPv6 Packet Structure</label><label class="check-item" data-key="chk-ipv6addr"><input type="checkbox" onchange="toggleDone(this,'chk-ipv6addr')"> IPv6 Addressing</label><label class="check-item" data-key="chk-transition"><input type="checkbox" onchange="toggleDone(this,'chk-transition')"> IPv6 Transition</label><label class="check-item" data-key="chk-sanitize"><input type="checkbox" onchange="toggleDone(this,'chk-sanitize')"> Sanitize & Preferences</label><label class="check-item" data-key="chk-filters"><input type="checkbox" onchange="toggleDone(this,'chk-filters')"> Filters & Case Studies</label></div></div><div class="sidebar-card"><div class="ins-prog-label">Insights + Review Q's answered</div><div id="ins-prog-count" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">0 / 15 answered</div><div class="ins-prog-bar-wrap"><div class="ins-prog-bar" id="ins-prog-bar" style="width:0%"></div></div></div><div class="sidebar-card"><h3>Quick Reference</h3><div class="quick-ref"><h4>Key Filters</h4><div class="qr-row"><span class="qr-term">ip</span><span class="qr-def">All IPv4 traffic</span></div><div class="qr-row"><span class="qr-term">ipv6</span><span class="qr-def">All IPv6 traffic</span></div><div class="qr-row"><span class="qr-term">ip.ttl &lt; 5</span><span class="qr-def">Low TTL packets</span></div><div class="qr-row"><span class="qr-term">ip.checksum_bad==1</span><span class="qr-def">Bad IP checksum</span></div><div class="qr-row"><span class="qr-term">ip.flags.df==1</span><span class="qr-def">Don't Fragment set</span></div><div class="qr-row"><span class="qr-term">ip.flags.mf==1</span><span class="qr-def">More Fragments</span></div><div class="qr-row"><span class="qr-term">ip.frag_offset &gt; 0</span><span class="qr-def">Fragmented packets</span></div><div class="qr-row"><span class="qr-term">ipv6.nxt==58</span><span class="qr-def">ICMPv6 traffic</span></div><div class="qr-row"><span class="qr-term">ip.proto==41</span><span class="qr-def">IPv6-in-IPv4 (6to4)</span></div><div class="qr-row"><span class="qr-term">ip.src==10.0.0.0/8</span><span class="qr-def">Private subnet filter</span></div></div></div><div class="sidebar-card"><h3>Trace Files</h3><div class="trace-list">http-download-good.pcapng<br>http-espn2011.pcapng<br>ipv6-misc.pcapng<br>6to4-tunnel.pcapng<br>teredo.pcapng<br>isatap.pcapng<br>sec-clientdying.pcapng</div></div>
-</div>
-</main>
-<div class="practice-cta">
-<a href="index.html" class="btn-practice-cta">❓ Practice What You've Learned →</a>
-<p class="practice-cta-sub">Open the trace files and test your understanding with hands-on exercises.</p>
-</div>
-<footer>
-<div>Wireshark Network Analysis — 2nd Edition</div>
-<div>Chapter 17: Analyze IPv4/IPv6 Traffic</div>
-</footer>
-<script>
 
-const PAGE_KEY='ws-ch17-full';
-const SECTIONS={'purpose':'Purpose of IP','ipv4normal':'Normal IPv4 Traffic','ipv4probs':'IPv4 Problems','ipv4struct':'IPv4 Packet Structure','ipv6intro':'Introduction to IPv6','ipv6struct':'IPv6 Packet Structure','ipv6addr':'IPv6 Addressing','transition':'IPv6 Transition','sanitize':'Sanitize & Preferences','filters':'Filters & Case Studies','tldr':'TL;DR','rq':'Review Questions'};
-const INSIGHT_IDS=['ins-purpose','ins-ipv4normal','ins-ipv4probs','ins-ipv4struct','ins-ipv6intro','ins-ipv6struct','ins-ipv6addr','ins-transition','ins-sanitize'];
-const RQ_IDS=['rq1','rq2','rq3','rq4','rq5','rq6'];
-const TOTAL=15;
-function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
-function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
-function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
-function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
-function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
-function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
-function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
-function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
-function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
-function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
-function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
-function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
-function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
-function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
-function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}updateInsProgress();}
-function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
-function toggleDone(cb,key){localStorage.setItem(PAGE_KEY+'-'+key,cb.checked?'1':'');cb.closest('.check-item').classList.toggle('done',cb.checked);updateProgress();}
-function initChecks(){document.querySelectorAll('.check-item[data-key]').forEach(function(ci){const k=ci.dataset.key;const saved=localStorage.getItem(PAGE_KEY+'-'+k)==='1';const cb=ci.querySelector('input[type=checkbox]');if(cb)cb.checked=saved;ci.classList.toggle('done',saved);});updateProgress();}
-function updateProgress(){const items=document.querySelectorAll('.check-item[data-key]');let done=0;items.forEach(ci=>{if(localStorage.getItem(PAGE_KEY+'-'+ci.dataset.key)==='1')done++;});const pct=items.length?Math.round(done/items.length*100):0;const el=document.getElementById('prog-text');if(el)el.textContent=done+' / '+items.length+' sections read';const fill=document.getElementById('prog-fill');if(fill)fill.style.width=pct+'%';}
-function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
-function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}}); setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
-document.addEventListener('DOMContentLoaded',function(){
-  renderQPanel();renderNotesPanel();initChecks();initSectionNav();initFigures();initPT();updateInsProgress();
-  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
-  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
-  INSIGHT_IDS.forEach(function(id){
-    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
+<header>
+  <div class="header-inner">
+    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> &rsaquo; <a href="../hub.html">Study Guides</a> &rsaquo; Chapter 17</div>
+    <div class="eyebrow-row">
+      <span class="eyebrow-chip">CHAPTER 17</span>
+      <span class="animated-dot"></span>
+    </div>
+    <h1>Analyze Internet Protocol <em>(IPv4/IPv6)</em> Traffic</h1>
+    <div class="header-sub">Fragmentation, QoS, IPv6 addressing, tunneling, and IP-layer filters</div>
+  </div>
+</header>
+
+<div class="motivation-banner">
+  <div class="motivation-text"><em>"IP is the universal postal system of the Internet &mdash; it gets packets delivered, fragments them when needed, and marks them for priority treatment."</em></div>
+  <div class="motivation-sub">Master IP header analysis to diagnose fragmentation, MTU, and routing issues</div>
+</div>
+
+<div class="top-panels">
+  <div class="q-panel" id="q-panel">
+    <div class="q-panel-header" onclick="toggleQPanel()">
+      <span>&#x1F4AD; My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">&#9662;</span>
+    </div>
+    <div class="q-panel-body" id="q-panel-body">
+      <div id="q-list"></div>
+      <div class="q-empty" id="q-empty">No questions yet &mdash; add one from any section below.</div>
+    </div>
+  </div>
+  <div class="note-panel" id="note-panel">
+    <div class="note-panel-header">&#x1F4DD; My Notes</div>
+    <div class="note-panel-body">
+      <textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights, things to remember..."></textarea>
+    </div>
+  </div>
+</div>
+
+<nav class="section-nav" id="section-nav">
+  <button class="nav-tab active" onclick="navTo('sec-ipv4')">IPv4</button>
+  <button class="nav-tab" onclick="navTo('sec-ipv6')">IPv6</button>
+  <button class="nav-tab" onclick="navTo('sec-filters')">Filters</button>
+  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Studies</button>
+  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
+</nav>
+
+<main>
+  <div class="main-content">
+
+    <!-- THINK FIRST: IPv4 -->
+    <div class="insight-block" id="ins-ipv4">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; IPv4 HEADER &amp; FRAGMENTATION</span>
+      </div>
+      <p class="insight-insight">IP is connectionless and unreliable &mdash; it makes its best effort to deliver packets but provides no acknowledgment. When a packet is too large for a link, IP can fragment it. The Don't Fragment bit controls whether fragmentation is allowed, and all fragments share the same IP ID value for reassembly at the destination.</p>
+      <ul class="insight-questions">
+        <li>What creates a "black hole" at the network layer, and why does blocking ICMP Type 3 Code 4 packets cause it?</li>
+        <li>You see multiple packets with identical IP ID field values that are NOT fragments (More Fragments = 0, Fragment Offset = 0). What does this suggest about the network?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-ipv4">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> A black hole occurs when a packet with the Don't Fragment (DF) bit set is too large to be forwarded onto the next link. The router should send an ICMP Type 3, Code 4 (Destination Unreachable/Fragmentation Needed but DF bit set) message back to the source, telling it the maximum MTU. If a firewall blocks that ICMP message, the source never learns about the MTU limitation, keeps sending the same oversized packet, and the connection silently hangs &mdash; hence "black hole." Proper MTU Path Discovery requires these ICMP messages to reach the sender.</p>
+          <p><strong>Model Answer 2:</strong> If non-fragmented packets share the same IP ID value, the packet may be looping the network &mdash; the same packet is cycling through a routing loop and arriving at the capture point multiple times. Each new packet generated by a host gets a unique ID; if the ID is identical, it's the same packet. Contrast this with fragments: all fragments of a single original packet intentionally share one IP ID so the destination can reassemble them.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: IPv4 -->
+    <div class="section-block" id="sec-ipv4">
+      <h2>IPv4 — Purpose, Structure &amp; Problems</h2>
+
+      <p>IP (IPv4/IPv6) provides the datagram delivery services for networked systems as well as fragmentation and reassembly for low-MTU networks. IP also offers quality of service designation via the Differentiated Services field. IP is <strong>connectionless and unreliable</strong> &mdash; it provides best-effort delivery with no guarantee of arrival. The IPv4 header is typically 20 bytes long.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig200-ip-stack.png"
+               alt="Figure 200: IP provides datagram delivery services"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 200 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 200.</strong> IP provides datagram delivery services for UDP- and TCP-based applications and ICMP.</div>
+      </div>
+
+      <h3>Fragmentation</h3>
+      <p>As IPv4 packets are forwarded by routers, the MTU size is checked against the next link. If a packet is too large and fragmentation is allowed, the router splits it into smaller fragments, sets the fragment offset, and forwards them. All fragments use the same IP ID value. Fragmentation reassembly occurs at the endpoint.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig201-normal-ipv4.png"
+               alt="Figure 201: IP can fragment packets when a link MTU doesn't support the datagram size"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 201 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 201.</strong> IP can fragment packets when a link's MTU doesn't support the datagram size.</div>
+      </div>
+
+      <div class="callout callout-amber"><strong>CAUTION: Black Hole Detection</strong> When the Don't Fragment bit is set and a packet is too large to forward, the router must drop the packet and send an ICMP Type 3, Code 4 message back to the source. If these ICMP messages are blocked by a firewall, the source never learns about the MTU limitation and cannot communicate with the target &mdash; a "black hole." Filter: <code>icmp.type==3 &amp;&amp; icmp.code==4</code></div>
+
+      <h3>Unusual IP Addresses</h3>
+      <p>Invalid source addresses can be detected in Wireshark. The source IP address field cannot contain a loopback address (127.0.0.0/8), a multicast address, or a broadcast address.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig202-suspicious-source-ip-address-127.png"
+               alt="Figure 202: Suspicious source IP address 127.0.0.1"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 202 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 202.</strong> A source IP address of 127.0.0.1 is suspicious [ip-127guy.pcapng].</div>
+      </div>
+
+      <h3>Dissect the IPv4 Packet Structure</h3>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig203-ipv4-header.png"
+               alt="Figure 203: IPv4 header"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 203 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 203.</strong> IPv4 header [app-iradio.pcapng].</div>
+      </div>
+
+      <table class="def-table">
+        <thead><tr><th>Field</th><th>Size</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Version</strong></td><td>4 bits</td><td>IP version (4 for IPv4)</td></tr>
+          <tr><td><strong>Header Length (IHL)</strong></td><td>4 bits</td><td>IP header length in 4-byte multiples. Value 5 = 20 bytes (no options). &gt;5 = options present.</td></tr>
+          <tr><td><strong>Differentiated Services (DSCP)</strong></td><td>6 bits</td><td>QoS priority marking. Defines per-hop behavior. Formerly called TOS.</td></tr>
+          <tr><td><strong>Explicit Congestion Notification (ECN)</strong></td><td>2 bits</td><td>Identifies network congestion along the path. Part of former TOS field.</td></tr>
+          <tr><td><strong>Total Length</strong></td><td>16 bits</td><td>Length of IP header + valid data (not including data link padding).</td></tr>
+          <tr><td><strong>Identification</strong></td><td>16 bits</td><td>Unique ID per packet. All fragments of the same original packet share one ID. Identical IDs on non-fragments = looping packet.</td></tr>
+          <tr><td><strong>Flags</strong></td><td>3 bits</td><td>Bit 0: Reserved (0). Bit 1: Don't Fragment. Bit 2: More Fragments.</td></tr>
+          <tr><td><strong>Fragment Offset</strong></td><td>13 bits</td><td>Where this fragment's data belongs in the reassembled packet (in 8-byte units).</td></tr>
+          <tr><td><strong>Time to Live (TTL)</strong></td><td>8 bits</td><td>Decremented by 1 per router hop. When a router receives TTL=1, it drops the packet and sends ICMP Type 11 Code 0. Typical starting values: 32, 60, 64, 128.</td></tr>
+          <tr><td><strong>Protocol</strong></td><td>8 bits</td><td>1=ICMP, 6=TCP, 17=UDP, 41=IPv6 (6to4), 89=OSPF. Defines what follows the IP header.</td></tr>
+          <tr><td><strong>Header Checksum</strong></td><td>16 bits</td><td>Error detection on the IP header only (not the payload).</td></tr>
+          <tr><td><strong>Source IP Address</strong></td><td>32 bits</td><td>Cannot be loopback (127.x), multicast, or broadcast. May be 0.0.0.0 during DHCP boot.</td></tr>
+          <tr><td><strong>Destination IP Address</strong></td><td>32 bits</td><td>Can be unicast, multicast, or broadcast.</td></tr>
+          <tr><td><strong>Options</strong></td><td>Variable</td><td>Extend header in 4-byte increments. Rare options: Loose Source Route, Record Route, Time Stamp, Strict Source Route.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Differentiated Services / DSCP</h3>
+      <p>The 6-bit DSCP value determines how a router handles the packet (the per-hop behavior). Expedited Forwarding (EF) provides low loss, low latency, low jitter &mdash; a virtual leased line. Assured Forwarding (AF) provides different levels of forwarding assurance.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig204-dscp-assured-forwarding.png"
+               alt="Figure 204: DSCP field defining Assured Forwarding"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 204 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 204.</strong> This Differentiated Services Codepoint (DSCP) field defines Assured Forwarding for a packet [voip-extension.pcapng].</div>
+      </div>
+
+      <h3>TTL — Time to Live</h3>
+      <p>Typical starting TTL values are 32, 60, 64, and 128. Each router decrements the TTL by 1. If a router receives a packet with TTL=1, it <em>must discard the packet</em> (cannot decrement to 0 and forward) and may generate an ICMP Type 11, Code 0 (Time Exceeded, TTL Exceeded in Transit) response to the sender. A host that receives TTL=1 processes the packet normally &mdash; hosts don't route.</p>
+      <p>Wireshark has a "TTL low or unexpected" coloring rule: <code>(!ip.dst==224.0.0.0/4 &amp;&amp; ip.ttl &lt; 5 &amp;&amp; !pim) || (ip.dst==224.0.0.0/24 &amp;&amp; ip.ttl != 1)</code></p>
+
+      <h3>IP Fragmentation in Wireshark</h3>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig205-ip-fragment-preferences.png"
+               alt="Figure 205: IP preferences for fragment display"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 205 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 205.</strong> Change the IP preferences to alter Wireshark's display of IP fragments [ip-fragments.pcapng].</div>
+      </div>
+
+      <p>When <strong>Reassemble fragmented IP datagrams</strong> is enabled, the last packet of the fragment set shows the entire contents. If disabled, each fragment is treated separately. Enable this in <strong>Edit | Preferences | Protocols | IP</strong>.</p>
+
+      <h3>Sanitize IP Addresses</h3>
+      <p>When sharing trace files, you may need to sanitize IP addresses. You can use a hex editor for search-and-replace (does not recalculate checksums) or use <strong>BitTwiste</strong> (bittwist.sourceforge.net) which automatically recalculates checksums.</p>
+      <pre>bittwiste -I ftp-ioupload-partial.pcap -O ftpmod.pcap -T ip -s 67.161.19.78,10.10.19.78 -d 67.161.19.78,10.10.19.78</pre>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig211-bittwiste-ip-address-alteration.png"
+               alt="Figure 211: BitTwiste alters IP addresses in a trace file"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 211 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 211.</strong> BitTwiste can easily alter IP addresses in a trace file and automatically recalculate checksums [ftp-ioupload-partial.pcap].</div>
+      </div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">IPv4 header normally 20 bytes (IHL=5). Three fragmentation fields: <strong>Don't Fragment bit, More Fragments bit, Fragment Offset</strong>. All fragments of one packet = same IP ID. Identical IP IDs on non-fragments = looping packet. TTL=1 at router &rarr; router discards + sends ICMP Type 11 Code 0. TTL=1 at host &rarr; host processes normally. Black hole = DF bit set + ICMP Type 3 Code 4 blocked. IPv4 source cannot be 127.x, multicast, or broadcast. Protocol 6=TCP, 17=UDP, 1=ICMP, 41=IPv6 (6to4).</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-ipv4" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-ipv4','IPv4')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-ipv4" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-ipv4')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK FIRST: IPv6 -->
+    <div class="insight-block" id="ins-ipv6">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; IPv6 ADDRESSING &amp; ADDRESS ASSIGNMENT</span>
+      </div>
+      <p class="insight-insight">IPv6 uses 128-bit addresses (16 bytes), has no broadcast address (multicasts replace it), and uses ICMPv6 instead of ARP for neighbor discovery. IPv6 hosts can acquire addresses via SLAAC, stateful DHCPv6, or stateless DHCPv6 &mdash; the choice is driven by the M and O bits in the ICMPv6 Router Advertisement.</p>
+      <ul class="insight-questions">
+        <li>What happens when two routers on the same segment send conflicting ICMPv6 Router Advertisements &mdash; one with M=1 (use DHCPv6) and one with M=0 (use SLAAC)? What symptom would you see on a client?</li>
+        <li>6to4 tunneling and Teredo both encapsulate IPv6 inside IPv4 to cross IPv4-only networks. What is the key difference in how they achieve this?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-ipv6">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer 1:</strong> The client acts on the most recently received Router Advertisement. With conflicting RAs, the client will oscillate: it gets M=1 from Router A, requests an address from DHCPv6, then gets M=0 from Router B, releases the DHCPv6 address and tries SLAAC, then gets M=1 again... This creates repeated DHCPv6 request/release cycles and the client never stabilizes on an address. This is exactly what Jeff Carrell's case study (Chapter 17) describes &mdash; the fix is to ensure all routers on the segment agree on M and O flag settings.</p>
+          <p><strong>Model Answer 2:</strong> 6to4 encapsulates IPv6 directly inside IPv4 using Protocol field value 41. It requires a globally-routable IPv4 address because it embeds the IPv4 address inside the IPv6 source address (prefix 2002::). Teredo encapsulates IPv6 inside <em>UDP</em> to cross NAT devices that can't handle Protocol 41 directly. Teredo uses UDP port 3544 and works through NATs. ISATAP is a third option that uses locally-assigned (public or private) IPv4 addresses.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: IPv6 -->
+    <div class="section-block" id="sec-ipv6">
+      <h2>An Introduction to IPv6 Traffic</h2>
+      <p>IPv6 is still just a Layer 3 routed protocol. The Ethernet header Type field value 0x86dd indicates an IPv6 header is next. IPv6 is covered in RFC 2460. IPv6 addresses are covered in RFC 4291. Neighbor Discovery is covered in RFC 4861.</p>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig206-ipv6-header.png"
+               alt="Figure 206: IPv6 header"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 206 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 206.</strong> The IPv6 header [ipv6-mcasts.pcapng].</div>
+      </div>
+
+      <h3>IPv6 Header Fields</h3>
+      <table class="def-table">
+        <thead><tr><th>Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Version</strong></td><td>4 bits, set to 0110 (decimal 6)</td></tr>
+          <tr><td><strong>Traffic Class (DiffServ + ECN)</strong></td><td>8-bit field. Same DiffServ/DSCP QoS functionality as IPv4. ECT bit = sender supports ECN. ECN-CE bit = router signals congestion.</td></tr>
+          <tr><td><strong>Flow Label</strong></td><td>20-bit identifier for a "flow" (sequence of packets from same source to destination). Value 0 = not part of any flow. Not changed along the path.</td></tr>
+          <tr><td><strong>Payload Length</strong></td><td>Bytes following the IPv6 header (extension headers are part of payload).</td></tr>
+          <tr><td><strong>Next Header</strong></td><td>What comes next (like Protocol field in IPv4). Extension headers: 0=Hop-by-Hop, 43=Routing, 44=Fragment, 51=AH, 50=ESP, 59=No next header, 135=Mobility.</td></tr>
+          <tr><td><strong>Hop Limit</strong></td><td>Decremented by 1 per hop (like IPv4 TTL). Cannot be routed when value reaches 1.</td></tr>
+          <tr><td><strong>Source/Destination IPv6 Address</strong></td><td>128 bits each. Written as eight groups of 4 hex digits. Leading zeros can be dropped. :: replaces one or more consecutive groups of all zeros (once only per address).</td></tr>
+        </tbody>
+      </table>
+
+      <h3>IPv6 Address Types</h3>
+      <p>There is <strong>no broadcast</strong> in IPv6 &mdash; multicasts replace it.</p>
+      <table class="def-table">
+        <thead><tr><th>Type</th><th>Prefix</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Unicast</td><td>2xxx</td><td>Single interface address</td></tr>
+          <tr><td>Multicast</td><td>FFxx</td><td>Group of interfaces (replaces broadcast)</td></tr>
+          <tr><td>Link-Local Unicast</td><td>FE80</td><td>Automatic local addressing, not routed. Used for neighbor discovery &amp; auto-configuration.</td></tr>
+          <tr><td>Anycast</td><td>N/A</td><td>Nearest of a group of interfaces</td></tr>
+        </tbody>
+      </table>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig207-ipv6-multicasts.png"
+               alt="Figure 207: IPv6 multicast packets beginning with ff02"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 207 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 207.</strong> Multicasts begin with ff02 [ipv6-mcasts.pcapng]. ICMPv6 Neighbor Solicitation from :: = Duplicate Address Detection (DAD).</td></div>
+      </div>
+
+      <h3>IPv6 Address Assignment: M and O Bits</h3>
+      <p>During startup, IPv6 hosts receive ICMPv6 Router Advertisement packets containing the M (Managed Address Configuration) and O (Other Configuration) bits that determine how the host obtains an IPv6 address:</p>
+      <table class="def-table">
+        <thead><tr><th>M bit</th><th>O bit</th><th>Mode</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>0</td><td>SLAAC (Stateless AutoConfig)</td><td>Host builds address from router prefix + EUI-64 or random suffix. DNS server must be manually configured.</td></tr>
+          <tr><td>1</td><td>N/A</td><td>DHCPv6 Stateful</td><td>DHCPv6 server provides IPv6 address AND other parameters.</td></tr>
+          <tr><td>0</td><td>1</td><td>DHCPv6 Stateless</td><td>SLAAC for IP address; DHCPv6 server provides other parameters (DNS, NTP) only. Server does not track client addresses.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig208-icmpv6-router-advertisement-m-o-bits.png"
+               alt="Figure 208: M and O bits in ICMPv6 Router Advertisement"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 208 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 208.</strong> The Managed Address Configuration and Other Configuration bits define how the DHCPv6 client will obtain an IPv6 address [pcapr-icmpv6-router-discovery.pcap].</div>
+      </div>
+
+      <h3>IPv6 Tunneling (6to4, Teredo, ISATAP)</h3>
+      <p>During the transition to IPv6, IPv6 can be tunneled inside IPv4. Wireshark detects all three tunneling methods:</p>
+      <table class="def-table">
+        <thead><tr><th>Method</th><th>Mechanism</th><th>Identifier</th></tr></thead>
+        <tbody>
+          <tr><td><strong>6to4</strong></td><td>IPv6 inside IPv4 (Protocol 41). IPv4 address embedded in IPv6 source at offset. Source begins with 0x2002.</td><td>Protocol field = 41. Wireshark adds: Source 6to4 Gateway IPv4, Source 6to4 SLA ID.</td></tr>
+          <tr><td><strong>Teredo</strong></td><td>IPv6 inside UDP (port 3544). Designed to cross NAT devices that don't handle Protocol 41.</td><td>UDP port 3544. Wireshark adds: Source Teredo Server IPv4, Source Teredo Port, Source Teredo Client IPv4.</td></tr>
+          <tr><td><strong>ISATAP</strong></td><td>IPv6 inside IPv4. Uses locally-assigned IPv4 (public or private). Requires ISATAP routers.</td><td>Wireshark notes in source address field.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig209-ipv6-in-ipv4-protocol-41.png"
+               alt="Figure 209: Protocol value 41 indicates IPv6 header follows"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 209 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 209.</strong> The Protocol value 41 indicates an IPv6 header comes next [ipv6-general.pcapng].</div>
+      </div>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig210-teredo-ipv6-in-udp.png"
+               alt="Figure 210: Teredo tunnels IPv6 inside UDP"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 210 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 210.</strong> Teredo tunnels IPv6 inside a UDP packet [pcaprnet-teredo-small.pcapng].</div>
+      </div>
+
+      <div class="figure-block">
+        <div class="fig-img-wrap">
+          <img src="../all-chapter-figures/fig212-ipsec-encrypted-payload.png"
+               alt="Figure 212: IPsec communication you can't troubleshoot the encrypted payload"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#x1F4F7;</span><span>Figure 212 &mdash; open trace file to view</span></div>
+        </div>
+        <div class="fig-cap"><strong>Figure 212.</strong> You can't troubleshoot an encrypted payload [pcaprnet-ip-sec.pcapng]. Use bottom-up troubleshooting on visible headers.</div>
+      </div>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">IPv6: 128-bit address, no broadcast (multicasts only). Unicast = 2xxx, Multicast = FFxx, Link-Local = FE80 (not routed). ICMPv6 replaces ARP (Neighbor Solicitation/Advertisement). Router Advertisement M=1 &rarr; DHCPv6 stateful; M=0,O=0 &rarr; SLAAC; M=0,O=1 &rarr; stateless DHCPv6. If two routers send conflicting M/O bits, clients oscillate &mdash; all routers on segment must agree. 6to4 = Protocol 41, source starts 2002. Teredo = UDP port 3544 (crosses NAT). ISATAP = also Protocol 41 but uses local IPv4.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-ipv6" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-ipv6','IPv6')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-ipv6" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-ipv6')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK FIRST: Filters -->
+    <div class="insight-block" id="ins-filters">
+      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
+        <span class="insight-icon">&#x1F4AD;</span>
+        <span class="insight-label">THINK FIRST &middot; IP FILTERS</span>
+      </div>
+      <p class="insight-insight">IPv4 and IPv6 have separate capture and display filter syntax. Knowing these precisely lets you isolate specific traffic and detect anomalies like low-TTL packets, fragmented datagrams, or 6to4 tunneled traffic.</p>
+      <ul class="insight-questions">
+        <li>Why does <code>ip.addr==192.168.1.103</code> display more packets than <code>ip.src==192.168.1.103</code>? Could using the wrong filter mask a problem?</li>
+      </ul>
+      <div class="answer-area" data-section="ins-filters">
+        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
+        <div class="answer-buttons">
+          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
+          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
+        </div>
+        <div class="model-answers" style="display:none;">
+          <p><strong>Model Answer:</strong> <code>ip.addr==x</code> matches any packet where the address appears in <em>either</em> source or destination fields. <code>ip.src==x</code> matches only packets where x is the source. If you're checking for packets <em>sent by</em> 192.168.1.103 to find unusual outbound behavior, using <code>ip.addr</code> would also show inbound traffic from other hosts destined for 192.168.1.103, diluting your results. If you're investigating ARP spoofing or a compromised host sending to unexpected destinations, the source-only filter gives clearer evidence.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Filters -->
+    <div class="section-block" id="sec-filters">
+      <h2>Filter on IPv4 &amp; IPv6 Traffic</h2>
+      <p>Capture filter for IPv4: <code>ip</code> &nbsp;&nbsp; Display filter for IPv4: <code>ip</code></p>
+      <p>Capture filter for IPv6: <code>ip6</code> &nbsp;&nbsp; Display filter for IPv6: <code>ipv6</code></p>
+
+      <table class="def-table">
+        <thead><tr><th>Display Filter</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>ip.src==192.168.1.1</code></td><td>Packets with 192.168.1.1 as source</td></tr>
+          <tr><td><code>ip.dst==192.168.1.103</code></td><td>Packets with 192.168.1.103 as destination</td></tr>
+          <tr><td><code>ip.addr==192.168.1.103</code></td><td>Packets with 192.168.1.103 in either source or destination</td></tr>
+          <tr><td><code>!ip.addr==192.168.1.103</code></td><td>Packets not containing 192.168.1.103 in either field</td></tr>
+          <tr><td><code>ip.hdr_len &gt; 20</code></td><td>IPv4 header with options (IHL &gt; 5)</td></tr>
+          <tr><td><code>(ip.flags.mf==1) || !(ip.frag_offset==0) &amp;&amp; ip</code></td><td>Fragmented packets (More Fragments bit set or non-zero offset)</td></tr>
+          <tr><td><code>ip.ttl &lt; 10</code></td><td>Low TTL packets (possible scanning or looping)</td></tr>
+          <tr><td><code>icmp.type==3 &amp;&amp; icmp.code==4</code></td><td>ICMP Fragmentation Needed (black hole detection)</td></tr>
+          <tr><td><code>ipv6.nxt==0x06</code></td><td>IPv6 packets preceding a TCP header</td></tr>
+          <tr><td><code>ipv6.src_6to4_gw_ipv4==24.6.173.220</code></td><td>6to4 packets encapsulated by specific host</td></tr>
+          <tr><td><code>ipv6.hlim &lt; 10</code></td><td>IPv6 packets with low Hop Limit</td></tr>
+        </tbody>
+      </table>
+
+      <div class="mental-note-block">
+        <div class="mental-note-block-icon">&#x1F9E0;</div>
+        <div class="mental-note-block-inner">
+          <div class="mental-note-block-label">MENTAL NOTE</div>
+          <div class="mental-note-block-text">Capture: <code>ip</code> (IPv4), <code>ip6</code> (IPv6). Display: <code>ip</code> (IPv4), <code>ipv6</code> (IPv6). Fragmented IPv4: <code>(ip.flags.mf==1) || !(ip.frag_offset==0) &amp;&amp; ip</code>. Black hole probe: <code>icmp.type==3 &amp;&amp; icmp.code==4</code>. Low TTL: <code>ip.ttl &lt; 10</code>. IPv4 multicast: 224.x&ndash;239.x. Broadcast: 255.255.255.255 (all nets) or subnet broadcast (10.2.255.255). IPv6 multicast: FFxx. IPv6 Hop Limit equivalent to TTL.</div>
+        </div>
+      </div>
+
+      <div class="lesson-tools">
+        <div class="lesson-tools-grid">
+          <div>
+            <div class="tool-label">Ask a Question</div>
+            <textarea class="tool-textarea" id="q-sec-filters" placeholder="What are you unsure about?" rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-filters','IP Filters')">Add Question</button></div>
+          </div>
+          <div>
+            <div class="tool-label">Add a Note</div>
+            <textarea class="tool-textarea" id="note-sec-filters" placeholder="Key insight to remember..." rows="3"></textarea>
+            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-filters')">+ Add Note</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASE STUDIES -->
+    <div class="section-block" id="sec-casestudy">
+      <h2>Case Studies</h2>
+
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 1</div>
+        <div class="cs-title">Everyone Blamed the Router</div>
+        <div class="cs-sub">Submitted by: Russ F.</div>
+        <div class="cs-body">
+          <p>One day we received a report of a router problem &mdash; it would periodically not respond to pings. A colleague suggested replacing the router's Ethernet NIC. Before doing that, I suggested we connect Wireshark to the same VLAN and get a network trace using no mirroring &mdash; we expected to see a broadcast storm.</p>
+          <p>The trace showed an <strong>IP multicast storm</strong> occurring at the same time the router stopped responding. We could see the IP address of one of the servers in the multicast packets. We located the server and disconnected it from the network, resolving the router issue. Further investigation revealed a misconfiguration on the server, which was easily corrected.</p>
+          <p>Without Wireshark, we would have caused a major network outage while we replaced the router NIC and then probably the router &mdash; neither of which would have resolved the problem.</p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C17-CS1.png" alt="Everyone Blamed the Router"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none">
+              <span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
+              <div><strong>C17-CS1.png</strong></div>
+              <div class="cs-ph-sub">Save to all-casestudy-pictures/C17-CS1.png</div>
+            </div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt"
+              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
+              &#9662; Show cartoon prompt
+            </button>
+            <div class="cs-prompt-text" hidden>
+              A network diagram showing a router in the center of a VLAN with an angry blinking warning light. Multiple network engineers are pointing at the router saying "Replace the NIC!" and "Replace the router!" In the corner, one engineer is at a laptop running Wireshark, which shows a Wireshark trace with hundreds of multicast packets (shown as colorful flood arrows) all originating from a single server labeled "Misconfigured Server." The analyst circles the server with a red marker and says "Found it!" while the other engineers look sheepish in the background. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "Router," "Wireshark," "Multicast Storm," "Misconfigured Server," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 2</div>
+        <div class="cs-title">It's Not the Network's Problem!</div>
+        <div class="cs-sub">Submitted by: Jennifer Keels, Coastal Bend College</div>
+        <div class="cs-body">
+          <p>Our primary data information system was experiencing connection issues with external resources. The programming department spoke with their technical support, who pointed fingers at our DNS server.</p>
+          <p>I was still new to Wireshark but knew enough that I could perform some basic troubleshooting. I set a span on the switch port to the system and captured packets.</p>
+          <p>I instantly saw the system was using an IP address from an old addressing scheme. For some reason, the system would periodically use that old IP address when sending packets.</p>
+          <p>I was able to inform technical support that they did not remove the old IP address configuration and that was why the system was having network-related issues. I really enjoyed being able to prove, once again, <strong>IT WAS NOT THE NETWORK!!</strong></p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C17-CS2.png" alt="Not the Network's Problem"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none">
+              <span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
+              <div><strong>C17-CS2.png</strong></div>
+              <div class="cs-ph-sub">Save to all-casestudy-pictures/C17-CS2.png</div>
+            </div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt"
+              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
+              &#9662; Show cartoon prompt
+            </button>
+            <div class="cs-prompt-text" hidden>
+              A cartoon showing a network analyst at a Wireshark laptop with a trace file visible showing packets alternating between a new IP address and an old IP address (shown in red). A callout bubble says "Old IP address still active!" In the background, a vendor tech support agent on a phone is pointing at a DNS server. The analyst holds up a printout of the trace showing the duplicate IP as proof. The DNS server has a thought bubble showing "Not my fault." Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "Old IP: 10.x.x.x," "New IP: 172.x.x.x," "Wireshark trace," "Not the network!", minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-study-block">
+        <div class="cs-eyebrow">Case Study 3</div>
+        <div class="cs-title">IPv6 Addressing Mayhem</div>
+        <div class="cs-sub">Submitted by: Jeff Carrell, Network Security Consultant, Network Conversions</div>
+        <div class="cs-body">
+          <p>I used Wireshark to detect a configuration error plaguing an IPv6 lab setup. A Windows 7 client on VLAN 1 was configured to use DHCP/DHCPv6. At first it was getting IPv4 and IPv6 addresses just fine, but then for some unexplained reason the client would release its IPv6 address and ask for a new one, get it, then release again.</p>
+          <p>The mystery was solved by looking at the ICMPv6 Router Advertisements. I saw two routers &mdash; an HP router and a Cisco router &mdash; both sending RAs on the same network. The HP router had <strong>M=1 and O=1</strong> (use DHCPv6 for address and other parameters). The Cisco router had <strong>M=0 and O=0</strong> (use SLAAC, no DHCPv6).</p>
+          <p>The client was acting on the HP router RA saying "get your IPv6 address from DHCPv6," but when the client saw a subsequent Cisco router RA saying "don't use DHCPv6," the client released its DHCPv6 address. Then it would see another HP RA, request a new address, and so on in a loop.</p>
+          <p>The fix: the Cisco router needed to set its M and O flags to 1 to match the HP router. The moral: <strong>ANY router on a network segment sending RAs needs to have the M and O bits consistent &mdash; otherwise mayhem and confusion will take over.</strong></p>
+        </div>
+        <div class="cs-img-inline">
+          <div class="cs-img-wrap">
+            <img src="../all-casestudy-pictures/C17-CS3.png" alt="IPv6 Addressing Mayhem"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="cs-img-ph" style="display:none">
+              <span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
+              <div><strong>C17-CS3.png</strong></div>
+              <div class="cs-ph-sub">Save to all-casestudy-pictures/C17-CS3.png</div>
+            </div>
+          </div>
+          <div class="cs-prompt-row">
+            <button class="btn-cs-prompt"
+              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
+              &#9662; Show cartoon prompt
+            </button>
+            <div class="cs-prompt-text" hidden>
+              A network diagram with two routers labeled "HP Router" and "Cisco Router," both connected to the same LAN segment. The HP router has a sign saying "M=1, O=1: Use DHCPv6!" and the Cisco router has a sign saying "M=0, O=0: Use SLAAC!" A confused Windows client PC in the center is shown with two thought bubbles alternating: "Get DHCPv6 address... done!" then "Release address &mdash; use SLAAC!" then "Wait, get DHCPv6 again?!" A DHCPv6 server in the background looks exhausted from the repeated requests. The Wireshark capture on an analyst's screen shows repeated ICMPv6 Router Advertisement packets alternating between the two conflicting routers. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "HP Router M=1 O=1," "Cisco Router M=0 O=0," "DHCPv6 Request," "DHCPv6 Release," "Confused Client," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TL;DR -->
+    <div class="section-block" id="sec-tldr">
+      <div class="tldr-block">
+        <div class="tldr-label">TL;DR &mdash; Chapter Summary</div>
+        <div class="tldr-text">
+          <p>IPv4 offers connectionless routing services for packets traveling through an internetwork. In addition, IP offers the ability to fragment packets and include QoS information in the IP header's Differentiated Services Codepoint area. The Time to Live field in an IP header is decremented each time a router forwards a packet.</p>
+          <p>Each packet of a fragment set maintains the same IP ID field value. If non-fragmented packets contain the same IP ID value, the packets may be looping the network. When an IP packet does not permit fragmentation but the packet is too large to forward, it is dropped and an ICMP response should be returned indicating the maximum MTU. If the ICMP responses are blocked, a "black hole" is created.</p>
+          <p>IPv6 uses a 16-byte address. ICMPv6 is used for neighbor discovery, duplicate address detection and address assignment method definition. All routers on a segment sending ICMPv6 Router Advertisements must have consistent M and O flag settings or clients will oscillate between addressing modes.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW QUESTIONS -->
+    <div class="section-block" id="sec-rq">
+      <h2>Review Questions</h2>
+
+      <div class="rq-card" id="rq-17-1">
+        <div class="rq-question">Q17.1 What is the purpose of IPv4/IPv6?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A17.1</strong> IP provides the datagram delivery services for networked systems, fragmentation and reassembly for low-MTU networks, and quality of service designation to enable certain traffic to be prioritized over other traffic.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-17-2">
+        <div class="rq-question">Q17.2 Which three IPv4 header fields are used with IP fragmentation?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A17.2</strong> The three fields are the <strong>Don't Fragment bit</strong>, the <strong>More Fragments bit</strong>, and the <strong>Fragment Offset field</strong>.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-17-3">
+        <div class="rq-question">Q17.3 What should an IPv4 router do when a packet to be forwarded arrives with a TTL value of one?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A17.3</strong> The router must discard the packet because it cannot decrement the TTL to 0 and forward the packet. The router may generate an ICMP Type 11, Code 0 (Time Exceeded, TTL Exceeded in Transit) response to the sender.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-17-4">
+        <div class="rq-question">Q17.4 What is the purpose of the Differentiated Services field?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A17.4</strong> The 6-bit Differentiated Services field (DiffServ) is used to prioritize traffic and provide a certain level of Quality of Service (QoS). The field contains a DSCP value that determines how to handle the packet &mdash; the per-hop behavior (PHB) at each router.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-17-5">
+        <div class="rq-question">Q17.5 What is the syntax for capture and display filters for IPv4 and IPv6 traffic?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A17.5</strong> IPv4: Capture filter = <code>ip</code>; Display filter = <code>ip</code>. IPv6: Capture filter = <code>ip6</code>; Display filter = <code>ipv6</code>.
+        </div>
+      </div>
+
+      <div class="rq-card" id="rq-17-6">
+        <div class="rq-question">Q17.6 What is the format of an IPv6 6to4 packet?</div>
+        <div class="rq-answer-area">
+          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
+          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
+        </div>
+        <div class="rq-answer" style="display:none">
+          <strong>A17.6</strong> A 6to4 packet encapsulates an IPv6 header inside an IPv4 header. The IPv4 Protocol field value is 41 to indicate an IPv6 header follows. The IPv6 source address begins with 0x2002, and the IPv4 address of the encapsulating host is embedded within the IPv6 source address.
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- end main-content -->
+
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Navigation</div>
+      <a class="sidebar-link" href="../hub.html">&larr; Study Guide Hub</a>
+      <a class="sidebar-link" href="index.html">Practice Lab</a>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Quick Reference</div>
+      <div class="quick-ref">
+        <div class="qr-term">Fragmentation Fields</div>
+        <div class="qr-def">Don't Fragment bit + More Fragments bit + Fragment Offset</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Black Hole</div>
+        <div class="qr-def">DF bit set + ICMP Type 3 Code 4 blocked &rarr; sender never learns MTU limit</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">TTL at Router</div>
+        <div class="qr-def">TTL=1 &rarr; discard packet + send ICMP Type 11 Code 0</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">IP Protocol Values</div>
+        <div class="qr-def">1=ICMP, 6=TCP, 17=UDP, 41=IPv6(6to4), 89=OSPF</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">IPv6 M/O Bits</div>
+        <div class="qr-def">M=1 &rarr; DHCPv6 stateful; M=0,O=0 &rarr; SLAAC; M=0,O=1 &rarr; stateless DHCPv6</div>
+      </div>
+      <div class="quick-ref">
+        <div class="qr-term">Capture/Display</div>
+        <div class="qr-def">IPv4: <code>ip</code>/<code>ip</code> &nbsp; IPv6: <code>ip6</code>/<code>ipv6</code></div>
+      </div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Progress</div>
+      <div class="ins-prog-count" id="ins-prog-count">0 / 9 complete</div>
+      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
+      <div style="margin-top:12px">
+        <label class="check-item"><input type="checkbox" id="chk-ipv4" onchange="toggleDone('ipv4')"> IPv4</label>
+        <label class="check-item"><input type="checkbox" id="chk-ipv6" onchange="toggleDone('ipv6')"> IPv6</label>
+        <label class="check-item"><input type="checkbox" id="chk-filters" onchange="toggleDone('filters')"> Filters</label>
+        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Studies</label>
+        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="practice-cta">
+  <div class="cta-inner">
+    <div class="cta-text">Ready to practice with real traffic?</div>
+    <a href="index.html" class="cta-btn">Open Practice Lab &rarr;</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span>Wireshark Network Analysis &mdash; Chapter 17</span>
+    <span>Analyze Internet Protocol (IPv4/IPv6) Traffic</span>
+  </div>
+</footer>
+
+<script>
+const PAGE_KEY = 'ws-ch17-full';
+const SECTIONS = {
+  'sec-ipv4': 'IPv4',
+  'sec-ipv6': 'IPv6',
+  'sec-filters': 'IP Filters',
+  'sec-casestudy': 'Case Studies',
+  'sec-tldr': 'TL;DR',
+  'sec-rq': 'Review Questions'
+};
+const INSIGHT_IDS = ['ins-ipv4', 'ins-ipv6', 'ins-filters'];
+const RQ_IDS = ['17-1', '17-2', '17-3', '17-4', '17-5', '17-6'];
+const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+
+document.querySelectorAll('.insight-header').forEach(h => {
+  h.addEventListener('click', () => h.closest('.insight-block').classList.toggle('ins-open'));
+});
+function saveSocAnswer(btn) {
+  const area = btn.closest('.answer-area');
+  const ta = area.querySelector('.answer-textarea');
+  if (!ta.value.trim()) return;
+  localStorage.setItem(PAGE_KEY + '-soc-' + area.dataset.section, ta.value);
+  area.querySelector('.btn-see-answer').disabled = false;
+  btn.textContent = '&#x2713; Saved';
+  updateProgress();
+}
+function revealSocAnswer(btn) {
+  const area = btn.closest('.answer-area');
+  const ma = area.querySelector('.model-answers');
+  ma.style.display = ma.style.display === 'none' ? 'block' : 'none';
+  btn.textContent = ma.style.display === 'none' ? '&#x1F512; See Model Answer' : '&#x25B4; Hide Answer';
+}
+function toggleQPanel() {
+  const body = document.getElementById('q-panel-body');
+  const tog = document.getElementById('q-panel-toggle');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  tog.textContent = open ? '&#9662;' : '&#9652;';
+}
+function renderQPanel() {
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  const list = document.getElementById('q-list');
+  const empty = document.getElementById('q-empty');
+  list.innerHTML = '';
+  if (qs.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  qs.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    div.innerHTML = '<span class="q-section-tag">' + q.section + '</span><span class="q-text">' + q.text + '</span><button class="q-del" onclick="deleteQuestion(' + i + ')">&#xD7;</button>';
+    list.appendChild(div);
   });
-  RQ_IDS.forEach(function(id){
-    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
-    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
-    if(ta&&sv){ta.value=sv;ta.disabled=true;}
-    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
-    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}
+}
+function addQuestion(secId, secName) {
+  const ta = document.getElementById('q-' + secId);
+  if (!ta || !ta.value.trim()) return;
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  qs.push({ section: secName, text: ta.value.trim() });
+  localStorage.setItem(PAGE_KEY + '-questions', JSON.stringify(qs));
+  ta.value = '';
+  renderQPanel();
+}
+function deleteQuestion(i) {
+  const qs = JSON.parse(localStorage.getItem(PAGE_KEY + '-questions') || '[]');
+  qs.splice(i, 1);
+  localStorage.setItem(PAGE_KEY + '-questions', JSON.stringify(qs));
+  renderQPanel();
+}
+function addNote(secId) {
+  const ta = document.getElementById('note-' + secId);
+  if (!ta || !ta.value.trim()) return;
+  localStorage.setItem(PAGE_KEY + '-note-' + secId, ta.value);
+  ta.style.borderColor = '#22c55e';
+  setTimeout(() => ta.style.borderColor = '', 1200);
+}
+function navTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const idx = Object.keys(SECTIONS).indexOf(id);
+  const tabs = document.querySelectorAll('.nav-tab');
+  if (tabs[idx]) tabs[idx].classList.add('active');
+}
+function toggleDone(id) {
+  localStorage.setItem(PAGE_KEY + '-chk-' + id, document.getElementById('chk-' + id).checked ? '1' : '');
+}
+function updateProgress() {
+  let done = 0;
+  INSIGHT_IDS.forEach(id => { if (localStorage.getItem(PAGE_KEY + '-soc-' + id)) done++; });
+  RQ_IDS.forEach(id => { if (localStorage.getItem(PAGE_KEY + '-rq-' + id)) done++; });
+  document.getElementById('ins-prog-count').textContent = done + ' / ' + TOTAL + ' complete';
+  document.getElementById('ins-prog-fill').style.width = Math.round(done / TOTAL * 100) + '%';
+}
+function revealRQ(btn) {
+  const card = btn.closest('.rq-card');
+  const ans = card.querySelector('.rq-answer');
+  const ta = card.querySelector('.rq-textarea');
+  const id = card.id.replace('rq-', '');
+  ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
+  btn.textContent = ans.style.display === 'none' ? 'Reveal Answer' : 'Hide Answer';
+  if (ta.value.trim()) { localStorage.setItem(PAGE_KEY + '-rq-' + id, ta.value); updateProgress(); }
+}
+function initNotes() {
+  const gn = document.getElementById('global-notes');
+  gn.value = localStorage.getItem(PAGE_KEY + '-global-notes') || '';
+  gn.addEventListener('input', () => localStorage.setItem(PAGE_KEY + '-global-notes', gn.value));
+  Object.keys(SECTIONS).forEach(secId => {
+    const saved = localStorage.getItem(PAGE_KEY + '-note-' + secId);
+    const ta = document.getElementById('note-' + secId);
+    if (ta && saved) ta.value = saved;
   });
+  INSIGHT_IDS.forEach(id => {
+    const saved = localStorage.getItem(PAGE_KEY + '-soc-' + id);
+    if (saved) {
+      const block = document.getElementById(id);
+      if (!block) return;
+      const ta = block.querySelector('.answer-textarea');
+      const btn = block.querySelector('.btn-see-answer');
+      if (ta) ta.value = saved;
+      if (btn) btn.disabled = false;
+    }
+  });
+}
+function initChecks() {
+  ['ipv4','ipv6','filters','casestudy','rq'].forEach(id => {
+    const el = document.getElementById('chk-' + id);
+    if (el) el.checked = !!localStorage.getItem(PAGE_KEY + '-chk-' + id);
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  initNotes(); initChecks(); renderQPanel(); updateProgress();
+  document.body.style.opacity = '1';
+  sessionStorage.setItem('pt', '1');
 });
 </script>
 </body>

@@ -2,14 +2,11 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem('pt')){document.documentElement.classList.add('pt-init')}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chapter 13: Use Wireshark's Expert System | Wireshark Study Guide</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
 :root{--bg:#eef4ff;--surface:#fff;--surface-2:#f5f8ff;--border:#bfdbfe;--border-dim:#dbeafe;--text:#0d1a2e;--text-soft:#1e3a5c;--text-muted:#5a7a9a;--blue:#1a6dcc;--blue-glow:rgba(26,109,204,0.07);--blue-dim:#bfdbfe;--blue-deep:#0f3d7a;--green:#1a7c4a;--green-light:#d4f0e0;--green-border:#a7e0c0;--red:#b91c1c;--red-light:#fee2e2;--red-border:#fecaca;--amber:#b45309;--amber-light:#fef9c3;--amber-border:#fde68a;}
 html.pt-init body{opacity:0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -130,9 +127,12 @@ pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-si
 .cs-body p{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:12px;}
 .cs-body ul{padding-left:20px;margin:8px 0 14px;}
 .cs-body li{font-size:14px;line-height:1.75;color:var(--text-soft);margin-bottom:4px;}
-.cs-img-inline{margin:16px 0 0;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);}
-.cs-img-wrap{background:#1e293b;min-height:160px;display:flex;align-items:center;justify-content:center;}
-.cs-img-wrap img{max-width:100%;height:auto;display:block;}
+.cs-img-inline{width:min(520px,100%);margin:16px auto;border-radius:8px;overflow:hidden;border:1px solid var(--border-dim);transition:width .18s ease,box-shadow .18s ease;}
+.cs-img-inline.fig-expanded{width:100%;box-shadow:0 16px 40px rgba(13,26,46,.14);}
+.cs-img-wrap{background:#1e293b;min-height:150px;display:flex;align-items:center;justify-content:center;cursor:zoom-in;}
+.cs-img-inline.fig-expanded .cs-img-wrap{cursor:zoom-out;}
+.cs-img-wrap img{max-width:100%;max-height:260px;height:auto;display:block;object-fit:contain;}
+.cs-img-inline.fig-expanded .cs-img-wrap img{max-height:none;width:100%;}
 .cs-img-ph{flex-direction:column;align-items:center;gap:10px;padding:36px;color:#93c5fd;text-align:center;}
 .cs-ph-icon{font-size:40px;display:block;}
 .cs-ph-sub{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
@@ -196,642 +196,213 @@ pre{background:#0d1a2e;color:#93c5fd;padding:14px 18px;border-radius:8px;font-si
 footer{display:flex;justify-content:space-between;align-items:center;padding:16px 60px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);}
 @media(max-width:900px){header{padding:24px 20px 20px;flex-direction:column;}.motivation-banner{padding:16px 20px;}.top-panels{grid-template-columns:1fr;}.top-panels .qpanel{border-right:none;border-bottom:1px solid var(--border);}.section-nav{padding:0 20px;}main{grid-template-columns:1fr;padding:24px 20px 60px;}.sidebar{position:static;}h1{font-size:30px;}.lesson-tools-grid{grid-template-columns:1fr;}footer{padding:14px 20px;flex-direction:column;gap:4px;text-align:center;}.practice-cta{padding:36px 20px;}.btn-practice-cta{font-size:15px;padding:16px 32px;}}
 .btn-rq-reset{background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;}.btn-rq-reset:hover{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
-
 </style>
 </head>
 <body>
-
-<header>
-  <div class="header-inner">
-    <div class="breadcrumb"><a href="../../index.html">Wireshark</a> &rsaquo; <a href="../hub.html">Study Guides</a> &rsaquo; Chapter 13</div>
-    <div class="eyebrow-row">
-      <span class="eyebrow-chip">CHAPTER 13</span>
-      <span class="animated-dot"></span>
-    </div>
-    <h1>Use Wireshark's <em>Expert System</em></h1>
-    <div class="header-sub">Automatic problem detection through TCP Expert notifications</div>
-  </div>
-</header>
-
-<div class="motivation-banner">
-  <div class="motivation-text"><em>"The Expert System doesn't replace your judgment &mdash; it points the flashlight so you know where to look first."</em></div>
-  <div class="motivation-sub">Let Expert Info guide you to the right packets instantly</div>
-</div>
-
+<header><div class="header-inner">
+  <div class="breadcrumb"><a href="../index.html">Wireshark Study Guide</a> <span>&#8250;</span> <span>Chapter 13</span></div>
+  <div class="eyebrow-row"><span class="eyebrow-chip">Chapter 13</span><span class="header-dot"></span></div>
+  <h1>Use Wireshark's <em>Expert System</em></h1>
+  <div class="header-sub">Let Wireshark's built-in intelligence flag packet loss, retransmissions, window issues and more — before you read a single byte.</div>
+</div></header>
+<div class="motivation-banner"><div class="motivation-quote">"<em>The Expert System is Wireshark's triage nurse — it tells you where to look before you diagnose.</em>"</div><div class="motivation-sub">Use Expert Info as your first step in any trace file — but always verify what it finds.</div></div>
 <div class="top-panels">
-  <div class="q-panel" id="q-panel">
-    <div class="q-panel-header" onclick="toggleQPanel()">
-      <span>&#x1F4AD; My Questions</span><span class="q-panel-toggle" id="q-panel-toggle">&#9662;</span>
-    </div>
-    <div class="q-panel-body" id="q-panel-body">
-      <div id="q-list"></div>
-      <div class="q-empty" id="q-empty">No questions yet &mdash; add one from any section below.</div>
-    </div>
-  </div>
-  <div class="note-panel" id="note-panel">
-    <div class="note-panel-header">&#x1F4DD; My Notes</div>
-    <div class="note-panel-body">
-      <textarea class="note-panel-textarea" id="global-notes" placeholder="Key insights, things to remember..."></textarea>
-    </div>
-  </div>
+  <div class="panel-card" id="q-panel"><div class="panel-header" onclick="toggleQPanel()"><span class="panel-title">&#128172; MY QUESTIONS</span><span class="panel-toggle">&#9662;</span></div><div class="panel-body" id="q-panel-body"><div id="q-list"></div><div class="panel-empty" id="q-empty">No questions yet.</div></div></div>
+  <div class="panel-card" id="notes-panel"><div class="panel-header" onclick="toggleNotesPanel()"><span class="panel-title">&#128221; MY NOTES</span><span class="panel-toggle">&#9662;</span></div><div class="panel-body" id="notes-panel-body"><div id="notes-list"></div><div class="panel-empty" id="notes-empty">No notes yet.</div></div></div>
 </div>
-
-<nav class="section-nav" id="section-nav">
-  <button class="nav-tab active" onclick="navTo('sec-expert')">Expert Info</button>
-  <button class="nav-tab" onclick="navTo('sec-tcp')">TCP Notifications</button>
-  <button class="nav-tab" onclick="navTo('sec-casestudy')">Case Study</button>
-  <button class="nav-tab" onclick="navTo('sec-tldr')">TL;DR</button>
-  <button class="nav-tab" onclick="navTo('sec-rq')">Review Qs</button>
+<nav class="section-nav">
+  <button class="nav-tab" onclick="navTo('expert')">Expert Info Basics</button>
+  <button class="nav-tab" onclick="navTo('colorize')">Colorize &amp; Filter</button>
+  <button class="nav-tab" onclick="navTo('tcpexpert')">TCP Notifications</button>
+  <button class="nav-tab" onclick="navTo('casestudy')">Case Study</button>
+  <button class="nav-tab" onclick="navTo('tldr')">TL;DR</button>
+  <button class="nav-tab" onclick="navTo('rq')">Review Qs</button>
 </nav>
-
 <main>
-  <div class="main-content">
-
-    <!-- THINK FIRST: Expert Info -->
-    <div class="insight-block" id="ins-expert">
-      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
-        <span class="insight-icon">&#x1F4AD;</span>
-        <span class="insight-label">THINK FIRST &middot; WIRESHARK EXPERT INFO</span>
-      </div>
-      <p class="insight-insight">Wireshark's Expert Information system automatically classifies anomalous packets into four severity levels &mdash; Error, Warning, Note, and Chat &mdash; based on rules defined in each protocol's dissector. The TCP dissector generates the most expert notifications.</p>
-      <ul class="insight-questions">
-        <li>If you open a trace file and the Expert Info button on the Status Bar is red, what does that tell you before you've looked at a single packet?</li>
-        <li>Why might the Expert System mark a packet as Out-of-Order when it's actually a retransmission? What does this tell you about the limitations of automated analysis?</li>
-      </ul>
-      <div class="answer-area" data-section="ins-expert">
-        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
-        <div class="answer-buttons">
-          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
-        </div>
-        <div class="model-answers" style="display:none;">
-          <p><strong>Model Answer 1:</strong> A red Expert Info button indicates that at least one packet in the trace file triggered an Error-level Expert notification. This is the highest severity &mdash; it means Wireshark found a malformed packet or a dissector error. You should open Expert Info immediately and start from the Errors tab. Warnings (yellow) and Notes (cyan) indicate less severe issues.</p>
-          <p><strong>Model Answer 2:</strong> Wireshark detects Out-of-Order when a packet contains a lower sequence number than the previous packet in the stream. If the original packet of a retransmission occurred almost 800ms earlier, Wireshark may not relate the new packet to the original and instead flags it as Out-of-Order. This shows that the Expert System works on pattern matching within a sliding window &mdash; it can't always know the full context. Always verify by checking the Acknowledgment Number and comparing timestamps before concluding what type of event occurred.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION: Expert Info -->
-    <div class="section-block" id="sec-expert">
-      <h2>Let Wireshark's Expert Information Guide You</h2>
-      <p>Wireshark's Expert Information is defined in the dissectors. For example, the TCP Expert Information is maintained in the <code>packet-tcp.c</code> file. You can access this file on www.wireshark.org when you select <strong>Develop | Browse the Code</strong>.</p>
-
-      <p>Expert Information is classified into one of four categories:</p>
-      <table class="def-table">
-        <thead><tr><th>Category</th><th>Color</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Errors</strong></td><td>Red</td><td>Packet or dissector errors</td></tr>
-          <tr><td><strong>Warnings</strong></td><td>Yellow</td><td>Unusual responses from the application/transport</td></tr>
-          <tr><td><strong>Notes</strong></td><td>Cyan (Light Blue)</td><td>Unusual responses that may be part of a recovery process</td></tr>
-          <tr><td><strong>Chats</strong></td><td>Blue</td><td>Information about the workflow</td></tr>
-          <tr><td>Comments</td><td>Green</td><td>Packet annotations (pkt_comment)</td></tr>
-          <tr><td>None</td><td>Grey</td><td>No expert notifications</td></tr>
-        </tbody>
-      </table>
-
-      <p>Each category is represented under a different tab in the Expert Infos window. There is also a Packet Comments tab (for packet annotations) and a Details tab that lists all Errors, Warnings, Notes, Chats and packet comments in a single location.</p>
-
-      <div class="callout callout-amber"><strong>CAUTION</strong> Prior to Wireshark 1.8, TCP Fast Retransmissions fell under Warnings while Retransmissions and Duplicate ACKs fell under Notes. As of Wireshark 1.8, Fast Retransmissions were moved to Notes to keep the related traffic together. Check your Wireshark version when interpreting Expert Info tabs.</div>
-
-      <h3>Launch Expert Info Quickly</h3>
-      <p>The Expert Info button is available on the Status Bar, as shown in Figure 175. Open the Expert Infos window by clicking on the <strong>Expert Info</strong> button on the left of the Status Bar or choose <strong>Analyze | Expert Info</strong> from the menu. The Expert Info button is color coded according to the highest level of classification of Expert Information listed.</p>
-
-      <div class="figure-block">
-        <div class="fig-img-wrap">
-          <img src="../all-chapter-figures/fig175-the-button-on-the-lower-left-corner-of.png"
-               alt="Figure 175: Expert Info button on Status Bar"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="fig-placeholder" style="display:none">
-            <span class="fig-ph-icon">&#x1F4F7;</span>
-            <span>Figure 175 &mdash; open trace file to view</span>
-          </div>
-        </div>
-        <div class="fig-cap"><strong>Figure 175.</strong> The button on the lower left corner of the Status Bar opens the Expert Infos window [tcp-winscaling-off.pcapng].</div>
-      </div>
-
-      <p>Although future versions of Wireshark may expand on the number of Expert elements, currently the majority of the elements are based on TCP communication issues. Figure 176 shows the Expert Info information for a trace file that depicts a network plagued with packet loss. In this case, a user was trying to download a file.</p>
-
-      <p>In the Warnings area we see 100 indications of Previous Segment Lost, 1 Window Full condition and 7 Zero Window conditions. In the Notes area we see Duplicate ACKs, Fast retransmissions, Retransmissions and KeepAlives. We can correlate the slow download with a window size issue and packet loss.</p>
-
-      <div class="figure-block">
-        <div class="fig-img-wrap">
-          <img src="../all-chapter-figures/fig176-the-expert-infos-window-indicates-packet-loss-problems.png"
-               alt="Figure 176: Expert Infos window showing packet loss"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="fig-placeholder" style="display:none">
-            <span class="fig-ph-icon">&#x1F4F7;</span>
-            <span>Figure 176 &mdash; open trace file to view</span>
-          </div>
-        </div>
-        <div class="fig-cap"><strong>Figure 176.</strong> The Expert Infos window indicates packet loss problems [http-download-bad.pcapng].</div>
-      </div>
-
-      <div class="callout callout-amber"><strong>CAUTION: Always Double-Check Expert Findings</strong> Although the Expert Info window points to a likely cause of a problem, always verify the situation by examining the trace file. For example, in one situation Wireshark defined a packet as Out-of-order when it was actually a retransmission that had occurred almost 800ms earlier. The Expert System works on pattern matching and does not always have full context.</div>
-
-      <h3>Colorize Expert Info Elements</h3>
-      <p>By default, Wireshark colors packets that match the <code>tcp.analysis.flags</code> coloring rule with a black background and red foreground. These packets are listed in either the Expert Info Warnings or Notes tabs. Expanding the Frame section shows the coloring rule that a packet matches.</p>
-
-      <p>For example, in Figure 177, the packet matches the Bad TCP coloring rule that uses the string <code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code>. You can change the colorization of these packets by editing the coloring rules.</p>
-
-      <div class="figure-block">
-        <div class="fig-img-wrap">
-          <img src="../all-chapter-figures/fig177-expand-the-frame-section-to-identify-the-coloring.png"
-               alt="Figure 177: Frame section showing coloring rule"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="fig-placeholder" style="display:none">
-            <span class="fig-ph-icon">&#x1F4F7;</span>
-            <span>Figure 177 &mdash; open trace file to view</span>
-          </div>
-        </div>
-        <div class="fig-cap"><strong>Figure 177.</strong> Expand the Frame section to identify the coloring rule applied [http-iewithtoolbar.pcapng].</div>
-      </div>
-
-      <h3>Filter on TCP Expert Information Elements</h3>
-      <p>Apply a display filter for <code>tcp.analysis.flags</code> to show packets that match the Expert Info Notes and Warnings triggers. Figure 178 shows the result of applying a <code>tcp.analysis.flags</code> display filter to an entire trace file. This is a fast method to detect TCP-based problems in a trace file.</p>
-
-      <div class="figure-block">
-        <div class="fig-img-wrap">
-          <img src="../all-chapter-figures/fig178-a-display-filter-shows-tcp-problems-understand-tcp.png"
-               alt="Figure 178: tcp.analysis.flags display filter"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="fig-placeholder" style="display:none">
-            <span class="fig-ph-icon">&#x1F4F7;</span>
-            <span>Figure 178 &mdash; open trace file to view</span>
-          </div>
-        </div>
-        <div class="fig-cap"><strong>Figure 178.</strong> A display filter shows TCP problems [http-iewithtoolbar.pcapng].</div>
-      </div>
-
-      <div class="callout callout-blue"><strong>TIP</strong> Consider creating and saving <code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code> as a Filter Expression button called "Bad TCP." When you open trace files, click your new Bad TCP Filter Expression button to locate the most common TCP-related network problems.</div>
-
-      <p>You can create a display filter to examine packets that meet a specific Expert Info severity level:</p>
-      <pre>expert.severity==error
+<div class="main-content">
+<div class="insight-block" id="ins-expert"><div class="insight-header" onclick="toggleInsight('ins-expert')"><span class="insight-icon">&#128173;</span><span class="insight-label">THINK FIRST · EXPERT INFORMATION BASICS</span><span class="insight-toggle">&#9662;</span></div><div class="insight-body"><p class="insight-q">The Expert Info button on the Status Bar is color-coded to indicate the highest level of Expert notification. What are the six colors and what does each represent? Which color indicates the worst condition?</p><p class="insight-q">The Expert System is primarily based on TCP communications. Why does TCP generate far more Expert notifications than UDP, ICMP or other protocols?</p></div></div>
+<div class="section-block" id="expert">
+  <h2>Let Wireshark's Expert Information Guide You</h2>
+  <p>Wireshark's Expert Information is defined in the protocol dissectors. Expert Information is classified into four categories:</p>
+  <table class="def-table">
+    <thead><tr><th>Category</th><th>Color</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Errors</strong></td><td>Red</td><td>Packet or dissector errors</td></tr>
+      <tr><td><strong>Warnings</strong></td><td>Yellow</td><td>Unusual responses from the application/transport</td></tr>
+      <tr><td><strong>Notes</strong></td><td>Cyan (Light Blue)</td><td>Unusual responses that may be part of a recovery process from a Warning</td></tr>
+      <tr><td><strong>Chats</strong></td><td>Blue</td><td>Information about the workflow</td></tr>
+      <tr><td><strong>Comments</strong></td><td>Green</td><td>Packet annotations</td></tr>
+      <tr><td><strong>None</strong></td><td>Grey</td><td>No Expert notifications triggered</td></tr>
+    </tbody>
+  </table>
+  <p>Open the Expert Infos window by clicking the <strong>Expert Info button</strong> on the left of the Status Bar or choose <strong>Analyze | Expert Info</strong>. The button is color-coded to show the highest level triggered. Each category is represented under a different tab. There is also a Details tab listing all categories in one location.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig175-the-button-on-the-lower-left-corner-of.png" alt="Figure 175: Expert Info button on the lower left corner of the Status Bar opens the Expert Infos window" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 175 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 175.</strong> Expert Info button on the lower left corner of the Status Bar opens the Expert Infos window</div></div>
+  <p>As of Wireshark 1.8, you can enable the <strong>Display LEDs</strong> preference setting in the Expert Infos dialog tab labels to add the related color codes to each tab.</p>
+  <div class="callout callout-amber"><strong>CAUTION</strong> Prior to Wireshark 1.8, TCP Fast Retransmissions fell under Warnings while Retransmissions and Duplicate ACKs fell under Notes. In Wireshark 1.8, Fast Retransmissions were moved to Notes to keep related traffic together.</div>
+  <p>Figure 176 shows the Expert Info information for a trace file depicting a network plagued with packet loss. In the Warnings area: 100 Previous Segment Lost, 1 Window Full condition, 7 Zero Window conditions. In the Notes area: Duplicate ACKs, Fast Retransmissions, Retransmissions and KeepAlives. We can correlate the slow download with a window size issue and packet loss.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig176-the-expert-infos-window-indicates-packet-loss-problems.png" alt="Figure 176: Expert Infos window indicating packet loss problems — Warnings and Notes tabs" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 176 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 176.</strong> Expert Infos window indicating packet loss problems — Warnings and Notes tabs</div></div>
+  <div class="callout callout-blue"><strong>TIP</strong> Always double-check Expert findings. In one case, Wireshark defined a packet as Out-of-order when it was actually a retransmission — the original packet had occurred almost 800ms earlier and Wireshark did not relate the retransmission to the earlier original packet. Always verify by examining the trace file.</div>
+<div class="mental-note-block"><div class="mental-note-block-icon">&#129504;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Expert Info categories by severity: Errors (red) > Warnings (yellow) > Notes (cyan) > Chats (blue) > Comments (green). The Status Bar button color reflects the HIGHEST severity triggered. The majority of Expert notifications are TCP-based. Always double-check Expert findings — the system can misclassify edge cases (e.g., retransmission vs. out-of-order).</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-expert" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('expert','Expert Information Basics')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-expert" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('expert')">+ Add Note</button></div></div></div></div>
+</div>
+<div class="insight-block" id="ins-colorize"><div class="insight-header" onclick="toggleInsight('ins-colorize')"><span class="insight-icon">&#128173;</span><span class="insight-label">THINK FIRST · COLORIZE & FILTER EXPERT INFO</span><span class="insight-toggle">&#9662;</span></div><div class="insight-body"><p class="insight-q">By default, Wireshark colorizes all tcp.analysis.flags packets with a black background and red foreground using the "Bad TCP" coloring rule. How would you make a specific Expert Info element stand out differently from other Bad TCP traffic?</p><p class="insight-q">You can filter on Expert Info severity level using expert.severity==warn. What are the four severity level filter values, and which Expert Info tab would a Zero Window Probe ACK appear under?</p></div></div>
+<div class="section-block" id="colorize">
+  <h2>Colorize &amp; Filter Expert Info Elements</h2>
+  <p>By default, Wireshark colors packets that match the <code>tcp.analysis.flags</code> coloring rule with a black background and red foreground. These packets are listed in either the Expert Info Warnings or Notes tabs. Expanding the Frame section shows the coloring rule applied. In Figure 177, the packet matches the <strong>Bad TCP</strong> coloring rule using the string <code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code>.</p>
+  <p>To create a filter based on the coloring rule name: <code>frame.coloring_rule.name=="T-Low Window Sizes"</code> displays all packets matching that specific coloring rule. You can change the colorization of Expert packets by editing the coloring rules.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig177-expand-the-frame-section-to-identify-the-coloring.png" alt="Figure 177: Expand the Frame section to identify the coloring rule applied to an Expert Info packet" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 177 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 177.</strong> Expand the Frame section to identify the coloring rule applied to an Expert Info packet</div></div>
+  <h3>Filter on TCP Expert Information</h3>
+  <p>Apply a display filter for <code>tcp.analysis.flags</code> to show packets that match the Expert Info Notes and Warnings triggers. Figure 178 shows the result — a fast method to detect TCP-based problems in any trace file.</p>
+<div class="figure-block"><div class="fig-img-wrap"><img src="../all-chapter-figures/fig178-a-display-filter-shows-tcp-problems-understand-tcp.png" alt="Figure 178: Display filter tcp.analysis.flags shows TCP problems — fast method to detect TCP issues" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fig-placeholder" style="display:none"><span class="fig-ph-icon">&#128247;</span><span>Figure 178 — open trace file to view</span></div></div><div class="fig-cap"><strong>Figure 178.</strong> Display filter tcp.analysis.flags shows TCP problems — fast method to detect TCP issues</div></div>
+  <div class="callout callout-green"><strong>BEST PRACTICE</strong> Create a Filter Expression button called "Bad TCP" with the filter <code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code>. Click it when opening any trace file to immediately locate the most common TCP-related network problems.</div>
+  <h3>Filter on Expert Severity Level</h3>
+  <p>You can create display filters for specific Expert Info severity levels:</p>
+  <pre>expert.severity==error
 expert.severity==warn
 expert.severity==note
 expert.severity==chat</pre>
+  <p>And filters for specific Expert Info groups:</p>
+  <pre>expert.group==checksum   # invalid checksum
+expert.group==sequence   # sequence number issue
+expert.group==malformed  # malformed packet or dissector bug
+expert.group==protocol   # invalid field value</pre>
+<div class="mental-note-block"><div class="mental-note-block-icon">&#129504;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">Key filter: tcp.analysis.flags shows all TCP Expert notifications (Notes + Warnings). Add && !tcp.analysis.window_update to exclude Window Updates from "Bad TCP" results. Filter by severity: expert.severity==error/warn/note/chat. Window Updates are "good packets" and should not trigger Bad TCP — this was fixed in Wireshark 1.8.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-colorize" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('colorize','Colorize & Filter Expert Info')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-colorize" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('colorize')">+ Add Note</button></div></div></div></div>
+</div>
+<div class="insight-block" id="ins-tcpexpert"><div class="insight-header" onclick="toggleInsight('ins-tcpexpert')"><span class="insight-icon">&#128173;</span><span class="insight-label">THINK FIRST · TCP EXPERT NOTIFICATIONS</span><span class="insight-toggle">&#9662;</span></div><div class="insight-body"><p class="insight-q">A Zero Window condition shuts down data transfer until the receiver sends a non-zero window update. What is the underlying cause, and what host characteristic should you focus on when troubleshooting it?</p><p class="insight-q">A "4 NOP in a row" warning indicates a router has modified TCP header options in the handshake. Why is this harmful, and how can a SACK option being stripped cause spurious retransmissions?</p></div></div>
+<div class="section-block" id="tcpexpert">
+  <h2>TCP Expert Notifications</h2>
+  <p>The TCP dissector file (packet-tcp.c) defines 15 TCP Expert notifications. "Analyze TCP Sequence Numbers" (enabled by default in TCP preferences) drives these notifications:</p>
+  <table class="def-table">
+    <thead><tr><th>Notification</th><th>Tab</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Retransmission</td><td>Notes</td><td>Same sequence number as a previous packet. Triggered by RTO expiry or 3 Duplicate ACKs.</td></tr>
+      <tr><td>Previous Segment Lost</td><td>Warnings</td><td>Expected sequence number was skipped — packet before the current one is missing.</td></tr>
+      <tr><td>ACKed Lost Packet</td><td>Warnings</td><td>ACK received for a packet Wireshark never saw — typically asymmetric routing or span port drops.</td></tr>
+      <tr><td>Keep Alive</td><td>Warnings</td><td>TCP host sends probe when keep-alive timer expires.</td></tr>
+      <tr><td>Duplicate ACK</td><td>Notes</td><td>Receiver requests a missing segment; 3 identical ACKs triggers sender to retransmit.</td></tr>
+      <tr><td>Zero Window</td><td>Warnings</td><td>Receiver has no buffer space — shuts down data transfer until Window Update received.</td></tr>
+      <tr><td>Zero Window Probe</td><td>Notes</td><td>Sender checks if Zero Window condition has resolved — contains one byte of data.</td></tr>
+      <tr><td>Zero Window Probe ACK</td><td>Notes</td><td>Response to Zero Window Probe. Acks the probe byte if window opened.</td></tr>
+      <tr><td>Keep Alive ACK</td><td>Notes</td><td>Response to Keep Alive. If window size is zero, Zero Window condition persists.</td></tr>
+      <tr><td>Out of Order</td><td>Warnings</td><td>Data packet with lower sequence number than previous — indicates multi-path routing.</td></tr>
+      <tr><td>Fast Retransmission</td><td>Notes (v1.8+)</td><td>Retransmission within 20ms of a Duplicate ACK.</td></tr>
+      <tr><td>Window Update</td><td>Chats</td><td>No data; receiver advertises larger buffer — good packet, recovery from Zero Window.</td></tr>
+      <tr><td>Window is Full</td><td>Notes</td><td>Data packet that will fill the receiver's remaining buffer — Zero Window warning.</td></tr>
+      <tr><td>TCP Ports Reused</td><td>Notes</td><td>New TCP session reusing same IP:port combination as earlier conversation — common in security scans.</td></tr>
+      <tr><td>4 NOP in a Row</td><td>Warnings</td><td>Router stripped a TCP option (e.g., SACK) from a handshake packet and replaced with 4 NOPs.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-red"><strong>WARNING</strong> If ACKed Lost Packet appears frequently in your trace file, consider discarding it. You are not seeing the full data flow — either the span port is dropping packets or Wireshark couldn't keep up. Troubleshoot from a location where you can see the complete communication.</div>
+  <p>The "4 NOP in a Row" warning means a router altered the TCP header, often stripping out SACK. This is a router bug or misconfiguration — a server that never receives the SACK option in the handshake will not use SACK with that client, causing unnecessary retransmissions when packets are lost.</p>
+<div class="mental-note-block"><div class="mental-note-block-icon">&#129504;</div><div class="mental-note-block-inner"><div class="mental-note-block-label">MENTAL NOTE</div><div class="mental-note-block-text">TCP Expert severity: Retransmission=Note, Duplicate ACK=Note, Zero Window=Warning, Out-of-Order=Warning, Window Update=Chat (it's good!). Zero Window root cause: application not pulling data from receive buffer fast enough. ACKed Lost Packet = you're missing half the flow — consider trashing the trace. 4 NOP = router stripped a TCP option, often SACK.</div></div></div><div class="lesson-tools"><div class="lesson-tools-grid"><div><div class="tool-label">Ask a Question</div><textarea class="tool-textarea" id="q-tcpexpert" placeholder="What are you unsure about?" rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addQuestion('tcpexpert','TCP Expert Notifications')">Add Question</button></div></div><div><div class="tool-label">Add a Note</div><textarea class="tool-textarea" id="note-tcpexpert" placeholder="Key insight to remember..." rows="3"></textarea><div class="tool-row"><button class="btn-add-q" onclick="addNote('tcpexpert')">+ Add Note</button></div></div></div></div>
+</div>
 
-      <p>Another display filter is available for packets that are part of a specific Expert Info group (<code>expert.group==&lt;group&gt;</code>). Some key Expert Info groups include:</p>
-      <ul>
-        <li><strong>Checksum</strong> &mdash; a checksum was invalid</li>
-        <li><strong>Sequence</strong> &mdash; sequence number was not correct or indicated a retransmission</li>
-        <li><strong>Malformed</strong> &mdash; malformed packet or dissector bug</li>
-        <li><strong>Protocol</strong> &mdash; invalid field value (possible violation of specification)</li>
-      </ul>
-
-      <div class="mental-note-block">
-        <div class="mental-note-block-icon">&#x1F9E0;</div>
-        <div class="mental-note-block-inner">
-          <div class="mental-note-block-label">MENTAL NOTE</div>
-          <div class="mental-note-block-text">4 Expert severity levels: <strong>Errors</strong> (red), <strong>Warnings</strong> (yellow), <strong>Notes</strong> (cyan), <strong>Chats</strong> (blue). The Status Bar button color = highest severity in the trace. Filter: <code>tcp.analysis.flags</code> to see all TCP Expert items at once. Best practice filter: <code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code>. Severity filters: <code>expert.severity==error/warn/note/chat</code>. Always verify Expert findings manually &mdash; automated detection has context limits.</div>
-        </div>
+<div class="section-block" id="casestudy">
+  <h2>Case Study</h2>
+  <div class="case-study-block">
+    <div class="cs-eyebrow">Case Study 1</div>
+    <div class="cs-title">Expert Info Catches Remote Access Headaches</div>
+    <div class="cs-sub">Submitted by: Guy Talbot, CISSP — Conseiller Principal en Sécurité de l'Information et Réseautique</div>
+    <div class="cs-body">
+      <p>The call center was receiving multiple complaints about slow or unavailable Internet access. All affected sites were on low-speed ADSL access and using the Internet through a web proxy service. Since the problem disappeared when bypassing the web proxy, the proxy seemed to be at fault — but 1,000 other sites using the same proxy had no issues.</p>
+      <p>Network taps and port mirroring weren't available at affected sites, so a USB drive solution was created: 250GB USB external drives with Tshark and WinPcap installed, and scripts to run Tshark as a service (called "USBTSHARK"). These captured all traffic in 200MB chunks on affected workstations.</p>
+      <p>When the traces came back, the Expert Info window eventually revealed an abnormally high number of Duplicate ACKs. Isolating affected sessions showed a pattern: the web proxy server was retransmitting the last acknowledged frame instead of the missing frame. After a few rounds of this incorrect retransmission, the workstation reset the session.</p>
+      <p>Examining a few frames back, the sessions were using the SACK option. But the SACK values in the TCP header were completely different from those in the SACK option field — the TCP sequence numbers in the header were unrelated to those in the SACK option field. Something had modified the TCP headers.</p>
+      <p>A multi-point trace with four probes along the path revealed: the TCP headers were being modified between the two WAN routers. Investigation uncovered that Cisco's Firewall blade module had a "TCP randomization" feature that replaced ISN (Initial Sequence Numbers) with "more secure" values but could NOT maintain the new sequence numbers in the SACK option field.</p>
+      <p>The "feature" could not be completely disabled. The only solution was to abandon SACK on the affected sessions.</p>
+    </div>
+    <div class="cs-img-inline">
+      <div class="cs-img-wrap">
+        <img src="../all-casestudy-pictures/C13-CS1.png" alt="Expert Info Catches Remote Access Headaches" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="cs-img-ph" style="display:none"><span class="cs-ph-icon">&#128444;</span><div><strong>C13-CS1.png</strong></div><div class="cs-ph-sub">Save to all-casestudy-pictures/C13-CS1.png</div></div>
       </div>
-
-      <div class="lesson-tools">
-        <div class="lesson-tools-grid">
-          <div>
-            <div class="tool-label">Ask a Question</div>
-            <textarea class="tool-textarea" id="q-sec-expert" placeholder="What are you unsure about?" rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-expert','Expert Info')">Add Question</button></div>
-          </div>
-          <div>
-            <div class="tool-label">Add a Note</div>
-            <textarea class="tool-textarea" id="note-sec-expert" placeholder="Key insight to remember..." rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-expert')">+ Add Note</button></div>
-          </div>
-        </div>
+      <div class="cs-prompt-row">
+        <button class="btn-cs-prompt" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">&#9662; Show cartoon prompt</button>
+        <div class="cs-prompt-text" hidden>A cartoon network architect at a workstation with four USB drives labeled "USBTSHARK" arranged on the desk. The Wireshark Expert Infos window on screen shows the Warnings tab with a huge spike of Duplicate ACK warnings — the bar chart clearly shows an abnormally high count. A network diagram shows the path: workstation → Cisco Firewall (with a red lightning bolt labeled "TCP Randomization") → WAN Router → Web Proxy. Two speech bubbles from the TCP header: "Sequence: 4141" and from the SACK option: "975687856" — visually showing the mismatch. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: Expert Infos, Duplicate ACKs, USBTSHARK, TCP Randomization, SACK Mismatch, minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.</div>
       </div>
     </div>
-
-    <!-- THINK FIRST: TCP Notifications -->
-    <div class="insight-block" id="ins-tcp">
-      <div class="insight-header" onclick="this.closest('.insight-block').classList.toggle('ins-open')">
-        <span class="insight-icon">&#x1F4AD;</span>
-        <span class="insight-label">THINK FIRST &middot; TCP EXPERT NOTIFICATIONS</span>
-      </div>
-      <p class="insight-insight">The TCP dissector defines 15 Expert notifications covering retransmissions, window problems, keep-alives, out-of-order packets, and port reuse. Understanding what triggers each one allows you to pinpoint whether a problem is at the sender, receiver, or network level.</p>
-      <ul class="insight-questions">
-        <li>What is the fundamental difference between a Retransmission (triggered by RTO expiry) and a Fast Retransmission (triggered by Duplicate ACKs)? Why does this matter for diagnosing packet loss?</li>
-        <li>A Zero Window condition points to a problem at the receiver, not the network. What specifically causes Zero Window, and what is the only recovery mechanism?</li>
-      </ul>
-      <div class="answer-area" data-section="ins-tcp">
-        <textarea class="answer-textarea" placeholder="Write your thoughts before reading on..." rows="3"></textarea>
-        <div class="answer-buttons">
-          <button class="btn-add-answer" onclick="saveSocAnswer(this)">+ Add My Answer</button>
-          <button class="btn-see-answer" onclick="revealSocAnswer(this)" disabled>&#x1F512; See Model Answer</button>
-        </div>
-        <div class="model-answers" style="display:none;">
-          <p><strong>Model Answer 1:</strong> A Retransmission occurs when the sender's TCP Retransmission Timeout (RTO) timer expires &mdash; the sender gave up waiting for an ACK and resent the segment. A Fast Retransmission occurs within 20ms of receiving three identical ACKs (the original ACK plus 2 Duplicate ACKs) &mdash; the receiver proactively asked for the missing segment. Fast Retransmissions mean the receiver detected loss before the RTO, so the gap is smaller. Both indicate packet loss but Fast Retransmission is a sign that the fast recovery mechanism is working.</p>
-          <p><strong>Model Answer 2:</strong> Zero Window occurs when the receiver's application is not reading data from the TCP receive buffer fast enough, causing the buffer to fill up completely. The receiver advertises a window size of zero, which stops the sender from sending any more data. The only recovery is a Window Update packet from the receiver &mdash; this packet carries no data but announces a non-zero window size. Until that Window Update arrives, data transfer is completely halted.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION: TCP Notifications -->
-    <div class="section-block" id="sec-tcp">
-      <h2>Understand TCP Expert Information</h2>
-      <p>The TCP dissector file, <code>packet-tcp.c</code>, lists the TCP Expert Information at the beginning of the file. The following lists the Expert Information flags defined in the file. <strong>Analyze TCP Sequence Numbers</strong> (enabled by default in TCP preferences) uses these TCP Expert notifications:</p>
-      <pre>TCP_A_RETRANSMISSION      0x0001
-TCP_A_LOST_PACKET         0x0002
-TCP_A_ACK_LOST_PACKET     0x0004
-TCP_A_KEEP_ALIVE          0x0008
-TCP_A_DUPLICATE_ACK       0x0010
-TCP_A_ZERO_WINDOW         0x0020
-TCP_A_ZERO_WINDOW_PROBE   0x0040
-TCP_A_ZERO_WINDOW_PROBE_ACK 0x0080
-TCP_A_KEEP_ALIVE_ACK      0x0100
-TCP_A_OUT_OF_ORDER        0x0200
-TCP_A_FAST_RETRANSMISSION 0x0400
-TCP_A_WINDOW_UPDATE       0x0800
-TCP_A_WINDOW_FULL         0x1000
-TCP_A_REUSED_PORTS        0x2000</pre>
-
-      <table class="def-table">
-        <thead><tr><th>Expert Notification</th><th>Tab</th><th>Trigger Condition</th></tr></thead>
-        <tbody>
-          <tr><td>Retransmission</td><td>Notes</td><td>Same sequence number as a previous packet after RTO expiry</td></tr>
-          <tr><td>Previous Segment Lost</td><td>Warnings</td><td>Expected sequence number is skipped &mdash; packet immediately after the gap</td></tr>
-          <tr><td>ACKed Lost Packet</td><td>Warnings</td><td>ACK received for a packet Wireshark has not seen (asymmetric routing)</td></tr>
-          <tr><td>Keep Alive</td><td>Warnings</td><td>Keep-alive probe sent when keep-alive timer expires</td></tr>
-          <tr><td>Duplicate ACK</td><td>Notes</td><td>ACK for already-acknowledged sequence number; requesting missing segment</td></tr>
-          <tr><td>Zero Window</td><td>Warnings</td><td>Receiver's TCP receive buffer is full; no space to accept new data</td></tr>
-          <tr><td>Zero Window Probe</td><td>Notes</td><td>Sent to check if Zero Window condition has cleared; contains 1 byte</td></tr>
-          <tr><td>Zero Window Probe ACK</td><td>Notes</td><td>Response to Zero Window Probe</td></tr>
-          <tr><td>Keep Alive ACK</td><td>Notes</td><td>Response to a Keep Alive packet</td></tr>
-          <tr><td>Out-of-Order</td><td>Warnings</td><td>Packet contains data but has a lower sequence number than previous packet</td></tr>
-          <tr><td>Fast Retransmission</td><td>Notes (1.8+)</td><td>Retransmission within 20ms of a Duplicate ACK</td></tr>
-          <tr><td>Window Update</td><td>Chats</td><td>No-data packet indicating receiver's window size has increased (good!)</td></tr>
-          <tr><td>Window is Full</td><td>Notes</td><td>Sender's next data packet will fill the remaining receiver buffer space</td></tr>
-          <tr><td>TCP Ports Reused</td><td>Notes</td><td>Same IP+port combination as an earlier conversation; common in vulnerability scans</td></tr>
-          <tr><td>4 NOP in a Row</td><td>Warnings</td><td>Pattern 01:01:01:01 in TCP SYN; router likely removed a TCP option (e.g., SACK)</td></tr>
-        </tbody>
-      </table>
-
-      <h3>Key TCP Expert Concepts</h3>
-
-      <h3>What Triggers Duplicate ACK?</h3>
-      <p>A receiver tracks incoming TCP sequence numbers. If a packet is detected as missing (the expected sequence number is skipped), the receiver generates an ACK indicating the next expected sequence number. A TCP host that supports Fast Recovery will continue to generate Duplicate ACKs. When the sender receives three identical ACKs (the original ACK and two Duplicate ACKs), it assumes there is packet loss and resends the missing packet regardless of whether the RTO expired. A high number of Duplicate ACKs may also indicate high latency.</p>
-
-      <h3>What Triggers Zero Window?</h3>
-      <p>When a receiver has no receive buffer space available, it sends Zero Window packets indicating the TCP window size is zero. This shuts down data transfer to the receiver. Data transfer will not resume until the receiver sends a Window Update packet with a sufficient window size. The underlying cause is an application that is not pulling data out of the receive buffer fast enough &mdash; this might be caused by an underpowered system, too many CPU-intensive applications, or a slow application.</p>
-
-      <h3>What Triggers Out-of-Order?</h3>
-      <p>Out-of-order packets often indicate that data traffic travels along multiple paths to get to the destination. Data streams traveling along multiple paths may encounter different latency times, triggering unnecessary retransmissions if a receiver times out waiting for a packet. These indications can also be seen when a queuing device does not forward packets in the same order in which they arrived.</p>
-
-      <h3>What Triggers Window Update?</h3>
-      <p>A Window Update packet contains no data but indicates that the sender's TCP window size field value has increased. These are actually good packets &mdash; a client just advertised a larger receive buffer space, indicating an application picked up some data from the receive buffer. Window Updates are the only recovery for a Zero Window condition.</p>
-
-      <div class="callout callout-amber"><strong>CAUTION</strong> Prior to Wireshark 1.8, Window Updates were colorized as Bad TCP when they are actually good events. As of Wireshark 1.8, the Bad TCP coloring rule explicitly excludes Window Updates: <code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code>.</div>
-
-      <h3>What Triggers 4 NOP in a Row?</h3>
-      <p>"4 NOP in a row &mdash; a router may have removed some options" is triggered when Wireshark sees the illogical pattern <code>01:01:01:01</code> (4 NOPs) in a TCP SYN or SYN/ACK packet. A NOP is used to pad a TCP option so it ends on a 4-byte boundary. This is typically a router issue &mdash; a router has likely stripped off a TCP header option (such as Selective ACK) and replaced it with 4 NOPs. A server may believe a client does not support SACK because the option was wiped out in the TCP handshake.</p>
-      <p>You can create a coloring rule to identify these packets: <code>tcp.options contains 00:00:00:00</code></p>
-
-      <div class="callout callout-blue"><strong>TIP</strong> To disable the Expert feature, disable <strong>Analyze TCP sequence numbers</strong> in the TCP preferences. Note that your filter for <code>tcp.analysis.flags</code> will yield no results when this is disabled.</div>
-
-      <div class="mental-note-block">
-        <div class="mental-note-block-icon">&#x1F9E0;</div>
-        <div class="mental-note-block-inner">
-          <div class="mental-note-block-label">MENTAL NOTE</div>
-          <div class="mental-note-block-text"><strong>Warnings</strong>: Previous Segment Lost, ACKed Lost Packet, Keep Alive, Zero Window, Out-of-Order, 4 NOP. <strong>Notes</strong>: Retransmission, Duplicate ACK, Zero Window Probe, Keep Alive ACK, Fast Retransmission (1.8+), Window is Full, TCP Ports Reused. <strong>Chats</strong>: Window Update (good &mdash; buffer freed). Zero Window = receiver application problem. Previous Segment Lost = network packet loss. Fast Retransmission = within 20ms of Duplicate ACK.</div>
-        </div>
-      </div>
-
-      <div class="lesson-tools">
-        <div class="lesson-tools-grid">
-          <div>
-            <div class="tool-label">Ask a Question</div>
-            <textarea class="tool-textarea" id="q-sec-tcp" placeholder="What are you unsure about?" rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addQuestion('sec-tcp','TCP Notifications')">Add Question</button></div>
-          </div>
-          <div>
-            <div class="tool-label">Add a Note</div>
-            <textarea class="tool-textarea" id="note-sec-tcp" placeholder="Key insight to remember..." rows="3"></textarea>
-            <div class="tool-row"><button class="btn-add-q" onclick="addNote('sec-tcp')">+ Add Note</button></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CASE STUDY -->
-    <div class="section-block" id="sec-casestudy">
-      <h2>Case Studies</h2>
-
-      <div class="case-study-block">
-        <div class="cs-eyebrow">Case Study 1</div>
-        <div class="cs-title">Expert Info Catches Remote Access Headaches</div>
-        <div class="cs-sub">Submitted by: Guy Talbot, CISSP, Conseiller Principal en S&eacute;curit&eacute; de l&rsquo;Information et R&eacute;seautique</div>
-        <div class="cs-body">
-          <p>I am a network architect for a large organization. Our network consists of close to 2,000 sites and includes more than 100,000 workstations. I am usually not involved in network incidents unless: (1) things really get out of hand; (2) nobody else can figure out what is happening; or (3) my boss decides I need to get involved.</p>
-          <p>A technician came into my office indicating that the call center is receiving multiple complaints from users stating that Internet access is very slow or is not available at all. Level 1 and 2 technicians and even the network analysts couldn't understand the causes. All the affected sites are on low speed (ADSL) access and are using the Internet through a web proxy service. Level 1 technicians are already using the bypass option as a workaround, so this is a situation where I needed to get involved.</p>
-          <p>The local networks could almost certainly be eliminated as the cause because everything was fine when bypassing the web proxy service. But approximately 1,000 sites were still using the web proxy without issues. So we had a selective network problem.</p>
-          <p>We deployed "USBTSHARK" &mdash; USB drives with TShark and WinPcap configured as a service on Windows workstations, capturing all traffic in 200MB chunks. We sent these to local administrators at affected sites.</p>
-          <p>Looking at the different tabs of the Expert Info, I eventually came across an oddity &mdash; the number of Duplicate ACKs was a little on the high side. When I isolated the impacted sessions, I noticed that the Duplicate ACKs indicated lost frames and sometimes the lost frames were eventually resent and acknowledged. In certain situations, however, the web proxy server retransmitted the last <em>acknowledged</em> frame instead of retransmitting the <em>lost</em> frame. After a few rounds of this, the workstation would reset the session.</p>
-          <p>Analysis of the TCP header showed the session was using the SACK option. But the values of the TCP sequence numbers in the TCP header and those in the SACK option field were completely different &mdash; the Acknowledgement number was 4141, but the left and right edges in the SACK option were 975,687,856 and 975,690,616.</p>
-          <p>A multi-point trace revealed that the TCP headers were being modified between the two WAN routers. The WAN operator eventually confirmed that Cisco's Firewall blade module had a feature called "TCP randomization" designed to mitigate ISN vulnerability (RFC 793). This feature replaced ISNs with "more secure" ISNs but could not maintain the new sequence numbers in the SACK option field. The result: the proxy server received contradicting information about which frames had been received and repeatedly retransmitted the wrong segment. The TCP randomization feature could not be fully disabled in this configuration.</p>
-          <p>Note from Laura: For more information on Selective ACK (SACK), refer to Chapter 20. For details on the TCP randomization feature, visit www.cisco.com/warp/public/707/cisco-sa-20010301-ios-tcp-isn-random.shtml.</p>
-        </div>
-        <div class="cs-img-inline">
-          <div class="cs-img-wrap">
-            <img src="../all-casestudy-pictures/C13-CS1.png" alt="Expert Info Catches Remote Access Headaches"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-            <div class="cs-img-ph" style="display:none">
-              <span class="cs-ph-icon">&#x1F5BC;&#xFE0F;</span>
-              <div><strong>C13-CS1.png</strong></div>
-              <div class="cs-ph-sub">Save to all-casestudy-pictures/C13-CS1.png</div>
-            </div>
-          </div>
-          <div class="cs-prompt-row">
-            <button class="btn-cs-prompt"
-              onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden;this.textContent=this.nextElementSibling.hidden?'&#9662; Show cartoon prompt':'&#9652; Hide cartoon prompt'">
-              &#9662; Show cartoon prompt
-            </button>
-            <div class="cs-prompt-text" hidden>
-              A split-scene cartoon. On the left: a large corporate network diagram showing 2,000 sites connected via WAN links, with a Cisco Firewall Blade module highlighted in orange in the middle of the path between a workstation and a web proxy server. On the right: a close-up of a Wireshark Expert Info window with the Warnings tab open showing hundreds of "Duplicate ACK" entries. A speech bubble from the analyst reads "The SACK fields don't match the TCP sequence numbers!" A callout arrow points to the Cisco firewall with the label "TCP Randomization Feature." A second callout shows two numbers: "ACK: 4141" and "SACK Edge: 975,687,856" with a big red X between them. Flat simple cartoon style, bold outlines, bright colours. Minimal text labels: "Web Proxy," "Cisco Firewall Blade," "TCP Randomization," "Duplicate ACKs," "SACK Mismatch," minimal text labels only where needed, educational infographic feel, modern tech-analogy aesthetic.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TL;DR -->
-    <div class="section-block" id="sec-tldr">
-      <div class="tldr-block">
-        <div class="tldr-label">TL;DR &mdash; Chapter Summary</div>
-        <div class="tldr-text">
-          <p>Wireshark's Expert System offers a quick look at traffic that hints of network problems or unusual activity. There are six sections in the Expert System: Errors, Warnings, Notes, Chats, Details and Packet Comments. The Expert Info button on the Status Bar indicates the highest level of Expert notification triggered in the trace file. Clicking on this button is the fastest way to launch the Expert Infos window.</p>
-          <p>Expert Info details for a protocol are maintained in the protocol's dissector. TCP has the largest number of Expert notifications defined at this time. To view all the TCP Expert notifications, apply a display filter for <code>tcp.analysis.flags</code>. By default, Wireshark has a coloring rule for this traffic.</p>
-          <p>You should always verify problems identified by the Expert System.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- REVIEW QUESTIONS -->
-    <div class="section-block" id="sec-rq">
-      <h2>Review Questions</h2>
-
-      <div class="rq-card" id="rq-13-1">
-        <div class="rq-question">Q13.1 What is the fastest way to launch the Expert Infos window?</div>
-        <div class="rq-answer-area">
-          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
-          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
-        </div>
-        <div class="rq-answer" style="display:none">
-          <strong>A13.1</strong> Click on the Expert Info button on Wireshark's Status Bar.
-        </div>
-      </div>
-
-      <div class="rq-card" id="rq-13-2">
-        <div class="rq-question">Q13.2 How can you make specific Expert Info elements stand out in the Packet List pane?</div>
-        <div class="rq-answer-area">
-          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
-          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
-        </div>
-        <div class="rq-answer" style="display:none">
-          <strong>A13.2</strong> By default, Wireshark colors all Expert Info elements with a black background and red foreground. You can make specific Expert Info elements stand out by creating a coloring rule for the element (e.g., <code>tcp.analysis.retransmission</code>) and placing it above the Bad TCP coloring rule.
-        </div>
-      </div>
-
-      <div class="rq-card" id="rq-13-3">
-        <div class="rq-question">Q13.3 How can you filter on all packets that trigger TCP Expert notifications?</div>
-        <div class="rq-answer-area">
-          <textarea class="rq-textarea" placeholder="Your answer..." rows="2"></textarea>
-          <button class="btn-rq-reveal" onclick="revealRQ(this)">Reveal Answer</button>
-        </div>
-        <div class="rq-answer" style="display:none">
-          <strong>A13.3</strong> Apply a display filter for <code>tcp.analysis.flags</code> to filter on all TCP Expert notifications.
-        </div>
-      </div>
-
-    </div>
-
-  </div><!-- end main-content -->
-
-  <div class="sidebar">
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Navigation</div>
-      <a class="sidebar-link" href="../hub.html">&larr; Study Guide Hub</a>
-      <a class="sidebar-link" href="index.html">Practice Lab</a>
-    </div>
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Quick Reference</div>
-      <div class="quick-ref">
-        <div class="qr-term">Open Expert Info</div>
-        <div class="qr-def">Click Expert Info button on Status Bar, or Analyze | Expert Info</div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Filter All TCP Issues</div>
-        <div class="qr-def"><code>tcp.analysis.flags</code></div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Best Bad TCP Filter</div>
-        <div class="qr-def"><code>tcp.analysis.flags &amp;&amp; !tcp.analysis.window_update</code></div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Severity Filter</div>
-        <div class="qr-def"><code>expert.severity==error/warn/note/chat</code></div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Zero Window</div>
-        <div class="qr-def">Receiver buffer full; application too slow. Only fix: Window Update from receiver</div>
-      </div>
-      <div class="quick-ref">
-        <div class="qr-term">Fast Retransmission</div>
-        <div class="qr-def">Within 20ms of Duplicate ACK; receiver detected loss before RTO expired</div>
-      </div>
-    </div>
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Progress</div>
-      <div class="ins-prog-count" id="ins-prog-count">0 / 5 complete</div>
-      <div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div>
-      <div style="margin-top:12px">
-        <label class="check-item"><input type="checkbox" id="chk-expert" onchange="toggleDone('expert')"> Expert Info</label>
-        <label class="check-item"><input type="checkbox" id="chk-tcp" onchange="toggleDone('tcp')"> TCP Notifications</label>
-        <label class="check-item"><input type="checkbox" id="chk-casestudy" onchange="toggleDone('casestudy')"> Case Study</label>
-        <label class="check-item"><input type="checkbox" id="chk-rq" onchange="toggleDone('rq')"> Review Questions</label>
-      </div>
-    </div>
-  </div>
-</main>
-
-<div class="practice-cta">
-  <div class="cta-inner">
-    <div class="cta-text">Ready to practice with real traffic?</div>
-    <a href="index.html" class="cta-btn">Open Practice Lab &rarr;</a>
   </div>
 </div>
 
-<footer>
-  <div class="footer-inner">
-    <span>Wireshark Network Analysis &mdash; Chapter 13</span>
-    <span>Use Wireshark's Expert System</span>
+<div class="section-block" id="tldr">
+  <div class="tldr-block">
+    <div class="tldr-label">TL;DR &#8212; Chapter Summary</div>
+    <p>Wireshark's Expert System offers a quick look at traffic that hints of network problems or unusual activity. There are six sections in the Expert System: Errors, Warnings, Notes, Chats, Details and Packet Comments. The Expert Info button on the Status Bar indicates the highest level of Expert notification triggered in the trace file.</p>
+    <p>Expert Info details for a protocol are maintained in the protocol's dissector. TCP has the largest number of Expert notifications. To view all TCP Expert notifications, apply a display filter for <code>tcp.analysis.flags</code>. By default, Wireshark has a coloring rule for this traffic. You should always verify problems identified by the Expert System.</p>
   </div>
-</footer>
+</div>
 
+<div class="section-block" id="rq">
+  <h2>Review Questions</h2>
+  <div class="rq-card" id="rq-13-1"><div class="rq-q">Q13.1 What is the fastest way to launch the Expert Infos window?</div><div class="rq-a" hidden><p>Click on the Expert Info button on Wireshark's Status Bar.</p></div><button class="btn-rq-toggle" onclick="toggleRQ('rq-13-1',this)">Show Answer</button></div>
+  <div class="rq-card" id="rq-13-2"><div class="rq-q">Q13.2 How can you make specific Expert Info elements stand out in the Packet List pane?</div><div class="rq-a" hidden><p>By default, Wireshark colors all Expert Info elements with a black background and red foreground. You can make specific Expert Info elements stand out by creating a coloring rule for the element (e.g., tcp.analysis.retransmission) and placing it above the Bad TCP coloring rule.</p></div><button class="btn-rq-toggle" onclick="toggleRQ('rq-13-2',this)">Show Answer</button></div>
+  <div class="rq-card" id="rq-13-3"><div class="rq-q">Q13.3 How can you filter on all packets that trigger TCP Expert notifications?</div><div class="rq-a" hidden><p>Apply a display filter for tcp.analysis.flags to filter on all TCP Expert notifications.</p></div><button class="btn-rq-toggle" onclick="toggleRQ('rq-13-3',this)">Show Answer</button></div>
+</div>
+</div>
+<div class="sidebar">
+  <div class="sidebar-card"><div class="sidebar-card-title">Navigation</div><a href="../index.html" class="sidebar-link">&#8592; Chapter Hub</a><a href="index.html" class="sidebar-link">Practice Lab</a></div>
+  <div class="sidebar-card"><div class="sidebar-card-title">Quick Reference</div>
+    <div class="quick-ref"><div class="qr-term">Expert Info Colors</div><div class="qr-def">Red=Error, Yellow=Warning, Cyan=Note, Blue=Chat, Green=Comment, Grey=None. Status Bar shows highest severity.</div></div>
+    <div class="quick-ref"><div class="qr-term">tcp.analysis.flags</div><div class="qr-def">Display filter showing ALL TCP Expert Notes and Warnings. Add && !tcp.analysis.window_update for "Bad TCP" only.</div></div>
+    <div class="quick-ref"><div class="qr-term">Zero Window</div><div class="qr-def">Receiver has no buffer space — data transfer halts. Cause: app not pulling data fast enough. Recovery via Window Update (Chat).</div></div>
+    <div class="quick-ref"><div class="qr-term">ACKed Lost Packet</div><div class="qr-def">ACK for a packet never seen — asymmetric routing or span port drops. Consider discarding the trace file.</div></div>
+    <div class="quick-ref"><div class="qr-term">4 NOP Warning</div><div class="qr-def">Router stripped a TCP option (usually SACK) from the handshake and replaced with 4 NOPs. Bad router behavior.</div></div>
+  </div>
+  <div class="sidebar-card"><div class="sidebar-card-title">Progress</div><div class="ins-prog-count" id="ins-prog-count">0 / 6 completed</div><div class="ins-prog-bar"><div class="ins-prog-fill" id="ins-prog-fill" style="width:0%"></div></div></div>
+</div>
+</main>
+<div class="practice-cta"><div class="cta-inner"><div class="cta-title">Ready to Practice?</div><div class="cta-sub">Open the practice lab to analyze Expert Info in real trace files.</div><a href="index.html" class="btn-cta">Open Practice Lab &#8594;</a></div></div>
+<footer><div class="footer-inner"><span>Wireshark Network Analysis &#8212; Chapter 13</span><span>Use Wireshark's Expert System</span></div></footer>
 <script>
-const PAGE_KEY = 'ws-ch13-full';
-const SECTIONS = {
-  'sec-expert': 'Expert Info',
-  'sec-tcp': 'TCP Notifications',
-  'sec-casestudy': 'Case Study',
-  'sec-tldr': 'TL;DR',
-  'sec-rq': 'Review Questions'
-};
-const INSIGHT_IDS = ['ins-expert', 'ins-tcp'];
-const RQ_IDS = ['13-1', '13-2', '13-3'];
-const TOTAL = INSIGHT_IDS.length + RQ_IDS.length;
+const PAGE_KEY='ws-ch13-full';
+const SECTIONS={'expert':'Expert Information Basics','colorize':'Colorize & Filter Expert Info','tcpexpert':'TCP Expert Notifications','casestudy':'Case Study','tldr':'TL'DR','rq':'Review Questions'};
+const INSIGHT_IDS=['ins-expert','ins-colorize','ins-tcpexpert'];
+const RQ_IDS=['13-1','13-2','13-3'];
+const TOTAL=6;
+function getQArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-q')||'[]');}
+function saveQArr(a){localStorage.setItem(PAGE_KEY+'-q',JSON.stringify(a));}
+function addQuestion(key,label){const ta=document.getElementById('q-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getQArr();a.push({id:Date.now(),section:key,sectionName:label||key,text:t});saveQArr(a);if(ta)ta.value='';renderQPanel();if(!document.getElementById('qpanel-body').classList.contains('open'))toggleQPanel();}
+function deleteQuestion(id){saveQArr(getQArr().filter(q=>q.id!==id));renderQPanel();}
+function toggleQPanel(){const b=document.getElementById('qpanel-body'),h=document.getElementById('qpanel-header'),c=document.getElementById('qpanel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-qp-open',o);}
+function renderQPanel(){const a=getQArr();const ct=document.getElementById('qpanel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.qpanel-hint');if(hi)hi.textContent=a.length?`— ${a.length} question${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('qpanel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No questions yet.</p>';return;}const groups={};Object.keys(SECTIONS).forEach(k=>groups[k]=[]);a.forEach(q=>{if(groups[q.section])groups[q.section].push(q);});let h='',n=0;Object.entries(groups).forEach(([k,items])=>{if(!items.length)return;h+=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-muted);margin:10px 0 4px;text-transform:uppercase">${SECTIONS[k]||k}</div>`;items.forEach(q=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${q.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteQuestion(${q.id})">✕</button></div>`;});});b.innerHTML=h;}
+function getNArr(){return JSON.parse(localStorage.getItem(PAGE_KEY+'-notes')||'[]');}
+function saveNArr(a){localStorage.setItem(PAGE_KEY+'-notes',JSON.stringify(a));}
+function addNote(key){const ta=document.getElementById('note-'+key);const t=ta?ta.value.trim():'';if(!t){if(ta)ta.focus();return;}const a=getNArr();a.push({id:Date.now(),section:key,text:t});saveNArr(a);if(ta)ta.value='';renderNotesPanel();if(!document.getElementById('notes-panel-body').classList.contains('open'))toggleNotesPanel();}
+function deleteNote(id){saveNArr(getNArr().filter(n=>n.id!==id));renderNotesPanel();}
+function toggleNotesPanel(){const b=document.getElementById('notes-panel-body'),h=document.getElementById('notes-panel-header'),c=document.getElementById('notes-panel-chevron'),o=b.classList.toggle('open');h.classList.toggle('open',o);c.textContent=o?'▴':'▾';localStorage.setItem(PAGE_KEY+'-np-open',o);}
+function renderNotesPanel(){const a=getNArr();const ct=document.getElementById('notes-panel-count');if(ct){ct.textContent=a.length;ct.style.display=a.length?'inline':'none';}const hi=document.querySelector('.notes-panel-hint');if(hi)hi.textContent=a.length?`— ${a.length} note${a.length>1?'s':''}, click to expand`:'— click to expand';const b=document.getElementById('notes-panel-body');if(!b)return;if(!a.length){b.innerHTML='<p class="no-questions">No notes yet.</p>';return;}let h='',n=0;a.forEach(note=>{n++;h+=`<div class="q-item"><div class="q-num">${n}</div><div class="q-text">${note.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div><button class="q-del" onclick="deleteNote(${note.id})">✕</button></div>`;});b.innerHTML=h;}
+function toggleInsight(id){const block=document.getElementById(id);if(!block)return;block.classList.toggle('ins-open');}
+function saveIns(id){const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('savebtn-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const mb=document.getElementById('mibtn-'+id);if(mb){mb.disabled=false;mb.textContent='💡 Model Answer';}updateInsProgress();}
+function toggleInsHint(id){const el=document.getElementById('hint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleInsModel(id){const mb=document.getElementById('mibtn-'+id);if(mb&&mb.disabled)return;const el=document.getElementById('model-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveRQ(id){const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(!ta||!ta.value.trim()){if(ta)ta.focus();return;}localStorage.setItem(PAGE_KEY+'-rq-'+id,ta.value);ta.disabled=true;const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='✓ Saved';sb.disabled=true;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='inline';updateInsProgress();}
+function resetRQ(id){localStorage.removeItem(PAGE_KEY+'-rq-'+id);const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');if(ta){ta.value='';ta.disabled=false;}const sb=document.getElementById('rqsave-'+id);if(sb){sb.textContent='Save Answer';sb.disabled=false;}const ab=document.getElementById('ansbtn-'+id);if(ab){ab.disabled=true;ab.textContent='🔒 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb)rb.style.display='none';const ah=document.getElementById('rqans-'+id);if(ah)ah.style.display='none';updateInsProgress();}
+function toggleRQHint(id){const el=document.getElementById('rqhint-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleRQAns(id){const ab=document.getElementById('ansbtn-'+id);if(ab&&ab.disabled)return;const el=document.getElementById('rqans-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function updateInsProgress(){let c=0;INSIGHT_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-'+k))c++;});RQ_IDS.forEach(k=>{if(localStorage.getItem(PAGE_KEY+'-rq-'+k))c++;});const el=document.getElementById('ins-prog-count');if(el)el.textContent=c+' / '+TOTAL+' answered';const bar=document.getElementById('ins-prog-bar');if(bar)bar.style.width=(TOTAL?Math.round(c/TOTAL*100):0)+'%';}
+function navTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function initSectionNav(){const tabs=document.querySelectorAll('.nav-tab');if(!tabs.length)return;const sections=[...tabs].map(t=>document.getElementById(t.dataset.target)).filter(Boolean);function onScroll(){let active=0;sections.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<=120)active=i;});tabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}window.addEventListener('scroll',onScroll,{passive:true});onScroll();}
+function initPT(){document.querySelectorAll('a[href]').forEach(function(a){if(a.href&&!a.href.startsWith('#')&&a.target!=='_blank'){a.addEventListener('click',function(e){sessionStorage.setItem('pt','1');document.body.style.opacity='0';document.body.style.transition='opacity .22s';setTimeout(function(){window.location=a.href;},220);e.preventDefault();});}});setTimeout(function(){document.body.style.transition='opacity .3s';document.body.style.opacity='1';},10);}
+function toggleFigure(fig){const open=fig.classList.toggle("fig-expanded");const wrap=fig.querySelector(".fig-img-wrap,.cs-img-wrap");if(wrap)wrap.setAttribute("aria-label",open?"Collapse image":"Expand image");}
+function initFigures(){document.querySelectorAll(".figure-block,.cs-img-inline").forEach(function(fig){const wrap=fig.querySelector(".fig-img-wrap,.cs-img-wrap");if(!wrap)return;wrap.setAttribute("role","button");wrap.setAttribute("tabindex","0");wrap.setAttribute("aria-label","Expand image");wrap.addEventListener("click",function(){toggleFigure(fig);});wrap.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleFigure(fig);}});});}
 
-document.querySelectorAll('.insight-header').forEach(h => {
-  h.addEventListener('click', () => h.closest('.insight-block').classList.toggle('ins-open'));
-});
-
-function saveSocAnswer(btn) {
-  const area = btn.closest('.answer-area');
-  const ta = area.querySelector('.answer-textarea');
-  if (!ta.value.trim()) return;
-  const key = PAGE_KEY + '-soc-' + area.dataset.section;
-  localStorage.setItem(key, ta.value);
-  area.querySelector('.btn-see-answer').disabled = false;
-  btn.textContent = '&#x2713; Saved';
-  updateProgress();
-}
-
-function revealSocAnswer(btn) {
-  const area = btn.closest('.answer-area');
-  const ma = area.querySelector('.model-answers');
-  ma.style.display = ma.style.display === 'none' ? 'block' : 'none';
-  btn.textContent = ma.style.display === 'none' ? '&#x1F512; See Model Answer' : '&#x25B4; Hide Answer';
-}
-
-function toggleQPanel() {
-  const body = document.getElementById('q-panel-body');
-  const tog = document.getElementById('q-panel-toggle');
-  const open = body.style.display !== 'none';
-  body.style.display = open ? 'none' : 'block';
-  tog.textContent = open ? '&#9662;' : '&#9652;';
-}
-
-function renderQPanel() {
-  const raw = localStorage.getItem(PAGE_KEY + '-questions') || '[]';
-  const qs = JSON.parse(raw);
-  const list = document.getElementById('q-list');
-  const empty = document.getElementById('q-empty');
-  list.innerHTML = '';
-  if (qs.length === 0) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  qs.forEach((q, i) => {
-    const div = document.createElement('div');
-    div.className = 'q-item';
-    div.innerHTML = '<span class="q-section-tag">' + q.section + '</span><span class="q-text">' + q.text + '</span><button class="q-del" onclick="deleteQuestion(' + i + ')">&#xD7;</button>';
-    list.appendChild(div);
+document.addEventListener('DOMContentLoaded',function(){
+  renderQPanel();renderNotesPanel();initSectionNav();initFigures();initPT();updateInsProgress();
+  if(localStorage.getItem(PAGE_KEY+'-qp-open')==='true')toggleQPanel();
+  if(localStorage.getItem(PAGE_KEY+'-np-open')==='true')toggleNotesPanel();
+  INSIGHT_IDS.forEach(function(id){
+    const ta=document.querySelector('.ins-ta[data-key="'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('savebtn-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const mb=document.getElementById('mibtn-'+id);if(mb&&sv&&sv.trim()){mb.disabled=false;mb.textContent='💡 Model Answer';}
   });
-}
-
-function addQuestion(secId, secName) {
-  const ta = document.getElementById('q-' + secId);
-  if (!ta || !ta.value.trim()) return;
-  const key = PAGE_KEY + '-questions';
-  const qs = JSON.parse(localStorage.getItem(key) || '[]');
-  qs.push({ section: secName, text: ta.value.trim() });
-  localStorage.setItem(key, JSON.stringify(qs));
-  ta.value = '';
-  renderQPanel();
-}
-
-function deleteQuestion(i) {
-  const key = PAGE_KEY + '-questions';
-  const qs = JSON.parse(localStorage.getItem(key) || '[]');
-  qs.splice(i, 1);
-  localStorage.setItem(key, JSON.stringify(qs));
-  renderQPanel();
-}
-
-function addNote(secId) {
-  const ta = document.getElementById('note-' + secId);
-  if (!ta || !ta.value.trim()) return;
-  localStorage.setItem(PAGE_KEY + '-note-' + secId, ta.value);
-  ta.style.borderColor = '#22c55e';
-  setTimeout(() => ta.style.borderColor = '', 1200);
-}
-
-function navTo(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  const keys = Object.keys(SECTIONS);
-  const idx = keys.indexOf(id);
-  const tabs = document.querySelectorAll('.nav-tab');
-  if (tabs[idx]) tabs[idx].classList.add('active');
-}
-
-function toggleDone(id) {
-  localStorage.setItem(PAGE_KEY + '-chk-' + id, document.getElementById('chk-' + id).checked ? '1' : '');
-}
-
-function updateProgress() {
-  let done = 0;
-  INSIGHT_IDS.forEach(id => {
-    if (localStorage.getItem(PAGE_KEY + '-soc-' + id)) done++;
+  RQ_IDS.forEach(function(id){
+    const ta=document.querySelector('.rq-ta[data-key="rq-'+id+'"]');
+    const sv=localStorage.getItem(PAGE_KEY+'-rq-'+id);
+    if(ta&&sv){ta.value=sv;ta.disabled=true;}
+    const sb=document.getElementById('rqsave-'+id);if(sb&&sv){sb.textContent='✓ Saved';sb.disabled=true;}
+    const ab=document.getElementById('ansbtn-'+id);if(ab&&sv&&sv.trim()){ab.disabled=false;ab.textContent='💡 See Answer';}const rb=document.getElementById('resetbtn-'+id);if(rb&&sv)rb.style.display='inline';
   });
-  RQ_IDS.forEach(id => {
-    if (localStorage.getItem(PAGE_KEY + '-rq-' + id)) done++;
-  });
-  document.getElementById('ins-prog-count').textContent = done + ' / ' + TOTAL + ' complete';
-  document.getElementById('ins-prog-fill').style.width = Math.round(done / TOTAL * 100) + '%';
-}
-
-function revealRQ(btn) {
-  const card = btn.closest('.rq-card');
-  const ans = card.querySelector('.rq-answer');
-  const ta = card.querySelector('.rq-textarea');
-  const id = card.id.replace('rq-', '');
-  ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
-  btn.textContent = ans.style.display === 'none' ? 'Reveal Answer' : 'Hide Answer';
-  if (ta.value.trim()) {
-    localStorage.setItem(PAGE_KEY + '-rq-' + id, ta.value);
-    updateProgress();
-  }
-}
-
-function initNotes() {
-  const gn = document.getElementById('global-notes');
-  gn.value = localStorage.getItem(PAGE_KEY + '-global-notes') || '';
-  gn.addEventListener('input', () => localStorage.setItem(PAGE_KEY + '-global-notes', gn.value));
-  Object.keys(SECTIONS).forEach(secId => {
-    const saved = localStorage.getItem(PAGE_KEY + '-note-' + secId);
-    const ta = document.getElementById('note-' + secId);
-    if (ta && saved) ta.value = saved;
-  });
-  INSIGHT_IDS.forEach(id => {
-    const saved = localStorage.getItem(PAGE_KEY + '-soc-' + id);
-    if (saved) {
-      const block = document.getElementById(id);
-      if (!block) return;
-      const ta = block.querySelector('.answer-textarea');
-      const btn = block.querySelector('.btn-see-answer');
-      if (ta) ta.value = saved;
-      if (btn) btn.disabled = false;
-    }
-  });
-}
-
-function toggleFigure(fig){const open=fig.classList.toggle('fig-expanded');const wrap=fig.querySelector('.fig-img-wrap');if(wrap)wrap.setAttribute('aria-label',open?'Collapse figure':'Expand figure');}
-function initFigures(){document.querySelectorAll('.figure-block').forEach(function(fig){const wrap=fig.querySelector('.fig-img-wrap');if(!wrap)return;wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');wrap.setAttribute('aria-label','Expand figure');wrap.addEventListener('click',function(){toggleFigure(fig);});wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFigure(fig);}});});}
-
-function initChecks() {
-  ['expert','tcp','casestudy','rq'].forEach(id => {
-    const el = document.getElementById('chk-' + id);
-    if (el) el.checked = !!localStorage.getItem(PAGE_KEY + '-chk-' + id);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initNotes();
-  initChecks();
-  initFigures();
-  renderQPanel();
-  updateProgress();
-  document.body.style.opacity = '1';
-  sessionStorage.setItem('pt', '1');
 });
 </script>
 </body>
